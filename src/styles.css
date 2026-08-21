@@ -1,0 +1,83 @@
+/* You can add global styles to this file, and also import other style files */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #f4f6f8;
+  color: #1f2937;
+}
+
+.auth-card {
+  max-width: 360px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.auth-card h1 {
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-card label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.auth-card input,
+.auth-card textarea,
+.auth-card select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.auth-card button,
+.page button.primary {
+  padding: 0.55rem 1rem;
+  background: #1e3a5f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.auth-card button:hover,
+.page button.primary:hover {
+  background: #16304d;
+}
+
+.auth-card .error {
+  color: #b91c1c;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.auth-card .switch {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}

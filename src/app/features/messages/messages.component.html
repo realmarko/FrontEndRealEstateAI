@@ -1,0 +1,37 @@
+<div class="page">
+  <h1>Messages</h1>
+
+  @if (conversations().length) {
+    <div class="layout">
+      <ul class="conversation-list">
+        @for (conversation of conversations(); track conversation.id) {
+          <li>
+            <button
+              type="button"
+              [class.active]="conversation.id === selectedId()"
+              (click)="select(conversation)"
+            >
+              {{ conversation.listingTitle }}
+              <span class="count">{{ conversation.messages.length }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+
+      <div class="thread">
+        @if (selected(); as conversation) {
+          @for (message of conversation.messages; track message.id) {
+            <div class="message">
+              <strong>{{ message.senderName }}</strong>
+              <p>{{ message.body }}</p>
+            </div>
+          }
+        } @else {
+          <p class="empty">Select a conversation to view messages.</p>
+        }
+      </div>
+    </div>
+  } @else {
+    <p class="empty">No messages yet. <a routerLink="/listings">Browse listings</a> and contact an owner.</p>
+  }
+</div>

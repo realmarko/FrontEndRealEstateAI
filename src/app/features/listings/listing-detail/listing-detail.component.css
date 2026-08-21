@@ -1,0 +1,122 @@
+.back {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: #1e3a5f;
+  text-decoration: none;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 2rem;
+}
+
+.layout img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  max-height: 420px;
+}
+
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.info h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.6rem;
+}
+
+.fav {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+}
+
+.fav.active {
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0.2rem 0;
+}
+
+.address {
+  color: #4b5563;
+  margin: 0.2rem 0;
+}
+
+.meta {
+  color: #6b7280;
+  margin: 0.2rem 0 1rem;
+}
+
+.description {
+  line-height: 1.5;
+}
+
+.owner-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.primary-link {
+  background: #1e3a5f;
+  color: #fff;
+  text-decoration: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.danger {
+  background: #fff;
+  border: 1px solid #b91c1c;
+  color: #b91c1c;
+  border-radius: 4px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+}
+
+.contact {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.contact textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-family: inherit;
+  margin-bottom: 0.5rem;
+}
+
+.contact .primary {
+  background: #1e3a5f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.contact .sent {
+  color: #15803d;
+}
+
+@media (max-width: 720px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}

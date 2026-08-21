@@ -1,0 +1,57 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #1e3a5f;
+  color: #fff;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+}
+
+.links a,
+.session a {
+  color: #d7e3f2;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.links a.active,
+.session a.active {
+  color: #fff;
+  font-weight: 600;
+}
+
+.session {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.session .user {
+  font-size: 0.9rem;
+}
+
+.session button {
+  background: transparent;
+  border: 1px solid #d7e3f2;
+  color: #fff;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.session button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}

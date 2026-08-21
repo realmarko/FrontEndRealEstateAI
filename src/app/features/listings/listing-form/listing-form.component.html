@@ -1,0 +1,62 @@
+<div class="page form-page">
+  <h1>{{ isEditMode ? 'Edit listing' : 'Add a new listing' }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Title
+      <input type="text" formControlName="title" />
+    </label>
+
+    <label>
+      Description
+      <textarea rows="4" formControlName="description"></textarea>
+    </label>
+
+    <div class="grid-2">
+      <label>
+        Price
+        <input type="number" formControlName="price" min="0" />
+      </label>
+
+      <label>
+        Type
+        <select formControlName="type">
+          <option value="rent">For rent</option>
+          <option value="sale">For sale</option>
+        </select>
+      </label>
+    </div>
+
+    <label>
+      Address
+      <input type="text" formControlName="address" />
+    </label>
+
+    <div class="grid-3">
+      <label>
+        Bedrooms
+        <input type="number" formControlName="bedrooms" min="0" />
+      </label>
+
+      <label>
+        Bathrooms
+        <input type="number" formControlName="bathrooms" min="0" />
+      </label>
+
+      <label>
+        Area (m²)
+        <input type="number" formControlName="areaSqm" min="0" />
+      </label>
+    </div>
+
+    <label>
+      Image URL
+      <input type="text" formControlName="imageUrl" />
+    </label>
+
+    <div class="actions">
+      <button type="submit" class="primary">{{ isEditMode ? 'Save changes' : 'Create listing' }}</button>
+      <a routerLink="/listings">Cancel</a>
+    </div>
+  </form>
+</div>

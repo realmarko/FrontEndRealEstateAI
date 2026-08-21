@@ -1,0 +1,20 @@
+<nav class="navbar">
+  <a class="brand" routerLink="/listings">RealEstateApp</a>
+
+  <div class="links">
+    <a routerLink="/listings" routerLinkActive="active">Listings</a>
+    <a routerLink="/listings/new" routerLinkActive="active">Add Listing</a>
+    <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
+    <a routerLink="/messages" routerLinkActive="active">Messages</a>
+  </div>
+
+  <div class="session">
+    @if (auth.isAuthenticated()) {
+      <span class="user">{{ auth.currentUser()?.name }}</span>
+      <button type="button" (click)="logout()">Log out</button>
+    } @else {
+      <a routerLink="/login" routerLinkActive="active">Log in</a>
+      <a routerLink="/register" routerLinkActive="active">Register</a>
+    }
+  </div>
+</nav>

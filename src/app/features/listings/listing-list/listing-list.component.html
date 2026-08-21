@@ -1,0 +1,53 @@
+<div class="page">
+  <div class="header">
+    <h1>Listings</h1>
+    <a class="primary-link" routerLink="/listings/new">+ Add listing</a>
+  </div>
+
+  <div class="filters">
+    <input
+      type="search"
+      placeholder="Search by title or address"
+      [value]="search()"
+      (input)="onSearchChange($any($event.target).value)"
+    />
+
+    <div class="type-toggle">
+      <button
+        type="button"
+        [class.active]="typeFilter() === 'all'"
+        (click)="setTypeFilter('all')"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        [class.active]="typeFilter() === 'rent'"
+        (click)="setTypeFilter('rent')"
+      >
+        For rent
+      </button>
+      <button
+        type="button"
+        [class.active]="typeFilter() === 'sale'"
+        (click)="setTypeFilter('sale')"
+      >
+        For sale
+      </button>
+    </div>
+  </div>
+
+  @if (listings().length) {
+    <div class="grid">
+      @for (listing of listings(); track listing.id) {
+        <app-listing-card
+          [listing]="listing"
+          [isFavorite]="favorites.isFavorite(listing.id)"
+          (toggleFavorite)="toggleFavorite($event)"
+        />
+      }
+    </div>
+  } @else {
+    <p class="empty">No listings match your search.</p>
+  }
+</div>

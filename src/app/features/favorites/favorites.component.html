@@ -1,0 +1,17 @@
+<div class="page">
+  <h1>Your favorites</h1>
+
+  @if (favoriteListings().length) {
+    <div class="grid">
+      @for (listing of favoriteListings(); track listing.id) {
+        <app-listing-card
+          [listing]="listing"
+          [isFavorite]="true"
+          (toggleFavorite)="toggleFavorite($event)"
+        />
+      }
+    </div>
+  } @else {
+    <p class="empty">You haven't saved any listings yet. <a routerLink="/listings">Browse listings</a>.</p>
+  }
+</div>

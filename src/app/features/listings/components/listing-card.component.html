@@ -1,0 +1,25 @@
+<article class="card">
+  <a [routerLink]="['/listings', listing.id]">
+    <img [src]="listing.imageUrl" [alt]="listing.title" />
+  </a>
+
+  <div class="body">
+    <div class="row">
+      <h3><a [routerLink]="['/listings', listing.id]">{{ listing.title }}</a></h3>
+      <button
+        type="button"
+        class="fav"
+        [class.active]="isFavorite"
+        (click)="toggleFavorite.emit(listing.id)"
+      >
+        {{ isFavorite ? '★' : '☆' }}
+      </button>
+    </div>
+
+    <p class="price">
+      {{ listing.price | currency }}{{ listing.type === 'rent' ? ' / mo' : '' }}
+    </p>
+    <p class="address">{{ listing.address }}</p>
+    <p class="meta">{{ listing.bedrooms }} bd · {{ listing.bathrooms }} ba · {{ listing.areaSqm }} m²</p>
+  </div>
+</article>
