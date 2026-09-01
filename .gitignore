@@ -44,3 +44,6 @@ Thumbs.db
 
 # Claude Code local settings (personal permission config, not shared)
 .claude/settings.local.json
+
+# Local API keys — never commit real secrets (see env-keys.example.ts)
+src/environments/env-keys.ts
