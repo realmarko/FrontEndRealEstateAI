@@ -30,6 +30,30 @@ select {
   font-family: inherit;
 }
 
+input:disabled {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.file-name {
+  margin: -0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.price-preview {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #15803d;
+}
+
+.price-words {
+  margin: -0.5rem 0 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #4b5563;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

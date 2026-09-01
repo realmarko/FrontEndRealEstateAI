@@ -5,11 +5,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { MessageService } from '../../../core/services/message.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, RouterLink],
+  imports: [CurrencyPipe, RouterLink, TranslatePipe],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })

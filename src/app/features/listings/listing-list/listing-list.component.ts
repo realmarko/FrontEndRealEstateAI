@@ -4,11 +4,12 @@ import { ListingCardComponent } from '../components/listing-card.component';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { ListingType } from '../../../core/models/listing.model';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-listing-list',
   standalone: true,
-  imports: [RouterLink, ListingCardComponent],
+  imports: [RouterLink, ListingCardComponent, TranslatePipe],
   templateUrl: './listing-list.component.html',
   styleUrl: './listing-list.component.css'
 })

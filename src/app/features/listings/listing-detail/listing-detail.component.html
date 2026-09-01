@@ -1,6 +1,6 @@
 @if (listing(); as listing) {
   <div class="page detail">
-    <a class="back" routerLink="/listings">&larr; Back to listings</a>
+    <a class="back" routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>
 
     <div class="layout">
       <img [src]="listing.imageUrl" [alt]="listing.title" />
@@ -9,39 +9,43 @@
         <div class="row">
           <h1>{{ listing.title }}</h1>
           <button type="button" class="fav" [class.active]="isFavorite()" (click)="toggleFavorite()">
-            {{ isFavorite() ? '★ Saved' : '☆ Save' }}
+            {{ (isFavorite() ? 'listingDetail.saved' : 'listingDetail.save') | translate }}
           </button>
         </div>
 
         <p class="price">
-          {{ listing.price | currency }}{{ listing.type === 'rent' ? ' / mo' : '' }}
+          {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
         </p>
         <p class="address">{{ listing.address }}</p>
-        <p class="meta">{{ listing.bedrooms }} bd · {{ listing.bathrooms }} ba · {{ listing.areaSqm }} m²</p>
+        <p class="meta">
+          {{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }} ·
+          {{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }} ·
+          {{ listing.areaSqm }} m²
+        </p>
         <p class="description">{{ listing.description }}</p>
 
         @if (isOwner()) {
           <div class="owner-actions">
-            <a class="primary-link" [routerLink]="['/listings', listing.id, 'edit']">Edit</a>
-            <button type="button" class="danger" (click)="deleteListing()">Delete</button>
+            <a class="primary-link" [routerLink]="['/listings', listing.id, 'edit']">{{ 'listingDetail.edit' | translate }}</a>
+            <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
         } @else {
           <div class="contact">
-            <h2>Contact about this listing</h2>
+            <h2>{{ 'listingDetail.contactTitle' | translate }}</h2>
 
             @if (auth.isAuthenticated()) {
               @if (messageSent()) {
-                <p class="sent">Message sent!</p>
+                <p class="sent">{{ 'listingDetail.messageSent' | translate }}</p>
               }
               <textarea
                 rows="3"
-                placeholder="I'm interested in this property..."
+                [placeholder]="'listingDetail.messagePlaceholder' | translate"
                 [value]="messageBody()"
                 (input)="messageBody.set($any($event.target).value)"
               ></textarea>
-              <button type="button" class="primary" (click)="sendMessage()">Send message</button>
+              <button type="button" class="primary" (click)="sendMessage()">{{ 'listingDetail.sendMessage' | translate }}</button>
             } @else {
-              <p><a routerLink="/login">Log in</a> to contact the owner.</p>
+              <p><a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}</p>
             }
           </div>
         }
@@ -50,7 +54,7 @@
   </div>
 } @else {
   <div class="page">
-    <p>Listing not found.</p>
-    <a routerLink="/listings">Back to listings</a>
+    <p>{{ 'listingDetail.notFound' | translate }}</p>
+    <a routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>
   </div>
 }

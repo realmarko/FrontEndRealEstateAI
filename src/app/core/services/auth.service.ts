@@ -18,7 +18,7 @@ export class AuthService {
   register(details: RegisterDetails): User {
     const users = this.readUsers();
     if (users.some((u) => u.email === details.email)) {
-      throw new Error('An account with this email already exists.');
+      throw new Error('auth.errors.emailTaken');
     }
     const user: StoredUser = {
       id: crypto.randomUUID(),
@@ -37,7 +37,7 @@ export class AuthService {
       (u) => u.email === credentials.email && u.password === credentials.password
     );
     if (!user) {
-      throw new Error('Invalid email or password.');
+      throw new Error('auth.errors.invalidCredentials');
     }
     return this.startSession(user);
   }

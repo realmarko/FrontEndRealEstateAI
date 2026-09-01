@@ -1,19 +1,19 @@
 <div class="auth-card">
-  <h1>Create an account</h1>
+  <h1>{{ 'register.title' | translate }}</h1>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
-      Name
+      {{ 'register.name' | translate }}
       <input type="text" formControlName="name" autocomplete="name" />
     </label>
 
     <label>
-      Email
+      {{ 'register.email' | translate }}
       <input type="email" formControlName="email" autocomplete="email" />
     </label>
 
     <label>
-      Password
+      {{ 'register.password' | translate }}
       <input type="password" formControlName="password" autocomplete="new-password" />
     </label>
 
@@ -21,8 +21,8 @@
       <p class="error">{{ errorMessage() }}</p>
     }
 
-    <button type="submit">Register</button>
+    <button type="submit">{{ 'register.submit' | translate }}</button>
   </form>
 
-  <p class="switch">Already have an account? <a routerLink="/login">Log in</a></p>
+  <p class="switch">{{ 'register.haveAccount' | translate }} <a routerLink="/login">{{ 'register.loginLink' | translate }}</a></p>
 </div>

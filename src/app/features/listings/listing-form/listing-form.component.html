@@ -1,62 +1,101 @@
 <div class="page form-page">
-  <h1>{{ isEditMode ? 'Edit listing' : 'Add a new listing' }}</h1>
+  <h1>{{ (isEditMode ? 'listingForm.editTitle' : 'listingForm.addTitle') | translate }}</h1>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
-      Title
+      {{ 'listingForm.titleLabel' | translate }}
       <input type="text" formControlName="title" />
     </label>
 
     <label>
-      Description
+      {{ 'listingForm.description' | translate }}
       <textarea rows="4" formControlName="description"></textarea>
-    </label>
-
-    <div class="grid-2">
-      <label>
-        Price
-        <input type="number" formControlName="price" min="0" />
-      </label>
-
-      <label>
-        Type
-        <select formControlName="type">
-          <option value="rent">For rent</option>
-          <option value="sale">For sale</option>
-        </select>
-      </label>
-    </div>
-
-    <label>
-      Address
-      <input type="text" formControlName="address" />
     </label>
 
     <div class="grid-3">
       <label>
-        Bedrooms
+        {{ 'listingForm.price' | translate }}
+        <input type="number" formControlName="price" min="0" />
+        <span class="price-preview">{{ form.value.price | currency:form.value.currency }}</span>
+      </label>
+
+      <label>
+        {{ 'listingForm.currency' | translate }}
+        <select formControlName="currency">
+          <option value="MXN">{{ 'listingForm.mxn' | translate }}</option>
+          <option value="USD">{{ 'listingForm.usd' | translate }}</option>
+        </select>
+      </label>
+
+      <label>
+        {{ 'listingForm.operation' | translate }}
+        <select formControlName="type">
+          <option value="rent">{{ 'listingForm.forRent' | translate }}</option>
+          <option value="sale">{{ 'listingForm.forSale' | translate }}</option>
+        </select>
+      </label>
+    </div>
+
+    <p class="price-words">{{ 'listingForm.priceInWords' | translate:{ words: priceInWords } }}</p>
+
+    <label>
+      {{ 'listingForm.propertyType' | translate }}
+      <select formControlName="propertyType">
+        <option value="house">{{ 'listingForm.house' | translate }}</option>
+        <option value="apartment">{{ 'listingForm.apartment' | translate }}</option>
+        <option value="land">{{ 'listingForm.land' | translate }}</option>
+        <option value="commercial">{{ 'listingForm.commercial' | translate }}</option>
+      </select>
+    </label>
+
+    <label>
+      {{ 'listingForm.address' | translate }}
+      <input type="text" formControlName="address" />
+    </label>
+
+    <div class="grid-2" *ngIf="lat !== null && lng !== null">
+      <label>
+        {{ 'listingForm.latitude' | translate }}
+        <input type="text" [value]="lat" disabled />
+      </label>
+
+      <label>
+        {{ 'listingForm.longitude' | translate }}
+        <input type="text" [value]="lng" disabled />
+      </label>
+    </div>
+
+    <div class="grid-3">
+      <label>
+        {{ 'listingForm.bedrooms' | translate }}
         <input type="number" formControlName="bedrooms" min="0" />
       </label>
 
       <label>
-        Bathrooms
+        {{ 'listingForm.bathrooms' | translate }}
         <input type="number" formControlName="bathrooms" min="0" />
       </label>
 
       <label>
-        Area (m²)
+        {{ 'listingForm.area' | translate }}
         <input type="number" formControlName="areaSqm" min="0" />
       </label>
     </div>
 
     <label>
-      Image URL
+      {{ 'listingForm.imageUrl' | translate }}
       <input type="text" formControlName="imageUrl" />
     </label>
 
+    <label>
+      {{ 'listingForm.uploadImage' | translate }}
+      <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+    </label>
+    <p class="file-name" *ngIf="selectedFileName">{{ 'listingForm.selectedFile' | translate:{ name: selectedFileName } }}</p>
+
     <div class="actions">
-      <button type="submit" class="primary">{{ isEditMode ? 'Save changes' : 'Create listing' }}</button>
-      <a routerLink="/listings">Cancel</a>
+      <button type="submit" class="primary">{{ (isEditMode ? 'listingForm.saveSubmit' : 'listingForm.createSubmit') | translate }}</button>
+      <a routerLink="/listings">{{ 'listingForm.cancel' | translate }}</a>
     </div>
   </form>
 </div>

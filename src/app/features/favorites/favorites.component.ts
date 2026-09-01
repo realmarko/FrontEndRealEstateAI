@@ -3,11 +3,12 @@ import { RouterLink } from '@angular/router';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingService } from '../../core/services/listing.service';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [RouterLink, ListingCardComponent],
+  imports: [RouterLink, ListingCardComponent, TranslatePipe],
   templateUrl: './favorites.component.html',
   styleUrl: './favorites.component.css'
 })

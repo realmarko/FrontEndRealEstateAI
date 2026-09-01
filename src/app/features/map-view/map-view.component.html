@@ -1,0 +1,17 @@
+<div class="map-view">
+  <div class="map-toolbar">
+    <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
+      {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
+    </button>
+    <button
+      type="button"
+      class="confirm-btn"
+      *ngIf="selectedLat !== null && selectedLng !== null"
+      (click)="confirmLocation()"
+    >
+      {{ 'map.continue' | translate }}
+    </button>
+  </div>
+  <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
+  <div #mapContainer class="map-container"></div>
+</div>

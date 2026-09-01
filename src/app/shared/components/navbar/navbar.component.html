@@ -2,19 +2,36 @@
   <a class="brand" routerLink="/listings">RealEstateApp</a>
 
   <div class="links">
-    <a routerLink="/listings" routerLinkActive="active">Listings</a>
-    <a routerLink="/listings/new" routerLinkActive="active">Add Listing</a>
-    <a routerLink="/favorites" routerLinkActive="active">Favorites</a>
-    <a routerLink="/messages" routerLinkActive="active">Messages</a>
+    <a routerLink="/listings" routerLinkActive="active">{{ 'nav.listings' | translate }}</a>
+    <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
+    <a routerLink="/favorites" routerLinkActive="active">{{ 'nav.favorites' | translate }}</a>
+    <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
   </div>
 
   <div class="session">
+    <div class="lang-switch">
+      <button
+        type="button"
+        [class.active]="translation.lang() === 'en'"
+        (click)="setLang('en')"
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        [class.active]="translation.lang() === 'es'"
+        (click)="setLang('es')"
+      >
+        ES
+      </button>
+    </div>
+
     @if (auth.isAuthenticated()) {
       <span class="user">{{ auth.currentUser()?.name }}</span>
-      <button type="button" (click)="logout()">Log out</button>
+      <button type="button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
     } @else {
-      <a routerLink="/login" routerLinkActive="active">Log in</a>
-      <a routerLink="/register" routerLinkActive="active">Register</a>
+      <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>
+      <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
     }
   </div>
 </nav>

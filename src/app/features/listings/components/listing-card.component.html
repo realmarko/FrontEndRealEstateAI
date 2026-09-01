@@ -17,9 +17,13 @@
     </div>
 
     <p class="price">
-      {{ listing.price | currency }}{{ listing.type === 'rent' ? ' / mo' : '' }}
+      {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
     </p>
     <p class="address">{{ listing.address }}</p>
-    <p class="meta">{{ listing.bedrooms }} bd · {{ listing.bathrooms }} ba · {{ listing.areaSqm }} m²</p>
+    <p class="meta">
+      {{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }} ·
+      {{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }} ·
+      {{ listing.areaSqm }} m²
+    </p>
   </div>
 </article>

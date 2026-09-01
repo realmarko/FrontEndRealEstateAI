@@ -1,5 +1,5 @@
 <div class="page">
-  <h1>Your favorites</h1>
+  <h1>{{ 'favorites.title' | translate }}</h1>
 
   @if (favoriteListings().length) {
     <div class="grid">
@@ -12,6 +12,9 @@
       }
     </div>
   } @else {
-    <p class="empty">You haven't saved any listings yet. <a routerLink="/listings">Browse listings</a>.</p>
+    <p class="empty">
+      {{ 'favorites.emptyPrefix' | translate }}
+      <a routerLink="/listings">{{ 'favorites.browseLink' | translate }}</a>.
+    </p>
   }
 </div>

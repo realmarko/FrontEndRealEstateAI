@@ -1,0 +1,21 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <input formControlName="title" placeholder="Título" />
+  <textarea formControlName="description" placeholder="Descripción"></textarea>
+  <select formControlName="type">
+    <option value="Casa">Casa</option>
+    <option value="Departamento">Departamento</option>
+    <option value="Terreno">Terreno</option>
+  </select>
+  <input formControlName="price" type="number" placeholder="Precio" />
+  <input formControlName="bedrooms" type="number" placeholder="Recámaras" />
+  <input formControlName="bathrooms" type="number" placeholder="Baños" />
+  <input formControlName="areaM2" type="number" placeholder="Área m²" />
+  <input type="file" multiple (change)="onFilesSelected($event)" />
+  <button type="submit">Guardar propiedad</button>
+
+  <input
+  #addressInput
+  formControlName="address"
+  placeholder="Escribe la dirección..."
+/>
+</form>

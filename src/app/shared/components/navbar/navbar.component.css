@@ -55,3 +55,19 @@
 .session button:hover {
   background: rgba(255, 255, 255, 0.1);
 }
+
+.lang-switch {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.lang-switch button {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+}
+
+.lang-switch button.active {
+  background: #fff;
+  color: #1e3a5f;
+  font-weight: 600;
+}

@@ -1,5 +1,5 @@
 <div class="page">
-  <h1>Messages</h1>
+  <h1>{{ 'messages.title' | translate }}</h1>
 
   @if (conversations().length) {
     <div class="layout">
@@ -27,11 +27,15 @@
             </div>
           }
         } @else {
-          <p class="empty">Select a conversation to view messages.</p>
+          <p class="empty">{{ 'messages.selectConversation' | translate }}</p>
         }
       </div>
     </div>
   } @else {
-    <p class="empty">No messages yet. <a routerLink="/listings">Browse listings</a> and contact an owner.</p>
+    <p class="empty">
+      {{ 'messages.emptyPrefix' | translate }}
+      <a routerLink="/listings">{{ 'messages.browseLink' | translate }}</a>
+      {{ 'messages.emptySuffix' | translate }}
+    </p>
   }
 </div>

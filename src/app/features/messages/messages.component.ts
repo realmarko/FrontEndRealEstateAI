@@ -2,11 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MessageService } from '../../core/services/message.service';
 import { Conversation } from '../../core/models/message.model';
+import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
