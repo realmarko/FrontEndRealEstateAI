@@ -1,7 +1,11 @@
+export type UserRole = 'Owner' | 'Buyer';
+
 export interface User {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  roles: UserRole[];
 }
 
 export interface AuthCredentials {
@@ -10,5 +14,7 @@ export interface AuthCredentials {
 }
 
 export interface RegisterDetails extends AuthCredentials {
-  name: string;
+  firstName: string;
+  lastName: string;
+  role: UserRole;
 }

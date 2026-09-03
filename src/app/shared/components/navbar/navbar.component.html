@@ -27,7 +27,7 @@
     </div>
 
     @if (auth.isAuthenticated()) {
-      <span class="user">{{ auth.currentUser()?.name }}</span>
+      <span class="user">{{ auth.currentUser()?.firstName }}</span>
       <button type="button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
     } @else {
       <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>

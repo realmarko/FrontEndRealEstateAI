@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { UserRole } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-register',
@@ -21,9 +22,11 @@ export class RegisterComponent {
   readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
+    firstName: ['', [Validators.required, Validators.minLength(2)]],
+    lastName: ['', [Validators.required, Validators.minLength(2)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    role: ['Owner' as UserRole, Validators.required]
   });
 
   submit(): void {
@@ -33,12 +36,15 @@ export class RegisterComponent {
     }
 
     this.errorMessage.set(null);
-    try {
-      this.auth.register(this.form.getRawValue());
-      this.router.navigate(['/listings']);
-    } catch (err) {
-      const key = err instanceof Error ? err.message : 'auth.errors.registerFailed';
-      this.errorMessage.set(this.translation.t(key));
-    }
+    this.auth.register(this.form.getRawValue()).subscribe({
+      next: () => this.router.navigate(['/listings']),
+      error: (err) => {
+        const messages: string[] = Array.isArray(err?.error) ? err.error : [];
+        const key = messages.some((m) => /taken|already/i.test(m))
+          ? 'auth.errors.emailTaken'
+          : 'auth.errors.registerFailed';
+        this.errorMessage.set(this.translation.t(key));
+      }
+    });
   }
 }

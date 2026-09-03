@@ -1,74 +1,93 @@
-import { Injectable, computed, signal } from '@angular/core';
-import { AuthCredentials, RegisterDetails, User } from '../models/user.model';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
+import { AuthCredentials, RegisterDetails, User, UserRole } from '../models/user.model';
 
-interface StoredUser extends User {
-  password: string;
+const TOKEN_KEY = 'reapp_token';
+const USER_KEY = 'reapp_user';
+
+interface UserDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
 }
 
-const USERS_KEY = 'reapp_users';
-const SESSION_KEY = 'reapp_session_user_id';
+interface AuthResponseDto {
+  token: string;
+  expiresAt: string;
+  user: UserDto;
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly currentUserSignal = signal<User | null>(this.restoreSession());
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/auth`;
+
+  private readonly currentUserSignal = signal<User | null>(this.restoreUser());
 
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
 
-  register(details: RegisterDetails): User {
-    const users = this.readUsers();
-    if (users.some((u) => u.email === details.email)) {
-      throw new Error('auth.errors.emailTaken');
-    }
-    const user: StoredUser = {
-      id: crypto.randomUUID(),
-      name: details.name,
-      email: details.email,
-      password: details.password
-    };
-    users.push(user);
-    this.writeUsers(users);
-    return this.startSession(user);
+  get token(): string | null {
+    return localStorage.getItem(TOKEN_KEY);
   }
 
-  login(credentials: AuthCredentials): User {
-    const users = this.readUsers();
-    const user = users.find(
-      (u) => u.email === credentials.email && u.password === credentials.password
+  register(details: RegisterDetails): Observable<User> {
+    return this.http
+      .post<AuthResponseDto>(`${this.apiUrl}/register`, {
+        firstName: details.firstName,
+        lastName: details.lastName,
+        email: details.email,
+        password: details.password,
+        role: details.role
+      })
+      .pipe(
+        tap((res) => this.startSession(res)),
+        map((res) => this.toUser(res.user))
+      );
+  }
+
+  login(credentials: AuthCredentials): Observable<User> {
+    return this.http.post<AuthResponseDto>(`${this.apiUrl}/login`, credentials).pipe(
+      tap((res) => this.startSession(res)),
+      map((res) => this.toUser(res.user))
     );
-    if (!user) {
-      throw new Error('auth.errors.invalidCredentials');
-    }
-    return this.startSession(user);
   }
 
   logout(): void {
-    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
     this.currentUserSignal.set(null);
   }
 
-  private startSession(user: StoredUser): User {
-    localStorage.setItem(SESSION_KEY, user.id);
-    const publicUser: User = { id: user.id, name: user.name, email: user.email };
-    this.currentUserSignal.set(publicUser);
-    return publicUser;
+  private startSession(res: AuthResponseDto): void {
+    const user = this.toUser(res.user);
+    localStorage.setItem(TOKEN_KEY, res.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    this.currentUserSignal.set(user);
   }
 
-  private restoreSession(): User | null {
-    const sessionId = localStorage.getItem(SESSION_KEY);
-    if (!sessionId) {
+  private toUser(dto: UserDto): User {
+    return {
+      id: dto.id,
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email,
+      roles: dto.roles as UserRole[]
+    };
+  }
+
+  private restoreUser(): User | null {
+    const raw = localStorage.getItem(USER_KEY);
+    if (!raw || !localStorage.getItem(TOKEN_KEY)) return null;
+    try {
+      return JSON.parse(raw) as User;
+    } catch {
       return null;
     }
-    const user = this.readUsers().find((u) => u.id === sessionId);
-    return user ? { id: user.id, name: user.name, email: user.email } : null;
-  }
-
-  private readUsers(): StoredUser[] {
-    const raw = localStorage.getItem(USERS_KEY);
-    return raw ? (JSON.parse(raw) as StoredUser[]) : [];
-  }
-
-  private writeUsers(users: StoredUser[]): void {
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
   }
 }

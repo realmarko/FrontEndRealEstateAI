@@ -1,103 +1,64 @@
-import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 import { Listing, ListingInput } from '../models/listing.model';
+import { ListingDto, fromDto, toCreateRequest } from './listing-api.adapter';
 
-const LISTINGS_KEY = 'reapp_listings';
-
-const SEED_LISTINGS: Listing[] = [
-  {
-    id: '1',
-    title: 'Sunny 2-Bedroom Apartment',
-    description: 'Bright apartment close to downtown with a private balcony.',
-    price: 1450,
-    currency: 'USD',
-    type: 'rent',
-    address: '12 Maple Street, Springfield',
-    bedrooms: 2,
-    bathrooms: 1,
-    areaSqm: 78,
-    imageUrl: 'https://picsum.photos/seed/listing1/640/400',
-    ownerId: 'seed',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '2',
-    title: 'Modern Family House',
-    description: 'Spacious 4-bedroom house with a garden and garage.',
-    price: 385000,
-    currency: 'USD',
-    type: 'sale',
-    address: '48 Oak Avenue, Riverdale',
-    bedrooms: 4,
-    bathrooms: 3,
-    areaSqm: 210,
-    imageUrl: 'https://picsum.photos/seed/listing2/640/400',
-    ownerId: 'seed',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: '3',
-    title: 'Cozy Studio Near Campus',
-    description: 'Perfect for students, fully furnished and walkable to campus.',
-    price: 650,
-    currency: 'USD',
-    type: 'rent',
-    address: '3 College Row, Elmwood',
-    bedrooms: 1,
-    bathrooms: 1,
-    areaSqm: 32,
-    imageUrl: 'https://picsum.photos/seed/listing3/640/400',
-    ownerId: 'seed',
-    createdAt: new Date().toISOString()
-  }
-];
+interface PagedResult<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ListingService {
-  private readonly listingsSignal = signal<Listing[]>(this.readListings());
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/listings`;
 
+  private readonly listingsSignal = signal<Listing[]>([]);
   readonly listings = this.listingsSignal.asReadonly();
+
+  constructor() {
+    this.refresh();
+  }
+
+  refresh(): void {
+    this.http
+      .get<PagedResult<ListingDto>>(this.apiUrl, { params: { pageSize: 100 } })
+      .subscribe((res) => this.listingsSignal.set(res.items.map(fromDto)));
+  }
 
   getById(id: string): Listing | undefined {
     return this.listingsSignal().find((listing) => listing.id === id);
   }
 
-  create(input: ListingInput, ownerId: string): Listing {
-    const listing: Listing = {
-      ...input,
-      id: crypto.randomUUID(),
-      ownerId,
-      createdAt: new Date().toISOString()
-    };
-    const listings = [listing, ...this.listingsSignal()];
-    this.listingsSignal.set(listings);
-    this.writeListings(listings);
-    return listing;
+  fetchById(id: string): Observable<Listing> {
+    return this.http.get<ListingDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
   }
 
-  update(id: string, input: ListingInput): void {
-    const listings = this.listingsSignal().map((listing) =>
-      listing.id === id ? { ...listing, ...input } : listing
+  create(input: ListingInput): Observable<Listing> {
+    return this.http.post<ListingDto>(this.apiUrl, toCreateRequest(input)).pipe(
+      map(fromDto),
+      tap((listing) => this.listingsSignal.update((list) => [listing, ...list]))
     );
-    this.listingsSignal.set(listings);
-    this.writeListings(listings);
   }
 
-  delete(id: string): void {
-    const listings = this.listingsSignal().filter((listing) => listing.id !== id);
-    this.listingsSignal.set(listings);
-    this.writeListings(listings);
+  update(id: string, input: ListingInput): Observable<Listing> {
+    const body = { ...toCreateRequest(input), status: 0 };
+    return this.http.put<ListingDto>(`${this.apiUrl}/${id}`, body).pipe(
+      map(fromDto),
+      tap((listing) =>
+        this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l)))
+      )
+    );
   }
 
-  private readListings(): Listing[] {
-    const raw = localStorage.getItem(LISTINGS_KEY);
-    if (!raw) {
-      this.writeListings(SEED_LISTINGS);
-      return SEED_LISTINGS;
-    }
-    return JSON.parse(raw) as Listing[];
-  }
-
-  private writeListings(listings: Listing[]): void {
-    localStorage.setItem(LISTINGS_KEY, JSON.stringify(listings));
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      tap(() => this.listingsSignal.update((list) => list.filter((l) => l.id !== id)))
+    );
   }
 }

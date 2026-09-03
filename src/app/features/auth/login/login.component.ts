@@ -32,12 +32,9 @@ export class LoginComponent {
     }
 
     this.errorMessage.set(null);
-    try {
-      this.auth.login(this.form.getRawValue());
-      this.router.navigate(['/listings']);
-    } catch (err) {
-      const key = err instanceof Error ? err.message : 'auth.errors.loginFailed';
-      this.errorMessage.set(this.translation.t(key));
-    }
+    this.auth.login(this.form.getRawValue()).subscribe({
+      next: () => this.router.navigate(['/listings']),
+      error: () => this.errorMessage.set(this.translation.t('auth.errors.invalidCredentials'))
+    });
   }
 }

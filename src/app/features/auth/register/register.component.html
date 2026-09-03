@@ -3,8 +3,13 @@
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
-      {{ 'register.name' | translate }}
-      <input type="text" formControlName="name" autocomplete="name" />
+      {{ 'register.firstName' | translate }}
+      <input type="text" formControlName="firstName" autocomplete="given-name" />
+    </label>
+
+    <label>
+      {{ 'register.lastName' | translate }}
+      <input type="text" formControlName="lastName" autocomplete="family-name" />
     </label>
 
     <label>
@@ -15,6 +20,14 @@
     <label>
       {{ 'register.password' | translate }}
       <input type="password" formControlName="password" autocomplete="new-password" />
+    </label>
+
+    <label>
+      {{ 'register.role' | translate }}
+      <select formControlName="role">
+        <option value="Owner">{{ 'register.roleOwner' | translate }}</option>
+        <option value="Buyer">{{ 'register.roleBuyer' | translate }}</option>
+      </select>
     </label>
 
     @if (errorMessage()) {

@@ -6,6 +6,7 @@ import { FavoritesService } from '../../../core/services/favorites.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { MessageService } from '../../../core/services/message.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { Listing } from '../../../core/models/listing.model';
 
 @Component({
   selector: 'app-listing-detail',
@@ -24,19 +25,32 @@ export class ListingDetailComponent {
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
-  readonly listing = computed(() => this.listingService.getById(this.id));
+  readonly listing = signal<Listing | undefined>(undefined);
+  readonly loading = signal(true);
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
   readonly messageBody = signal('');
   readonly messageSent = signal(false);
+
+  constructor() {
+    this.listingService.fetchById(this.id).subscribe({
+      next: (listing) => {
+        this.listing.set(listing);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.listing.set(undefined);
+        this.loading.set(false);
+      }
+    });
+  }
 
   toggleFavorite(): void {
     this.favorites.toggle(this.id);
   }
 
   deleteListing(): void {
-    this.listingService.delete(this.id);
-    this.router.navigate(['/listings']);
+    this.listingService.delete(this.id).subscribe(() => this.router.navigate(['/listings']));
   }
 
   sendMessage(): void {
@@ -47,7 +61,13 @@ export class ListingDetailComponent {
       return;
     }
 
-    this.messageService.sendMessage(listing.id, listing.title, user.id, user.name, body);
+    this.messageService.sendMessage(
+      listing.id,
+      listing.title,
+      user.id,
+      `${user.firstName} ${user.lastName}`,
+      body
+    );
     this.messageBody.set('');
     this.messageSent.set(true);
   }

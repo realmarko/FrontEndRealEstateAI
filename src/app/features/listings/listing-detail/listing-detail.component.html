@@ -52,7 +52,7 @@
       </div>
     </div>
   </div>
-} @else {
+} @else if (!loading()) {
   <div class="page">
     <p>{{ 'listingDetail.notFound' | translate }}</p>
     <a routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>

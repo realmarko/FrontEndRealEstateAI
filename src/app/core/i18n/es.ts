@@ -16,9 +16,13 @@ export const es: Record<string, string> = {
   'login.registerLink': 'Regístrate',
 
   'register.title': 'Crear una cuenta',
-  'register.name': 'Nombre',
+  'register.firstName': 'Nombre',
+  'register.lastName': 'Apellido',
   'register.email': 'Correo electrónico',
   'register.password': 'Contraseña',
+  'register.role': 'Quiero',
+  'register.roleOwner': 'Publicar propiedades (Propietario)',
+  'register.roleBuyer': 'Explorar propiedades (Comprador)',
   'register.submit': 'Registrarse',
   'register.haveAccount': '¿Ya tienes cuenta?',
   'register.loginLink': 'Inicia sesión',
@@ -91,6 +95,7 @@ export const es: Record<string, string> = {
   'listingForm.createSubmit': 'Crear propiedad',
   'listingForm.saveSubmit': 'Guardar cambios',
   'listingForm.cancel': 'Cancelar',
+  'listingForm.submitError': 'No se pudo guardar la propiedad. Verifica que tu cuenta sea de tipo Propietario e intenta de nuevo.',
 
   'map.addProperty': 'Agregar propiedad',
   'map.clickToPlace': 'Haz clic en el mapa para colocar un marcador',

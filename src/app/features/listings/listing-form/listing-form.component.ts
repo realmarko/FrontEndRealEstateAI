@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { Currency, ListingInput, PropertyType } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
@@ -21,7 +20,6 @@ export class ListingFormComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly listingService = inject(ListingService);
-  private readonly auth = inject(AuthService);
   private readonly translation = inject(TranslationService);
 
   private readonly editingId = this.route.snapshot.paramMap.get('id');
@@ -29,6 +27,8 @@ export class ListingFormComponent {
 
   readonly lat: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lat'));
   readonly lng: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lng'));
+
+  readonly submitError = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -49,12 +49,11 @@ export class ListingFormComponent {
 
   constructor() {
     if (this.editingId) {
-      const listing = this.listingService.getById(this.editingId);
-      if (listing) {
+      this.listingService.fetchById(this.editingId).subscribe((listing) => {
         this.form.patchValue(listing);
         this.existingLat = listing.lat ?? null;
         this.existingLng = listing.lng ?? null;
-      }
+      });
     }
   }
 
@@ -94,20 +93,21 @@ export class ListingFormComponent {
       return;
     }
 
+    this.submitError.set(null);
+
     const value: ListingInput = {
       ...this.form.getRawValue(),
       lat: this.lat ?? this.existingLat ?? undefined,
       lng: this.lng ?? this.existingLng ?? undefined
     };
 
-    if (this.editingId) {
-      this.listingService.update(this.editingId, value);
-      this.router.navigate(['/listings', this.editingId]);
-      return;
-    }
+    const request$ = this.editingId
+      ? this.listingService.update(this.editingId, value)
+      : this.listingService.create(value);
 
-    const ownerId = this.auth.currentUser()?.id ?? 'anonymous';
-    const created = this.listingService.create(value, ownerId);
-    this.router.navigate(['/listings', created.id]);
+    request$.subscribe({
+      next: (listing) => this.router.navigate(['/listings', listing.id]),
+      error: () => this.submitError.set(this.translation.t('listingForm.submitError'))
+    });
   }
 }
