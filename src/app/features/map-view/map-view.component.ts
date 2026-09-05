@@ -1,19 +1,23 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild, effect } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild, computed, effect, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { TranslationService } from '../../core/services/translation.service';
-import { Listing } from '../../core/models/listing.model';
+import { AuthService } from '../../core/services/auth.service';
+import { FavoritesService } from '../../core/services/favorites.service';
+import { ListingCardComponent } from '../listings/components/listing-card.component';
+import { Listing, ListingType, PropertyType } from '../../core/models/listing.model';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 18;
 const GOOGLE_LOAD_POLL_MS = 100;
+const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 
 @Component({
   selector: 'app-map-view',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule, TranslatePipe, ListingCardComponent],
   templateUrl: './map-view.component.html',
   styleUrl: './map-view.component.css'
 })
@@ -25,9 +29,58 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   selectedLat: number | null = null;
   selectedLng: number | null = null;
 
+  readonly search = signal('');
+  readonly typeFilter = signal<ListingType | 'all'>('all');
+  readonly propertyTypeFilter = signal<PropertyType | 'all'>('all');
+  readonly minPrice = signal<number | null>(null);
+  readonly maxPrice = signal<number | null>(null);
+  readonly minBeds = signal<number | 'any'>('any');
+  readonly minBaths = signal<number | 'any'>('any');
+  readonly showMoreFilters = signal(false);
+
+  readonly filteredListings = computed(() => {
+    const term = this.search().trim().toLowerCase();
+    const type = this.typeFilter();
+    const propertyType = this.propertyTypeFilter();
+    const minP = this.minPrice();
+    const maxP = this.maxPrice();
+    const minBd = this.minBeds();
+    const minBa = this.minBaths();
+
+    return this.listingService.listings().filter((listing) => {
+      const matchesTerm =
+        !term ||
+        listing.title.toLowerCase().includes(term) ||
+        listing.address.toLowerCase().includes(term);
+      const matchesType = type === 'all' || listing.type === type;
+      const matchesPropertyType = propertyType === 'all' || listing.propertyType === propertyType;
+      const matchesMinPrice = minP === null || listing.price >= minP;
+      const matchesMaxPrice = maxP === null || listing.price <= maxP;
+      const matchesBeds = minBd === 'any' || listing.bedrooms >= minBd;
+      const matchesBaths = minBa === 'any' || listing.bathrooms >= minBa;
+      return (
+        matchesTerm && matchesType && matchesPropertyType && matchesMinPrice && matchesMaxPrice && matchesBeds && matchesBaths
+      );
+    });
+  });
+
+  private readonly mapBounds = signal<google.maps.LatLngBounds | null>(null);
+
+  // Only listings whose marker is currently visible in the map's viewport — mirrors the
+  // filtered set further by pan/zoom, the same way Zillow's results list follows the map.
+  readonly visibleListings = computed(() => {
+    const bounds = this.mapBounds();
+
+    return this.filteredListings().filter((listing) => {
+      if (listing.lat == null || listing.lng == null) return false;
+      if (!bounds) return true; // map hasn't reported its viewport yet
+      return bounds.contains({ lat: listing.lat, lng: listing.lng });
+    });
+  });
+
   private map?: google.maps.Map;
   private marker?: google.maps.Marker;
-  private listingMarkers: google.maps.Marker[] = [];
+  private readonly listingMarkers = new Map<string, google.maps.Marker>();
   private infoWindow?: google.maps.InfoWindow;
   private pollHandle?: ReturnType<typeof setInterval>;
 
@@ -35,11 +88,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly router: Router,
     private readonly zone: NgZone,
     private readonly listingService: ListingService,
-    private readonly translation: TranslationService
+    private readonly translation: TranslationService,
+    protected readonly auth: AuthService,
+    protected readonly favorites: FavoritesService
   ) {
-    // Re-render markers whenever listings change (create/update/delete), without a full reload.
+    // Re-render markers whenever the filtered listings or the logged-in user change (so "my
+    // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
     effect(() => {
-      this.listingService.listings();
+      this.filteredListings();
+      this.auth.currentUser();
       if (this.map) {
         this.renderListingMarkers();
       }
@@ -93,30 +150,36 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.zone.run(() => this.placeMarker(event.latLng!));
     });
 
+    // Fires after every pan/zoom settles (and once on initial load) — keeps the results
+    // list scoped to whatever's actually visible on the map right now.
+    this.map.addListener('idle', () => {
+      this.zone.run(() => this.mapBounds.set(this.map!.getBounds() ?? null));
+    });
+
     this.renderListingMarkers();
     this.centerOnCurrentLocation();
   }
 
   private renderListingMarkers(): void {
     this.listingMarkers.forEach((marker) => marker.setMap(null));
-    this.listingMarkers = [];
+    this.listingMarkers.clear();
 
-    const listings = this.listingService
-      .listings()
-      .filter((listing) => listing.lat != null && listing.lng != null);
+    const listings = this.filteredListings().filter((listing) => listing.lat != null && listing.lng != null);
+    const currentUserId = this.auth.currentUser()?.id;
 
     for (const listing of listings) {
       const marker = new google.maps.Marker({
         position: { lat: listing.lat!, lng: listing.lng! },
         map: this.map,
-        title: listing.title
+        title: listing.title,
+        icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : undefined
       });
 
       marker.addListener('click', () => {
         this.zone.run(() => this.openListingInfo(listing, marker));
       });
 
-      this.listingMarkers.push(marker);
+      this.listingMarkers.set(listing.id, marker);
     }
   }
 
@@ -193,5 +256,51 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.router.navigate(['/listings/new'], {
       queryParams: { lat: this.selectedLat, lng: this.selectedLng }
     });
+  }
+
+  onSearchChange(term: string): void {
+    this.search.set(term);
+  }
+
+  setTypeFilter(type: ListingType | 'all'): void {
+    this.typeFilter.set(type);
+  }
+
+  setPropertyTypeFilter(propertyType: PropertyType | 'all'): void {
+    this.propertyTypeFilter.set(propertyType);
+  }
+
+  setMinPrice(value: string): void {
+    const n = Number(value);
+    this.minPrice.set(value === '' || !Number.isFinite(n) ? null : n);
+  }
+
+  setMaxPrice(value: string): void {
+    const n = Number(value);
+    this.maxPrice.set(value === '' || !Number.isFinite(n) ? null : n);
+  }
+
+  setMinBeds(value: string): void {
+    this.minBeds.set(value === 'any' ? 'any' : Number(value));
+  }
+
+  setMinBaths(value: string): void {
+    this.minBaths.set(value === 'any' ? 'any' : Number(value));
+  }
+
+  toggleMoreFilters(): void {
+    this.showMoreFilters.update((v) => !v);
+  }
+
+  toggleFavorite(listingId: string): void {
+    this.favorites.toggle(listingId);
+  }
+
+  onCardHover(listingId: string): void {
+    this.listingMarkers.get(listingId)?.setAnimation(google.maps.Animation.BOUNCE);
+  }
+
+  onCardLeave(listingId: string): void {
+    this.listingMarkers.get(listingId)?.setAnimation(null);
   }
 }

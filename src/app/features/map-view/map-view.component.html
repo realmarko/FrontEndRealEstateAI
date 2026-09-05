@@ -1,17 +1,110 @@
-<div class="map-view">
-  <div class="map-toolbar">
-    <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
-      {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
+<div class="map-page">
+  <div class="search-bar">
+    <input
+      type="search"
+      class="search-input"
+      [placeholder]="'listings.searchPlaceholder' | translate"
+      [value]="search()"
+      (input)="onSearchChange($any($event.target).value)"
+    />
+
+    <select class="filter-select" [value]="typeFilter()" (change)="setTypeFilter($any($event.target).value)">
+      <option value="all">{{ 'listings.filterAll' | translate }}</option>
+      <option value="rent">{{ 'listings.filterRent' | translate }}</option>
+      <option value="sale">{{ 'listings.filterSale' | translate }}</option>
+    </select>
+
+    <div class="price-group">
+      <input
+        type="number"
+        class="price-input"
+        min="0"
+        [placeholder]="'map.priceMin' | translate"
+        [value]="minPrice() ?? ''"
+        (input)="setMinPrice($any($event.target).value)"
+      />
+      <span class="price-sep">–</span>
+      <input
+        type="number"
+        class="price-input"
+        min="0"
+        [placeholder]="'map.priceMax' | translate"
+        [value]="maxPrice() ?? ''"
+        (input)="setMaxPrice($any($event.target).value)"
+      />
+    </div>
+
+    <select class="filter-select" [value]="minBeds()" (change)="setMinBeds($any($event.target).value)">
+      <option value="any">{{ 'map.bedsAny' | translate }}</option>
+      <option value="1">{{ 'map.beds1' | translate }}</option>
+      <option value="2">{{ 'map.beds2' | translate }}</option>
+      <option value="3">{{ 'map.beds3' | translate }}</option>
+      <option value="4">{{ 'map.beds4' | translate }}</option>
+    </select>
+
+    <select class="filter-select" [value]="propertyTypeFilter()" (change)="setPropertyTypeFilter($any($event.target).value)">
+      <option value="all">{{ 'listings.filterAll' | translate }}</option>
+      <option value="house">{{ 'listingForm.house' | translate }}</option>
+      <option value="apartment">{{ 'listingForm.apartment' | translate }}</option>
+      <option value="land">{{ 'listingForm.land' | translate }}</option>
+      <option value="commercial">{{ 'listingForm.commercial' | translate }}</option>
+    </select>
+
+    <button type="button" class="more-filters-btn" (click)="toggleMoreFilters()">
+      {{ (showMoreFilters() ? 'map.fewerFilters' : 'map.moreFilters') | translate }}
     </button>
-    <button
-      type="button"
-      class="confirm-btn"
-      *ngIf="selectedLat !== null && selectedLng !== null"
-      (click)="confirmLocation()"
-    >
-      {{ 'map.continue' | translate }}
-    </button>
+
+    <div class="more-filters-panel" *ngIf="showMoreFilters()">
+      <select class="filter-select" [value]="minBaths()" (change)="setMinBaths($any($event.target).value)">
+        <option value="any">{{ 'map.bathsAny' | translate }}</option>
+        <option value="1">{{ 'map.baths1' | translate }}</option>
+        <option value="2">{{ 'map.baths2' | translate }}</option>
+        <option value="3">{{ 'map.baths3' | translate }}</option>
+      </select>
+    </div>
   </div>
-  <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
-  <div #mapContainer class="map-container"></div>
+
+  <div class="map-content">
+    <div class="map-pane">
+      <div class="map-toolbar">
+        <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
+          {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
+        </button>
+        <button
+          type="button"
+          class="confirm-btn"
+          *ngIf="selectedLat !== null && selectedLng !== null"
+          (click)="confirmLocation()"
+        >
+          {{ 'map.continue' | translate }}
+        </button>
+        <div class="map-legend" *ngIf="auth.isAuthenticated()">
+          <span class="dot mine"></span>{{ 'map.myListings' | translate }}
+          <span class="dot other"></span>{{ 'map.otherListings' | translate }}
+        </div>
+      </div>
+      <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
+      <div #mapContainer class="map-container"></div>
+    </div>
+
+    <div class="listings-pane">
+      <p class="results-count">{{ 'map.resultsCount' | translate:{ count: visibleListings().length } }}</p>
+
+      @if (visibleListings().length) {
+        <div class="listings-list">
+          @for (listing of visibleListings(); track listing.id) {
+            <div class="listing-card-wrap" (mouseenter)="onCardHover(listing.id)" (mouseleave)="onCardLeave(listing.id)">
+              <app-listing-card
+                [listing]="listing"
+                [isFavorite]="favorites.isFavorite(listing.id)"
+                (toggleFavorite)="toggleFavorite($event)"
+              />
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty">{{ 'listings.empty' | translate }}</p>
+      }
+    </div>
+  </div>
 </div>

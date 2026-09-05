@@ -101,6 +101,22 @@ export const en: Record<string, string> = {
   'map.clickToPlace': 'Click on the map to place a marker',
   'map.continue': 'Continue with this location',
   'map.viewDetails': 'View details',
+  'map.myListings': 'My listings',
+  'map.otherListings': 'Other listings',
+  'map.priceMin': 'Min price',
+  'map.priceMax': 'Max price',
+  'map.bedsAny': 'Any beds',
+  'map.beds1': '1+ bd',
+  'map.beds2': '2+ bd',
+  'map.beds3': '3+ bd',
+  'map.beds4': '4+ bd',
+  'map.bathsAny': 'Any baths',
+  'map.baths1': '1+ ba',
+  'map.baths2': '2+ ba',
+  'map.baths3': '3+ ba',
+  'map.moreFilters': 'More filters',
+  'map.fewerFilters': 'Fewer filters',
+  'map.resultsCount': '{{count}} listings',
   'map.loadError':
     'Could not load Google Maps. Check that the API key in index.html is valid and that the required APIs are enabled.'
 };

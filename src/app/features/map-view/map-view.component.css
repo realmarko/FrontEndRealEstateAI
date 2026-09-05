@@ -4,9 +4,90 @@
   min-height: 0;
 }
 
-.map-view {
-  position: relative;
+.map-page {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  min-height: 0;
+}
+
+.search-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  position: relative;
+  z-index: 3;
+}
+
+.search-input {
+  flex: 1 1 220px;
+  min-width: 160px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.filter-select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #1f2937;
+}
+
+.price-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.price-input {
+  width: 92px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.price-sep {
+  color: #9ca3af;
+}
+
+.more-filters-btn {
+  padding: 0.5rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: #1f2937;
+}
+
+.more-filters-panel {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  padding-top: 0.6rem;
+  border-top: 1px dashed #e5e7eb;
+  margin-top: 0.4rem;
+}
+
+.map-content {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.map-pane {
+  position: relative;
+  flex: 1 1 55%;
+  min-width: 0;
 }
 
 .map-container {
@@ -20,7 +101,38 @@
   left: 1rem;
   z-index: 2;
   display: flex;
+  align-items: center;
   gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.map-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.82rem;
+  color: #1f2937;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.map-legend .dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.15rem;
+}
+
+.map-legend .dot.mine {
+  background: #4285f4;
+}
+
+.map-legend .dot.other {
+  background: #ea4335;
+  margin-left: 0.7rem;
 }
 
 .add-property-btn,
@@ -58,4 +170,52 @@
   text-align: center;
   background: #f4f6f8;
   color: #b91c1c;
+}
+
+.listings-pane {
+  flex: 1 1 45%;
+  max-width: 480px;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #f9fafb;
+  border-left: 1px solid #e5e7eb;
+}
+
+.results-count {
+  margin: 0 0 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.listings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.listing-card-wrap {
+  transition: transform 0.15s ease;
+}
+
+.listing-card-wrap:hover {
+  transform: translateY(-2px);
+}
+
+.empty {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 860px) {
+  .map-content {
+    flex-direction: column;
+  }
+
+  .listings-pane {
+    max-width: none;
+    max-height: 45vh;
+    border-left: none;
+    border-top: 1px solid #e5e7eb;
+  }
 }

@@ -101,6 +101,22 @@ export const es: Record<string, string> = {
   'map.clickToPlace': 'Haz clic en el mapa para colocar un marcador',
   'map.continue': 'Continuar con esta ubicación',
   'map.viewDetails': 'Ver detalles',
+  'map.myListings': 'Mis propiedades',
+  'map.otherListings': 'Otras propiedades',
+  'map.priceMin': 'Precio mín.',
+  'map.priceMax': 'Precio máx.',
+  'map.bedsAny': 'Recámaras (todas)',
+  'map.beds1': '1+ hab',
+  'map.beds2': '2+ hab',
+  'map.beds3': '3+ hab',
+  'map.beds4': '4+ hab',
+  'map.bathsAny': 'Baños (todos)',
+  'map.baths1': '1+ baños',
+  'map.baths2': '2+ baños',
+  'map.baths3': '3+ baños',
+  'map.moreFilters': 'Más filtros',
+  'map.fewerFilters': 'Menos filtros',
+  'map.resultsCount': '{{count}} propiedades',
   'map.loadError':
     'No se pudo cargar Google Maps. Verifica que la API key en index.html sea válida y que las APIs estén habilitadas.'
 };
