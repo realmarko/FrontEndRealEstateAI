@@ -64,6 +64,15 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'agents/edit',
+    canActivate: [authGuard, roleGuard('Agent')],
+    data: { editMode: true },
+    loadComponent: () =>
+      import('./features/agents/agent-signup/agent-signup.component').then(
+        (m) => m.AgentSignupComponent
+      )
+  },
+  {
     path: 'agents/:id',
     loadComponent: () =>
       import('./features/agents/agent-detail/agent-detail.component').then(

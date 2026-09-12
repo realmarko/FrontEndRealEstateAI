@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
@@ -25,6 +25,7 @@ export class AgentDetailComponent {
 
   readonly agent = signal<Agent | undefined>(undefined);
   readonly loading = signal(true);
+  readonly isOwnProfile = computed(() => this.agent()?.isOwnProfile ?? false);
 
   readonly reviews = signal<AgentReview[]>([]);
   readonly selectedRating = signal(0);
@@ -125,8 +126,6 @@ export class AgentDetailComponent {
         this.submittingReview.set(false);
         this.notification.success('agentDetail.reviewSuccess');
         this.agentService.fetchById(this.agentId).subscribe((agent) => this.agent.set(agent));
-        // Keep the agents-directory list (a separate cached signal) from showing a stale rating.
-        this.agentService.refresh();
       },
       error: (err) => {
         this.submittingReview.set(false);
@@ -138,6 +137,18 @@ export class AgentDetailComponent {
               : 'agentDetail.reviewError';
         this.notification.error(key);
       }
+    });
+  }
+
+  deleteReview(reviewId: number): void {
+    this.agentService.deleteReview(this.agentId, reviewId).subscribe({
+      next: () => {
+        this.reviews.update((list) => list.filter((r) => r.id !== reviewId));
+        this.notification.success('agentDetail.reviewDeleted');
+        this.agentService.fetchById(this.agentId).subscribe((agent) => this.agent.set(agent));
+        this.agentService.refresh();
+      },
+      error: () => this.notification.error('agentDetail.reviewDeleteError')
     });
   }
 }

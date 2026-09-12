@@ -28,9 +28,13 @@
         <p class="stat">
           <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
         </p>
-        <button type="button" class="primary-link" (click)="openContactModal()">
-          {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
-        </button>
+        @if (isOwnProfile()) {
+          <a class="primary-link" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
+        } @else {
+          <button type="button" class="primary-link" (click)="openContactModal()">
+            {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
+          </button>
+        }
       </div>
     </div>
 
@@ -92,6 +96,11 @@
                 <app-rating-stars [rating]="review.rating" />
                 <strong>{{ review.reviewerName }}</strong>
                 <span class="review-date">{{ review.createdAt | date:'mediumDate' }}</span>
+                @if (isOwnProfile()) {
+                  <button type="button" class="review-delete" (click)="deleteReview(review.id)">
+                    {{ 'agentDetail.deleteReview' | translate }}
+                  </button>
+                }
               </div>
               @if (review.comment) {
                 <p class="review-comment">{{ review.comment }}</p>

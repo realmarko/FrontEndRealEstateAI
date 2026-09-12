@@ -1,7 +1,13 @@
 <div class="auth-card">
-  <h1>{{ 'agentSignup.title' | translate }}</h1>
-  <p class="subtitle">{{ 'agentSignup.subtitle' | translate }}</p>
+  <h1>{{ (isEditMode ? 'agentSignup.editTitle' : 'agentSignup.title') | translate }}</h1>
+  <p class="subtitle">{{ (isEditMode ? 'agentSignup.editSubtitle' : 'agentSignup.subtitle') | translate }}</p>
 
+  @if (loading()) {
+    <p>{{ 'agentSignup.loading' | translate }}</p>
+  } @else if (loadError()) {
+    <p class="error">{{ 'agentSignup.loadError' | translate }}</p>
+    <button type="button" (click)="retryLoad()">{{ 'agentSignup.retry' | translate }}</button>
+  } @else {
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
       {{ 'register.firstName' | translate }} / {{ 'register.lastName' | translate }}
@@ -55,6 +61,9 @@
       <p class="error">{{ photoError() }}</p>
     }
 
-    <button type="submit" [disabled]="submitting()">{{ 'agentSignup.submit' | translate }}</button>
+    <button type="submit" [disabled]="submitting()">
+      {{ (isEditMode ? 'agentSignup.saveChanges' : 'agentSignup.submit') | translate }}
+    </button>
   </form>
+  }
 </div>

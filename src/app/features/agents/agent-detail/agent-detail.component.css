@@ -231,6 +231,16 @@
   font-size: 0.8rem;
 }
 
+.review-delete {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #b91c1c;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
 .review-comment {
   margin: 0;
   color: #374151;

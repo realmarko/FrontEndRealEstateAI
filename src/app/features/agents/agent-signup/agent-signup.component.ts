@@ -1,6 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { BrokerageService } from '../../../core/services/brokerage.service';
@@ -22,12 +23,18 @@ export class AgentSignupComponent {
   private readonly fb = inject(FormBuilder);
   private readonly agentService = inject(AgentService);
   private readonly brokerageService = inject(BrokerageService);
+  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly translation = inject(TranslationService);
   private readonly notification = inject(NotificationService);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly auth = inject(AuthService);
 
+  readonly isEditMode = this.route.snapshot.data['editMode'] === true;
+
   readonly submitting = signal(false);
+  readonly loading = signal(this.isEditMode);
+  readonly loadError = signal(false);
   readonly brokerages = signal<string[]>([]);
 
   readonly photoError = signal<string | null>(null);
@@ -45,12 +52,47 @@ export class AgentSignupComponent {
   constructor() {
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
 
-    this.form.controls.isIndependent.valueChanges.subscribe((isIndependent) => {
+    this.form.controls.isIndependent.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isIndependent) => {
       if (isIndependent) {
         this.form.controls.company.setValue('');
         this.form.controls.company.disable();
       } else {
         this.form.controls.company.enable();
+      }
+    });
+
+    if (this.isEditMode) {
+      this.loadMine();
+    }
+  }
+
+  retryLoad(): void {
+    this.loading.set(true);
+    this.loadError.set(false);
+    this.loadMine();
+  }
+
+  private loadMine(): void {
+    this.agentService.fetchMine().subscribe({
+      next: (agent) => {
+        this.form.patchValue({
+          phone: agent.phone,
+          company: agent.company ?? '',
+          isIndependent: agent.isIndependent,
+          bio: agent.bio ?? '',
+          specialties: agent.specialties.join(', ')
+        });
+        this.photoPreview.set(agent.photoUrl ?? null);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        if (err.status === 404) {
+          this.router.navigate(['/agents/new']);
+        } else {
+          this.loading.set(false);
+          this.loadError.set(true);
+          this.notification.error('agentSignup.loadError');
+        }
       }
     });
   }
@@ -92,7 +134,7 @@ export class AgentSignupComponent {
 
     this.submitting.set(true);
     const { phone, company, isIndependent, bio, specialties } = this.form.getRawValue();
-    this.agentService.createMine({
+    const input = {
       phone,
       company: company || undefined,
       isIndependent,
@@ -101,14 +143,17 @@ export class AgentSignupComponent {
       specialties: specialties
         ? specialties.split(',').map((s) => s.trim()).filter(Boolean)
         : undefined
-    }).subscribe({
-      next: () => {
-        this.notification.success('agentSignup.success');
-        this.router.navigate(['/agents']);
+    };
+
+    const request = this.isEditMode ? this.agentService.updateMine(input) : this.agentService.createMine(input);
+    request.subscribe({
+      next: (agent) => {
+        this.notification.success(this.isEditMode ? 'agentSignup.updateSuccess' : 'agentSignup.success');
+        this.router.navigate(['/agents', agent.id]);
       },
       error: () => {
         this.submitting.set(false);
-        this.notification.error('agentSignup.submitError');
+        this.notification.error(this.isEditMode ? 'agentSignup.updateError' : 'agentSignup.submitError');
       }
     });
   }

@@ -2,6 +2,7 @@ import { Agent, AgentReview } from '../models/agent.model';
 
 export interface AgentDto {
   id: number;
+  isOwnProfile: boolean;
   name: string;
   email: string;
   phone: string;
@@ -18,6 +19,7 @@ export interface AgentDto {
 export function fromDto(dto: AgentDto): Agent {
   return {
     id: dto.id,
+    isOwnProfile: dto.isOwnProfile,
     name: dto.name,
     email: dto.email,
     phone: dto.phone,

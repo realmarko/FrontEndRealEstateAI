@@ -1,5 +1,6 @@
 export interface Agent {
   id: number;
+  isOwnProfile: boolean;
   name: string;
   email: string;
   phone: string;
@@ -28,4 +29,11 @@ export interface AgentProfileInput {
   photo?: File;
   bio?: string;
   specialties?: string[];
+}
+
+export interface AgentFilters {
+  name?: string;
+  specialty?: string;
+  company?: string;
+  minRating?: number;
 }
