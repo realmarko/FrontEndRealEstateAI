@@ -81,3 +81,118 @@ body {
   margin: 0 auto;
   padding: 1.5rem;
 }
+
+/* Google Maps marker InfoWindow content (MapViewComponent.openListingInfo) — built with raw DOM
+   nodes appended by the Maps SDK outside Angular's view, so these rules must stay unscoped. */
+.gm-style .gm-style-iw-c {
+  padding: 0;
+  border-radius: 10px;
+}
+
+.gm-style .gm-style-iw-d {
+  overflow: hidden !important;
+  padding: 0;
+}
+
+.map-info-card {
+  width: 240px;
+  font-family: inherit;
+}
+
+.map-info-media {
+  position: relative;
+}
+
+.map-info-media img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  display: block;
+}
+
+.map-info-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: rgba(17, 24, 39, 0.75);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.map-info-tag {
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  background: #1e3a5f;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.map-info-tag.rent {
+  background: #b45309;
+}
+
+.map-info-fav {
+  position: absolute;
+  top: 0.4rem;
+  right: 2.2rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.map-info-fav.active {
+  color: #dc2626;
+}
+
+.map-info-body {
+  padding: 0.7rem 0.85rem 0.85rem;
+}
+
+.map-info-price {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #1e3a5f;
+  margin: 0 0 0.3rem;
+}
+
+.map-info-stats {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  color: #374151;
+}
+
+.map-info-stats .sep {
+  color: #d1d5db;
+  margin: 0 0.15rem;
+}
+
+.map-info-title {
+  margin: 0 0 0.15rem;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.map-info-address {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #6b7280;
+}

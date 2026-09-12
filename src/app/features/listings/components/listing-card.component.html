@@ -1,29 +1,42 @@
 <article class="card">
-  <a [routerLink]="['/listings', listing.id]">
-    <img [src]="listing.imageUrl" [alt]="listing.title" />
-  </a>
+  <div class="card-media">
+    <a [routerLink]="['/listings', listing.id]">
+      <img [src]="listing.imageUrl" [alt]="listing.title" />
+    </a>
+
+    @if (listing.propertyType) {
+      <span class="badge">{{ ('listingForm.' + listing.propertyType) | translate }}</span>
+    }
+
+    <span class="type-tag" [class.rent]="listing.type === 'rent'">
+      {{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}
+    </span>
+
+    <button
+      type="button"
+      class="fav-overlay"
+      [class.active]="isFavorite"
+      [attr.aria-label]="(isFavorite ? 'listingDetail.saved' : 'listingDetail.save') | translate"
+      (click)="toggleFavorite.emit(listing.id)"
+    >
+      {{ isFavorite ? '♥' : '♡' }}
+    </button>
+  </div>
 
   <div class="body">
-    <div class="row">
-      <h3><a [routerLink]="['/listings', listing.id]">{{ listing.title }}</a></h3>
-      <button
-        type="button"
-        class="fav"
-        [class.active]="isFavorite"
-        (click)="toggleFavorite.emit(listing.id)"
-      >
-        {{ isFavorite ? '★' : '☆' }}
-      </button>
-    </div>
-
     <p class="price">
       {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
     </p>
-    <p class="address">{{ listing.address }}</p>
-    <p class="meta">
-      {{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }} ·
-      {{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }} ·
-      {{ listing.areaSqm }} m²
+
+    <p class="stats">
+      <span><strong>{{ listing.bedrooms }}</strong> {{ 'listing.bedroomsAbbr' | translate }}</span>
+      <span class="sep">|</span>
+      <span><strong>{{ listing.bathrooms }}</strong> {{ 'listing.bathroomsAbbr' | translate }}</span>
+      <span class="sep">|</span>
+      <span><strong>{{ listing.areaSqm }}</strong> m²</span>
     </p>
+
+    <h3><a [routerLink]="['/listings', listing.id]">{{ listing.title }}</a></h3>
+    <p class="address">{{ listing.address }}</p>
   </div>
 </article>

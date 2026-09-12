@@ -187,28 +187,95 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private openListingInfo(listing: Listing, marker: google.maps.Marker): void {
     if (!this.infoWindow) return;
 
+    // Matches ListingCardComponent's formatting exactly (Angular's CurrencyPipe with no
+    // digitsInfo override defaults to 2 decimal places) so the same listing never shows a
+    // different price on its card vs. its map marker popup.
     const price = new Intl.NumberFormat(undefined, {
       style: 'currency',
       currency: listing.currency
     }).format(listing.price);
 
-    const container = document.createElement('div');
-
-    const titleEl = document.createElement('strong');
-    titleEl.textContent = listing.title;
-
-    const priceEl = document.createElement('div');
-    priceEl.textContent = price;
-
-    const link = document.createElement('a');
-    link.href = `/listings/${listing.id}`;
-    link.textContent = this.translation.t('map.viewDetails');
-    link.addEventListener('click', (event) => {
+    const navigate = (event: Event) => {
       event.preventDefault();
       this.zone.run(() => this.router.navigate(['/listings', listing.id]));
-    });
+    };
 
-    container.append(titleEl, document.createElement('br'), priceEl, document.createElement('br'), link);
+    const container = document.createElement('div');
+    container.className = 'map-info-card';
+
+    // --- media: photo + property-type badge + for sale/rent tag + favorite toggle ---
+    const media = document.createElement('div');
+    media.className = 'map-info-media';
+    media.style.cursor = 'pointer';
+    media.addEventListener('click', navigate);
+
+    const img = document.createElement('img');
+    img.src = listing.imageUrl;
+    img.alt = listing.title;
+    media.appendChild(img);
+
+    if (listing.propertyType) {
+      const badge = document.createElement('span');
+      badge.className = 'map-info-badge';
+      badge.textContent = this.translation.t(`listingForm.${listing.propertyType}`);
+      media.appendChild(badge);
+    }
+
+    const tag = document.createElement('span');
+    tag.className = listing.type === 'rent' ? 'map-info-tag rent' : 'map-info-tag';
+    tag.textContent = this.translation.t(listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale');
+    media.appendChild(tag);
+
+    const favBtn = document.createElement('button');
+    favBtn.type = 'button';
+    favBtn.className = 'map-info-fav';
+    const syncFavState = () => {
+      const active = this.favorites.isFavorite(listing.id);
+      favBtn.textContent = active ? '♥' : '♡';
+      favBtn.classList.toggle('active', active);
+    };
+    syncFavState();
+    favBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      this.zone.run(() => {
+        this.favorites.toggle(listing.id);
+        syncFavState();
+      });
+    });
+    media.appendChild(favBtn);
+
+    container.appendChild(media);
+
+    // --- body: price, stats line, title, address ---
+    const body = document.createElement('div');
+    body.className = 'map-info-body';
+
+    const priceEl = document.createElement('p');
+    priceEl.className = 'map-info-price';
+    priceEl.textContent = price + (listing.type === 'rent' ? this.translation.t('listing.perMonthSuffix') : '');
+    body.appendChild(priceEl);
+
+    const statsEl = document.createElement('p');
+    statsEl.className = 'map-info-stats';
+    statsEl.innerHTML =
+      `<strong>${listing.bedrooms}</strong> ${this.translation.t('listing.bedroomsAbbr')}` +
+      ` <span class="sep">|</span> <strong>${listing.bathrooms}</strong> ${this.translation.t('listing.bathroomsAbbr')}` +
+      ` <span class="sep">|</span> <strong>${listing.areaSqm}</strong> m²`;
+    body.appendChild(statsEl);
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'map-info-title';
+    titleEl.textContent = listing.title;
+    titleEl.style.cursor = 'pointer';
+    titleEl.addEventListener('click', navigate);
+    body.appendChild(titleEl);
+
+    const addressEl = document.createElement('p');
+    addressEl.className = 'map-info-address';
+    addressEl.textContent = listing.address;
+    body.appendChild(addressEl);
+
+    container.appendChild(body);
 
     this.infoWindow.setContent(container);
     this.infoWindow.open({ map: this.map, anchor: marker });
