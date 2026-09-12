@@ -133,8 +133,9 @@ export const en: Record<string, string> = {
   'agentSignup.phone': 'Phone',
   'agentSignup.company': 'Brokerage / company (optional)',
   'agentSignup.companyPlaceholder': 'e.g. Comey & Shepherd, REALTORS®',
-  'agentSignup.photoUrl': 'Photo URL (optional)',
-  'agentSignup.photoUrlPlaceholder': 'https://...',
+  'agentSignup.photo': 'Photo (optional)',
+  'agentSignup.photoInvalidType': 'Photo must be a JPEG, PNG, or WEBP image.',
+  'agentSignup.photoTooLarge': 'Photo must be 5 MB or smaller.',
   'agentSignup.submit': 'Create agent profile',
   'agentSignup.submitError': 'Could not create your agent profile. Please try again.'
 };

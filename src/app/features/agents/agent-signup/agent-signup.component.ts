@@ -6,6 +6,9 @@ import { AuthService } from '../../../core/services/auth.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+
 @Component({
   selector: 'app-agent-signup',
   standalone: true,
@@ -23,11 +26,43 @@ export class AgentSignupComponent {
   readonly errorMessage = signal<string | null>(null);
   readonly submitting = signal(false);
 
+  readonly photoError = signal<string | null>(null);
+  readonly photoPreview = signal<string | null>(null);
+  private selectedPhoto: File | null = null;
+
   readonly form = this.fb.nonNullable.group({
     phone: ['', [Validators.required, Validators.minLength(7)]],
-    company: [''],
-    photoUrl: ['']
+    company: ['']
   });
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+      this.photoError.set(this.translation.t('agentSignup.photoInvalidType'));
+      this.selectedPhoto = null;
+      this.photoPreview.set(null);
+      input.value = '';
+      return;
+    }
+
+    if (file.size > MAX_PHOTO_BYTES) {
+      this.photoError.set(this.translation.t('agentSignup.photoTooLarge'));
+      this.selectedPhoto = null;
+      this.photoPreview.set(null);
+      input.value = '';
+      return;
+    }
+
+    this.photoError.set(null);
+    this.selectedPhoto = file;
+
+    const reader = new FileReader();
+    reader.onload = () => this.photoPreview.set(reader.result as string);
+    reader.readAsDataURL(file);
+  }
 
   submit(): void {
     if (this.form.invalid || this.submitting()) {
@@ -37,11 +72,11 @@ export class AgentSignupComponent {
 
     this.errorMessage.set(null);
     this.submitting.set(true);
-    const { phone, company, photoUrl } = this.form.getRawValue();
+    const { phone, company } = this.form.getRawValue();
     this.agentService.createMine({
       phone,
       company: company || undefined,
-      photoUrl: photoUrl || undefined
+      photo: this.selectedPhoto ?? undefined
     }).subscribe({
       next: () => this.router.navigate(['/agents']),
       error: () => {

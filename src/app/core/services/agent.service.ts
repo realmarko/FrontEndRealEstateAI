@@ -29,7 +29,12 @@ export class AgentService {
   }
 
   createMine(input: AgentProfileInput): Observable<Agent> {
-    return this.http.post<AgentDto>(this.apiUrl, input).pipe(
+    const formData = new FormData();
+    formData.append('phone', input.phone);
+    if (input.company) formData.append('company', input.company);
+    if (input.photo) formData.append('photo', input.photo);
+
+    return this.http.post<AgentDto>(this.apiUrl, formData).pipe(
       map(fromDto),
       tap((agent) => this.agentsSignal.update((list) => [...list, agent]))
     );

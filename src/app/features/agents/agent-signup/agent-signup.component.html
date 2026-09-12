@@ -24,9 +24,16 @@
     </label>
 
     <label>
-      {{ 'agentSignup.photoUrl' | translate }}
-      <input type="text" formControlName="photoUrl" [placeholder]="'agentSignup.photoUrlPlaceholder' | translate" />
+      {{ 'agentSignup.photo' | translate }}
+      <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
     </label>
+
+    @if (photoPreview()) {
+      <img class="photo-preview" [src]="photoPreview()" [alt]="'agentSignup.photo' | translate" />
+    }
+    @if (photoError()) {
+      <p class="error">{{ photoError() }}</p>
+    }
 
     @if (errorMessage()) {
       <p class="error">{{ errorMessage() }}</p>

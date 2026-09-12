@@ -11,5 +11,5 @@ export interface Agent {
 export interface AgentProfileInput {
   phone: string;
   company?: string;
-  photoUrl?: string;
+  photo?: File;
 }
