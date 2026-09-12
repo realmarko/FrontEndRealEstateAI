@@ -147,6 +147,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.infoWindow = new google.maps.InfoWindow();
 
     this.map.addListener('click', (event: google.maps.MapMouseEvent) => {
+      // The info-window's own close button is hidden (see .gm-ui-hover-effect in styles.css),
+      // so clicking anywhere else on the map is the only way left to dismiss it.
+      this.infoWindow?.close();
+
       if (!this.addMode || !event.latLng) return;
       this.zone.run(() => this.placeMarker(event.latLng!));
     });

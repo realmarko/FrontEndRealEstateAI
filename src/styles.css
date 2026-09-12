@@ -94,6 +94,12 @@ body {
   padding: 0;
 }
 
+/* Google's own close "x" button — hidden in favor of the map's own click-to-dismiss handler
+   (MapViewComponent's map 'click' listener calls infoWindow.close()). */
+.gm-style .gm-ui-hover-effect {
+  display: none !important;
+}
+
 .map-info-card {
   width: 240px;
   font-family: inherit;
