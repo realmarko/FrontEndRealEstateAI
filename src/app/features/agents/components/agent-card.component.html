@@ -1,4 +1,4 @@
-<article class="card">
+<a class="card" [routerLink]="['/agents', agent.id]">
   <div class="photo">
     @if (agent.photoUrl) {
       <img [src]="agent.photoUrl" [alt]="agent.name" />
@@ -16,9 +16,7 @@
     <p class="stat">
       <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
     </p>
-    <p class="contact">
-      <a [href]="'mailto:' + agent.email">{{ agent.email }}</a>
-    </p>
+    <p class="contact">{{ agent.email }}</p>
     <p class="contact">{{ agent.phone }}</p>
   </div>
-</article>
+</a>

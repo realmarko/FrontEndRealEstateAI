@@ -28,6 +28,10 @@ export class AgentService {
       .subscribe((res) => this.agentsSignal.set(res.items.map(fromDto)));
   }
 
+  fetchById(id: number): Observable<Agent> {
+    return this.http.get<AgentDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
+  }
+
   createMine(input: AgentProfileInput): Observable<Agent> {
     const formData = new FormData();
     formData.append('phone', input.phone);

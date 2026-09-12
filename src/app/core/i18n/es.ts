@@ -133,6 +133,13 @@ export const es: Record<string, string> = {
   'agents.propertiesCount': 'propiedades',
   'agents.empty': 'No hay agentes que coincidan con tu búsqueda.',
 
+  'agentDetail.back': '← Volver a agentes',
+  'agentDetail.contact': 'Contactar a {{name}}',
+  'agentDetail.aboutTitle': 'Sobre {{name}}',
+  'agentDetail.specialtiesTitle': 'Especialidades',
+  'agentDetail.contactTitle': 'Información de contacto',
+  'agentDetail.notFound': 'Agente no encontrado.',
+
   'agentSignup.title': 'Completa tu perfil de agente',
   'agentSignup.subtitle': 'Ya casi terminas — agrega un teléfono para que los compradores puedan contactarte.',
   'agentSignup.phone': 'Teléfono',

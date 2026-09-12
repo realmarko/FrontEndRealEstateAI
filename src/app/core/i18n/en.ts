@@ -133,6 +133,13 @@ export const en: Record<string, string> = {
   'agents.propertiesCount': 'properties',
   'agents.empty': 'No agents match your search.',
 
+  'agentDetail.back': '← Back to agents',
+  'agentDetail.contact': 'Contact {{name}}',
+  'agentDetail.aboutTitle': 'About {{name}}',
+  'agentDetail.specialtiesTitle': 'Specialties',
+  'agentDetail.contactTitle': 'Contact information',
+  'agentDetail.notFound': 'Agent not found.',
+
   'agentSignup.title': 'Complete your agent profile',
   'agentSignup.subtitle': "You're almost done — add a phone number so buyers can reach you.",
   'agentSignup.phone': 'Phone',

@@ -64,6 +64,13 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'agents/:id',
+    loadComponent: () =>
+      import('./features/agents/agent-detail/agent-detail.component').then(
+        (m) => m.AgentDetailComponent
+      )
+  },
+  {
     path: 'favorites',
     canActivate: [authGuard],
     loadComponent: () =>

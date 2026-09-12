@@ -1,0 +1,55 @@
+@if (agent(); as agent) {
+  <div class="page detail">
+    <a class="back" routerLink="/agents">{{ 'agentDetail.back' | translate }}</a>
+
+    <div class="header">
+      <div class="photo">
+        @if (agent.photoUrl) {
+          <img [src]="agent.photoUrl" [alt]="agent.name" />
+        } @else {
+          <div class="avatar">{{ initials }}</div>
+        }
+      </div>
+
+      <div class="header-info">
+        <h1>{{ agent.name }}</h1>
+        @if (agent.company) {
+          <p class="company">{{ agent.company }}</p>
+        }
+        <p class="stat">
+          <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
+        </p>
+        <a class="primary-link" [href]="'mailto:' + agent.email">{{ 'agentDetail.contact' | translate:{ name: agent.name } }}</a>
+      </div>
+    </div>
+
+    @if (agent.bio) {
+      <section class="section">
+        <h2>{{ 'agentDetail.aboutTitle' | translate:{ name: agent.name } }}</h2>
+        <p class="bio">{{ agent.bio }}</p>
+      </section>
+    }
+
+    @if (agent.specialties.length) {
+      <section class="section">
+        <h2>{{ 'agentDetail.specialtiesTitle' | translate }}</h2>
+        <div class="tags">
+          @for (specialty of agent.specialties; track specialty) {
+            <span class="tag">{{ specialty }}</span>
+          }
+        </div>
+      </section>
+    }
+
+    <section class="section">
+      <h2>{{ 'agentDetail.contactTitle' | translate }}</h2>
+      <p class="contact-line"><a [href]="'mailto:' + agent.email">{{ agent.email }}</a></p>
+      <p class="contact-line">{{ agent.phone }}</p>
+    </section>
+  </div>
+} @else if (!loading()) {
+  <div class="page">
+    <p>{{ 'agentDetail.notFound' | translate }}</p>
+    <a routerLink="/agents">{{ 'agentDetail.back' | translate }}</a>
+  </div>
+}
