@@ -15,8 +15,7 @@
     <div class="grid-3">
       <label>
         {{ 'listingForm.price' | translate }}
-        <input type="number" formControlName="price" min="0" />
-        <span class="price-preview">{{ form.value.price | currency:form.value.currency }}</span>
+        <input type="text" inputmode="numeric" class="price-mask" formControlName="price" appCurrencyInput />
       </label>
 
       <label>

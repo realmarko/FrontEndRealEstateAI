@@ -7,11 +7,12 @@ import { Currency, ListingInput, PropertyType } from '../../../core/models/listi
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { amountToWords } from '../../../shared/utils/amount-to-words';
+import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
 
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective],
   templateUrl: './listing-form.component.html',
   styleUrl: './listing-form.component.css'
 })

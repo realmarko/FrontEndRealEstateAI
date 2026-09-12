@@ -16,21 +16,19 @@
 
     <div class="price-group">
       <input
-        type="number"
-        class="price-input"
-        min="0"
+        type="text"
+        inputmode="numeric"
+        class="price-input price-mask"
         [placeholder]="'map.priceMin' | translate"
-        [value]="minPrice() ?? ''"
-        (input)="setMinPrice($any($event.target).value)"
+        (input)="setMinPrice($any($event.target))"
       />
       <span class="price-sep">–</span>
       <input
-        type="number"
-        class="price-input"
-        min="0"
+        type="text"
+        inputmode="numeric"
+        class="price-input price-mask"
         [placeholder]="'map.priceMax' | translate"
-        [value]="maxPrice() ?? ''"
-        (input)="setMaxPrice($any($event.target).value)"
+        (input)="setMaxPrice($any($event.target))"
       />
     </div>
 

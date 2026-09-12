@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { Listing, ListingType, PropertyType } from '../../core/models/listing.model';
+import { digitsFromInput, formatCurrencyDisplay } from '../../shared/utils/currency-input';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 18;
@@ -270,14 +271,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.propertyTypeFilter.set(propertyType);
   }
 
-  setMinPrice(value: string): void {
-    const n = Number(value);
-    this.minPrice.set(value === '' || !Number.isFinite(n) ? null : n);
+  setMinPrice(target: HTMLInputElement): void {
+    const digits = digitsFromInput(target.value);
+    target.value = formatCurrencyDisplay(digits);
+    this.minPrice.set(digits === '' ? null : Number(digits));
   }
 
-  setMaxPrice(value: string): void {
-    const n = Number(value);
-    this.maxPrice.set(value === '' || !Number.isFinite(n) ? null : n);
+  setMaxPrice(target: HTMLInputElement): void {
+    const digits = digitsFromInput(target.value);
+    target.value = formatCurrencyDisplay(digits);
+    this.maxPrice.set(digits === '' ? null : Number(digits));
   }
 
   setMinBeds(value: string): void {

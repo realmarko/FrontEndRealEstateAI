@@ -41,10 +41,10 @@ input:disabled {
   color: #4b5563;
 }
 
-.price-preview {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #15803d;
+.price-mask {
+  border-radius: 999px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .price-words {

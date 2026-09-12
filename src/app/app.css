@@ -1,5 +1,17 @@
 .app-shell {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+}
+
+/* Bounds every routed page to the space left under the navbar. Pages that need normal
+   document-style scrolling (most of them) just get taller than this and scroll here instead
+   of on <body>; a page like /map that fills this exactly relies on its own internal scroll
+   regions (e.g. the results list) instead of ever scrolling this container. */
+.app-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }

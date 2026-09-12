@@ -2,6 +2,7 @@
   display: flex;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .map-page {
@@ -9,6 +10,7 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 
 .search-bar {
@@ -57,6 +59,12 @@
 
 .price-sep {
   color: #9ca3af;
+}
+
+.price-mask {
+  border-radius: 999px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .more-filters-btn {
