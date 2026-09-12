@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { TranslationService } from '../../../core/services/translation.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { UserRole } from '../../../core/models/user.model';
 
@@ -17,9 +17,7 @@ export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly translation = inject(TranslationService);
-
-  readonly errorMessage = signal<string | null>(null);
+  private readonly notification = inject(NotificationService);
 
   readonly form = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -37,13 +35,13 @@ export class RegisterComponent {
       return;
     }
 
-    this.errorMessage.set(null);
     const payload = this.form.getRawValue();
     console.log('[register] sending payload', { ...payload, password: '(hidden)' });
 
     this.auth.register(payload).subscribe({
       next: (res) => {
         console.log('[register] service responded OK', res);
+        this.notification.success('register.success');
         this.router.navigate([payload.role === 'Agent' ? '/agents/new' : '/listings']);
       },
       error: (err) => {
@@ -52,7 +50,7 @@ export class RegisterComponent {
         const key = messages.some((m) => /taken|already/i.test(m))
           ? 'auth.errors.emailTaken'
           : 'auth.errors.registerFailed';
-        this.errorMessage.set(this.translation.t(key));
+        this.notification.error(key);
       }
     });
   }

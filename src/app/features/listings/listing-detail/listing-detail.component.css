@@ -111,10 +111,6 @@
   cursor: pointer;
 }
 
-.contact .sent {
-  color: #15803d;
-}
-
 @media (max-width: 720px) {
   .layout {
     grid-template-columns: 1fr;

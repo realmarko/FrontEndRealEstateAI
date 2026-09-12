@@ -35,10 +35,6 @@
       <p class="error">{{ photoError() }}</p>
     }
 
-    @if (errorMessage()) {
-      <p class="error">{{ errorMessage() }}</p>
-    }
-
     <button type="submit" [disabled]="submitting()">{{ 'agentSignup.submit' | translate }}</button>
   </form>
 </div>

@@ -34,9 +34,6 @@
             <h2>{{ 'listingDetail.contactTitle' | translate }}</h2>
 
             @if (auth.isAuthenticated()) {
-              @if (messageSent()) {
-                <p class="sent">{{ 'listingDetail.messageSent' | translate }}</p>
-              }
               <textarea
                 rows="3"
                 [placeholder]="'listingDetail.messagePlaceholder' | translate"

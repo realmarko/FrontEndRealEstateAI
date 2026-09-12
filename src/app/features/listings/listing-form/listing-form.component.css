@@ -54,12 +54,6 @@ input:disabled {
   color: #4b5563;
 }
 
-.error {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #b91c1c;
-}
-
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -5,6 +5,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { MessageService } from '../../../core/services/message.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { Listing } from '../../../core/models/listing.model';
 
@@ -22,6 +23,7 @@ export class ListingDetailComponent {
   protected readonly favorites = inject(FavoritesService);
   protected readonly auth = inject(AuthService);
   private readonly messageService = inject(MessageService);
+  private readonly notification = inject(NotificationService);
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -30,7 +32,6 @@ export class ListingDetailComponent {
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
   readonly messageBody = signal('');
-  readonly messageSent = signal(false);
 
   constructor() {
     this.listingService.fetchById(this.id).subscribe({
@@ -50,7 +51,13 @@ export class ListingDetailComponent {
   }
 
   deleteListing(): void {
-    this.listingService.delete(this.id).subscribe(() => this.router.navigate(['/listings']));
+    this.listingService.delete(this.id).subscribe({
+      next: () => {
+        this.notification.success('listingDetail.deleteSuccess');
+        this.router.navigate(['/listings']);
+      },
+      error: () => this.notification.error('listingDetail.deleteError')
+    });
   }
 
   sendMessage(): void {
@@ -69,6 +76,6 @@ export class ListingDetailComponent {
       body
     );
     this.messageBody.set('');
-    this.messageSent.set(true);
+    this.notification.success('listingDetail.messageSent');
   }
 }

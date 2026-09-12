@@ -28,6 +28,7 @@ export const es: Record<string, string> = {
   'register.submit': 'Registrarse',
   'register.haveAccount': '¿Ya tienes cuenta?',
   'register.loginLink': 'Inicia sesión',
+  'register.success': '¡Cuenta creada! Bienvenido a RealEstateApp.',
 
   'auth.errors.emailTaken': 'Ya existe una cuenta con este correo electrónico.',
   'auth.errors.invalidCredentials': 'Correo electrónico o contraseña inválidos.',
@@ -57,6 +58,8 @@ export const es: Record<string, string> = {
   'listingDetail.sendMessage': 'Enviar mensaje',
   'listingDetail.loginToContact': 'para contactar al propietario.',
   'listingDetail.notFound': 'Propiedad no encontrada.',
+  'listingDetail.deleteSuccess': 'Propiedad eliminada.',
+  'listingDetail.deleteError': 'No se pudo eliminar la propiedad. Intenta de nuevo.',
 
   'favorites.title': 'Tus favoritos',
   'favorites.emptyPrefix': 'Aún no has guardado ninguna propiedad.',
@@ -98,6 +101,8 @@ export const es: Record<string, string> = {
   'listingForm.saveSubmit': 'Guardar cambios',
   'listingForm.cancel': 'Cancelar',
   'listingForm.submitError': 'No se pudo guardar la propiedad. Verifica que tu cuenta sea de tipo Propietario e intenta de nuevo.',
+  'listingForm.createSuccess': 'Propiedad creada con éxito.',
+  'listingForm.updateSuccess': 'Propiedad actualizada con éxito.',
 
   'map.addProperty': 'Agregar propiedad',
   'map.clickToPlace': 'Haz clic en el mapa para colocar un marcador',
@@ -137,5 +142,6 @@ export const es: Record<string, string> = {
   'agentSignup.photoInvalidType': 'La foto debe ser una imagen JPEG, PNG o WEBP.',
   'agentSignup.photoTooLarge': 'La foto debe pesar 5 MB o menos.',
   'agentSignup.submit': 'Crear perfil de agente',
-  'agentSignup.submitError': 'No se pudo crear tu perfil de agente. Intenta de nuevo.'
+  'agentSignup.submitError': 'No se pudo crear tu perfil de agente. Intenta de nuevo.',
+  'agentSignup.success': '¡Perfil de agente creado!'
 };

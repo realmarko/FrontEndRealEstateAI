@@ -92,8 +92,6 @@
     </label>
     <p class="file-name" *ngIf="selectedFileName">{{ 'listingForm.selectedFile' | translate:{ name: selectedFileName } }}</p>
 
-    <p class="error" *ngIf="submitError()">{{ submitError() }}</p>
-
     <div class="actions">
       <button type="submit" class="primary">{{ (isEditMode ? 'listingForm.saveSubmit' : 'listingForm.createSubmit') | translate }}</button>
       <a routerLink="/listings">{{ 'listingForm.cancel' | translate }}</a>

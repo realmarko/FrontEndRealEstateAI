@@ -12,10 +12,6 @@
       <input type="password" formControlName="password" autocomplete="current-password" />
     </label>
 
-    @if (errorMessage()) {
-      <p class="error">{{ errorMessage() }}</p>
-    }
-
     <button type="submit">{{ 'login.submit' | translate }}</button>
   </form>
 

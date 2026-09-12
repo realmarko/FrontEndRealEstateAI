@@ -1,8 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { TranslationService } from '../../../core/services/translation.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
@@ -16,9 +16,7 @@ export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly translation = inject(TranslationService);
-
-  readonly errorMessage = signal<string | null>(null);
+  private readonly notification = inject(NotificationService);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -31,10 +29,9 @@ export class LoginComponent {
       return;
     }
 
-    this.errorMessage.set(null);
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/listings']),
-      error: () => this.errorMessage.set(this.translation.t('auth.errors.invalidCredentials'))
+      error: () => this.notification.error('auth.errors.invalidCredentials')
     });
   }
 }

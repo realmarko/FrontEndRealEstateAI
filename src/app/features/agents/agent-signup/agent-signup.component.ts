@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
@@ -21,9 +22,9 @@ export class AgentSignupComponent {
   private readonly agentService = inject(AgentService);
   private readonly router = inject(Router);
   private readonly translation = inject(TranslationService);
+  private readonly notification = inject(NotificationService);
   protected readonly auth = inject(AuthService);
 
-  readonly errorMessage = signal<string | null>(null);
   readonly submitting = signal(false);
 
   readonly photoError = signal<string | null>(null);
@@ -70,7 +71,6 @@ export class AgentSignupComponent {
       return;
     }
 
-    this.errorMessage.set(null);
     this.submitting.set(true);
     const { phone, company } = this.form.getRawValue();
     this.agentService.createMine({
@@ -78,10 +78,13 @@ export class AgentSignupComponent {
       company: company || undefined,
       photo: this.selectedPhoto ?? undefined
     }).subscribe({
-      next: () => this.router.navigate(['/agents']),
+      next: () => {
+        this.notification.success('agentSignup.success');
+        this.router.navigate(['/agents']);
+      },
       error: () => {
         this.submitting.set(false);
-        this.errorMessage.set(this.translation.t('agentSignup.submitError'));
+        this.notification.error('agentSignup.submitError');
       }
     });
   }

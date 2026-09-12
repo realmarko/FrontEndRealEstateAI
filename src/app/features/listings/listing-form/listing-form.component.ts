@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ListingService } from '../../../core/services/listing.service';
 import { Currency, ListingInput, PropertyType } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
+import { NotificationService } from '../../../core/services/notification.service';
 import { amountToWords } from '../../../shared/utils/amount-to-words';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
 
@@ -22,14 +23,13 @@ export class ListingFormComponent {
   private readonly router = inject(Router);
   private readonly listingService = inject(ListingService);
   private readonly translation = inject(TranslationService);
+  private readonly notification = inject(NotificationService);
 
   private readonly editingId = this.route.snapshot.paramMap.get('id');
   readonly isEditMode = this.editingId !== null;
 
   readonly lat: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lat'));
   readonly lng: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lng'));
-
-  readonly submitError = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -94,8 +94,6 @@ export class ListingFormComponent {
       return;
     }
 
-    this.submitError.set(null);
-
     const value: ListingInput = {
       ...this.form.getRawValue(),
       lat: this.lat ?? this.existingLat ?? undefined,
@@ -107,8 +105,11 @@ export class ListingFormComponent {
       : this.listingService.create(value);
 
     request$.subscribe({
-      next: (listing) => this.router.navigate(['/listings', listing.id]),
-      error: () => this.submitError.set(this.translation.t('listingForm.submitError'))
+      next: (listing) => {
+        this.notification.success(this.isEditMode ? 'listingForm.updateSuccess' : 'listingForm.createSuccess');
+        this.router.navigate(['/listings', listing.id]);
+      },
+      error: () => this.notification.error('listingForm.submitError')
     });
   }
 }
