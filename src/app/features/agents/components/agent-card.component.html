@@ -1,0 +1,14 @@
+<article class="card">
+  <div class="avatar">{{ initials }}</div>
+
+  <div class="body">
+    <h3>{{ agent.name }}</h3>
+    <p class="meta">
+      {{ agent.propertiesCount }} {{ 'agents.propertiesCount' | translate }}
+    </p>
+    <p class="contact">
+      <a [href]="'mailto:' + agent.email">{{ agent.email }}</a>
+    </p>
+    <p class="contact">{{ agent.phone }}</p>
+  </div>
+</article>

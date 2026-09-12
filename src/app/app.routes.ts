@@ -48,6 +48,13 @@ export const routes: Routes = [
       import('./features/map-view/map-view.component').then((m) => m.MapViewComponent)
   },
   {
+    path: 'agents',
+    loadComponent: () =>
+      import('./features/agents/agents-list/agents-list.component').then(
+        (m) => m.AgentsListComponent
+      )
+  },
+  {
     path: 'favorites',
     canActivate: [authGuard],
     loadComponent: () =>

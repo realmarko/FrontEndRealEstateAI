@@ -2,6 +2,7 @@ export const en: Record<string, string> = {
   'nav.listings': 'Listings',
   'nav.addListing': 'Add Listing',
   'nav.map': 'Map',
+  'nav.agents': 'Agents',
   'nav.favorites': 'Favorites',
   'nav.messages': 'Messages',
   'nav.logIn': 'Log in',
@@ -118,5 +119,11 @@ export const en: Record<string, string> = {
   'map.fewerFilters': 'Fewer filters',
   'map.resultsCount': '{{count}} listings',
   'map.loadError':
-    'Could not load Google Maps. Check that the API key in index.html is valid and that the required APIs are enabled.'
+    'Could not load Google Maps. Check that the API key in index.html is valid and that the required APIs are enabled.',
+
+  'agents.title': 'Find a real estate agent',
+  'agents.searchPlaceholder': 'Search by agent name',
+  'agents.resultsCount': '{{count}} agents',
+  'agents.propertiesCount': 'properties',
+  'agents.empty': 'No agents match your search.'
 };

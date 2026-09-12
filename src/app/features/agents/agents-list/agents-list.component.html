@@ -1,0 +1,30 @@
+<div class="page">
+  <div class="search-card">
+    <h1>{{ 'agents.title' | translate }}</h1>
+
+    <div class="search-row">
+      <span class="icon">📍</span>
+      <input
+        type="search"
+        [placeholder]="'agents.searchPlaceholder' | translate"
+        [value]="search()"
+        (input)="onSearchChange($any($event.target).value)"
+      />
+      <span class="icon search-icon">🔍</span>
+    </div>
+  </div>
+
+  <p class="results-count">
+    {{ 'agents.resultsCount' | translate: { count: agents().length } }}
+  </p>
+
+  @if (agents().length) {
+    <div class="grid">
+      @for (agent of agents(); track agent.id) {
+        <app-agent-card [agent]="agent" />
+      }
+    </div>
+  } @else {
+    <p class="empty">{{ 'agents.empty' | translate }}</p>
+  }
+</div>

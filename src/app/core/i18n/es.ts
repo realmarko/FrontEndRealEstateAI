@@ -2,6 +2,7 @@ export const es: Record<string, string> = {
   'nav.listings': 'Propiedades',
   'nav.addListing': 'Agregar propiedad',
   'nav.map': 'Mapa',
+  'nav.agents': 'Agentes',
   'nav.favorites': 'Favoritos',
   'nav.messages': 'Mensajes',
   'nav.logIn': 'Iniciar sesión',
@@ -118,5 +119,11 @@ export const es: Record<string, string> = {
   'map.fewerFilters': 'Menos filtros',
   'map.resultsCount': '{{count}} propiedades',
   'map.loadError':
-    'No se pudo cargar Google Maps. Verifica que la API key en index.html sea válida y que las APIs estén habilitadas.'
+    'No se pudo cargar Google Maps. Verifica que la API key en index.html sea válida y que las APIs estén habilitadas.',
+
+  'agents.title': 'Encuentra un agente inmobiliario',
+  'agents.searchPlaceholder': 'Buscar por nombre del agente',
+  'agents.resultsCount': '{{count}} agentes',
+  'agents.propertiesCount': 'propiedades',
+  'agents.empty': 'No hay agentes que coincidan con tu búsqueda.'
 };
