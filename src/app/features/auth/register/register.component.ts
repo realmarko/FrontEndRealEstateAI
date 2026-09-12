@@ -30,16 +30,24 @@ export class RegisterComponent {
   });
 
   submit(): void {
+    console.log('[register] submit clicked, form valid?', this.form.valid, 'errors:', this.collectErrors());
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.errorMessage.set(null);
-    const role = this.form.getRawValue().role;
-    this.auth.register(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate([role === 'Agent' ? '/agents/new' : '/listings']),
+    const payload = this.form.getRawValue();
+    console.log('[register] sending payload', { ...payload, password: '(hidden)' });
+
+    this.auth.register(payload).subscribe({
+      next: (res) => {
+        console.log('[register] service responded OK', res);
+        this.router.navigate([payload.role === 'Agent' ? '/agents/new' : '/listings']);
+      },
       error: (err) => {
+        console.log('[register] service responded with error', err);
         const messages: string[] = Array.isArray(err?.error) ? err.error : [];
         const key = messages.some((m) => /taken|already/i.test(m))
           ? 'auth.errors.emailTaken'
@@ -47,5 +55,14 @@ export class RegisterComponent {
         this.errorMessage.set(this.translation.t(key));
       }
     });
+  }
+
+  private collectErrors(): Record<string, unknown> {
+    const errors: Record<string, unknown> = {};
+    for (const name of Object.keys(this.form.controls)) {
+      const control = this.form.get(name);
+      if (control?.errors) errors[name] = control.errors;
+    }
+    return errors;
   }
 }
