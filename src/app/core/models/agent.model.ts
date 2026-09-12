@@ -5,6 +5,8 @@ export interface Agent {
   phone: string;
   company?: string;
   photoUrl?: string;
+  bio?: string;
+  specialties: string[];
   propertiesCount: number;
 }
 
@@ -12,4 +14,6 @@ export interface AgentProfileInput {
   phone: string;
   company?: string;
   photo?: File;
+  bio?: string;
+  specialties?: string[];
 }

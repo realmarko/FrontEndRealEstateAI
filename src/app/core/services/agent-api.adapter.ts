@@ -7,6 +7,8 @@ export interface AgentDto {
   phone: string;
   company?: string | null;
   photoUrl?: string | null;
+  bio?: string | null;
+  specialties: string[];
   propertiesCount: number;
 }
 
@@ -18,6 +20,8 @@ export function fromDto(dto: AgentDto): Agent {
     phone: dto.phone,
     company: dto.company ?? undefined,
     photoUrl: dto.photoUrl ?? undefined,
+    bio: dto.bio ?? undefined,
+    specialties: dto.specialties ?? [],
     propertiesCount: dto.propertiesCount
   };
 }

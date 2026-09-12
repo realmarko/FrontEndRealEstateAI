@@ -33,6 +33,8 @@ export class AgentService {
     formData.append('phone', input.phone);
     if (input.company) formData.append('company', input.company);
     if (input.photo) formData.append('photo', input.photo);
+    if (input.bio) formData.append('bio', input.bio);
+    if (input.specialties?.length) formData.append('specialties', input.specialties.join(','));
 
     return this.http.post<AgentDto>(this.apiUrl, formData).pipe(
       map(fromDto),

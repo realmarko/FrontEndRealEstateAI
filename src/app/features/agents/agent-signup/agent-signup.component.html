@@ -24,6 +24,16 @@
     </label>
 
     <label>
+      {{ 'agentSignup.bio' | translate }}
+      <textarea rows="4" formControlName="bio" [placeholder]="'agentSignup.bioPlaceholder' | translate"></textarea>
+    </label>
+
+    <label>
+      {{ 'agentSignup.specialties' | translate }}
+      <input type="text" formControlName="specialties" [placeholder]="'agentSignup.specialtiesPlaceholder' | translate" />
+    </label>
+
+    <label>
       {{ 'agentSignup.photo' | translate }}
       <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
     </label>

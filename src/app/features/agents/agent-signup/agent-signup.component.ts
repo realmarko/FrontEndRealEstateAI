@@ -33,7 +33,9 @@ export class AgentSignupComponent {
 
   readonly form = this.fb.nonNullable.group({
     phone: ['', [Validators.required, Validators.minLength(7)]],
-    company: ['']
+    company: [''],
+    bio: [''],
+    specialties: ['']
   });
 
   onPhotoSelected(event: Event): void {
@@ -72,11 +74,15 @@ export class AgentSignupComponent {
     }
 
     this.submitting.set(true);
-    const { phone, company } = this.form.getRawValue();
+    const { phone, company, bio, specialties } = this.form.getRawValue();
     this.agentService.createMine({
       phone,
       company: company || undefined,
-      photo: this.selectedPhoto ?? undefined
+      photo: this.selectedPhoto ?? undefined,
+      bio: bio || undefined,
+      specialties: specialties
+        ? specialties.split(',').map((s) => s.trim()).filter(Boolean)
+        : undefined
     }).subscribe({
       next: () => {
         this.notification.success('agentSignup.success');
