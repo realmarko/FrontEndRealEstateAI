@@ -8,6 +8,7 @@ export const es: Record<string, string> = {
   'nav.logIn': 'Iniciar sesión',
   'nav.logOut': 'Cerrar sesión',
   'nav.register': 'Registrarse',
+  'nav.menu': 'Menú',
 
   'login.title': 'Iniciar sesión',
   'login.email': 'Correo electrónico',

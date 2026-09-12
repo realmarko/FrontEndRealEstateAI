@@ -1,38 +1,51 @@
-<nav class="navbar">
+<nav class="navbar" [class.menu-open]="isMenuOpen()">
   <a class="brand" routerLink="/listings">RealEstateApp</a>
 
-  <div class="links">
-    <a routerLink="/listings" routerLinkActive="active">{{ 'nav.listings' | translate }}</a>
-    <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
-    <a routerLink="/agents" routerLinkActive="active">{{ 'nav.agents' | translate }}</a>
-    <a routerLink="/favorites" routerLinkActive="active">{{ 'nav.favorites' | translate }}</a>
-    <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
-  </div>
+  <button
+    type="button"
+    class="hamburger"
+    (click)="toggleMenu()"
+    [attr.aria-expanded]="isMenuOpen()"
+    [attr.aria-controls]="'navbar-collapse'"
+    [attr.aria-label]="'nav.menu' | translate"
+  >
+    <span></span><span></span><span></span>
+  </button>
 
-  <div class="session">
-    <div class="lang-switch">
-      <button
-        type="button"
-        [class.active]="translation.lang() === 'en'"
-        (click)="setLang('en')"
-      >
-        EN
-      </button>
-      <button
-        type="button"
-        [class.active]="translation.lang() === 'es'"
-        (click)="setLang('es')"
-      >
-        ES
-      </button>
+  <div class="nav-collapse" id="navbar-collapse">
+    <div class="links">
+      <a routerLink="/listings" routerLinkActive="active">{{ 'nav.listings' | translate }}</a>
+      <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
+      <a routerLink="/agents" routerLinkActive="active">{{ 'nav.agents' | translate }}</a>
+      <a routerLink="/favorites" routerLinkActive="active">{{ 'nav.favorites' | translate }}</a>
+      <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
     </div>
 
-    @if (auth.isAuthenticated()) {
-      <span class="user">{{ auth.currentUser()?.firstName }}</span>
-      <button type="button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
-    } @else {
-      <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>
-      <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
-    }
+    <div class="session">
+      <div class="lang-switch">
+        <button
+          type="button"
+          [class.active]="translation.lang() === 'en'"
+          (click)="setLang('en')"
+        >
+          EN
+        </button>
+        <button
+          type="button"
+          [class.active]="translation.lang() === 'es'"
+          (click)="setLang('es')"
+        >
+          ES
+        </button>
+      </div>
+
+      @if (auth.isAuthenticated()) {
+        <span class="user">{{ auth.currentUser()?.firstName }}</span>
+        <button type="button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
+      } @else {
+        <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>
+        <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
+      }
+    </div>
   </div>
 </nav>

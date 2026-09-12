@@ -5,6 +5,8 @@
   padding: 0.75rem 1.5rem;
   background: #1e3a5f;
   color: #fff;
+  position: relative;
+  flex-wrap: wrap;
 }
 
 .brand {
@@ -12,6 +14,47 @@
   font-size: 1.15rem;
   color: #fff;
   text-decoration: none;
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: #fff;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.navbar.menu-open .hamburger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.navbar.menu-open .hamburger span:nth-child(2) {
+  opacity: 0;
+}
+
+.navbar.menu-open .hamburger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* On desktop the collapsible wrapper disappears from the box model entirely, so .links and
+   .session stay direct flex children of .navbar — identical to the layout before this element
+   was introduced. The mobile media query below overrides this to make it an actual dropdown. */
+.nav-collapse {
+  display: contents;
 }
 
 .links {
@@ -70,4 +113,58 @@
   background: #fff;
   color: #1e3a5f;
   font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .nav-collapse {
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    order: 3;
+  }
+
+  .navbar.menu-open .nav-collapse {
+    display: flex;
+  }
+
+  .links,
+  .session {
+    flex-direction: column;
+    align-items: stretch;
+    flex: none;
+    gap: 0;
+  }
+
+  .links a,
+  .session a,
+  .session button {
+    padding: 0.75rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+    text-align: left;
+  }
+
+  .session {
+    margin-top: 0.25rem;
+  }
+
+  .session .user {
+    padding: 0.75rem 0 0.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .lang-switch {
+    padding-top: 0.5rem;
+  }
+
+  .lang-switch button {
+    flex: 1;
+    text-align: center;
+    border-top: none;
+  }
 }
