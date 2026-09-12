@@ -9,8 +9,18 @@
 
   <div class="body">
     <h3>{{ agent.name }}</h3>
-    @if (agent.company) {
+    @if (agent.isIndependent) {
+      <p class="company">{{ 'agents.independent' | translate }}</p>
+    } @else if (agent.company) {
       <p class="company">{{ agent.company }}</p>
+    }
+
+    @if (agent.reviewsCount > 0) {
+      <p class="rating">
+        <app-rating-stars [rating]="agent.averageRating ?? 0" />
+        <span class="rating-value">{{ agent.averageRating | number:'1.1-1' }}</span>
+        <span class="rating-count">({{ agent.reviewsCount }})</span>
+      </p>
     }
 
     <p class="stat">

@@ -13,13 +13,24 @@
 
       <div class="header-info">
         <h1>{{ agent.name }}</h1>
-        @if (agent.company) {
+        @if (agent.isIndependent) {
+          <p class="company">{{ 'agents.independent' | translate }}</p>
+        } @else if (agent.company) {
           <p class="company">{{ agent.company }}</p>
+        }
+        @if (agent.reviewsCount > 0) {
+          <p class="rating-summary">
+            <app-rating-stars [rating]="agent.averageRating ?? 0" />
+            <span class="rating-value">{{ agent.averageRating | number:'1.1-1' }}</span>
+            <span class="rating-count">{{ 'agentDetail.reviewsCount' | translate:{ count: agent.reviewsCount } }}</span>
+          </p>
         }
         <p class="stat">
           <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
         </p>
-        <a class="primary-link" [href]="'mailto:' + agent.email">{{ 'agentDetail.contact' | translate:{ name: agent.name } }}</a>
+        <button type="button" class="primary-link" (click)="openContactModal()">
+          {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
+        </button>
       </div>
     </div>
 
@@ -42,11 +53,93 @@
     }
 
     <section class="section">
+      <h2>{{ 'agentDetail.reviewsTitle' | translate:{ count: reviews().length } }}</h2>
+
+      @if (auth.isAuthenticated()) {
+        <div class="review-form">
+          <p class="form-label">{{ 'agentDetail.yourRating' | translate }}</p>
+          <div class="star-picker">
+            @for (star of stars; track star) {
+              <button
+                type="button"
+                class="star-btn"
+                [class.filled]="star <= selectedRating()"
+                [attr.aria-label]="star + ' / 5'"
+                (click)="selectedRating.set(star)"
+              >★</button>
+            }
+          </div>
+          <textarea
+            rows="3"
+            maxlength="1000"
+            [placeholder]="'agentDetail.yourComment' | translate"
+            [value]="reviewComment()"
+            (input)="reviewComment.set($any($event.target).value)"
+          ></textarea>
+          <button type="button" class="primary" [disabled]="submittingReview()" (click)="submitReview()">
+            {{ 'agentDetail.submitReview' | translate }}
+          </button>
+        </div>
+      } @else {
+        <p class="login-prompt"><a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'agentDetail.loginToReview' | translate }}</p>
+      }
+
+      @if (reviews().length) {
+        <div class="review-list">
+          @for (review of reviews(); track review.id) {
+            <div class="review">
+              <div class="review-head">
+                <app-rating-stars [rating]="review.rating" />
+                <strong>{{ review.reviewerName }}</strong>
+                <span class="review-date">{{ review.createdAt | date:'mediumDate' }}</span>
+              </div>
+              @if (review.comment) {
+                <p class="review-comment">{{ review.comment }}</p>
+              }
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="empty">{{ 'agentDetail.noReviews' | translate }}</p>
+      }
+    </section>
+
+    <section class="section">
       <h2>{{ 'agentDetail.contactTitle' | translate }}</h2>
       <p class="contact-line"><a [href]="'mailto:' + agent.email">{{ agent.email }}</a></p>
       <p class="contact-line">{{ agent.phone }}</p>
     </section>
   </div>
+
+  @if (showContactModal()) {
+    <div class="modal-backdrop" (click)="closeContactModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <button type="button" class="modal-close" [attr.aria-label]="'agentDetail.close' | translate" (click)="closeContactModal()">✕</button>
+        <h2>{{ 'agentDetail.contactModalTitle' | translate:{ name: agent.name } }}</h2>
+
+        <label>
+          {{ 'agentDetail.contactName' | translate }}
+          <input type="text" [value]="contactName()" (input)="contactName.set($any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'agentDetail.contactPhone' | translate }}
+          <input type="tel" [value]="contactPhone()" (input)="contactPhone.set($any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'agentDetail.contactEmail' | translate }}
+          <input type="email" [value]="contactEmail()" (input)="contactEmail.set($any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'agentDetail.contactMessage' | translate }}
+          <textarea rows="4" [value]="contactMessage()" (input)="contactMessage.set($any($event.target).value)"></textarea>
+        </label>
+
+        <button type="button" class="primary" [disabled]="sendingContact()" (click)="sendContactMessage()">
+          {{ 'agentDetail.sendMessage' | translate }}
+        </button>
+      </div>
+    </div>
+  }
 } @else if (!loading()) {
   <div class="page">
     <p>{{ 'agentDetail.notFound' | translate }}</p>

@@ -12,3 +12,14 @@
   margin: -0.5rem 0 0.5rem;
   display: block;
 }
+
+.checkbox-label {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+  margin-top: -0.5rem;
+}
+
+.checkbox-label input {
+  width: auto;
+}

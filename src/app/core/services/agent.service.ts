@@ -3,9 +3,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Agent, AgentProfileInput } from '../models/agent.model';
+import { Agent, AgentProfileInput, AgentReview } from '../models/agent.model';
 import { PagedResult } from '../models/paged-result.model';
-import { AgentDto, fromDto } from './agent-api.adapter';
+import { AgentDto, AgentReviewDto, fromDto, reviewFromDto } from './agent-api.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class AgentService {
@@ -36,6 +36,7 @@ export class AgentService {
     const formData = new FormData();
     formData.append('phone', input.phone);
     if (input.company) formData.append('company', input.company);
+    formData.append('isIndependent', String(input.isIndependent ?? false));
     if (input.photo) formData.append('photo', input.photo);
     if (input.bio) formData.append('bio', input.bio);
     if (input.specialties?.length) formData.append('specialties', input.specialties.join(','));
@@ -44,5 +45,21 @@ export class AgentService {
       map(fromDto),
       tap((agent) => this.agentsSignal.update((list) => [...list, agent]))
     );
+  }
+
+  getReviews(agentId: number): Observable<AgentReview[]> {
+    return this.http
+      .get<AgentReviewDto[]>(`${this.apiUrl}/${agentId}/reviews`)
+      .pipe(map((reviews) => reviews.map(reviewFromDto)));
+  }
+
+  addReview(agentId: number, rating: number, comment?: string): Observable<AgentReview> {
+    return this.http
+      .post<AgentReviewDto>(`${this.apiUrl}/${agentId}/reviews`, { rating, comment })
+      .pipe(map(reviewFromDto));
+  }
+
+  contactAgent(agentId: number, input: { name: string; phone: string; email: string; message: string }): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${agentId}/contact`, input);
   }
 }

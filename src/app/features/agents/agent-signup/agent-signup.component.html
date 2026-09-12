@@ -20,7 +20,17 @@
 
     <label>
       {{ 'agentSignup.company' | translate }}
-      <input type="text" formControlName="company" [placeholder]="'agentSignup.companyPlaceholder' | translate" />
+      <input type="text" formControlName="company" list="brokerage-options" autocomplete="off" [placeholder]="'agentSignup.companyPlaceholder' | translate" />
+      <datalist id="brokerage-options">
+        @for (name of brokerages(); track name) {
+          <option [value]="name"></option>
+        }
+      </datalist>
+    </label>
+
+    <label class="checkbox-label">
+      <input type="checkbox" formControlName="isIndependent" />
+      {{ 'agentSignup.independent' | translate }}
     </label>
 
     <label>

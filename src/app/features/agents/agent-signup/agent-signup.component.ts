@@ -3,6 +3,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { BrokerageService } from '../../../core/services/brokerage.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
@@ -20,12 +21,14 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 export class AgentSignupComponent {
   private readonly fb = inject(FormBuilder);
   private readonly agentService = inject(AgentService);
+  private readonly brokerageService = inject(BrokerageService);
   private readonly router = inject(Router);
   private readonly translation = inject(TranslationService);
   private readonly notification = inject(NotificationService);
   protected readonly auth = inject(AuthService);
 
   readonly submitting = signal(false);
+  readonly brokerages = signal<string[]>([]);
 
   readonly photoError = signal<string | null>(null);
   readonly photoPreview = signal<string | null>(null);
@@ -34,9 +37,23 @@ export class AgentSignupComponent {
   readonly form = this.fb.nonNullable.group({
     phone: ['', [Validators.required, Validators.minLength(7)]],
     company: [''],
+    isIndependent: [false],
     bio: [''],
     specialties: ['']
   });
+
+  constructor() {
+    this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
+
+    this.form.controls.isIndependent.valueChanges.subscribe((isIndependent) => {
+      if (isIndependent) {
+        this.form.controls.company.setValue('');
+        this.form.controls.company.disable();
+      } else {
+        this.form.controls.company.enable();
+      }
+    });
+  }
 
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -74,10 +91,11 @@ export class AgentSignupComponent {
     }
 
     this.submitting.set(true);
-    const { phone, company, bio, specialties } = this.form.getRawValue();
+    const { phone, company, isIndependent, bio, specialties } = this.form.getRawValue();
     this.agentService.createMine({
       phone,
       company: company || undefined,
+      isIndependent,
       photo: this.selectedPhoto ?? undefined,
       bio: bio || undefined,
       specialties: specialties

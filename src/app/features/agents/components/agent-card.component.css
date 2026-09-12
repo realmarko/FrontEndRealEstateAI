@@ -55,6 +55,23 @@
   font-size: 0.9rem;
 }
 
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+}
+
+.rating-value {
+  font-weight: 600;
+  color: #374151;
+}
+
+.rating-count {
+  color: #6b7280;
+}
+
 .stat {
   margin: 0.2rem 0;
   color: #374151;
