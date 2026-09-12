@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Agent } from '../models/agent.model';
+import { Agent, AgentProfileInput } from '../models/agent.model';
 import { PagedResult } from '../models/paged-result.model';
 import { AgentDto, fromDto } from './agent-api.adapter';
 
@@ -28,8 +28,8 @@ export class AgentService {
       .subscribe((res) => this.agentsSignal.set(res.items.map(fromDto)));
   }
 
-  createMine(phone: string): Observable<Agent> {
-    return this.http.post<AgentDto>(this.apiUrl, { phone }).pipe(
+  createMine(input: AgentProfileInput): Observable<Agent> {
+    return this.http.post<AgentDto>(this.apiUrl, input).pipe(
       map(fromDto),
       tap((agent) => this.agentsSignal.update((list) => [...list, agent]))
     );

@@ -1,10 +1,20 @@
 <article class="card">
-  <div class="avatar">{{ initials }}</div>
+  <div class="photo">
+    @if (agent.photoUrl) {
+      <img [src]="agent.photoUrl" [alt]="agent.name" />
+    } @else {
+      <div class="avatar">{{ initials }}</div>
+    }
+  </div>
 
   <div class="body">
     <h3>{{ agent.name }}</h3>
-    <p class="meta">
-      {{ agent.propertiesCount }} {{ 'agents.propertiesCount' | translate }}
+    @if (agent.company) {
+      <p class="company">{{ agent.company }}</p>
+    }
+
+    <p class="stat">
+      <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
     </p>
     <p class="contact">
       <a [href]="'mailto:' + agent.email">{{ agent.email }}</a>

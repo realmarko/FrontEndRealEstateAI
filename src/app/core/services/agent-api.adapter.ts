@@ -5,6 +5,8 @@ export interface AgentDto {
   name: string;
   email: string;
   phone: string;
+  company?: string | null;
+  photoUrl?: string | null;
   propertiesCount: number;
 }
 
@@ -14,6 +16,8 @@ export function fromDto(dto: AgentDto): Agent {
     name: dto.name,
     email: dto.email,
     phone: dto.phone,
+    company: dto.company ?? undefined,
+    photoUrl: dto.photoUrl ?? undefined,
     propertiesCount: dto.propertiesCount
   };
 }

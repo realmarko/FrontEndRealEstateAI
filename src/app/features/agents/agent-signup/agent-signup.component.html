@@ -18,6 +18,16 @@
       <input type="tel" formControlName="phone" autocomplete="tel" />
     </label>
 
+    <label>
+      {{ 'agentSignup.company' | translate }}
+      <input type="text" formControlName="company" [placeholder]="'agentSignup.companyPlaceholder' | translate" />
+    </label>
+
+    <label>
+      {{ 'agentSignup.photoUrl' | translate }}
+      <input type="text" formControlName="photoUrl" [placeholder]="'agentSignup.photoUrlPlaceholder' | translate" />
+    </label>
+
     @if (errorMessage()) {
       <p class="error">{{ errorMessage() }}</p>
     }

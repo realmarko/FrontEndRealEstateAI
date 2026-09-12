@@ -24,7 +24,9 @@ export class AgentSignupComponent {
   readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
-    phone: ['', [Validators.required, Validators.minLength(7)]]
+    phone: ['', [Validators.required, Validators.minLength(7)]],
+    company: [''],
+    photoUrl: ['']
   });
 
   submit(): void {
@@ -35,7 +37,12 @@ export class AgentSignupComponent {
 
     this.errorMessage.set(null);
     this.submitting.set(true);
-    this.agentService.createMine(this.form.getRawValue().phone).subscribe({
+    const { phone, company, photoUrl } = this.form.getRawValue();
+    this.agentService.createMine({
+      phone,
+      company: company || undefined,
+      photoUrl: photoUrl || undefined
+    }).subscribe({
       next: () => this.router.navigate(['/agents']),
       error: () => {
         this.submitting.set(false);

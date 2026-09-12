@@ -131,6 +131,10 @@ export const es: Record<string, string> = {
   'agentSignup.title': 'Completa tu perfil de agente',
   'agentSignup.subtitle': 'Ya casi terminas — agrega un teléfono para que los compradores puedan contactarte.',
   'agentSignup.phone': 'Teléfono',
+  'agentSignup.company': 'Inmobiliaria / empresa (opcional)',
+  'agentSignup.companyPlaceholder': 'ej. Comey & Shepherd, REALTORS®',
+  'agentSignup.photoUrl': 'URL de la foto (opcional)',
+  'agentSignup.photoUrlPlaceholder': 'https://...',
   'agentSignup.submit': 'Crear perfil de agente',
   'agentSignup.submitError': 'No se pudo crear tu perfil de agente. Intenta de nuevo.'
 };

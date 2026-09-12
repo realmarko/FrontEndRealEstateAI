@@ -131,6 +131,10 @@ export const en: Record<string, string> = {
   'agentSignup.title': 'Complete your agent profile',
   'agentSignup.subtitle': "You're almost done — add a phone number so buyers can reach you.",
   'agentSignup.phone': 'Phone',
+  'agentSignup.company': 'Brokerage / company (optional)',
+  'agentSignup.companyPlaceholder': 'e.g. Comey & Shepherd, REALTORS®',
+  'agentSignup.photoUrl': 'Photo URL (optional)',
+  'agentSignup.photoUrlPlaceholder': 'https://...',
   'agentSignup.submit': 'Create agent profile',
   'agentSignup.submitError': 'Could not create your agent profile. Please try again.'
 };
