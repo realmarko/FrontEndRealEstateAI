@@ -55,6 +55,14 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'agents/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/agents/agent-signup/agent-signup.component').then(
+        (m) => m.AgentSignupComponent
+      )
+  },
+  {
     path: 'favorites',
     canActivate: [authGuard],
     loadComponent: () =>

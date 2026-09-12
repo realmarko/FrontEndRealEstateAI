@@ -23,6 +23,7 @@ export const en: Record<string, string> = {
   'register.password': 'Password',
   'register.role': 'I want to',
   'register.roleOwner': 'List properties (Owner)',
+  'register.roleAgent': 'List properties as an agent',
   'register.roleBuyer': 'Browse properties (Buyer)',
   'register.submit': 'Register',
   'register.haveAccount': 'Already have an account?',
@@ -125,5 +126,11 @@ export const en: Record<string, string> = {
   'agents.searchPlaceholder': 'Search by agent name',
   'agents.resultsCount': '{{count}} agents',
   'agents.propertiesCount': 'properties',
-  'agents.empty': 'No agents match your search.'
+  'agents.empty': 'No agents match your search.',
+
+  'agentSignup.title': 'Complete your agent profile',
+  'agentSignup.subtitle': "You're almost done — add a phone number so buyers can reach you.",
+  'agentSignup.phone': 'Phone',
+  'agentSignup.submit': 'Create agent profile',
+  'agentSignup.submitError': 'Could not create your agent profile. Please try again.'
 };

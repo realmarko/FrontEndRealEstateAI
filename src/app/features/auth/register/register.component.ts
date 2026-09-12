@@ -36,8 +36,9 @@ export class RegisterComponent {
     }
 
     this.errorMessage.set(null);
+    const role = this.form.getRawValue().role;
     this.auth.register(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/listings']),
+      next: () => this.router.navigate([role === 'Agent' ? '/agents/new' : '/listings']),
       error: (err) => {
         const messages: string[] = Array.isArray(err?.error) ? err.error : [];
         const key = messages.some((m) => /taken|already/i.test(m))

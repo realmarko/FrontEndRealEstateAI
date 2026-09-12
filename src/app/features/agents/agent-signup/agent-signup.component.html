@@ -1,0 +1,27 @@
+<div class="auth-card">
+  <h1>{{ 'agentSignup.title' | translate }}</h1>
+  <p class="subtitle">{{ 'agentSignup.subtitle' | translate }}</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      {{ 'register.firstName' | translate }} / {{ 'register.lastName' | translate }}
+      <input type="text" [value]="auth.currentUser()?.firstName + ' ' + auth.currentUser()?.lastName" disabled />
+    </label>
+
+    <label>
+      {{ 'register.email' | translate }}
+      <input type="email" [value]="auth.currentUser()?.email" disabled />
+    </label>
+
+    <label>
+      {{ 'agentSignup.phone' | translate }}
+      <input type="tel" formControlName="phone" autocomplete="tel" />
+    </label>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit">{{ 'agentSignup.submit' | translate }}</button>
+  </form>
+</div>

@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Agent } from '../models/agent.model';
 import { AgentDto, fromDto } from './agent-api.adapter';
@@ -27,5 +29,12 @@ export class AgentService {
     this.http
       .get<PagedResult<AgentDto>>(this.apiUrl, { params: { pageSize: 100 } })
       .subscribe((res) => this.agentsSignal.set(res.items.map(fromDto)));
+  }
+
+  createMine(phone: string): Observable<Agent> {
+    return this.http.post<AgentDto>(this.apiUrl, { phone }).pipe(
+      map(fromDto),
+      tap((agent) => this.agentsSignal.update((list) => [...list, agent]))
+    );
   }
 }

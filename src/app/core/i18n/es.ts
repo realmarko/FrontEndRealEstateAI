@@ -23,6 +23,7 @@ export const es: Record<string, string> = {
   'register.password': 'Contraseña',
   'register.role': 'Quiero',
   'register.roleOwner': 'Publicar propiedades (Propietario)',
+  'register.roleAgent': 'Publicar propiedades como agente',
   'register.roleBuyer': 'Explorar propiedades (Comprador)',
   'register.submit': 'Registrarse',
   'register.haveAccount': '¿Ya tienes cuenta?',
@@ -125,5 +126,11 @@ export const es: Record<string, string> = {
   'agents.searchPlaceholder': 'Buscar por nombre del agente',
   'agents.resultsCount': '{{count}} agentes',
   'agents.propertiesCount': 'propiedades',
-  'agents.empty': 'No hay agentes que coincidan con tu búsqueda.'
+  'agents.empty': 'No hay agentes que coincidan con tu búsqueda.',
+
+  'agentSignup.title': 'Completa tu perfil de agente',
+  'agentSignup.subtitle': 'Ya casi terminas — agrega un teléfono para que los compradores puedan contactarte.',
+  'agentSignup.phone': 'Teléfono',
+  'agentSignup.submit': 'Crear perfil de agente',
+  'agentSignup.submitError': 'No se pudo crear tu perfil de agente. Intenta de nuevo.'
 };
