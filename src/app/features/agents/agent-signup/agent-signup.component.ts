@@ -27,12 +27,6 @@ export class AgentSignupComponent {
     phone: ['', [Validators.required, Validators.minLength(7)]]
   });
 
-  constructor() {
-    if (!this.auth.currentUser()?.roles.includes('Agent')) {
-      this.router.navigate(['/listings']);
-    }
-  }
-
   submit(): void {
     if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();

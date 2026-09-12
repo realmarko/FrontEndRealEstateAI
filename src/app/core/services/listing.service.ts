@@ -4,14 +4,8 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Listing, ListingInput } from '../models/listing.model';
+import { PagedResult } from '../models/paged-result.model';
 import { ListingDto, fromDto, toCreateRequest } from './listing-api.adapter';
-
-interface PagedResult<T> {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalCount: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class ListingService {

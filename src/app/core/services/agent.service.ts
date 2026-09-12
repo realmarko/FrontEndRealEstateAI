@@ -4,14 +4,8 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Agent } from '../models/agent.model';
+import { PagedResult } from '../models/paged-result.model';
 import { AgentDto, fromDto } from './agent-api.adapter';
-
-interface PagedResult<T> {
-  items: T[];
-  page: number;
-  pageSize: number;
-  totalCount: number;
-}
 
 @Injectable({ providedIn: 'root' })
 export class AgentService {

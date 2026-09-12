@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'listings' },
@@ -56,7 +57,7 @@ export const routes: Routes = [
   },
   {
     path: 'agents/new',
-    canActivate: [authGuard],
+    canActivate: [authGuard, roleGuard('Agent')],
     loadComponent: () =>
       import('./features/agents/agent-signup/agent-signup.component').then(
         (m) => m.AgentSignupComponent
