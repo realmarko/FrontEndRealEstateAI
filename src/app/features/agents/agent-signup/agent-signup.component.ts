@@ -21,6 +21,7 @@ export class AgentSignupComponent {
   protected readonly auth = inject(AuthService);
 
   readonly errorMessage = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   readonly form = this.fb.nonNullable.group({
     phone: ['', [Validators.required, Validators.minLength(7)]]
@@ -33,15 +34,19 @@ export class AgentSignupComponent {
   }
 
   submit(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.errorMessage.set(null);
+    this.submitting.set(true);
     this.agentService.createMine(this.form.getRawValue().phone).subscribe({
       next: () => this.router.navigate(['/agents']),
-      error: () => this.errorMessage.set(this.translation.t('agentSignup.submitError'))
+      error: () => {
+        this.submitting.set(false);
+        this.errorMessage.set(this.translation.t('agentSignup.submitError'));
+      }
     });
   }
 }

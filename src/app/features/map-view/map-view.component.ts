@@ -8,7 +8,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { Listing, ListingType, PropertyType } from '../../core/models/listing.model';
-import { digitsFromInput, formatCurrencyDisplay } from '../../shared/utils/currency-input';
+import { applyCurrencyMask } from '../../shared/utils/currency-input';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 18;
@@ -272,14 +272,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   }
 
   setMinPrice(target: HTMLInputElement): void {
-    const digits = digitsFromInput(target.value);
-    target.value = formatCurrencyDisplay(digits);
+    const digits = applyCurrencyMask(target);
     this.minPrice.set(digits === '' ? null : Number(digits));
   }
 
   setMaxPrice(target: HTMLInputElement): void {
-    const digits = digitsFromInput(target.value);
-    target.value = formatCurrencyDisplay(digits);
+    const digits = applyCurrencyMask(target);
     this.maxPrice.set(digits === '' ? null : Number(digits));
   }
 

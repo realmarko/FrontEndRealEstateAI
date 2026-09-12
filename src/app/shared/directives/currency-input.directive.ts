@@ -1,6 +1,6 @@
 import { Directive, ElementRef, HostListener, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { digitsFromInput, formatCurrencyDisplay } from '../utils/currency-input';
+import { applyCurrencyMask, formatCurrencyDisplay } from '../utils/currency-input';
 
 /**
  * Displays a numeric form control as "$1,234,567" while typing, keeping the underlying
@@ -21,9 +21,7 @@ export class CurrencyInputDirective implements ControlValueAccessor {
 
   @HostListener('input', ['$event'])
   onInput(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    const digits = digitsFromInput(target.value);
-    target.value = formatCurrencyDisplay(digits);
+    const digits = applyCurrencyMask(event.target as HTMLInputElement);
     this.onChange(digits === '' ? null : Number(digits));
   }
 

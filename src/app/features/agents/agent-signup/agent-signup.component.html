@@ -22,6 +22,6 @@
       <p class="error">{{ errorMessage() }}</p>
     }
 
-    <button type="submit">{{ 'agentSignup.submit' | translate }}</button>
+    <button type="submit" [disabled]="submitting()">{{ 'agentSignup.submit' | translate }}</button>
   </form>
 </div>

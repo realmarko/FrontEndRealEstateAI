@@ -25,9 +25,12 @@ export class AgentService {
     this.refresh();
   }
 
-  refresh(): void {
+  refresh(name?: string): void {
+    const params: Record<string, string | number> = { pageSize: 100 };
+    if (name) params['name'] = name;
+
     this.http
-      .get<PagedResult<AgentDto>>(this.apiUrl, { params: { pageSize: 100 } })
+      .get<PagedResult<AgentDto>>(this.apiUrl, { params })
       .subscribe((res) => this.agentsSignal.set(res.items.map(fromDto)));
   }
 
