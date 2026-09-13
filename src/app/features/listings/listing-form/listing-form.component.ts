@@ -9,11 +9,12 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { amountToWords } from '../../../shared/utils/amount-to-words';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
+import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, MortgageCalculatorComponent],
   templateUrl: './listing-form.component.html',
   styleUrl: './listing-form.component.css'
 })

@@ -98,6 +98,7 @@ export const en: Record<string, string> = {
   'listingForm.description': 'Description',
   'listingForm.price': 'Price',
   'listingForm.priceInWords': 'Amount in words: {{words}}',
+  'listingForm.mortgagePreviewTitle': 'Estimated monthly payment',
   'listingForm.currency': 'Currency',
   'listingForm.mxn': 'MXN - Mexican Peso',
   'listingForm.usd': 'USD - US Dollar',

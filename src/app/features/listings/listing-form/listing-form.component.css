@@ -114,6 +114,18 @@ input:disabled {
   color: #4b5563;
 }
 
+.mortgage-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #1e3a5f;
+}
+
 .grid-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;

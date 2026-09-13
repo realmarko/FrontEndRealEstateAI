@@ -37,6 +37,13 @@
 
     <p class="price-words">{{ 'listingForm.priceInWords' | translate:{ words: priceInWords } }}</p>
 
+    @if (form.value.type === 'sale' && (form.value.price ?? 0) > 0) {
+      <div class="mortgage-preview">
+        <h2 class="section-title">{{ 'listingForm.mortgagePreviewTitle' | translate }}</h2>
+        <app-mortgage-calculator [price]="form.value.price ?? 0" [currency]="form.value.currency ?? 'MXN'" />
+      </div>
+    }
+
     <label>
       {{ 'listingForm.propertyType' | translate }}
       <select formControlName="propertyType">

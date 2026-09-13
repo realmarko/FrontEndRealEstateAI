@@ -1,4 +1,4 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, computed, input, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { Currency } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
@@ -17,17 +17,20 @@ const DEFAULT_TERM_YEARS = 30;
   styleUrl: './mortgage-calculator.component.css'
 })
 export class MortgageCalculatorComponent {
-  @Input({ required: true }) price!: number;
-  @Input() currency: Currency = 'MXN';
+  // Signal inputs, not @Input(): `computed()` only re-runs when a signal it read changes,
+  // and a plain @Input property is invisible to that tracking — price needs to update live
+  // as the listing form's price field changes, not just once at first render.
+  readonly price = input.required<number>();
+  readonly currency = input<Currency>('MXN');
 
   readonly downPaymentPercent = signal(DEFAULT_DOWN_PAYMENT_PERCENT);
   readonly interestRate = signal(DEFAULT_INTEREST_RATE_PERCENT);
   readonly termYears = signal(DEFAULT_TERM_YEARS);
 
-  readonly downPaymentAmount = computed(() => this.price * (this.downPaymentPercent() / 100));
+  readonly downPaymentAmount = computed(() => this.price() * (this.downPaymentPercent() / 100));
 
   readonly monthlyPayment = computed(() => {
-    const loanAmount = this.price - this.downPaymentAmount();
+    const loanAmount = this.price() - this.downPaymentAmount();
     const numPayments = this.termYears() * 12;
     if (numPayments <= 0 || loanAmount <= 0) return 0;
 
