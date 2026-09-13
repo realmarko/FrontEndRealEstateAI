@@ -121,33 +121,14 @@
   </div>
 
   @if (showContactModal()) {
-    <div class="modal-backdrop" (click)="closeContactModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <button type="button" class="modal-close" [attr.aria-label]="'agentDetail.close' | translate" (click)="closeContactModal()">✕</button>
-        <h2>{{ 'agentDetail.contactModalTitle' | translate:{ name: agent.name } }}</h2>
-
-        <label>
-          {{ 'agentDetail.contactName' | translate }}
-          <input type="text" [value]="contactName()" (input)="contactName.set($any($event.target).value)" />
-        </label>
-        <label>
-          {{ 'agentDetail.contactPhone' | translate }}
-          <input type="tel" [value]="contactPhone()" (input)="contactPhone.set($any($event.target).value)" />
-        </label>
-        <label>
-          {{ 'agentDetail.contactEmail' | translate }}
-          <input type="email" [value]="contactEmail()" (input)="contactEmail.set($any($event.target).value)" />
-        </label>
-        <label>
-          {{ 'agentDetail.contactMessage' | translate }}
-          <textarea rows="4" [value]="contactMessage()" (input)="contactMessage.set($any($event.target).value)"></textarea>
-        </label>
-
-        <button type="button" class="primary" [disabled]="sendingContact()" (click)="sendContactMessage()">
-          {{ 'agentDetail.sendMessage' | translate }}
-        </button>
-      </div>
-    </div>
+    <app-contact-modal
+      [title]="contactModalTitle"
+      [initialName]="contactInitialName"
+      [initialEmail]="contactInitialEmail"
+      [sending]="sendingContact()"
+      (closed)="closeContactModal()"
+      (sent)="sendContactMessage($event)"
+    />
   }
 } @else if (!loading()) {
   <div class="page">

@@ -7,11 +7,13 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Agent, AgentReview } from '../../../core/models/agent.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
+import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-agent-detail',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe],
+  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent],
   templateUrl: './agent-detail.component.html',
   styleUrl: './agent-detail.component.css'
 })
@@ -19,6 +21,7 @@ export class AgentDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly agentService = inject(AgentService);
   private readonly notification = inject(NotificationService);
+  private readonly translation = inject(TranslationService);
   protected readonly auth = inject(AuthService);
 
   private readonly agentId = Number(this.route.snapshot.paramMap.get('id'));
@@ -35,10 +38,6 @@ export class AgentDetailComponent {
   readonly stars = [1, 2, 3, 4, 5];
 
   readonly showContactModal = signal(false);
-  readonly contactName = signal('');
-  readonly contactPhone = signal('');
-  readonly contactEmail = signal('');
-  readonly contactMessage = signal('');
   readonly sendingContact = signal(false);
 
   constructor() {
@@ -56,12 +55,20 @@ export class AgentDetailComponent {
     this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
   }
 
-  openContactModal(): void {
+  get contactModalTitle(): string {
+    return this.translation.t('agentDetail.contactModalTitle', { name: this.agent()?.name ?? '' });
+  }
+
+  get contactInitialName(): string {
     const user = this.auth.currentUser();
-    this.contactName.set(user ? `${user.firstName} ${user.lastName}`.trim() : '');
-    this.contactEmail.set(user?.email ?? '');
-    this.contactPhone.set('');
-    this.contactMessage.set('');
+    return user ? `${user.firstName} ${user.lastName}`.trim() : '';
+  }
+
+  get contactInitialEmail(): string {
+    return this.auth.currentUser()?.email ?? '';
+  }
+
+  openContactModal(): void {
     this.showContactModal.set(true);
   }
 
@@ -70,14 +77,11 @@ export class AgentDetailComponent {
     this.showContactModal.set(false);
   }
 
-  sendContactMessage(): void {
-    const name = this.contactName().trim();
-    const phone = this.contactPhone().trim();
-    const email = this.contactEmail().trim();
-    const message = this.contactMessage().trim();
+  sendContactMessage(value: ContactFormValue): void {
+    const { name, phone, email, message } = value;
 
     if (!name || !phone || !email || !message || this.sendingContact()) {
-      this.notification.error('agentDetail.contactFormIncomplete');
+      this.notification.error('contactModal.formIncomplete');
       return;
     }
 

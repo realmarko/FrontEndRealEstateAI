@@ -7,6 +7,10 @@
         <div class="main-photo">
           <img [src]="listing.imageUrls[activePhotoIndex()] ?? defaultImage" [alt]="listing.title" />
 
+          <span class="type-tag" [class.rent]="listing.type === 'rent'">
+            {{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}
+          </span>
+
           @if (listing.imageUrls.length > 1) {
             <button type="button" class="nav-arrow prev" (click)="previousPhoto()" [attr.aria-label]="'listingDetail.previousPhoto' | translate">‹</button>
             <button type="button" class="nav-arrow next" (click)="nextPhoto()" [attr.aria-label]="'listingDetail.nextPhoto' | translate">›</button>
@@ -28,29 +32,83 @@
             }
           </div>
         }
-      </div>
 
-      <div class="info">
-        <div class="row">
-          <h1>{{ listing.title }}</h1>
-          <button type="button" class="fav" [class.active]="isFavorite()" (click)="toggleFavorite()">
-            {{ (isFavorite() ? 'listingDetail.saved' : 'listingDetail.save') | translate }}
-          </button>
-        </div>
-
+        <h1>{{ listing.title }}</h1>
         <p class="price">
           {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
         </p>
-        <p class="address">{{ listing.address }}</p>
-        <p class="meta">
-          {{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }} ·
-          {{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }} ·
-          {{ listing.areaSqm }} m²
-          @if (listing.yearBuilt) {
-            · {{ 'listingDetail.builtIn' | translate:{ year: listing.yearBuilt } }}
+        <p class="price-meta">
+          @if (listing.areaSqm > 0) {
+            {{ pricePerSqm(listing) | currency:listing.currency }}/m² ·
+          }
+          @if (daysOnMarket(listing) === 0) {
+            {{ 'listingDetail.listedToday' | translate }}
+          } @else {
+            {{ 'listingDetail.daysOnMarket' | translate:{ count: daysOnMarket(listing) } }}
           }
         </p>
+        <p class="address">{{ listing.address }}</p>
         <p class="description">{{ listing.description }}</p>
+
+        <div class="fact-grid">
+          <div class="fact">
+            <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="6" rx="1" />
+              <rect x="5" y="8" width="5" height="4" rx="1" />
+              <line x1="3" y1="17" x2="3" y2="20" />
+              <line x1="21" y1="17" x2="21" y2="20" />
+            </svg>
+            <span>{{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }}</span>
+          </div>
+          <div class="fact">
+            <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="10" width="18" height="8" rx="4" />
+              <line x1="3" y1="14" x2="21" y2="14" />
+              <line x1="7" y1="18" x2="7" y2="20" />
+              <line x1="17" y1="18" x2="17" y2="20" />
+            </svg>
+            <span>{{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }}</span>
+          </div>
+          <div class="fact">
+            <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <line x1="8" y1="3" x2="8" y2="6" />
+              <line x1="13" y1="3" x2="13" y2="6" />
+              <line x1="18" y1="3" x2="18" y2="6" />
+              <line x1="3" y1="8" x2="6" y2="8" />
+              <line x1="3" y1="13" x2="6" y2="13" />
+            </svg>
+            <span>{{ listing.areaSqm }} m²</span>
+          </div>
+          @if (listing.yearBuilt) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="16" rx="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="8" y1="3" x2="8" y2="7" />
+                <line x1="16" y1="3" x2="16" y2="7" />
+              </svg>
+              <span>{{ 'listingDetail.builtIn' | translate:{ year: listing.yearBuilt } }}</span>
+            </div>
+          }
+        </div>
+
+        @if (listing.lat != null && listing.lng != null) {
+          <h2 class="section-title">{{ 'listingDetail.locationTitle' | translate }}</h2>
+          <div #locationMap class="location-map"></div>
+        }
+      </div>
+
+      <div class="info">
+        <button type="button" class="fav" [class.active]="isFavorite()" (click)="toggleFavorite()">
+          {{ (isFavorite() ? 'listingDetail.saved' : 'listingDetail.save') | translate }}
+        </button>
+
+        @if (!isOwner()) {
+          <button type="button" class="primary-link" (click)="openContactModal()">
+            {{ 'listingDetail.contactAgent' | translate }}
+          </button>
+        }
 
         @if (isOwner()) {
           <div class="owner-actions">
@@ -77,6 +135,17 @@
       </div>
     </div>
   </div>
+
+  @if (showContactModal()) {
+    <app-contact-modal
+      [title]="contactModalTitle"
+      [initialName]="contactInitialName"
+      [initialEmail]="contactInitialEmail"
+      [sending]="sendingContact()"
+      (closed)="closeContactModal()"
+      (sent)="sendContactAgentMessage($event)"
+    />
+  }
 } @else if (!loading()) {
   <div class="page">
     <p>{{ 'listingDetail.notFound' | translate }}</p>

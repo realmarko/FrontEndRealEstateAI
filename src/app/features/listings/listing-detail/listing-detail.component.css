@@ -29,6 +29,22 @@
   display: block;
 }
 
+.type-tag {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  background: #1e3a5f;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+}
+
+.type-tag.rent {
+  background: #b45309;
+}
+
 .nav-arrow {
   position: absolute;
   top: 50%;
@@ -95,15 +111,51 @@
   display: block;
 }
 
-.row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
+.fact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
 }
 
-.info h1 {
-  margin: 0 0 0.5rem;
+.fact {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  font-size: 0.88rem;
+  color: #1f2937;
+}
+
+.fact-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: #4b5563;
+}
+
+.section-title {
+  margin: 0.4rem 0 0;
+  font-size: 1.05rem;
+}
+
+.location-map {
+  width: 100%;
+  height: 260px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.gallery h1 {
+  margin: 0.2rem 0 0;
   font-size: 1.6rem;
 }
 
@@ -124,6 +176,12 @@
   font-size: 1.2rem;
   font-weight: 600;
   margin: 0.2rem 0;
+}
+
+.price-meta {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0 0 0.2rem;
 }
 
 .address {
@@ -191,5 +249,9 @@
 @media (max-width: 720px) {
   .layout {
     grid-template-columns: 1fr;
+  }
+
+  .fact-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

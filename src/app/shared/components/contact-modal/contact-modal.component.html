@@ -1,0 +1,27 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button type="button" class="modal-close" [attr.aria-label]="'contactModal.close' | translate" (click)="close()">✕</button>
+    <h2>{{ title }}</h2>
+
+    <label>
+      {{ 'contactModal.name' | translate }}
+      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" />
+    </label>
+    <label>
+      {{ 'contactModal.phone' | translate }}
+      <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" />
+    </label>
+    <label>
+      {{ 'contactModal.email' | translate }}
+      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" />
+    </label>
+    <label>
+      {{ 'contactModal.message' | translate }}
+      <textarea rows="4" [value]="message()" (input)="message.set($any($event.target).value)"></textarea>
+    </label>
+
+    <button type="button" class="primary" [disabled]="sending" (click)="submit()">
+      {{ 'contactModal.send' | translate }}
+    </button>
+  </div>
+</div>
