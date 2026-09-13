@@ -97,6 +97,11 @@
           <h2 class="section-title">{{ 'listingDetail.locationTitle' | translate }}</h2>
           <div #locationMap class="location-map"></div>
         }
+
+        @if (listing.type === 'sale') {
+          <h2 class="section-title">{{ 'listingDetail.mortgageTitle' | translate }}</h2>
+          <app-mortgage-calculator [price]="listing.price" [currency]="listing.currency" />
+        }
       </div>
 
       <div class="info">

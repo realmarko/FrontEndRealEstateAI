@@ -10,12 +10,13 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
+import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, RouterLink, TranslatePipe, ContactModalComponent],
+  imports: [CurrencyPipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })

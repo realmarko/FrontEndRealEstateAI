@@ -1,0 +1,36 @@
+<div class="mortgage-calc">
+  <div class="fields">
+    <label>
+      {{ 'mortgageCalc.downPayment' | translate }}
+      <div class="input-suffix">
+        <input type="number" min="0" max="100" step="1" [value]="downPaymentPercent()" (input)="setDownPaymentPercent($any($event.target).value)" />
+        <span>%</span>
+      </div>
+      <span class="hint">{{ downPaymentAmount() | currency:currency }}</span>
+    </label>
+
+    <label>
+      {{ 'mortgageCalc.interestRate' | translate }}
+      <div class="input-suffix">
+        <input type="number" min="0" max="30" step="0.1" [value]="interestRate()" (input)="setInterestRate($any($event.target).value)" />
+        <span>%</span>
+      </div>
+    </label>
+
+    <label>
+      {{ 'mortgageCalc.termYears' | translate }}
+      <select (change)="setTermYears($any($event.target).value)">
+        <option [value]="15" [selected]="termYears() === 15">15 {{ 'mortgageCalc.years' | translate }}</option>
+        <option [value]="20" [selected]="termYears() === 20">20 {{ 'mortgageCalc.years' | translate }}</option>
+        <option [value]="30" [selected]="termYears() === 30">30 {{ 'mortgageCalc.years' | translate }}</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="result">
+    <span class="result-value">{{ monthlyPayment() | currency:currency }}</span>
+    <span class="result-label">{{ 'mortgageCalc.perMonth' | translate }}</span>
+  </div>
+
+  <p class="disclaimer">{{ 'mortgageCalc.disclaimer' | translate }}</p>
+</div>
