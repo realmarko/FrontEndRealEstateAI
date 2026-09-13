@@ -19,7 +19,7 @@ import {
 } from '../../shared/utils/mortgage';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
-const DEFAULT_ZOOM = 14;
+const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 const SCHOOL_ICON = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';

@@ -94,7 +94,7 @@
 
 .map-pane {
   position: relative;
-  flex: 1 1 55%;
+  flex: 1 1 50%;
   min-width: 0;
 }
 
@@ -203,8 +203,8 @@
 }
 
 .listings-pane {
-  flex: 1 1 45%;
-  max-width: 480px;
+  flex: 1 1 50%;
+  min-width: 0;
   overflow-y: auto;
   padding: 1rem;
   background: #f9fafb;
@@ -219,8 +219,8 @@
 }
 
 .listings-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
 }
 
@@ -243,9 +243,12 @@
   }
 
   .listings-pane {
-    max-width: none;
     max-height: 45vh;
     border-left: none;
     border-top: 1px solid #e5e7eb;
+  }
+
+  .listings-list {
+    grid-template-columns: 1fr;
   }
 }
