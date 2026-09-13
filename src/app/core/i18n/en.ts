@@ -45,6 +45,7 @@ export const en: Record<string, string> = {
   'listings.empty': 'No listings match your search.',
 
   'listing.perMonthSuffix': ' / mo',
+  'listing.estMonthlyPayment': 'Est.',
   'listing.bedroomsAbbr': 'bd',
   'listing.bathroomsAbbr': 'ba',
   'listing.photoNumber': 'Photo {{number}}',

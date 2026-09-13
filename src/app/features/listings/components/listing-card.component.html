@@ -45,6 +45,13 @@
       {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
     </p>
 
+    @if (listing.type === 'sale') {
+      <p class="mortgage-estimate">
+        {{ 'listing.estMonthlyPayment' | translate }}
+        {{ estimatedMonthlyPayment | currency:listing.currency:'symbol':'1.0-0' }}{{ 'listing.perMonthSuffix' | translate }}
+      </p>
+    }
+
     <p class="stats">
       <span><strong>{{ listing.bedrooms }}</strong> {{ 'listing.bedroomsAbbr' | translate }}</span>
       <span class="sep">|</span>

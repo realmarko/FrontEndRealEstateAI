@@ -3,6 +3,12 @@ import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import {
+  DEFAULT_DOWN_PAYMENT_PERCENT,
+  DEFAULT_INTEREST_RATE_PERCENT,
+  DEFAULT_TERM_YEARS,
+  calculateMonthlyPayment
+} from '../../../shared/utils/mortgage';
 
 @Component({
   selector: 'app-listing-card',
@@ -21,5 +27,16 @@ export class ListingCardComponent {
 
   showImage(index: number): void {
     this.activeImageIndex.set(index);
+  }
+
+  // Same default assumptions as MortgageCalculatorComponent (20% down, 10.5%, 30yr) — this
+  // is a quick informational estimate on the card, not an editable calculator.
+  get estimatedMonthlyPayment(): number {
+    return calculateMonthlyPayment(
+      this.listing.price,
+      DEFAULT_DOWN_PAYMENT_PERCENT,
+      DEFAULT_INTEREST_RATE_PERCENT,
+      DEFAULT_TERM_YEARS
+    );
   }
 }

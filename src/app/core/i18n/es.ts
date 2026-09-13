@@ -45,6 +45,7 @@ export const es: Record<string, string> = {
   'listings.empty': 'No hay propiedades que coincidan con tu búsqueda.',
 
   'listing.perMonthSuffix': ' / mes',
+  'listing.estMonthlyPayment': 'Aprox.',
   'listing.bedroomsAbbr': 'hab',
   'listing.bathroomsAbbr': 'baños',
   'listing.photoNumber': 'Foto {{number}}',
