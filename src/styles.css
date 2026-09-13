@@ -182,6 +182,25 @@ body {
   margin: 0 0 0.3rem;
 }
 
+.map-info-mortgage {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin: 0 0 0.35rem;
+}
+
+.map-info-tooltip {
+  display: inline-flex;
+  cursor: help;
+}
+
+.map-info-tooltip svg {
+  width: 13px;
+  height: 13px;
+}
+
 .map-info-stats {
   margin: 0 0 0.35rem;
   font-size: 0.8rem;

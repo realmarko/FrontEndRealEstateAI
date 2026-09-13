@@ -46,6 +46,7 @@ export const es: Record<string, string> = {
 
   'listing.perMonthSuffix': ' / mes',
   'listing.estMonthlyPayment': 'Aprox.',
+  'listing.mortgageTooltip': 'Hipoteca',
   'listing.bedroomsAbbr': 'hab',
   'listing.bathroomsAbbr': 'baños',
   'listing.photoNumber': 'Foto {{number}}',

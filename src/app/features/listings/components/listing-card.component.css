@@ -115,6 +115,19 @@
   color: #6b7280;
   font-size: 0.78rem;
   margin: 0 0 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mortgage-tooltip {
+  display: inline-flex;
+  cursor: help;
+}
+
+.mortgage-tooltip svg {
+  width: 13px;
+  height: 13px;
 }
 
 .stats {

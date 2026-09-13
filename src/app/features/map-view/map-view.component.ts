@@ -9,6 +9,12 @@ import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PropertyType } from '../../core/models/listing.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
+import {
+  DEFAULT_DOWN_PAYMENT_PERCENT,
+  DEFAULT_INTEREST_RATE_PERCENT,
+  DEFAULT_TERM_YEARS,
+  calculateMonthlyPayment
+} from '../../shared/utils/mortgage';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 18;
@@ -262,6 +268,29 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     priceEl.className = 'map-info-price';
     priceEl.textContent = price + (listing.type === 'rent' ? this.translation.t('listing.perMonthSuffix') : '');
     body.appendChild(priceEl);
+
+    if (listing.type === 'sale') {
+      const monthlyPayment = calculateMonthlyPayment(
+        listing.price,
+        DEFAULT_DOWN_PAYMENT_PERCENT,
+        DEFAULT_INTEREST_RATE_PERCENT,
+        DEFAULT_TERM_YEARS
+      );
+      const formattedPayment = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: listing.currency,
+        maximumFractionDigits: 0
+      }).format(monthlyPayment);
+
+      const mortgageEl = document.createElement('p');
+      mortgageEl.className = 'map-info-mortgage';
+      mortgageEl.innerHTML =
+        `${this.translation.t('listing.estMonthlyPayment')} ${formattedPayment}${this.translation.t('listing.perMonthSuffix')} ` +
+        `<span class="map-info-tooltip" title="${this.translation.t('listing.mortgageTooltip')}">` +
+        `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" /></svg>` +
+        `</span>`;
+      body.appendChild(mortgageEl);
+    }
 
     const statsEl = document.createElement('p');
     statsEl.className = 'map-info-stats';
