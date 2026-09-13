@@ -2,15 +2,7 @@
   <h1>{{ 'favorites.title' | translate }}</h1>
 
   @if (favoriteListings().length) {
-    <div class="grid">
-      @for (listing of favoriteListings(); track listing.id) {
-        <app-listing-card
-          [listing]="listing"
-          [isFavorite]="true"
-          (toggleFavorite)="toggleFavorite($event)"
-        />
-      }
-    </div>
+    <app-listing-grid [listings]="favoriteListings()" />
   } @else {
     <p class="empty">
       {{ 'favorites.emptyPrefix' | translate }}

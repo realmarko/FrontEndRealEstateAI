@@ -3,20 +3,19 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { FavoritesService } from '../../../core/services/favorites.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Agent, AgentReview } from '../../../core/models/agent.model';
 import { Listing } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
-import { ListingCardComponent } from '../../listings/components/listing-card.component';
+import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-agent-detail',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent, ListingCardComponent],
+  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent, ListingGridComponent],
   templateUrl: './agent-detail.component.html',
   styleUrl: './agent-detail.component.css'
 })
@@ -26,7 +25,6 @@ export class AgentDetailComponent {
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
   protected readonly auth = inject(AuthService);
-  protected readonly favorites = inject(FavoritesService);
 
   private readonly agentId = Number(this.route.snapshot.paramMap.get('id'));
 
@@ -60,10 +58,6 @@ export class AgentDetailComponent {
 
     this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
     this.agentService.getListings(this.agentId).subscribe((listings) => this.listings.set(listings));
-  }
-
-  toggleFavorite(listingId: string): void {
-    this.favorites.toggle(listingId);
   }
 
   get contactModalTitle(): string {

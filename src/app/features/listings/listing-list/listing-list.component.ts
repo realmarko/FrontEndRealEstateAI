@@ -1,7 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ListingCardComponent } from '../components/listing-card.component';
-import { FavoritesService } from '../../../core/services/favorites.service';
+import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { ListingService } from '../../../core/services/listing.service';
 import { ListingType } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
@@ -9,7 +8,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 @Component({
   selector: 'app-listing-list',
   standalone: true,
-  imports: [RouterLink, ListingCardComponent, TranslatePipe],
+  imports: [RouterLink, ListingGridComponent, TranslatePipe],
   templateUrl: './listing-list.component.html',
   styleUrl: './listing-list.component.css'
 })
@@ -31,10 +30,7 @@ export class ListingListComponent {
     });
   });
 
-  constructor(
-    private readonly listingService: ListingService,
-    protected readonly favorites: FavoritesService
-  ) {}
+  constructor(private readonly listingService: ListingService) {}
 
   setTypeFilter(type: ListingType | 'all'): void {
     this.typeFilter.set(type);
@@ -42,9 +38,5 @@ export class ListingListComponent {
 
   onSearchChange(term: string): void {
     this.search.set(term);
-  }
-
-  toggleFavorite(listingId: string): void {
-    this.favorites.toggle(listingId);
   }
 }

@@ -1,0 +1,9 @@
+<div class="grid">
+  @for (listing of listings; track listing.id) {
+    <app-listing-card
+      [listing]="listing"
+      [isFavorite]="isFavorite(listing.id)"
+      (toggleFavorite)="toggleFavorite($event)"
+    />
+  }
+</div>

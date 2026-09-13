@@ -1,6 +1,6 @@
 import { Component, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ListingCardComponent } from '../listings/components/listing-card.component';
+import { ListingGridComponent } from '../../shared/components/listing-grid/listing-grid.component';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingService } from '../../core/services/listing.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -8,7 +8,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [RouterLink, ListingCardComponent, TranslatePipe],
+  imports: [RouterLink, ListingGridComponent, TranslatePipe],
   templateUrl: './favorites.component.html',
   styleUrl: './favorites.component.css'
 })
@@ -19,11 +19,7 @@ export class FavoritesComponent {
   });
 
   constructor(
-    protected readonly favorites: FavoritesService,
+    private readonly favorites: FavoritesService,
     private readonly listingService: ListingService
   ) {}
-
-  toggleFavorite(listingId: string): void {
-    this.favorites.toggle(listingId);
-  }
 }
