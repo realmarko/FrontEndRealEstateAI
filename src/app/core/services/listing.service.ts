@@ -5,7 +5,7 @@ import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Listing, ListingInput } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
-import { ListingDto, fromDto, toCreateRequest } from './listing-api.adapter';
+import { ListingDto, fromDto, toFormData } from './listing-api.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class ListingService {
@@ -34,15 +34,14 @@ export class ListingService {
   }
 
   create(input: ListingInput): Observable<Listing> {
-    return this.http.post<ListingDto>(this.apiUrl, toCreateRequest(input)).pipe(
+    return this.http.post<ListingDto>(this.apiUrl, toFormData(input)).pipe(
       map(fromDto),
       tap((listing) => this.listingsSignal.update((list) => [listing, ...list]))
     );
   }
 
   update(id: string, input: ListingInput): Observable<Listing> {
-    const body = { ...toCreateRequest(input), status: 0 };
-    return this.http.put<ListingDto>(`${this.apiUrl}/${id}`, body).pipe(
+    return this.http.put<ListingDto>(`${this.apiUrl}/${id}`, toFormData(input, 0)).pipe(
       map(fromDto),
       tap((listing) =>
         this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l)))

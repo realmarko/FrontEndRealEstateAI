@@ -91,9 +91,9 @@
       <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
     </label>
 
-    @if (imageUrls().length) {
+    @if (displayImages().length) {
       <div class="photo-list">
-        @for (url of imageUrls(); track $index) {
+        @for (url of displayImages(); track $index) {
           <div class="photo-thumb">
             <img [src]="url" [alt]="'Photo ' + ($index + 1)" />
             <button type="button" class="remove-photo" (click)="removeImage($index)" [attr.aria-label]="'listingForm.removePhoto' | translate">✕</button>

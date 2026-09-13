@@ -22,7 +22,13 @@ export interface Listing {
   lng?: number;
 }
 
-export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'createdAt'>;
+// The write model splits photos in two: URLs already hosted somewhere (pasted external links,
+// or S3 URLs kept from a previous edit) vs. raw File objects the browser just picked, which the
+// backend uploads to S3 itself — see ListingsController.BuildImageUrlsAsync.
+export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'createdAt' | 'imageUrls'> & {
+  existingImageUrls: string[];
+  photos: File[];
+};
 
 // Display-only fallback for a listing with zero real photos — never write this into a
 // Listing's own imageUrls, or a fake stock photo could round-trip back to the server as if

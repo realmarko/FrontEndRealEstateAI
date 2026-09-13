@@ -111,6 +111,9 @@ export const es: Record<string, string> = {
   'listingForm.saveSubmit': 'Guardar cambios',
   'listingForm.cancel': 'Cancelar',
   'listingForm.submitError': 'No se pudo guardar la propiedad. Verifica que tu cuenta sea de tipo Propietario e intenta de nuevo.',
+  'listingForm.photoTypeError': 'Una de tus fotos no es una imagen JPEG, PNG o WEBP.',
+  'listingForm.photoSizeError': 'Una de tus fotos pesa más de 5 MB.',
+  'listingForm.photoUploadError': 'No se pudieron subir tus fotos en este momento. Intenta de nuevo.',
   'listingForm.createSuccess': 'Propiedad creada con éxito.',
   'listingForm.updateSuccess': 'Propiedad actualizada con éxito.',
 

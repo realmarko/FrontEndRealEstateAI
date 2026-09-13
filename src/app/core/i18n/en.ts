@@ -111,6 +111,9 @@ export const en: Record<string, string> = {
   'listingForm.saveSubmit': 'Save changes',
   'listingForm.cancel': 'Cancel',
   'listingForm.submitError': 'Could not save this listing. Make sure you are registered as an Owner and try again.',
+  'listingForm.photoTypeError': 'One of your photos is not a JPEG, PNG, or WEBP image.',
+  'listingForm.photoSizeError': 'One of your photos is larger than 5 MB.',
+  'listingForm.photoUploadError': 'Could not upload your photos right now. Please try again.',
   'listingForm.createSuccess': 'Listing created successfully.',
   'listingForm.updateSuccess': 'Listing updated successfully.',
 

@@ -46,7 +46,12 @@ export class ListingFormComponent {
     yearBuilt: this.fb.control<number | null>(null, [Validators.min(1800), Validators.max(this.currentYear)])
   });
 
-  readonly imageUrls = signal<string[]>([]);
+  // Already-hosted photos (pasted URLs, or S3 URLs kept from a previous edit) vs. newly
+  // picked files that still need uploading — kept separate so submit() can send the raw
+  // File objects to the backend instead of a base64 string. previewUrl is a local
+  // FileReader-generated data URL used ONLY for display, never sent to the backend.
+  readonly existingImageUrls = signal<string[]>([]);
+  readonly newPhotos = signal<{ file: File; previewUrl: string }[]>([]);
   newImageUrl = '';
 
   private existingLat: number | null = null;
@@ -59,12 +64,19 @@ export class ListingFormComponent {
     if (this.editingId) {
       this.listingService.fetchById(this.editingId).subscribe((listing) => {
         this.form.patchValue(listing);
-        this.imageUrls.set(listing.imageUrls);
+        this.existingImageUrls.set(listing.imageUrls);
         this.existingLat = listing.lat ?? null;
         this.existingLng = listing.lng ?? null;
       });
     }
   }
+
+  // Combined display order: existing photos first, then newly picked ones — matches the
+  // order the backend saves them in (BuildImageUrlsAsync).
+  readonly displayImages = () => [
+    ...this.existingImageUrls(),
+    ...this.newPhotos().map((p) => p.previewUrl)
+  ];
 
   get priceInWords(): string {
     return amountToWords(
@@ -85,12 +97,20 @@ export class ListingFormComponent {
     const files = input.files;
     if (!files?.length) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.imageUrls.update((urls) => [...urls, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
+    // Read every file in parallel but wait for all of them before appending, so selection
+    // order is preserved regardless of which FileReader happens to finish first (readers
+    // resolve independently and are not guaranteed to complete in the order they started).
+    const reads = Array.from(files).map(
+      (file) =>
+        new Promise<{ file: File; previewUrl: string }>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve({ file, previewUrl: reader.result as string });
+          reader.readAsDataURL(file);
+        })
+    );
+
+    Promise.all(reads).then((newlyRead) => {
+      this.newPhotos.update((photos) => [...photos, ...newlyRead]);
     });
 
     input.value = '';
@@ -99,12 +119,18 @@ export class ListingFormComponent {
   addImageUrl(): void {
     const url = this.newImageUrl.trim();
     if (!url) return;
-    this.imageUrls.update((urls) => [...urls, url]);
+    this.existingImageUrls.update((urls) => [...urls, url]);
     this.newImageUrl = '';
   }
 
   removeImage(index: number): void {
-    this.imageUrls.update((urls) => urls.filter((_, i) => i !== index));
+    const existingCount = this.existingImageUrls().length;
+    if (index < existingCount) {
+      this.existingImageUrls.update((urls) => urls.filter((_, i) => i !== index));
+    } else {
+      const photoIndex = index - existingCount;
+      this.newPhotos.update((photos) => photos.filter((_, i) => i !== photoIndex));
+    }
   }
 
   submit(): void {
@@ -113,7 +139,7 @@ export class ListingFormComponent {
       return;
     }
 
-    if (!this.imageUrls().length) {
+    if (!this.existingImageUrls().length && !this.newPhotos().length) {
       this.notification.error('listingForm.atLeastOnePhoto');
       return;
     }
@@ -122,7 +148,8 @@ export class ListingFormComponent {
     const value: ListingInput = {
       ...raw,
       yearBuilt: raw.yearBuilt ?? undefined,
-      imageUrls: this.imageUrls(),
+      existingImageUrls: this.existingImageUrls(),
+      photos: this.newPhotos().map((p) => p.file),
       lat: this.lat ?? this.existingLat ?? undefined,
       lng: this.lng ?? this.existingLng ?? undefined
     };
@@ -136,7 +163,17 @@ export class ListingFormComponent {
         this.notification.success(this.isEditMode ? 'listingForm.updateSuccess' : 'listingForm.createSuccess');
         this.router.navigate(['/listings', listing.id]);
       },
-      error: () => this.notification.error('listingForm.submitError')
+      error: (err) => {
+        const key =
+          err.status === 502
+            ? 'listingForm.photoUploadError'
+            : err.status === 400 && err.error?.message === 'Photos must be JPEG, PNG, or WEBP images.'
+              ? 'listingForm.photoTypeError'
+              : err.status === 400 && err.error?.message === 'Each photo must be 5 MB or smaller.'
+                ? 'listingForm.photoSizeError'
+                : 'listingForm.submitError';
+        this.notification.error(key);
+      }
     });
   }
 }

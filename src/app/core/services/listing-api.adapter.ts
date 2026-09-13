@@ -47,26 +47,6 @@ export interface ListingDto {
   imageUrls: string[];
 }
 
-export interface ListingCreateRequest {
-  title: string;
-  description: string;
-  listingType: number;
-  propertyType: number;
-  price: number;
-  currency: string;
-  addressLine: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  latitude: number;
-  longitude: number;
-  bedrooms: number;
-  bathrooms: number;
-  areaSqFt: number;
-  yearBuilt: number | null;
-  imageUrls: string[];
-}
-
 export function fromDto(dto: ListingDto): Listing {
   const hasLocation = dto.latitude !== 0 || dto.longitude !== 0;
 
@@ -96,24 +76,32 @@ export function fromDto(dto: ListingDto): Listing {
   };
 }
 
-export function toCreateRequest(input: ListingInput): ListingCreateRequest {
-  return {
-    title: input.title,
-    description: input.description,
-    listingType: LISTING_TYPE_TO_NUMBER[input.type],
-    propertyType: PROPERTY_TYPE_TO_NUMBER[input.propertyType ?? 'house'],
-    price: input.price,
-    currency: input.currency,
-    addressLine: input.address,
-    city: 'Puebla',
-    state: 'Puebla',
-    zipCode: '',
-    latitude: input.lat ?? 0,
-    longitude: input.lng ?? 0,
-    bedrooms: input.bedrooms,
-    bathrooms: input.bathrooms,
-    areaSqFt: Math.round(input.areaSqm / SQM_PER_SQFT),
-    yearBuilt: input.yearBuilt ?? null,
-    imageUrls: input.imageUrls
-  };
+// Builds a multipart FormData body matching [FromForm] ListingCreateDto/ListingUpdateDto —
+// existingImageUrls and photos are appended as repeated same-named fields so ASP.NET Core
+// binds them back into List<string>/List<IFormFile>. `status` is only set on updates.
+export function toFormData(input: ListingInput, status?: number): FormData {
+  const form = new FormData();
+
+  form.append('title', input.title);
+  form.append('description', input.description);
+  form.append('listingType', String(LISTING_TYPE_TO_NUMBER[input.type]));
+  form.append('propertyType', String(PROPERTY_TYPE_TO_NUMBER[input.propertyType ?? 'house']));
+  form.append('price', String(input.price));
+  form.append('currency', input.currency);
+  form.append('addressLine', input.address);
+  form.append('city', 'Puebla');
+  form.append('state', 'Puebla');
+  form.append('zipCode', '');
+  form.append('latitude', String(input.lat ?? 0));
+  form.append('longitude', String(input.lng ?? 0));
+  form.append('bedrooms', String(input.bedrooms));
+  form.append('bathrooms', String(input.bathrooms));
+  form.append('areaSqFt', String(Math.round(input.areaSqm / SQM_PER_SQFT)));
+  if (input.yearBuilt != null) form.append('yearBuilt', String(input.yearBuilt));
+  if (status !== undefined) form.append('status', String(status));
+
+  input.existingImageUrls.forEach((url) => form.append('existingImageUrls', url));
+  input.photos.forEach((file) => form.append('photos', file, file.name));
+
+  return form;
 }
