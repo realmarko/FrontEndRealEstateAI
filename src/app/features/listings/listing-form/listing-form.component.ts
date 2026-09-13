@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Component, inject, signal } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ListingService } from '../../../core/services/listing.service';
 import { Currency, ListingInput, PropertyType } from '../../../core/models/listing.model';
@@ -13,7 +13,7 @@ import { CurrencyInputDirective } from '../../../shared/directives/currency-inpu
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective],
   templateUrl: './listing-form.component.html',
   styleUrl: './listing-form.component.css'
 })
@@ -30,6 +30,7 @@ export class ListingFormComponent {
 
   readonly lat: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lat'));
   readonly lng: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lng'));
+  readonly currentYear = new Date().getFullYear();
 
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],
@@ -42,16 +43,23 @@ export class ListingFormComponent {
     bedrooms: [1, [Validators.required, Validators.min(0)]],
     bathrooms: [1, [Validators.required, Validators.min(0)]],
     areaSqm: [0, [Validators.required, Validators.min(0)]],
-    imageUrl: ['https://picsum.photos/640/400', Validators.required]
+    yearBuilt: this.fb.control<number | null>(null, [Validators.min(1800), Validators.max(this.currentYear)])
   });
+
+  readonly imageUrls = signal<string[]>([]);
+  newImageUrl = '';
 
   private existingLat: number | null = null;
   private existingLng: number | null = null;
 
   constructor() {
+    // New listings start with zero photos on purpose — the "add at least one photo" check in
+    // submit() forces a real upload/URL instead of silently shipping a stock placeholder that
+    // looks like a saved photo once the listing is later reopened for editing.
     if (this.editingId) {
       this.listingService.fetchById(this.editingId).subscribe((listing) => {
         this.form.patchValue(listing);
+        this.imageUrls.set(listing.imageUrls);
         this.existingLat = listing.lat ?? null;
         this.existingLng = listing.lng ?? null;
       });
@@ -72,20 +80,31 @@ export class ListingFormComponent {
     return Number.isFinite(parsed) ? parsed : null;
   }
 
-  selectedFileName: string | null = null;
-
-  onFileSelected(event: Event): void {
+  onFilesSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
+    const files = input.files;
+    if (!files?.length) return;
 
-    this.selectedFileName = file.name;
+    Array.from(files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imageUrls.update((urls) => [...urls, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.form.patchValue({ imageUrl: reader.result as string });
-    };
-    reader.readAsDataURL(file);
+    input.value = '';
+  }
+
+  addImageUrl(): void {
+    const url = this.newImageUrl.trim();
+    if (!url) return;
+    this.imageUrls.update((urls) => [...urls, url]);
+    this.newImageUrl = '';
+  }
+
+  removeImage(index: number): void {
+    this.imageUrls.update((urls) => urls.filter((_, i) => i !== index));
   }
 
   submit(): void {
@@ -94,8 +113,16 @@ export class ListingFormComponent {
       return;
     }
 
+    if (!this.imageUrls().length) {
+      this.notification.error('listingForm.atLeastOnePhoto');
+      return;
+    }
+
+    const raw = this.form.getRawValue();
     const value: ListingInput = {
-      ...this.form.getRawValue(),
+      ...raw,
+      yearBuilt: raw.yearBuilt ?? undefined,
+      imageUrls: this.imageUrls(),
       lat: this.lat ?? this.existingLat ?? undefined,
       lng: this.lng ?? this.existingLng ?? undefined
     };

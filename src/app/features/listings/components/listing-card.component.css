@@ -51,6 +51,29 @@
   background: #b45309;
 }
 
+.photo-dots {
+  position: absolute;
+  bottom: 0.7rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+}
+
+.photo-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+}
+
+.photo-dot.active {
+  background: #fff;
+}
+
 .fav-overlay {
   position: absolute;
   top: 0.6rem;

@@ -3,7 +3,32 @@
     <a class="back" routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>
 
     <div class="layout">
-      <img [src]="listing.imageUrl" [alt]="listing.title" />
+      <div class="gallery">
+        <div class="main-photo">
+          <img [src]="listing.imageUrls[activePhotoIndex()] ?? defaultImage" [alt]="listing.title" />
+
+          @if (listing.imageUrls.length > 1) {
+            <button type="button" class="nav-arrow prev" (click)="previousPhoto()" [attr.aria-label]="'listingDetail.previousPhoto' | translate">‹</button>
+            <button type="button" class="nav-arrow next" (click)="nextPhoto()" [attr.aria-label]="'listingDetail.nextPhoto' | translate">›</button>
+            <span class="photo-count">{{ activePhotoIndex() + 1 }} / {{ listing.imageUrls.length }}</span>
+          }
+        </div>
+
+        @if (listing.imageUrls.length > 1) {
+          <div class="thumbnails">
+            @for (url of listing.imageUrls; track $index) {
+              <button
+                type="button"
+                class="thumb"
+                [class.active]="$index === activePhotoIndex()"
+                (click)="showPhoto($index)"
+              >
+                <img [src]="url" [alt]="listing.title + ' ' + ($index + 1)" />
+              </button>
+            }
+          </div>
+        }
+      </div>
 
       <div class="info">
         <div class="row">
@@ -21,6 +46,9 @@
           {{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }} ·
           {{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }} ·
           {{ listing.areaSqm }} m²
+          @if (listing.yearBuilt) {
+            · {{ 'listingDetail.builtIn' | translate:{ year: listing.yearBuilt } }}
+          }
         </p>
         <p class="description">{{ listing.description }}</p>
 

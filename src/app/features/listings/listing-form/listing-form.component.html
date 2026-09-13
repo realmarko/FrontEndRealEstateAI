@@ -82,15 +82,36 @@
     </div>
 
     <label>
-      {{ 'listingForm.imageUrl' | translate }}
-      <input type="text" formControlName="imageUrl" />
+      {{ 'listingForm.yearBuilt' | translate }}
+      <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
     </label>
 
     <label>
-      {{ 'listingForm.uploadImage' | translate }}
-      <input type="file" accept="image/*" (change)="onFileSelected($event)" />
+      {{ 'listingForm.photos' | translate }}
+      <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
     </label>
-    <p class="file-name" *ngIf="selectedFileName">{{ 'listingForm.selectedFile' | translate:{ name: selectedFileName } }}</p>
+
+    @if (imageUrls().length) {
+      <div class="photo-list">
+        @for (url of imageUrls(); track $index) {
+          <div class="photo-thumb">
+            <img [src]="url" [alt]="'Photo ' + ($index + 1)" />
+            <button type="button" class="remove-photo" (click)="removeImage($index)" [attr.aria-label]="'listingForm.removePhoto' | translate">✕</button>
+            @if ($index === 0) {
+              <span class="primary-badge">{{ 'listingForm.primaryPhoto' | translate }}</span>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <label>
+      {{ 'listingForm.addPhotoUrl' | translate }}
+      <div class="add-url-row">
+        <input type="text" [(ngModel)]="newImageUrl" [ngModelOptions]="{standalone: true}" [placeholder]="'listingForm.photoUrlPlaceholder' | translate" />
+        <button type="button" (click)="addImageUrl()">{{ 'listingForm.addPhoto' | translate }}</button>
+      </div>
+    </label>
 
     <div class="actions">
       <button type="submit" class="primary">{{ (isEditMode ? 'listingForm.saveSubmit' : 'listingForm.createSubmit') | translate }}</button>

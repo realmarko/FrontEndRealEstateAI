@@ -82,7 +82,13 @@ export function fromDto(dto: ListingDto): Listing {
     bedrooms: dto.bedrooms,
     bathrooms: dto.bathrooms,
     areaSqm: Math.round(dto.areaSqFt * SQM_PER_SQFT),
-    imageUrl: dto.imageUrls[0] ?? 'https://picsum.photos/640/400',
+    yearBuilt: dto.yearBuilt ?? undefined,
+    // No fallback here on purpose — a listing with zero real photos should stay an empty
+    // array. Substituting a stock photo would let it round-trip back to the server as if it
+    // were a real, saved image the next time this listing is edited. Consumers that render a
+    // single image (the card, the map marker) fall back to DEFAULT_LISTING_IMAGE themselves,
+    // for display only.
+    imageUrls: dto.imageUrls,
     ownerId: dto.ownerId,
     createdAt: dto.createdAt,
     lat: hasLocation ? dto.latitude : undefined,
@@ -107,7 +113,7 @@ export function toCreateRequest(input: ListingInput): ListingCreateRequest {
     bedrooms: input.bedrooms,
     bathrooms: input.bathrooms,
     areaSqFt: Math.round(input.areaSqm / SQM_PER_SQFT),
-    yearBuilt: null,
-    imageUrls: input.imageUrl ? [input.imageUrl] : []
+    yearBuilt: input.yearBuilt ?? null,
+    imageUrls: input.imageUrls
   };
 }

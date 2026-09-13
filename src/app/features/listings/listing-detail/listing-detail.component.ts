@@ -7,7 +7,7 @@ import { ListingService } from '../../../core/services/listing.service';
 import { MessageService } from '../../../core/services/message.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { Listing } from '../../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 
 @Component({
   selector: 'app-listing-detail',
@@ -32,11 +32,17 @@ export class ListingDetailComponent {
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
   readonly messageBody = signal('');
+  readonly activePhotoIndex = signal(0);
+  protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
 
   constructor() {
     this.listingService.fetchById(this.id).subscribe({
       next: (listing) => {
         this.listing.set(listing);
+        // Reset in case this component instance is ever reused for a different listing
+        // (e.g. a future "similar listings" link) — a stale index into a shorter photo
+        // array would otherwise read past the end and break the image.
+        this.activePhotoIndex.set(0);
         this.loading.set(false);
       },
       error: () => {
@@ -48,6 +54,22 @@ export class ListingDetailComponent {
 
   toggleFavorite(): void {
     this.favorites.toggle(this.id);
+  }
+
+  showPhoto(index: number): void {
+    this.activePhotoIndex.set(index);
+  }
+
+  nextPhoto(): void {
+    const count = this.listing()?.imageUrls.length ?? 0;
+    if (count < 2) return;
+    this.activePhotoIndex.update((i) => (i + 1) % count);
+  }
+
+  previousPhoto(): void {
+    const count = this.listing()?.imageUrls.length ?? 0;
+    if (count < 2) return;
+    this.activePhotoIndex.update((i) => (i - 1 + count) % count);
   }
 
   deleteListing(): void {

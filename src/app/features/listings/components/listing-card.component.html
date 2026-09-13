@@ -1,8 +1,22 @@
 <article class="card">
   <div class="card-media">
     <a [routerLink]="['/listings', listing.id]">
-      <img [src]="listing.imageUrl" [alt]="listing.title" />
+      <img [src]="listing.imageUrls[activeImageIndex()] ?? defaultImage" [alt]="listing.title" />
     </a>
+
+    @if (listing.imageUrls.length > 1) {
+      <div class="photo-dots">
+        @for (url of listing.imageUrls; track $index) {
+          <button
+            type="button"
+            class="photo-dot"
+            [class.active]="$index === activeImageIndex()"
+            [attr.aria-label]="'listing.photoNumber' | translate:{ number: $index + 1 }"
+            (click)="showImage($index)"
+          ></button>
+        }
+      </div>
+    }
 
     @if (listing.propertyType) {
       <span class="badge">{{ ('listingForm.' + listing.propertyType) | translate }}</span>

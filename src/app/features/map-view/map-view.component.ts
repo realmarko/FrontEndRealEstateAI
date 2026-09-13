@@ -7,7 +7,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
-import { Listing, ListingType, PropertyType } from '../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PropertyType } from '../../core/models/listing.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
@@ -214,7 +214,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     media.addEventListener('click', navigate);
 
     const img = document.createElement('img');
-    img.src = listing.imageUrl;
+    img.src = listing.imageUrls[0] ?? DEFAULT_LISTING_IMAGE;
     img.alt = listing.title;
     media.appendChild(img);
 

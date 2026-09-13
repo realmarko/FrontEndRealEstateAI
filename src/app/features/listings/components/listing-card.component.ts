@@ -1,7 +1,7 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Listing } from '../../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
@@ -15,4 +15,11 @@ export class ListingCardComponent {
   @Input({ required: true }) listing!: Listing;
   @Input() isFavorite = false;
   @Output() toggleFavorite = new EventEmitter<string>();
+
+  protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
+  readonly activeImageIndex = signal(0);
+
+  showImage(index: number): void {
+    this.activeImageIndex.set(index);
+  }
 }

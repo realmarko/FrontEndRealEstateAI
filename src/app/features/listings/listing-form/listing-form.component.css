@@ -35,10 +35,70 @@ input:disabled {
   color: #6b7280;
 }
 
-.file-name {
-  margin: -0.5rem 0 0;
-  font-size: 0.85rem;
-  color: #4b5563;
+.photo-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.photo-thumb {
+  position: relative;
+  width: 96px;
+  height: 72px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.photo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.remove-photo {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.2rem;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(17, 24, 39, 0.75);
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.primary-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(30, 58, 95, 0.85);
+  color: #fff;
+  font-size: 0.65rem;
+  text-align: center;
+  padding: 0.15rem 0;
+}
+
+.add-url-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.add-url-row input {
+  flex: 1;
+}
+
+.add-url-row button {
+  padding: 0.5rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .price-mask {
