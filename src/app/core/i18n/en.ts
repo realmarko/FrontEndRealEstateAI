@@ -182,6 +182,7 @@ export const en: Record<string, string> = {
   'agentDetail.specialtiesTitle': 'Specialties',
   'agentDetail.contactTitle': 'Contact information',
   'agentDetail.notFound': 'Agent not found.',
+  'agentDetail.listingsTitle': 'Listings ({{count}})',
   'agentDetail.reviewsTitle': 'Reviews ({{count}})',
   'agentDetail.reviewsCount': '{{count}} reviews',
   'agentDetail.yourRating': 'Your rating',

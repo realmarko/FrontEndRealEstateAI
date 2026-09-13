@@ -182,6 +182,7 @@ export const es: Record<string, string> = {
   'agentDetail.specialtiesTitle': 'Especialidades',
   'agentDetail.contactTitle': 'Información de contacto',
   'agentDetail.notFound': 'Agente no encontrado.',
+  'agentDetail.listingsTitle': 'Propiedades ({{count}})',
   'agentDetail.reviewsTitle': 'Reseñas ({{count}})',
   'agentDetail.reviewsCount': '{{count}} reseñas',
   'agentDetail.yourRating': 'Tu calificación',

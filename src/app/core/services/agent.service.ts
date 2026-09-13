@@ -4,8 +4,10 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Agent, AgentFilters, AgentProfileInput, AgentReview } from '../models/agent.model';
+import { Listing } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import { AgentDto, AgentReviewDto, fromDto, reviewFromDto } from './agent-api.adapter';
+import { ListingDto, fromDto as listingFromDto } from './listing-api.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class AgentService {
@@ -66,6 +68,12 @@ export class AgentService {
     if (input.bio) formData.append('bio', input.bio);
     if (input.specialties?.length) formData.append('specialties', input.specialties.join(','));
     return formData;
+  }
+
+  getListings(agentId: number): Observable<Listing[]> {
+    return this.http
+      .get<ListingDto[]>(`${this.apiUrl}/${agentId}/listings`)
+      .pipe(map((listings) => listings.map(listingFromDto)));
   }
 
   getReviews(agentId: number): Observable<AgentReview[]> {
