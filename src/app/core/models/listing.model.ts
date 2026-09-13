@@ -34,3 +34,9 @@ export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'createdAt' | 'image
 // Listing's own imageUrls, or a fake stock photo could round-trip back to the server as if
 // it were real (see fromDto in listing-api.adapter.ts).
 export const DEFAULT_LISTING_IMAGE = 'https://picsum.photos/640/400';
+
+export interface PriceHistoryEntry {
+  price: number;
+  currency: Currency;
+  recordedAt: string;
+}

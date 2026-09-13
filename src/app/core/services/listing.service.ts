@@ -3,9 +3,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Listing, ListingInput } from '../models/listing.model';
+import { Listing, ListingInput, PriceHistoryEntry } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
-import { ListingDto, fromDto, toFormData } from './listing-api.adapter';
+import { ListingDto, ListingPriceHistoryDto, fromDto, priceHistoryFromDto, toFormData } from './listing-api.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class ListingService {
@@ -31,6 +31,12 @@ export class ListingService {
 
   fetchById(id: string): Observable<Listing> {
     return this.http.get<ListingDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
+  }
+
+  getPriceHistory(id: string): Observable<PriceHistoryEntry[]> {
+    return this.http
+      .get<ListingPriceHistoryDto[]>(`${this.apiUrl}/${id}/price-history`)
+      .pipe(map((entries) => entries.map(priceHistoryFromDto)));
   }
 
   create(input: ListingInput): Observable<Listing> {

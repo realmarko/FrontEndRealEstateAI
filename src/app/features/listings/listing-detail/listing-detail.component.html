@@ -102,6 +102,38 @@
           <h2 class="section-title">{{ 'listingDetail.mortgageTitle' | translate }}</h2>
           <app-mortgage-calculator [price]="listing.price" [currency]="listing.currency" />
         }
+
+        @if (priceHistoryRows().length) {
+          <h2 class="section-title">{{ 'listingDetail.priceHistoryTitle' | translate }}</h2>
+          <table class="price-history">
+            <thead>
+              <tr>
+                <th>{{ 'listingDetail.priceHistoryDate' | translate }}</th>
+                <th>{{ 'listingDetail.priceHistoryEvent' | translate }}</th>
+                <th>{{ 'listingDetail.priceHistoryPrice' | translate }}</th>
+                <th>{{ 'listingDetail.priceHistoryChange' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of priceHistoryRows(); track row.entry.recordedAt) {
+                <tr>
+                  <td>{{ row.entry.recordedAt | date:'mediumDate' }}</td>
+                  <td>
+                    {{ (row.isFirst ? 'listingDetail.priceHistoryListed' : 'listingDetail.priceHistoryChanged') | translate }}
+                  </td>
+                  <td>{{ row.entry.price | currency:row.entry.currency }}</td>
+                  <td>
+                    @if (!row.isFirst) {
+                      <span [class.increase]="row.change > 0" [class.decrease]="row.change < 0">
+                        {{ row.change > 0 ? '+' : '' }}{{ row.change | currency:row.entry.currency }}
+                      </span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
       </div>
 
       <div class="info">

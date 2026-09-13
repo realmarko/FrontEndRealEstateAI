@@ -1,5 +1,5 @@
 import { Component, ElementRef, Injector, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
@@ -7,7 +7,7 @@ import { ListingService } from '../../../core/services/listing.service';
 import { MessageService } from '../../../core/services/message.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
@@ -16,7 +16,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent],
+  imports: [CurrencyPipe, DatePipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -43,7 +43,22 @@ export class ListingDetailComponent {
   readonly activePhotoIndex = signal(0);
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
+  readonly priceHistory = signal<PriceHistoryEntry[]>([]);
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
+
+  // Newest first for display (matches how Redfin/Zillow order their price-history table),
+  // with each row's change computed against the entry right before it chronologically —
+  // computed from the ascending `priceHistory` signal, then reversed only for display.
+  readonly priceHistoryRows = computed(() => {
+    const history = this.priceHistory();
+    return history
+      .map((entry, i) => ({
+        entry,
+        isFirst: i === 0,
+        change: i === 0 ? 0 : entry.price - history[i - 1].price
+      }))
+      .reverse();
+  });
 
   get contactModalTitle(): string {
     return this.translation.t('listingDetail.contactModalTitle', { title: this.listing()?.title ?? '' });
@@ -82,6 +97,8 @@ export class ListingDetailComponent {
         this.loading.set(false);
       }
     });
+
+    this.listingService.getPriceHistory(this.id).subscribe((history) => this.priceHistory.set(history));
   }
 
   private async initLocationMap(lat: number, lng: number): Promise<void> {

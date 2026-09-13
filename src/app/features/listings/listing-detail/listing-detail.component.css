@@ -147,6 +147,35 @@
   overflow: hidden;
 }
 
+.price-history {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.price-history th {
+  text-align: left;
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.price-history td {
+  padding: 0.6rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.price-history .increase {
+  color: #b91c1c;
+}
+
+.price-history .decrease {
+  color: #16a34a;
+}
+
 .info {
   display: flex;
   flex-direction: column;

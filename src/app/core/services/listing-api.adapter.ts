@@ -1,4 +1,4 @@
-import { Listing, ListingInput, ListingType, PropertyType } from '../models/listing.model';
+import { Listing, ListingInput, ListingType, PriceHistoryEntry, PropertyType } from '../models/listing.model';
 
 // Backend enums serialize as numbers when writing (Create/Update) but as
 // their .ToString() name when reading (the DTOs use different representations).
@@ -45,6 +45,20 @@ export interface ListingDto {
   ownerName: string;
   createdAt: string;
   imageUrls: string[];
+}
+
+export interface ListingPriceHistoryDto {
+  price: number;
+  currency: string;
+  recordedAt: string;
+}
+
+export function priceHistoryFromDto(dto: ListingPriceHistoryDto): PriceHistoryEntry {
+  return {
+    price: dto.price,
+    currency: dto.currency as Listing['currency'],
+    recordedAt: dto.recordedAt
+  };
 }
 
 export function fromDto(dto: ListingDto): Listing {
