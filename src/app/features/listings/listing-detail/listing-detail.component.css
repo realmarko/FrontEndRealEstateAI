@@ -159,17 +159,33 @@
   font-size: 1.6rem;
 }
 
-.fav {
+.action-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fav,
+.share {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   border: 1px solid #d1d5db;
   background: #fff;
+  color: #374151;
   border-radius: 4px;
   padding: 0.4rem 0.7rem;
   cursor: pointer;
 }
 
+.btn-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
 .fav.active {
-  border-color: #f59e0b;
-  color: #b45309;
+  border-color: #fca5a5;
+  color: #dc2626;
 }
 
 .price {

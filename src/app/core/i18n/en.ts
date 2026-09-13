@@ -50,8 +50,7 @@ export const en: Record<string, string> = {
   'listing.photoNumber': 'Photo {{number}}',
 
   'listingDetail.back': '← Back to listings',
-  'listingDetail.save': '☆ Save',
-  'listingDetail.saved': '★ Saved',
+  'listingDetail.favorite': 'Favorite',
   'listingDetail.builtIn': 'Built in {{year}}',
   'listingDetail.locationTitle': 'Location',
   'listingDetail.contactAgent': 'Contact agent',
@@ -60,6 +59,9 @@ export const en: Record<string, string> = {
   'listingDetail.listedToday': 'Listed today',
   'listingDetail.daysOnMarket': '{{count}} days on market',
   'listingDetail.mortgageTitle': 'Mortgage calculator',
+  'listingDetail.share': 'Share',
+  'listingDetail.linkCopied': 'Link copied to clipboard!',
+  'listingDetail.shareError': 'Could not copy the link. Please try again.',
 
   'mortgageCalc.downPayment': 'Down payment',
   'mortgageCalc.interestRate': 'Interest rate',

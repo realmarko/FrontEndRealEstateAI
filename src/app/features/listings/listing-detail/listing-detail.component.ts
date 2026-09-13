@@ -111,6 +111,34 @@ export class ListingDetailComponent {
     this.favorites.toggle(this.id);
   }
 
+  async shareListing(): Promise<void> {
+    const listing = this.listing();
+    if (!listing) return;
+
+    const url = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: listing.title, url });
+      } catch (err) {
+        // AbortError means the user dismissed the native share sheet — not an error worth
+        // surfacing. Anything else (permission denied, etc.) should still notify the user,
+        // same as the clipboard fallback below does on failure.
+        if ((err as DOMException)?.name !== 'AbortError') {
+          this.notification.error('listingDetail.shareError');
+        }
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      this.notification.success('listingDetail.linkCopied');
+    } catch {
+      this.notification.error('listingDetail.shareError');
+    }
+  }
+
   pricePerSqm(listing: Listing): number {
     return listing.areaSqm > 0 ? listing.price / listing.areaSqm : 0;
   }
