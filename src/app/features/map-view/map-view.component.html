@@ -68,6 +68,12 @@
         <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
           {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
         </button>
+        <button type="button" class="schools-btn" [class.active]="showSchools" (click)="toggleSchools()">
+          {{ (loadingSchools ? 'map.loadingSchools' : showSchools ? 'map.hideSchools' : 'map.showSchools') | translate }}
+        </button>
+        <button type="button" class="locate-btn" [disabled]="locatingMe" (click)="centerOnCurrentLocation(true)">
+          {{ (locatingMe ? 'map.locating' : 'map.myLocation') | translate }}
+        </button>
         <button
           type="button"
           class="confirm-btn"

@@ -1,5 +1,5 @@
-import { Component, ElementRef, Injector, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
+import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
@@ -13,10 +13,29 @@ import { ContactFormValue, ContactModalComponent } from '../../../shared/compone
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { TranslationService } from '../../../core/services/translation.service';
 
+export interface NearbySchool {
+  name: string;
+  vicinity?: string;
+  rating?: number;
+  distanceKm: number;
+}
+
+// Straight-line distance only — no need to pull in the Maps "geometry" library (a separate
+// script param not currently loaded) just for this.
+function haversineDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -24,6 +43,7 @@ export class ListingDetailComponent {
   @ViewChild('locationMap') private locationMapEl?: ElementRef<HTMLDivElement>;
 
   private readonly injector = inject(Injector);
+  private readonly zone = inject(NgZone);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly listingService = inject(ListingService);
@@ -44,6 +64,8 @@ export class ListingDetailComponent {
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
+  readonly nearbySchools = signal<NearbySchool[]>([]);
+  readonly schoolsLoaded = signal(false);
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
 
   // Newest first for display (matches how Redfin/Zillow order their price-history table),
@@ -122,6 +144,39 @@ export class ListingDetailComponent {
     });
 
     new google.maps.Marker({ position, map });
+
+    this.searchNearbySchools(map, lat, lng);
+  }
+
+  // Reuses the location map instance (PlacesService needs either a Map or a plain div) and
+  // the Places library already loaded alongside the base Maps script — no separate API key
+  // or account needed. The "rating" shown is Google's own place rating (like any other
+  // business), not an academic-quality score (e.g. GreatSchools) — we have no access to that
+  // kind of data, so the template must not imply otherwise.
+  private searchNearbySchools(map: google.maps.Map, lat: number, lng: number): void {
+    const service = new google.maps.places.PlacesService(map);
+    service.nearbySearch({ location: { lat, lng }, radius: 2000, type: 'school' }, (results, status) => {
+      this.zone.run(() => {
+        this.schoolsLoaded.set(true);
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !results) {
+          this.nearbySchools.set([]);
+          return;
+        }
+
+        const schools = results
+          .filter((place) => place.geometry?.location)
+          .map((place): NearbySchool => ({
+            name: place.name ?? '',
+            vicinity: place.vicinity,
+            rating: place.rating,
+            distanceKm: haversineDistanceKm(lat, lng, place.geometry!.location!.lat(), place.geometry!.location!.lng())
+          }))
+          .sort((a, b) => a.distanceKm - b.distanceKm)
+          .slice(0, 5);
+
+        this.nearbySchools.set(schools);
+      });
+    });
   }
 
   toggleFavorite(): void {

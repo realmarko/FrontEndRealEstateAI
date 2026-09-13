@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild, computed, effect, signal } from '@angular/core';
+import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
+import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
@@ -17,9 +19,38 @@ import {
 } from '../../shared/utils/mortgage';
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
-const DEFAULT_ZOOM = 18;
+const DEFAULT_ZOOM = 14;
 const GOOGLE_LOAD_POLL_MS = 100;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+const SCHOOL_ICON = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
+
+// The library's default renderer colors every cluster plain blue (red once it's unusually
+// large) regardless of what it's clustering — which would collide with this page's own
+// blue/red "My listings"/"Other listings" legend and give a school cluster the same blue as
+// "mine". A fixed color per marker type keeps a cluster's color as meaningful as the pins it's standing in for.
+function createClusterRenderer(color: string): Renderer {
+  return {
+    render({ count, position }) {
+      const svg =
+        `<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="50" height="50">` +
+        `<circle cx="120" cy="120" opacity=".6" r="70" />` +
+        `<circle cx="120" cy="120" opacity=".3" r="90" />` +
+        `<circle cx="120" cy="120" opacity=".2" r="110" />` +
+        `<text x="50%" y="50%" style="fill:#fff" text-anchor="middle" font-size="50" dominant-baseline="middle" font-family="roboto,arial,sans-serif">${count}</text>` +
+        `</svg>`;
+
+      return new google.maps.Marker({
+        position,
+        zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count,
+        title: `Cluster of ${count} markers`,
+        icon: {
+          url: `data:image/svg+xml;base64,${btoa(svg)}`,
+          anchor: new google.maps.Point(25, 25)
+        }
+      });
+    }
+  };
+}
 
 @Component({
   selector: 'app-map-view',
@@ -33,6 +64,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   hasError = false;
   addMode = false;
+  showSchools = false;
+  loadingSchools = false;
+  locatingMe = false;
   selectedLat: number | null = null;
   selectedLng: number | null = null;
 
@@ -88,6 +122,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private map?: google.maps.Map;
   private marker?: google.maps.Marker;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
+  private schoolMarkers: google.maps.Marker[] = [];
+  private schoolsRequestId = 0;
+  // Two separate clusterers — one per marker type — so a cluster icon never mixes listings
+  // and schools together, keeping the blue/red vs. green meaning intact when markers group up.
+  private listingClusterer?: MarkerClusterer;
+  private schoolClusterer?: MarkerClusterer;
   private infoWindow?: google.maps.InfoWindow;
   private pollHandle?: ReturnType<typeof setInterval>;
 
@@ -96,6 +136,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly zone: NgZone,
     private readonly listingService: ListingService,
     private readonly translation: TranslationService,
+    private readonly notification: NotificationService,
     protected readonly auth: AuthService,
     protected readonly favorites: FavoritesService
   ) {
@@ -151,6 +192,19 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       streetViewControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
+    // The clustering algorithm's default maxZoom (16) stops clustering well before this app's
+    // own default zoom (18, street level) — raised so nearby markers still group up there too.
+    const clusterAlgorithmOptions = { maxZoom: 20 };
+    this.listingClusterer = new MarkerClusterer({
+      map: this.map,
+      algorithmOptions: clusterAlgorithmOptions,
+      renderer: createClusterRenderer('#1e3a5f')
+    });
+    this.schoolClusterer = new MarkerClusterer({
+      map: this.map,
+      algorithmOptions: clusterAlgorithmOptions,
+      renderer: createClusterRenderer('#15803d')
+    });
 
     this.map.addListener('click', (event: google.maps.MapMouseEvent) => {
       // The info-window's own close button is hidden (see .gm-ui-hover-effect in styles.css),
@@ -172,16 +226,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   }
 
   private renderListingMarkers(): void {
-    this.listingMarkers.forEach((marker) => marker.setMap(null));
+    this.listingClusterer?.clearMarkers();
     this.listingMarkers.clear();
 
     const listings = this.filteredListings().filter((listing) => listing.lat != null && listing.lng != null);
     const currentUserId = this.auth.currentUser()?.id;
+    const markers: google.maps.Marker[] = [];
 
     for (const listing of listings) {
       const marker = new google.maps.Marker({
         position: { lat: listing.lat!, lng: listing.lng! },
-        map: this.map,
         title: listing.title,
         icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : undefined
       });
@@ -191,7 +245,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       });
 
       this.listingMarkers.set(listing.id, marker);
+      markers.push(marker);
     }
+
+    this.listingClusterer?.addMarkers(markers);
   }
 
   private openListingInfo(listing: Listing, marker: google.maps.Marker): void {
@@ -318,16 +375,31 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
-  private centerOnCurrentLocation(): void {
+  // Also wired to the "recenter" map button (template), not just the initial load — so
+  // wrapped in zone.run since the geolocation callback isn't guaranteed to run inside
+  // Angular's zone, and locatingMe is bound in the template. notifyOnError is off for the
+  // silent initial-load attempt (most first-time visitors haven't granted permission yet,
+  // and a toast on page load for that would be surprising) and on for the explicit button click.
+  centerOnCurrentLocation(notifyOnError = false): void {
     if (!navigator.geolocation) return;
 
+    this.locatingMe = true;
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        this.map?.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
-        this.map?.setZoom(DEFAULT_ZOOM);
+        this.zone.run(() => {
+          this.locatingMe = false;
+          this.map?.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+          this.map?.setZoom(DEFAULT_ZOOM);
+        });
       },
       () => {
-        // Location denied or unavailable: keep the default center.
+        // Denied, unavailable, or timed out: keep wherever the map currently is.
+        this.zone.run(() => {
+          this.locatingMe = false;
+          if (notifyOnError) {
+            this.notification.error('map.locationError');
+          }
+        });
       },
       { timeout: 8000 }
     );
@@ -349,6 +421,77 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         });
       });
     }
+  }
+
+  // Searches once per toggle-on, not on every pan/zoom — each search is a billed Places API
+  // call, so refreshing continuously as the map moves would be needlessly expensive. Toggle
+  // off/on again (or a future dedicated "refresh" affordance) re-searches the current view.
+  toggleSchools(): void {
+    this.showSchools = !this.showSchools;
+
+    if (this.showSchools) {
+      this.searchSchoolsInViewport();
+    } else {
+      // Bumping the request id invalidates any in-flight search so a late response can't
+      // resurrect markers (or the "loading" label) for a state that's no longer active.
+      this.schoolsRequestId++;
+      this.loadingSchools = false;
+      this.clearSchoolMarkers();
+    }
+  }
+
+  private searchSchoolsInViewport(): void {
+    const bounds = this.map?.getBounds();
+    if (!this.map || !bounds) return;
+
+    this.loadingSchools = true;
+    const requestId = ++this.schoolsRequestId;
+    const service = new google.maps.places.PlacesService(this.map);
+    service.nearbySearch({ bounds, type: 'school' }, (results, status) => {
+      this.zone.run(() => {
+        // Ignore responses to superseded searches (e.g. the user toggled off/on again, or
+        // panned and re-triggered a search, before this one came back) — otherwise a slower
+        // request can overwrite fresher markers with results from a stale viewport.
+        if (requestId !== this.schoolsRequestId) return;
+
+        this.loadingSchools = false;
+        this.clearSchoolMarkers();
+
+        if (status !== google.maps.places.PlacesServiceStatus.OK || !results) return;
+
+        const markers: google.maps.Marker[] = [];
+        for (const place of results) {
+          if (!place.geometry?.location) continue;
+          const name = place.name ?? '';
+          const marker = new google.maps.Marker({
+            position: place.geometry.location,
+            title: name,
+            icon: SCHOOL_ICON
+          });
+          marker.addListener('click', () => this.zone.run(() => this.openSchoolInfo(name, marker)));
+          this.schoolMarkers.push(marker);
+          markers.push(marker);
+        }
+        this.schoolClusterer?.addMarkers(markers);
+      });
+    });
+  }
+
+  private openSchoolInfo(name: string, marker: google.maps.Marker): void {
+    if (!this.infoWindow) return;
+
+    // textContent (not innerHTML) — the school name comes from the Places API, not our own data.
+    const container = document.createElement('div');
+    container.className = 'map-info-school';
+    container.textContent = name;
+
+    this.infoWindow.setContent(container);
+    this.infoWindow.open({ map: this.map, anchor: marker });
+  }
+
+  private clearSchoolMarkers(): void {
+    this.schoolClusterer?.clearMarkers();
+    this.schoolMarkers = [];
   }
 
   toggleAddMode(): void {

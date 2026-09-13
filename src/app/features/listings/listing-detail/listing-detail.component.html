@@ -96,6 +96,30 @@
         @if (listing.lat != null && listing.lng != null) {
           <h2 class="section-title">{{ 'listingDetail.locationTitle' | translate }}</h2>
           <div #locationMap class="location-map"></div>
+
+          @if (nearbySchools().length) {
+            <h2 class="section-title">{{ 'listingDetail.nearbySchoolsTitle' | translate }}</h2>
+            <ul class="school-list">
+              @for (school of nearbySchools(); track school.name) {
+                <li class="school-item">
+                  <div class="school-info">
+                    <span class="school-name">{{ school.name }}</span>
+                    @if (school.vicinity) {
+                      <span class="school-vicinity">{{ school.vicinity }}</span>
+                    }
+                  </div>
+                  <div class="school-meta">
+                    @if (school.rating) {
+                      <span class="school-rating" [attr.title]="'listingDetail.schoolRatingTooltip' | translate">★ {{ school.rating }}</span>
+                    }
+                    <span class="school-distance">{{ school.distanceKm | number:'1.1-1' }} km</span>
+                  </div>
+                </li>
+              }
+            </ul>
+          } @else if (schoolsLoaded()) {
+            <p class="no-schools">{{ 'listingDetail.noSchoolsFound' | translate }}</p>
+          }
         }
 
         @if (listing.type === 'sale') {
