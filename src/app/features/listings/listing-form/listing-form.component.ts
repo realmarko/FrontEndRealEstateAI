@@ -3,7 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ListingService } from '../../../core/services/listing.service';
-import { Currency, ListingInput, PropertyType } from '../../../core/models/listing.model';
+import { Currency, ListingInput, PROPERTY_TYPE_OPTIONS, PropertyType } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -32,6 +32,7 @@ export class ListingFormComponent {
   readonly lat: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lat'));
   readonly lng: number | null = this.parseCoordinate(this.route.snapshot.queryParamMap.get('lng'));
   readonly currentYear = new Date().getFullYear();
+  readonly propertyTypeOptions = PROPERTY_TYPE_OPTIONS;
 
   readonly form = this.fb.nonNullable.group({
     title: ['', Validators.required],

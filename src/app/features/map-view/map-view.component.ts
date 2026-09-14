@@ -9,7 +9,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
-import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PropertyType } from '../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
@@ -79,6 +79,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly minBeds = signal<number | 'any'>('any');
   readonly minBaths = signal<number | 'any'>('any');
   readonly showMoreFilters = signal(false);
+  readonly propertyTypeOptions = PROPERTY_TYPE_OPTIONS;
 
   readonly filteredListings = computed(() => {
     const term = this.search().trim().toLowerCase();

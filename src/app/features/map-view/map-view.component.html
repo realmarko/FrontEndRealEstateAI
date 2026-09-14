@@ -42,10 +42,9 @@
 
     <select class="filter-select" [value]="propertyTypeFilter()" (change)="setPropertyTypeFilter($any($event.target).value)">
       <option value="all">{{ 'listings.filterAll' | translate }}</option>
-      <option value="house">{{ 'listingForm.house' | translate }}</option>
-      <option value="apartment">{{ 'listingForm.apartment' | translate }}</option>
-      <option value="land">{{ 'listingForm.land' | translate }}</option>
-      <option value="commercial">{{ 'listingForm.commercial' | translate }}</option>
+      @for (type of propertyTypeOptions; track type) {
+        <option [value]="type">{{ ('listingForm.' + type) | translate }}</option>
+      }
     </select>
 
     <button type="button" class="more-filters-btn" (click)="toggleMoreFilters()">

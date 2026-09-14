@@ -7,17 +7,40 @@ const LISTING_TYPE_FROM_STRING: Record<string, ListingType> = { Sale: 'sale', Re
 
 const PROPERTY_TYPE_TO_NUMBER: Record<PropertyType, number> = {
   house: 0,
+  condoHouse: 2,
   apartment: 1,
+  residentialLand: 6,
+  ranch: 7,
+  office: 8,
+  industrialWarehouse: 9,
+  commercialLand: 10,
+  industrialStorage: 11,
+  retailSpace: 12,
+  building: 13,
+  room: 14,
+  commercialStorage: 15,
+  industrialLand: 16,
   land: 4,
   commercial: 5
 };
 const PROPERTY_TYPE_FROM_STRING: Record<string, PropertyType> = {
   House: 'house',
   Apartment: 'apartment',
-  Condo: 'apartment',
+  Condo: 'condoHouse',
   Townhouse: 'house',
   Land: 'land',
-  Commercial: 'commercial'
+  Commercial: 'commercial',
+  ResidentialLand: 'residentialLand',
+  Ranch: 'ranch',
+  Office: 'office',
+  IndustrialWarehouse: 'industrialWarehouse',
+  CommercialLand: 'commercialLand',
+  IndustrialStorage: 'industrialStorage',
+  RetailSpace: 'retailSpace',
+  Building: 'building',
+  Room: 'room',
+  CommercialStorage: 'commercialStorage',
+  IndustrialLand: 'industrialLand'
 };
 
 const SQM_PER_SQFT = 0.09290304;

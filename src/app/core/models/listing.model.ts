@@ -1,5 +1,42 @@
 export type ListingType = 'sale' | 'rent';
-export type PropertyType = 'house' | 'apartment' | 'land' | 'commercial';
+export type PropertyType =
+  | 'house'
+  | 'condoHouse'
+  | 'apartment'
+  | 'residentialLand'
+  | 'ranch'
+  | 'office'
+  | 'industrialWarehouse'
+  | 'commercialLand'
+  | 'industrialStorage'
+  | 'retailSpace'
+  | 'building'
+  | 'room'
+  | 'commercialStorage'
+  | 'industrialLand'
+  | 'land'
+  | 'commercial';
+// Single source of truth for the property-type dropdown, shared by the listing form and the
+// map filter — each option's label lives at `listingForm.<value>` in the i18n files.
+export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
+  'house',
+  'condoHouse',
+  'apartment',
+  'residentialLand',
+  'ranch',
+  'office',
+  'industrialWarehouse',
+  'commercialLand',
+  'industrialStorage',
+  'retailSpace',
+  'building',
+  'room',
+  'commercialStorage',
+  'industrialLand',
+  'land',
+  'commercial'
+];
+
 export type Currency = 'MXN' | 'USD';
 
 export interface Listing {
