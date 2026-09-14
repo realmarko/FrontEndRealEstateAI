@@ -1,56 +1,77 @@
-.layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 1.5rem;
-}
-
-.conversation-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+.inquiry-list {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.75rem;
 }
 
-.conversation-list button {
-  width: 100%;
-  text-align: left;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  border-radius: 4px;
+.inquiry-card {
+  position: relative;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   cursor: pointer;
+}
+
+.inquiry-card.unread {
+  border-color: #1e3a5f;
+  background: #f5f8fc;
+}
+
+.inquiry-header {
   display: flex;
   justify-content: space-between;
-  gap: 0.5rem;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
 }
 
-.conversation-list button.active {
-  border-color: #1e3a5f;
-  background: #eaf0f7;
+.inquiry-header a {
+  font-weight: 600;
+  color: #1e3a5f;
 }
 
-.count {
+.date {
   color: #6b7280;
   font-size: 0.8rem;
+  flex-shrink: 0;
 }
 
-.thread {
-  background: #fff;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-  min-height: 200px;
+.sender {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: #374151;
+  margin-bottom: 0.4rem;
 }
 
 .message {
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #f0f0f0;
+  margin: 0 0 0.5rem;
 }
 
-.message p {
-  margin: 0.2rem 0 0;
+.qualifying {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  background: #f3f4f6;
+  border-radius: 999px;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.8rem;
+  color: #374151;
+}
+
+.unread-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: #1e3a5f;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.7rem;
 }
 
 .empty {

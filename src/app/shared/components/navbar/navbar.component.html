@@ -18,7 +18,10 @@
       <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
       <a routerLink="/agents" routerLinkActive="active">{{ 'nav.agents' | translate }}</a>
       <a routerLink="/favorites" routerLinkActive="active">{{ 'nav.favorites' | translate }}</a>
-      <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
+      <a routerLink="/saved-searches" routerLinkActive="active">{{ 'nav.savedSearches' | translate }}</a>
+      @if (auth.currentUser()?.roles?.includes('Owner')) {
+        <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
+      }
     </div>
 
     <div class="session">

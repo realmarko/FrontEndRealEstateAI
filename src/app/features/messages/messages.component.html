@@ -1,35 +1,44 @@
 <div class="page">
   <h1>{{ 'messages.title' | translate }}</h1>
 
-  @if (conversations().length) {
-    <div class="layout">
-      <ul class="conversation-list">
-        @for (conversation of conversations(); track conversation.id) {
-          <li>
-            <button
-              type="button"
-              [class.active]="conversation.id === selectedId()"
-              (click)="select(conversation)"
-            >
-              {{ conversation.listingTitle }}
-              <span class="count">{{ conversation.messages.length }}</span>
-            </button>
-          </li>
-        }
-      </ul>
+  @if (inquiryService.received().length) {
+    <div class="inquiry-list">
+      @for (inquiry of inquiryService.received(); track inquiry.id) {
+        <div class="inquiry-card" [class.unread]="!inquiry.isRead" (click)="markRead(inquiry)">
+          <div class="inquiry-header">
+            <a [routerLink]="['/listings', inquiry.listingId]" (click)="$event.stopPropagation()">{{ inquiry.listingTitle }}</a>
+            <span class="date">{{ inquiry.createdAt | date:'short' }}</span>
+          </div>
 
-      <div class="thread">
-        @if (selected(); as conversation) {
-          @for (message of conversation.messages; track message.id) {
-            <div class="message">
-              <strong>{{ message.senderName }}</strong>
-              <p>{{ message.body }}</p>
+          <div class="sender">
+            <strong>{{ inquiry.senderName }}</strong>
+            <span>{{ inquiry.senderEmail }}</span>
+            @if (inquiry.senderPhone) {
+              <span>{{ inquiry.senderPhone }}</span>
+            }
+          </div>
+
+          <p class="message">{{ inquiry.message }}</p>
+
+          @if (inquiry.fundingMethod || inquiry.timeline || inquiry.hasAgent != null) {
+            <div class="qualifying">
+              @if (inquiry.fundingMethod) {
+                <span class="chip">{{ fundingMethodKey(inquiry.fundingMethod) | translate }}</span>
+              }
+              @if (inquiry.timeline) {
+                <span class="chip">{{ timelineKey(inquiry.timeline) | translate }}</span>
+              }
+              @if (inquiry.hasAgent != null) {
+                <span class="chip">{{ 'contactModal.hasAgent' | translate }}: {{ (inquiry.hasAgent ? 'contactModal.yes' : 'contactModal.no') | translate }}</span>
+              }
             </div>
           }
-        } @else {
-          <p class="empty">{{ 'messages.selectConversation' | translate }}</p>
-        }
-      </div>
+
+          @if (!inquiry.isRead) {
+            <span class="unread-badge">{{ 'messages.unread' | translate }}</span>
+          }
+        </div>
+      }
     </div>
   } @else {
     <p class="empty">

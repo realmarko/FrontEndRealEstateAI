@@ -20,6 +20,37 @@
       <textarea rows="4" [value]="message()" (input)="message.set($any($event.target).value)"></textarea>
     </label>
 
+    @if (showQualifyingQuestions) {
+      <label>
+        {{ 'contactModal.fundingMethod' | translate }}
+        <select [value]="fundingMethod()" (change)="fundingMethod.set($any($event.target).value)">
+          <option value="">{{ 'contactModal.preferNotToSay' | translate }}</option>
+          <option value="cash">{{ 'contactModal.fundingCash' | translate }}</option>
+          <option value="bankLoan">{{ 'contactModal.fundingBankLoan' | translate }}</option>
+          <option value="infonavitFovissste">{{ 'contactModal.fundingInfonavitFovissste' | translate }}</option>
+          <option value="notSure">{{ 'contactModal.fundingNotSure' | translate }}</option>
+        </select>
+      </label>
+      <label>
+        {{ 'contactModal.timeline' | translate }}
+        <select [value]="timeline()" (change)="timeline.set($any($event.target).value)">
+          <option value="">{{ 'contactModal.preferNotToSay' | translate }}</option>
+          <option value="readyNow">{{ 'contactModal.timelineReadyNow' | translate }}</option>
+          <option value="oneToThreeMonths">{{ 'contactModal.timelineOneToThreeMonths' | translate }}</option>
+          <option value="threeToSixMonths">{{ 'contactModal.timelineThreeToSixMonths' | translate }}</option>
+          <option value="justBrowsing">{{ 'contactModal.timelineJustBrowsing' | translate }}</option>
+        </select>
+      </label>
+      <label>
+        {{ 'contactModal.hasAgent' | translate }}
+        <select [value]="hasAgent()" (change)="hasAgent.set($any($event.target).value)">
+          <option value="">{{ 'contactModal.preferNotToSay' | translate }}</option>
+          <option value="yes">{{ 'contactModal.yes' | translate }}</option>
+          <option value="no">{{ 'contactModal.no' | translate }}</option>
+        </select>
+      </label>
+    }
+
     <button type="button" class="primary" [disabled]="sending" (click)="submit()">
       {{ 'contactModal.send' | translate }}
     </button>

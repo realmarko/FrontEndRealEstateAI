@@ -87,9 +87,20 @@ export const routes: Routes = [
   },
   {
     path: 'messages',
-    canActivate: [authGuard],
+    // Only Owner-role accounts (which Agent accounts also get) can receive inquiries — matches
+    // InquiriesController.Received's [Authorize(Roles = "Owner")], so a Buyer-only account
+    // never hits a 403 here instead of a real page.
+    canActivate: [authGuard, roleGuard('Owner')],
     loadComponent: () =>
       import('./features/messages/messages.component').then((m) => m.MessagesComponent)
+  },
+  {
+    path: 'saved-searches',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/saved-searches/saved-searches.component').then(
+        (m) => m.SavedSearchesComponent
+      )
   },
   { path: '**', redirectTo: 'listings' }
 ];

@@ -295,7 +295,7 @@
                 [value]="messageBody()"
                 (input)="messageBody.set($any($event.target).value)"
               ></textarea>
-              <button type="button" class="primary" (click)="sendMessage()">{{ 'listingDetail.sendMessage' | translate }}</button>
+              <button type="button" class="primary" [disabled]="sendingMessage()" (click)="sendMessage()">{{ 'listingDetail.sendMessage' | translate }}</button>
             } @else {
               <p><a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}</p>
             }
@@ -311,6 +311,7 @@
       [initialName]="contactInitialName"
       [initialEmail]="contactInitialEmail"
       [sending]="sendingContact()"
+      [showQualifyingQuestions]="true"
       (closed)="closeContactModal()"
       (sent)="sendContactAgentMessage($event)"
     />

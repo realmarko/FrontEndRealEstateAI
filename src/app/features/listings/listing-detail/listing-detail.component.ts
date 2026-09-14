@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
 import { ListingService } from '../../../core/services/listing.service';
-import { MessageService } from '../../../core/services/message.service';
+import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry } from '../../../core/models/listing.model';
@@ -60,7 +60,7 @@ export class ListingDetailComponent {
   private readonly listingService = inject(ListingService);
   protected readonly favorites = inject(FavoritesService);
   protected readonly auth = inject(AuthService);
-  private readonly messageService = inject(MessageService);
+  private readonly inquiryService = inject(InquiryService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
   private readonly sanitizer = inject(DomSanitizer);
@@ -82,6 +82,7 @@ export class ListingDetailComponent {
     return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
   });
   readonly messageBody = signal('');
+  readonly sendingMessage = signal(false);
   readonly activePhotoIndex = signal(0);
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
@@ -313,19 +314,28 @@ export class ListingDetailComponent {
     const listing = this.listing();
     const user = this.auth.currentUser();
     const body = this.messageBody().trim();
-    if (!listing || !user || !body) {
+    if (!listing || !user || !body || this.sendingMessage()) {
       return;
     }
 
-    this.messageService.sendMessage(
-      listing.id,
-      listing.title,
-      user.id,
-      `${user.firstName} ${user.lastName}`,
-      body
+    this.sendingMessage.set(true);
+
+    this.submitInquiry(
+      {
+        listingId: listing.id,
+        senderName: `${user.firstName} ${user.lastName}`,
+        senderEmail: user.email,
+        message: body
+      },
+      {
+        successKey: 'listingDetail.messageSent',
+        errorKey: 'listingDetail.messageError',
+        onDone: (ok) => {
+          this.sendingMessage.set(false);
+          if (ok) this.messageBody.set('');
+        }
+      }
     );
-    this.messageBody.set('');
-    this.notification.success('listingDetail.messageSent');
   }
 
   openContactModal(): void {
@@ -339,7 +349,7 @@ export class ListingDetailComponent {
 
   sendContactAgentMessage(value: ContactFormValue): void {
     const listing = this.listing();
-    const { name, phone, email, message } = value;
+    const { name, phone, email, message, fundingMethod, timeline, hasAgent } = value;
 
     if (!listing || !name || !phone || !email || !message || this.sendingContact()) {
       this.notification.error('contactModal.formIncomplete');
@@ -348,16 +358,35 @@ export class ListingDetailComponent {
 
     this.sendingContact.set(true);
 
-    // No agent account is linked to a listing today — the popup collects the same fields
-    // as the agent-contact one, but the message lands wherever "contact about this
-    // listing" already goes (the local inbox keyed by senderId, unrelated to whether the
-    // sender is logged in).
-    const senderId = this.auth.currentUser()?.id ?? crypto.randomUUID();
-    const body = `${message}\n\n${this.translation.t('contactModal.phone')}: ${phone}\n${this.translation.t('contactModal.email')}: ${email}`;
+    this.submitInquiry(
+      { listingId: listing.id, senderName: name, senderEmail: email, senderPhone: phone, message, fundingMethod, timeline, hasAgent },
+      {
+        successKey: 'listingDetail.contactAgentSuccess',
+        errorKey: 'listingDetail.contactAgentError',
+        onDone: (ok) => {
+          this.sendingContact.set(false);
+          if (ok) this.showContactModal.set(false);
+        }
+      }
+    );
+  }
 
-    this.messageService.sendMessage(listing.id, listing.title, senderId, name, body);
-    this.sendingContact.set(false);
-    this.showContactModal.set(false);
-    this.notification.success('listingDetail.contactAgentSuccess');
+  // Shared by sendMessage (the quick textarea) and sendContactAgentMessage (the modal) — both
+  // ultimately submit an Inquiry, just with different fields collected and different UI state
+  // to reset on completion, which the caller-supplied onDone(ok) handles.
+  private submitInquiry(
+    input: Parameters<InquiryService['create']>[0],
+    { successKey, errorKey, onDone }: { successKey: string; errorKey: string; onDone: (ok: boolean) => void }
+  ): void {
+    this.inquiryService.create(input).subscribe({
+      next: () => {
+        onDone(true);
+        this.notification.success(successKey);
+      },
+      error: () => {
+        onDone(false);
+        this.notification.error(errorKey);
+      }
+    });
   }
 }
