@@ -95,7 +95,7 @@
     <div class="map-pane">
       <div class="map-toolbar-wrap">
         <div class="map-toolbar">
-          <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
+          <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
             {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
           </button>
           <button

@@ -273,7 +273,7 @@
           </button>
         </div>
 
-        @if (!isOwner()) {
+        @if (!isOwner() && auth.isAuthenticated()) {
           <button type="button" class="primary-link" (click)="openContactModal()">
             {{ 'listingDetail.contactAgent' | translate }}
           </button>
