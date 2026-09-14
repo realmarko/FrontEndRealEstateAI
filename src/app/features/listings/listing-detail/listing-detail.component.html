@@ -97,6 +97,12 @@
           <h2 class="section-title">{{ 'listingDetail.locationTitle' | translate }}</h2>
           <div #locationMap class="location-map"></div>
 
+          <h2 class="section-title" [hidden]="!streetViewAvailable()">{{ 'listingDetail.streetViewTitle' | translate }}</h2>
+          <div #streetView class="street-view" [hidden]="!streetViewAvailable()"></div>
+          @if (streetViewChecked() && !streetViewAvailable()) {
+            <p class="no-street-view">{{ 'listingDetail.noStreetView' | translate }}</p>
+          }
+
           @if (nearbySchools().length) {
             <h2 class="section-title">{{ 'listingDetail.nearbySchoolsTitle' | translate }}</h2>
             <ul class="school-list">

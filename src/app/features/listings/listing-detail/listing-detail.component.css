@@ -147,6 +147,18 @@
   overflow: hidden;
 }
 
+.street-view {
+  width: 100%;
+  height: 260px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.no-street-view {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
 .school-list {
   list-style: none;
   margin: 0;

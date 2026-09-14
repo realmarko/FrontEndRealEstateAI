@@ -55,6 +55,8 @@ export const en: Record<string, string> = {
   'listingDetail.favorite': 'Favorite',
   'listingDetail.builtIn': 'Built in {{year}}',
   'listingDetail.locationTitle': 'Location',
+  'listingDetail.streetViewTitle': 'Street View',
+  'listingDetail.noStreetView': 'Street View is not available for this location.',
   'listingDetail.nearbySchoolsTitle': 'Nearby schools',
   'listingDetail.schoolRatingTooltip': 'Google user rating (not an academic quality score)',
   'listingDetail.noSchoolsFound': 'No nearby schools found.',

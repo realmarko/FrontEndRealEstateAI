@@ -41,6 +41,7 @@ function haversineDistanceKm(lat1: number, lng1: number, lat2: number, lng2: num
 })
 export class ListingDetailComponent {
   @ViewChild('locationMap') private locationMapEl?: ElementRef<HTMLDivElement>;
+  @ViewChild('streetView') private streetViewEl?: ElementRef<HTMLDivElement>;
 
   private readonly injector = inject(Injector);
   private readonly zone = inject(NgZone);
@@ -66,6 +67,8 @@ export class ListingDetailComponent {
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
   readonly nearbySchools = signal<NearbySchool[]>([]);
   readonly schoolsLoaded = signal(false);
+  readonly streetViewAvailable = signal(false);
+  readonly streetViewChecked = signal(false);
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
 
   // Newest first for display (matches how Redfin/Zillow order their price-history table),
@@ -146,6 +149,36 @@ export class ListingDetailComponent {
     new google.maps.Marker({ position, map });
 
     this.searchNearbySchools(map, lat, lng);
+    this.initStreetView(position);
+  }
+
+  // Street View coverage is spotty (especially off main roads), so we check availability
+  // first via StreetViewService instead of always creating a panorama that could come up
+  // blank — the container stays hidden until we know there's real imagery to show.
+  private initStreetView(position: google.maps.LatLngLiteral): void {
+    if (!this.streetViewEl) return;
+
+    const streetViewService = new google.maps.StreetViewService();
+    streetViewService.getPanorama({ location: position, radius: 50 }, (data, status) => {
+      this.zone.run(() => {
+        this.streetViewChecked.set(true);
+
+        if (status !== google.maps.StreetViewStatus.OK || !data?.location?.latLng || !this.streetViewEl) {
+          this.streetViewAvailable.set(false);
+          return;
+        }
+
+        this.streetViewAvailable.set(true);
+        new google.maps.StreetViewPanorama(this.streetViewEl.nativeElement, {
+          position: data.location.latLng,
+          pov: { heading: 0, pitch: 0 },
+          addressControl: false,
+          fullscreenControl: false,
+          motionTracking: false,
+          motionTrackingControl: false
+        });
+      });
+    });
   }
 
   // Reuses the location map instance (PlacesService needs either a Map or a plain div) and
