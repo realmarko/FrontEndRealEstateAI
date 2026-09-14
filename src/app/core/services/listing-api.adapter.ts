@@ -41,6 +41,10 @@ export interface ListingDto {
   bathrooms: number;
   areaSqFt: number;
   yearBuilt: number | null;
+  parkingSpaces: number | null;
+  floors: number | null;
+  lotSizeSqm: number | null;
+  gardenSizeSqm: number | null;
   ownerId: string;
   ownerName: string;
   createdAt: string;
@@ -77,6 +81,10 @@ export function fromDto(dto: ListingDto): Listing {
     bathrooms: dto.bathrooms,
     areaSqm: Math.round(dto.areaSqFt * SQM_PER_SQFT),
     yearBuilt: dto.yearBuilt ?? undefined,
+    parkingSpaces: dto.parkingSpaces ?? undefined,
+    floors: dto.floors ?? undefined,
+    lotSizeSqm: dto.lotSizeSqm ?? undefined,
+    gardenSizeSqm: dto.gardenSizeSqm ?? undefined,
     // No fallback here on purpose — a listing with zero real photos should stay an empty
     // array. Substituting a stock photo would let it round-trip back to the server as if it
     // were a real, saved image the next time this listing is edited. Consumers that render a
@@ -112,6 +120,10 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('bathrooms', String(input.bathrooms));
   form.append('areaSqFt', String(Math.round(input.areaSqm / SQM_PER_SQFT)));
   if (input.yearBuilt != null) form.append('yearBuilt', String(input.yearBuilt));
+  if (input.parkingSpaces != null) form.append('parkingSpaces', String(input.parkingSpaces));
+  if (input.floors != null) form.append('floors', String(input.floors));
+  if (input.lotSizeSqm != null) form.append('lotSizeSqm', String(input.lotSizeSqm));
+  if (input.gardenSizeSqm != null) form.append('gardenSizeSqm', String(input.gardenSizeSqm));
   if (status !== undefined) form.append('status', String(status));
 
   input.existingImageUrls.forEach((url) => form.append('existingImageUrls', url));

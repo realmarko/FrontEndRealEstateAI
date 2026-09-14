@@ -23,6 +23,7 @@ const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 const SCHOOL_ICON = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
+const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
 
 // The library's default renderer colors every cluster plain blue (red once it's unusually
 // large) regardless of what it's clustering — which would collide with this page's own
@@ -121,6 +122,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   private map?: google.maps.Map;
   private marker?: google.maps.Marker;
+  private myLocationMarker?: google.maps.Marker;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
   private schoolMarkers: google.maps.Marker[] = [];
   private schoolsRequestId = 0;
@@ -388,8 +390,24 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       (position) => {
         this.zone.run(() => {
           this.locatingMe = false;
-          this.map?.setCenter({ lat: position.coords.latitude, lng: position.coords.longitude });
+          const here = { lat: position.coords.latitude, lng: position.coords.longitude };
+          this.map?.setCenter(here);
           this.map?.setZoom(DEFAULT_ZOOM);
+
+          if (this.myLocationMarker) {
+            this.myLocationMarker.setPosition(here);
+            // Title isn't reactive like the template — refresh it too, in case the user
+            // switched language since the marker was first created.
+            this.myLocationMarker.setTitle(this.translation.t('map.myLocation'));
+          } else {
+            this.myLocationMarker = new google.maps.Marker({
+              position: here,
+              map: this.map,
+              title: this.translation.t('map.myLocation'),
+              icon: { url: MY_LOCATION_ICON, scaledSize: new google.maps.Size(32, 32) },
+              zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1
+            });
+          }
         });
       },
       () => {

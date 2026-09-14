@@ -44,7 +44,11 @@ export class ListingFormComponent {
     bedrooms: [1, [Validators.required, Validators.min(0)]],
     bathrooms: [1, [Validators.required, Validators.min(0)]],
     areaSqm: [0, [Validators.required, Validators.min(0)]],
-    yearBuilt: this.fb.control<number | null>(null, [Validators.min(1800), Validators.max(this.currentYear)])
+    yearBuilt: this.fb.control<number | null>(null, [Validators.min(1800), Validators.max(this.currentYear)]),
+    parkingSpaces: this.fb.control<number | null>(null, Validators.min(0)),
+    floors: this.fb.control<number | null>(null, Validators.min(0)),
+    lotSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
+    gardenSizeSqm: this.fb.control<number | null>(null, Validators.min(0))
   });
 
   // Already-hosted photos (pasted URLs, or S3 URLs kept from a previous edit) vs. newly
@@ -149,6 +153,10 @@ export class ListingFormComponent {
     const value: ListingInput = {
       ...raw,
       yearBuilt: raw.yearBuilt ?? undefined,
+      parkingSpaces: raw.parkingSpaces ?? undefined,
+      floors: raw.floors ?? undefined,
+      lotSizeSqm: raw.lotSizeSqm ?? undefined,
+      gardenSizeSqm: raw.gardenSizeSqm ?? undefined,
       existingImageUrls: this.existingImageUrls(),
       photos: this.newPhotos().map((p) => p.file),
       lat: this.lat ?? this.existingLat ?? undefined,

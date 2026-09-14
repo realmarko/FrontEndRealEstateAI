@@ -50,7 +50,16 @@
         <p class="address">{{ listing.address }}</p>
         <p class="description">{{ listing.description }}</p>
 
+        <h2 class="section-title">{{ 'listingDetail.factsTitle' | translate }}</h2>
         <div class="fact-grid">
+          <div class="fact">
+            <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <line x1="7" y1="9" x2="17" y2="9" />
+              <line x1="7" y1="13" x2="13" y2="13" />
+            </svg>
+            <span>{{ 'listingDetail.propertyIdAbbr' | translate }} {{ shortId(listing.id) }}</span>
+          </div>
           <div class="fact">
             <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="6" rx="1" />
@@ -69,6 +78,27 @@
             </svg>
             <span>{{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }}</span>
           </div>
+          @if (listing.parkingSpaces != null) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 11l1.5-4.5A2 2 0 0 1 8.4 5h7.2a2 2 0 0 1 1.9 1.5L19 11" />
+                <rect x="3" y="11" width="18" height="6" rx="2" />
+                <circle cx="7.5" cy="17" r="1.5" />
+                <circle cx="16.5" cy="17" r="1.5" />
+              </svg>
+              <span>{{ listing.parkingSpaces }} {{ 'listingDetail.parkingAbbr' | translate }}</span>
+            </div>
+          }
+          @if (listing.floors != null) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3 2 8l10 5 10-5-10-5z" />
+                <path d="M2 12l10 5 10-5" />
+                <path d="M2 16l10 5 10-5" />
+              </svg>
+              <span>{{ 'listingDetail.floorsCount' | translate:{ count: listing.floors } }}</span>
+            </div>
+          }
           <div class="fact">
             <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -78,8 +108,25 @@
               <line x1="3" y1="8" x2="6" y2="8" />
               <line x1="3" y1="13" x2="6" y2="13" />
             </svg>
-            <span>{{ listing.areaSqm }} m²</span>
+            <span>{{ listing.areaSqm }} m² {{ 'listingDetail.builtAreaAbbr' | translate }}</span>
           </div>
+          @if (listing.lotSizeSqm != null) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="1" stroke-dasharray="3 2" />
+              </svg>
+              <span>{{ listing.lotSizeSqm }} m² {{ 'listingDetail.lotAreaAbbr' | translate }}</span>
+            </div>
+          }
+          @if (listing.gardenSizeSqm != null) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22v-7" />
+                <path d="M12 15a5 5 0 0 0 5-5c0-3-5-8-5-8s-5 5-5 8a5 5 0 0 0 5 5z" />
+              </svg>
+              <span>{{ listing.gardenSizeSqm }} m² {{ 'listingDetail.gardenAreaAbbr' | translate }}</span>
+            </div>
+          }
           @if (listing.yearBuilt) {
             <div class="fact">
               <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -15,6 +15,10 @@ export interface Listing {
   bathrooms: number;
   areaSqm: number;
   yearBuilt?: number;
+  parkingSpaces?: number;
+  floors?: number;
+  lotSizeSqm?: number;
+  gardenSizeSqm?: number;
   imageUrls: string[];
   ownerId: string;
   createdAt: string;

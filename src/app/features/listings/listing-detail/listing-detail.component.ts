@@ -216,6 +216,12 @@ export class ListingDetailComponent {
     this.favorites.toggle(this.id);
   }
 
+  // A short, display-friendly stand-in for the listing's real GUID — matches the compact
+  // numeric-looking property ID shown on Vivanuncios/Inmuebles24-style fact grids.
+  shortId(id: string): string {
+    return id.slice(0, 8).toUpperCase();
+  }
+
   async shareListing(): Promise<void> {
     const listing = this.listing();
     if (!listing) return;

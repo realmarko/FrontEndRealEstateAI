@@ -88,6 +88,30 @@
       </label>
     </div>
 
+    <div class="grid-2">
+      <label>
+        {{ 'listingForm.parkingSpaces' | translate }}
+        <input type="number" formControlName="parkingSpaces" min="0" />
+      </label>
+
+      <label>
+        {{ 'listingForm.floors' | translate }}
+        <input type="number" formControlName="floors" min="0" />
+      </label>
+    </div>
+
+    <div class="grid-2">
+      <label>
+        {{ 'listingForm.lotSize' | translate }}
+        <input type="number" formControlName="lotSizeSqm" min="0" />
+      </label>
+
+      <label>
+        {{ 'listingForm.gardenSize' | translate }}
+        <input type="number" formControlName="gardenSizeSqm" min="0" />
+      </label>
+    </div>
+
     <label>
       {{ 'listingForm.yearBuilt' | translate }}
       <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
