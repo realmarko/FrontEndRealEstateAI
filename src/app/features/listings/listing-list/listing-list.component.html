@@ -35,6 +35,19 @@
         {{ 'listings.filterSale' | translate }}
       </button>
     </div>
+
+    <input
+      type="text"
+      list="listing-company-options"
+      [placeholder]="'listings.companyPlaceholder' | translate"
+      [value]="companyFilter()"
+      (input)="setCompanyFilter($any($event.target).value)"
+    />
+    <datalist id="listing-company-options">
+      @for (name of brokerages(); track name) {
+        <option [value]="name"></option>
+      }
+    </datalist>
   </div>
 
   @if (listings().length) {

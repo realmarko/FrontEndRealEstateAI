@@ -4,6 +4,7 @@ import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
+import { BrokerageService } from '../../core/services/brokerage.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -130,6 +131,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly minBaths = signal<number | 'any'>('any');
   readonly showMoreFilters = signal(false);
   readonly propertyTypeOptions = PROPERTY_TYPE_OPTIONS;
+  readonly companyFilter = signal('');
+  readonly brokerages = signal<string[]>([]);
 
   readonly filteredListings = computed(() => {
     const term = this.search().trim().toLowerCase();
@@ -139,6 +142,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const maxP = this.maxPrice();
     const minBd = this.minBeds();
     const minBa = this.minBaths();
+    const company = this.companyFilter().trim().toLowerCase();
 
     return this.listingService.listings().filter((listing) => {
       const matchesTerm =
@@ -151,8 +155,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const matchesMaxPrice = maxP === null || listing.price <= maxP;
       const matchesBeds = minBd === 'any' || listing.bedrooms >= minBd;
       const matchesBaths = minBa === 'any' || listing.bathrooms >= minBa;
+      const matchesCompany = !company || (listing.ownerCompany?.toLowerCase().includes(company) ?? false);
       return (
-        matchesTerm && matchesType && matchesPropertyType && matchesMinPrice && matchesMaxPrice && matchesBeds && matchesBaths
+        matchesTerm &&
+        matchesType &&
+        matchesPropertyType &&
+        matchesMinPrice &&
+        matchesMaxPrice &&
+        matchesBeds &&
+        matchesBaths &&
+        matchesCompany
       );
     });
   });
@@ -190,7 +202,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly translation: TranslationService,
     private readonly notification: NotificationService,
     protected readonly auth: AuthService,
-    protected readonly favorites: FavoritesService
+    protected readonly favorites: FavoritesService,
+    private readonly brokerageService: BrokerageService
   ) {
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
     // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
@@ -201,6 +214,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         this.renderListingMarkers();
       }
     });
+
+    this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
   }
 
   ngAfterViewInit(): void {
@@ -629,6 +644,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   setMinBaths(value: string): void {
     this.minBaths.set(value === 'any' ? 'any' : Number(value));
+  }
+
+  setCompanyFilter(term: string): void {
+    this.companyFilter.set(term);
   }
 
   toggleMoreFilters(): void {

@@ -58,6 +58,19 @@
         <option value="2">{{ 'map.baths2' | translate }}</option>
         <option value="3">{{ 'map.baths3' | translate }}</option>
       </select>
+      <input
+        type="text"
+        class="filter-input"
+        list="map-company-options"
+        [placeholder]="'listings.companyPlaceholder' | translate"
+        [value]="companyFilter()"
+        (input)="setCompanyFilter($any($event.target).value)"
+      />
+      <datalist id="map-company-options">
+        @for (name of brokerages(); track name) {
+          <option [value]="name"></option>
+        }
+      </datalist>
     </div>
   </div>
 

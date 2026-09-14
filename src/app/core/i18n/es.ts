@@ -42,6 +42,7 @@ export const es: Record<string, string> = {
   'listings.filterAll': 'Todos',
   'listings.filterRent': 'En renta',
   'listings.filterSale': 'En venta',
+  'listings.companyPlaceholder': 'Inmobiliaria',
   'listings.empty': 'No hay propiedades que coincidan con tu búsqueda.',
 
   'listing.perMonthSuffix': ' / mes',

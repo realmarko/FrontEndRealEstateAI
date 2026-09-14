@@ -42,6 +42,7 @@ export const en: Record<string, string> = {
   'listings.filterAll': 'All',
   'listings.filterRent': 'For rent',
   'listings.filterSale': 'For sale',
+  'listings.companyPlaceholder': 'Brokerage',
   'listings.empty': 'No listings match your search.',
 
   'listing.perMonthSuffix': ' / mo',

@@ -59,6 +59,7 @@ export interface Listing {
   hasHeatingCooling: boolean;
   hoaFee?: number;
   videoTourUrl?: string;
+  ownerCompany?: string;
   imageUrls: string[];
   ownerId: string;
   createdAt: string;

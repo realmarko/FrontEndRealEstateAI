@@ -73,6 +73,7 @@ export interface ListingDto {
   videoTourUrl: string | null;
   ownerId: string;
   ownerName: string;
+  ownerCompany: string | null;
   createdAt: string;
   imageUrls: string[];
 }
@@ -114,6 +115,7 @@ export function fromDto(dto: ListingDto): Listing {
     hasHeatingCooling: dto.hasHeatingCooling,
     hoaFee: dto.hoaFee ?? undefined,
     videoTourUrl: dto.videoTourUrl ?? undefined,
+    ownerCompany: dto.ownerCompany ?? undefined,
     // No fallback here on purpose — a listing with zero real photos should stay an empty
     // array. Substituting a stock photo would let it round-trip back to the server as if it
     // were a real, saved image the next time this listing is edited. Consumers that render a
