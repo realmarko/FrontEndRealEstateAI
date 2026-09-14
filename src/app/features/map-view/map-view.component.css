@@ -103,11 +103,19 @@
   height: 100%;
 }
 
-.map-toolbar {
+.map-toolbar-wrap {
   position: absolute;
   top: 1rem;
   left: 1rem;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  max-width: calc(100% - 2rem);
+}
+
+.map-toolbar {
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -145,7 +153,6 @@
 
 .add-property-btn,
 .confirm-btn,
-.schools-btn,
 .locate-btn {
   border: none;
   border-radius: 4px;
@@ -164,16 +171,6 @@
   background: #b45309;
 }
 
-.schools-btn {
-  background: #fff;
-  color: #1e3a5f;
-}
-
-.schools-btn.active {
-  background: #15803d;
-  color: #fff;
-}
-
 .locate-btn {
   background: #fff;
   color: #1e3a5f;
@@ -187,6 +184,53 @@
 .confirm-btn {
   background: #15803d;
   color: #fff;
+}
+
+.poi-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  color: #1e3a5f;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.poi-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.poi-toggle-btn.active {
+  background: #1e3a5f;
+  color: #fff;
+}
+
+.poi-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #fff;
+  border-radius: 6px;
+  padding: 0.7rem 0.9rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  font-size: 0.85rem;
+  color: #1f2937;
+}
+
+.poi-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.poi-loading {
+  color: #6b7280;
 }
 
 .map-error {

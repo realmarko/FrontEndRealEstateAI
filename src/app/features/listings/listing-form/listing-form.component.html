@@ -117,6 +117,16 @@
     </label>
 
     <label>
+      {{ 'listingForm.hoaFee' | translate }}
+      <input type="number" formControlName="hoaFee" min="0" />
+    </label>
+
+    <label class="checkbox-label">
+      <input type="checkbox" formControlName="hasHeatingCooling" />
+      {{ 'listingForm.hasHeatingCooling' | translate }}
+    </label>
+
+    <label>
       {{ 'listingForm.photos' | translate }}
       <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
     </label>

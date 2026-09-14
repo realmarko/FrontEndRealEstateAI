@@ -63,28 +63,59 @@
 
   <div class="map-content">
     <div class="map-pane">
-      <div class="map-toolbar">
-        <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
-          {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
-        </button>
-        <button type="button" class="schools-btn" [class.active]="showSchools" (click)="toggleSchools()">
-          {{ (loadingSchools ? 'map.loadingSchools' : showSchools ? 'map.hideSchools' : 'map.showSchools') | translate }}
-        </button>
-        <button type="button" class="locate-btn" [disabled]="locatingMe" (click)="centerOnCurrentLocation(true)">
-          {{ (locatingMe ? 'map.locating' : 'map.myLocation') | translate }}
-        </button>
-        <button
-          type="button"
-          class="confirm-btn"
-          *ngIf="selectedLat !== null && selectedLng !== null"
-          (click)="confirmLocation()"
-        >
-          {{ 'map.continue' | translate }}
-        </button>
-        <div class="map-legend" *ngIf="auth.isAuthenticated()">
-          <span class="dot mine"></span>{{ 'map.myListings' | translate }}
-          <span class="dot other"></span>{{ 'map.otherListings' | translate }}
+      <div class="map-toolbar-wrap">
+        <div class="map-toolbar">
+          <button type="button" class="add-property-btn" [class.active]="addMode" (click)="toggleAddMode()">
+            {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
+          </button>
+          <button
+            type="button"
+            class="poi-toggle-btn"
+            [class.active]="showPoiChecklist()"
+            [attr.aria-label]="'map.togglePoi' | translate"
+            [attr.aria-expanded]="showPoiChecklist()"
+            (click)="togglePoiChecklist()"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3 2 8l10 5 10-5-10-5z" />
+              <path d="M2 12l10 5 10-5" />
+              <path d="M2 16l10 5 10-5" />
+            </svg>
+          </button>
+          <button type="button" class="locate-btn" [disabled]="locatingMe" (click)="centerOnCurrentLocation(true)">
+            {{ (locatingMe ? 'map.locating' : 'map.myLocation') | translate }}
+          </button>
+          <button
+            type="button"
+            class="confirm-btn"
+            *ngIf="selectedLat !== null && selectedLng !== null"
+            (click)="confirmLocation()"
+          >
+            {{ 'map.continue' | translate }}
+          </button>
+          <div class="map-legend" *ngIf="auth.isAuthenticated()">
+            <span class="dot mine"></span>{{ 'map.myListings' | translate }}
+            <span class="dot other"></span>{{ 'map.otherListings' | translate }}
+          </div>
         </div>
+
+        @if (showPoiChecklist()) {
+          <div class="poi-checklist">
+            @for (category of poiCategories; track category.key) {
+              <label class="poi-checklist-item">
+                <input
+                  type="checkbox"
+                  [checked]="checkedPoiCategories().has(category.key)"
+                  (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                />
+                {{ category.labelKey | translate }}
+                @if (loadingPoiCategories().has(category.key)) {
+                  <span class="poi-loading">…</span>
+                }
+              </label>
+            }
+          </div>
+        }
       </div>
       <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
       <div #mapContainer class="map-container"></div>

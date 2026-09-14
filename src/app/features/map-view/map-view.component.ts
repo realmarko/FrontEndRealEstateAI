@@ -22,8 +22,55 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 
 const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
-const SCHOOL_ICON = 'https://maps.google.com/mapfiles/ms/icons/green-dot.png';
 const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
+
+// The clustering algorithm's default maxZoom (16) stops clustering well before this app's own
+// default zoom (16-18, street level) — raised so nearby markers still group up there too.
+const CLUSTER_ALGORITHM_OPTIONS = { maxZoom: 20 };
+
+export type PoiCategoryKey = 'schools' | 'pharmacies' | 'malls' | 'parks';
+
+interface PoiCategoryConfig {
+  key: PoiCategoryKey;
+  labelKey: string;
+  // Google Places "type" filter — see https://developers.google.com/maps/documentation/places/web-service/supported_types
+  placeType: string;
+  icon: string;
+  clusterColor: string;
+}
+
+// One entry per checklist item on the map page. Each category gets its own marker color and
+// cluster color so overlapping categories (e.g. schools + parks) stay visually distinguishable.
+const POI_CATEGORIES: PoiCategoryConfig[] = [
+  {
+    key: 'schools',
+    labelKey: 'map.poiSchools',
+    placeType: 'school',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+    clusterColor: '#15803d'
+  },
+  {
+    key: 'pharmacies',
+    labelKey: 'map.poiPharmacies',
+    placeType: 'pharmacy',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+    clusterColor: '#7c3aed'
+  },
+  {
+    key: 'malls',
+    labelKey: 'map.poiMalls',
+    placeType: 'shopping_mall',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    clusterColor: '#c2410c'
+  },
+  {
+    key: 'parks',
+    labelKey: 'map.poiParks',
+    placeType: 'park',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/pink-dot.png',
+    clusterColor: '#db2777'
+  }
+];
 
 // The library's default renderer colors every cluster plain blue (red once it's unusually
 // large) regardless of what it's clustering — which would collide with this page's own
@@ -65,11 +112,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   hasError = false;
   addMode = false;
-  showSchools = false;
-  loadingSchools = false;
   locatingMe = false;
   selectedLat: number | null = null;
   selectedLng: number | null = null;
+
+  readonly poiCategories = POI_CATEGORIES;
+  readonly showPoiChecklist = signal(false);
+  readonly checkedPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
+  readonly loadingPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
 
   readonly search = signal('');
   readonly typeFilter = signal<ListingType | 'all'>('all');
@@ -125,12 +175,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private marker?: google.maps.Marker;
   private myLocationMarker?: google.maps.Marker;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
-  private schoolMarkers: google.maps.Marker[] = [];
-  private schoolsRequestId = 0;
-  // Two separate clusterers — one per marker type — so a cluster icon never mixes listings
-  // and schools together, keeping the blue/red vs. green meaning intact when markers group up.
+  // One clusterer per marker type (listings + one per POI category) so a cluster icon never
+  // mixes categories together, keeping each type's color meaningful when markers group up.
   private listingClusterer?: MarkerClusterer;
-  private schoolClusterer?: MarkerClusterer;
+  private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
+  private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
   private pollHandle?: ReturnType<typeof setInterval>;
 
@@ -195,18 +244,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       streetViewControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
-    // The clustering algorithm's default maxZoom (16) stops clustering well before this app's
-    // own default zoom (18, street level) — raised so nearby markers still group up there too.
-    const clusterAlgorithmOptions = { maxZoom: 20 };
     this.listingClusterer = new MarkerClusterer({
       map: this.map,
-      algorithmOptions: clusterAlgorithmOptions,
+      algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
       renderer: createClusterRenderer('#1e3a5f')
-    });
-    this.schoolClusterer = new MarkerClusterer({
-      map: this.map,
-      algorithmOptions: clusterAlgorithmOptions,
-      renderer: createClusterRenderer('#15803d')
     });
 
     this.map.addListener('click', (event: google.maps.MapMouseEvent) => {
@@ -442,39 +483,62 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Searches once per toggle-on, not on every pan/zoom — each search is a billed Places API
-  // call, so refreshing continuously as the map moves would be needlessly expensive. Toggle
-  // off/on again (or a future dedicated "refresh" affordance) re-searches the current view.
-  toggleSchools(): void {
-    this.showSchools = !this.showSchools;
+  togglePoiChecklist(): void {
+    this.showPoiChecklist.update((visible) => !visible);
+  }
 
-    if (this.showSchools) {
-      this.searchSchoolsInViewport();
+  // Searches once per check, not on every pan/zoom — each search is a billed Places API call,
+  // so refreshing continuously as the map moves would be needlessly expensive. Uncheck/check
+  // again (or a future dedicated "refresh" affordance) re-searches the current view.
+  togglePoiCategory(key: PoiCategoryKey, checked: boolean): void {
+    this.checkedPoiCategories.update((set) => {
+      const next = new Set(set);
+      if (checked) {
+        next.add(key);
+      } else {
+        next.delete(key);
+      }
+      return next;
+    });
+
+    if (checked) {
+      this.searchPoiCategory(key);
     } else {
       // Bumping the request id invalidates any in-flight search so a late response can't
-      // resurrect markers (or the "loading" label) for a state that's no longer active.
-      this.schoolsRequestId++;
-      this.loadingSchools = false;
-      this.clearSchoolMarkers();
+      // resurrect markers (or the "loading" state) for a category that's no longer checked.
+      this.poiRequestIds.set(key, (this.poiRequestIds.get(key) ?? 0) + 1);
+      this.loadingPoiCategories.update((set) => {
+        const next = new Set(set);
+        next.delete(key);
+        return next;
+      });
+      this.clearPoiCategoryMarkers(key);
     }
   }
 
-  private searchSchoolsInViewport(): void {
+  private searchPoiCategory(key: PoiCategoryKey): void {
+    const config = POI_CATEGORIES.find((c) => c.key === key);
     const bounds = this.map?.getBounds();
-    if (!this.map || !bounds) return;
+    if (!config || !this.map || !bounds) return;
 
-    this.loadingSchools = true;
-    const requestId = ++this.schoolsRequestId;
+    this.loadingPoiCategories.update((set) => new Set(set).add(key));
+    const requestId = (this.poiRequestIds.get(key) ?? 0) + 1;
+    this.poiRequestIds.set(key, requestId);
+
     const service = new google.maps.places.PlacesService(this.map);
-    service.nearbySearch({ bounds, type: 'school' }, (results, status) => {
+    service.nearbySearch({ bounds, type: config.placeType }, (results, status) => {
       this.zone.run(() => {
-        // Ignore responses to superseded searches (e.g. the user toggled off/on again, or
+        // Ignore responses to superseded searches (e.g. the user unchecked/rechecked, or
         // panned and re-triggered a search, before this one came back) — otherwise a slower
         // request can overwrite fresher markers with results from a stale viewport.
-        if (requestId !== this.schoolsRequestId) return;
+        if (requestId !== this.poiRequestIds.get(key)) return;
 
-        this.loadingSchools = false;
-        this.clearSchoolMarkers();
+        this.loadingPoiCategories.update((set) => {
+          const next = new Set(set);
+          next.delete(key);
+          return next;
+        });
+        this.clearPoiCategoryMarkers(key);
 
         if (status !== google.maps.places.PlacesServiceStatus.OK || !results) return;
 
@@ -485,32 +549,44 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
           const marker = new google.maps.Marker({
             position: place.geometry.location,
             title: name,
-            icon: SCHOOL_ICON
+            icon: config.icon
           });
-          marker.addListener('click', () => this.zone.run(() => this.openSchoolInfo(name, marker)));
-          this.schoolMarkers.push(marker);
+          marker.addListener('click', () => this.zone.run(() => this.openPoiInfo(name, marker)));
           markers.push(marker);
         }
-        this.schoolClusterer?.addMarkers(markers);
+        this.getPoiClusterer(key).addMarkers(markers);
       });
     });
   }
 
-  private openSchoolInfo(name: string, marker: google.maps.Marker): void {
+  private getPoiClusterer(key: PoiCategoryKey): MarkerClusterer {
+    let clusterer = this.poiClusterers.get(key);
+    if (!clusterer) {
+      const config = POI_CATEGORIES.find((c) => c.key === key)!;
+      clusterer = new MarkerClusterer({
+        map: this.map,
+        algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
+        renderer: createClusterRenderer(config.clusterColor)
+      });
+      this.poiClusterers.set(key, clusterer);
+    }
+    return clusterer;
+  }
+
+  private openPoiInfo(name: string, marker: google.maps.Marker): void {
     if (!this.infoWindow) return;
 
-    // textContent (not innerHTML) — the school name comes from the Places API, not our own data.
+    // textContent (not innerHTML) — the place name comes from the Places API, not our own data.
     const container = document.createElement('div');
-    container.className = 'map-info-school';
+    container.className = 'map-info-poi';
     container.textContent = name;
 
     this.infoWindow.setContent(container);
     this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
-  private clearSchoolMarkers(): void {
-    this.schoolClusterer?.clearMarkers();
-    this.schoolMarkers = [];
+  private clearPoiCategoryMarkers(key: PoiCategoryKey): void {
+    this.poiClusterers.get(key)?.clearMarkers();
   }
 
   toggleAddMode(): void {

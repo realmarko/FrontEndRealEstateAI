@@ -56,6 +56,8 @@ export interface Listing {
   floors?: number;
   lotSizeSqm?: number;
   gardenSizeSqm?: number;
+  hasHeatingCooling: boolean;
+  hoaFee?: number;
   imageUrls: string[];
   ownerId: string;
   createdAt: string;
