@@ -2,10 +2,12 @@ import { Listing, ListingInput, ListingType, PriceHistoryEntry, PropertyType } f
 
 // Backend enums serialize as numbers when writing (Create/Update) but as
 // their .ToString() name when reading (the DTOs use different representations).
-const LISTING_TYPE_TO_NUMBER: Record<ListingType, number> = { sale: 0, rent: 1 };
-const LISTING_TYPE_FROM_STRING: Record<string, ListingType> = { Sale: 'sale', Rent: 'rent' };
+// Exported so saved-search-api.adapter.ts can reuse the same mapping instead of
+// maintaining a second copy that could silently drift out of sync with this one.
+export const LISTING_TYPE_TO_NUMBER: Record<ListingType, number> = { sale: 0, rent: 1 };
+export const LISTING_TYPE_FROM_STRING: Record<string, ListingType> = { Sale: 'sale', Rent: 'rent' };
 
-const PROPERTY_TYPE_TO_NUMBER: Record<PropertyType, number> = {
+export const PROPERTY_TYPE_TO_NUMBER: Record<PropertyType, number> = {
   house: 0,
   condoHouse: 2,
   apartment: 1,
@@ -23,7 +25,7 @@ const PROPERTY_TYPE_TO_NUMBER: Record<PropertyType, number> = {
   land: 4,
   commercial: 5
 };
-const PROPERTY_TYPE_FROM_STRING: Record<string, PropertyType> = {
+export const PROPERTY_TYPE_FROM_STRING: Record<string, PropertyType> = {
   House: 'house',
   Apartment: 'apartment',
   Condo: 'condoHouse',

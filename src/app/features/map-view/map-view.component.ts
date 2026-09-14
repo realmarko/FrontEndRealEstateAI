@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
+import { SavedSearchService } from '../../core/services/saved-search.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -133,6 +134,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly propertyTypeOptions = PROPERTY_TYPE_OPTIONS;
   readonly companyFilter = signal('');
   readonly brokerages = signal<string[]>([]);
+  readonly showSaveSearchForm = signal(false);
+  readonly saveSearchName = signal('');
 
   readonly filteredListings = computed(() => {
     const term = this.search().trim().toLowerCase();
@@ -203,7 +206,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly notification: NotificationService,
     protected readonly auth: AuthService,
     protected readonly favorites: FavoritesService,
-    private readonly brokerageService: BrokerageService
+    private readonly brokerageService: BrokerageService,
+    private readonly savedSearchService: SavedSearchService
   ) {
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
     // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
@@ -648,6 +652,43 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   setCompanyFilter(term: string): void {
     this.companyFilter.set(term);
+  }
+
+  toggleSaveSearchForm(): void {
+    this.showSaveSearchForm.update((v) => !v);
+  }
+
+  setSaveSearchName(name: string): void {
+    this.saveSearchName.set(name);
+  }
+
+  saveCurrentSearch(): void {
+    const name = this.saveSearchName().trim();
+    if (!name) return;
+
+    const type = this.typeFilter();
+    const propertyType = this.propertyTypeFilter();
+    const minBd = this.minBeds();
+    const minBa = this.minBaths();
+
+    this.savedSearchService
+      .create({
+        name,
+        listingType: type === 'all' ? undefined : type,
+        propertyType: propertyType === 'all' ? undefined : propertyType,
+        minPrice: this.minPrice() ?? undefined,
+        maxPrice: this.maxPrice() ?? undefined,
+        minBedrooms: minBd === 'any' ? undefined : minBd,
+        minBathrooms: minBa === 'any' ? undefined : minBa
+      })
+      .subscribe({
+        next: () => {
+          this.notification.success('savedSearches.saved');
+          this.saveSearchName.set('');
+          this.showSaveSearchForm.set(false);
+        },
+        error: () => this.notification.error('savedSearches.saveError')
+      });
   }
 
   toggleMoreFilters(): void {

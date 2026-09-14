@@ -86,6 +86,12 @@
   margin-top: 0.4rem;
 }
 
+.save-search-form {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
 .map-content {
   display: flex;
   flex: 1;

@@ -48,6 +48,22 @@
         <option [value]="name"></option>
       }
     </datalist>
+
+    @if (auth.isAuthenticated()) {
+      <button type="button" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
+      @if (showSaveSearchForm()) {
+        <div class="save-search-form">
+          <input
+            type="text"
+            [placeholder]="'savedSearches.namePlaceholder' | translate"
+            [value]="saveSearchName()"
+            (input)="setSaveSearchName($any($event.target).value)"
+            (keyup.enter)="saveCurrentSearch()"
+          />
+          <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+        </div>
+      }
+    }
   </div>
 
   @if (listings().length) {

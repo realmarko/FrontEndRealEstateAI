@@ -1,0 +1,47 @@
+<div class="page">
+  <h1>{{ 'savedSearches.title' | translate }}</h1>
+
+  @if (savedSearchService.savedSearches().length) {
+    <div class="search-list">
+      @for (search of savedSearchService.savedSearches(); track search.id) {
+        <div class="search-card">
+          <div class="search-info">
+            <h2>{{ search.name }}</h2>
+            <div class="criteria">
+              @if (search.listingType) {
+                <span class="chip">{{ (search.listingType === 'rent' ? 'listings.filterRent' : 'listings.filterSale') | translate }}</span>
+              }
+              @if (search.propertyType) {
+                <span class="chip">{{ ('listingForm.' + search.propertyType) | translate }}</span>
+              }
+              @if (search.minPrice != null && search.maxPrice != null) {
+                <span class="chip">
+                  {{ search.minPrice | currency:'MXN':'symbol':'1.0-0' }} – {{ search.maxPrice | currency:'MXN':'symbol':'1.0-0' }}
+                </span>
+              } @else if (search.minPrice != null) {
+                <span class="chip">{{ 'savedSearches.priceFrom' | translate }} {{ search.minPrice | currency:'MXN':'symbol':'1.0-0' }}</span>
+              } @else if (search.maxPrice != null) {
+                <span class="chip">{{ 'savedSearches.priceUpTo' | translate }} {{ search.maxPrice | currency:'MXN':'symbol':'1.0-0' }}</span>
+              }
+              @if (search.minBedrooms != null) {
+                <span class="chip">{{ 'savedSearches.minBeds' | translate }}: {{ search.minBedrooms }}</span>
+              }
+              @if (search.minBathrooms != null) {
+                <span class="chip">{{ 'savedSearches.minBaths' | translate }}: {{ search.minBathrooms }}</span>
+              }
+              @if (search.city) {
+                <span class="chip">{{ search.city }}</span>
+              }
+            </div>
+          </div>
+          <button type="button" class="delete-btn" (click)="delete(search)">{{ 'savedSearches.delete' | translate }}</button>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">
+      {{ 'savedSearches.emptyPrefix' | translate }}
+      <a routerLink="/listings">{{ 'favorites.browseLink' | translate }}</a>.
+    </p>
+  }
+</div>

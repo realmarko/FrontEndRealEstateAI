@@ -3,6 +3,9 @@ import { RouterLink } from '@angular/router';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { ListingService } from '../../../core/services/listing.service';
 import { BrokerageService } from '../../../core/services/brokerage.service';
+import { SavedSearchService } from '../../../core/services/saved-search.service';
+import { NotificationService } from '../../../core/services/notification.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ListingType } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
@@ -18,6 +21,8 @@ export class ListingListComponent {
   readonly search = signal('');
   readonly companyFilter = signal('');
   readonly brokerages = signal<string[]>([]);
+  readonly showSaveSearchForm = signal(false);
+  readonly saveSearchName = signal('');
 
   readonly listings = computed(() => {
     const type = this.typeFilter();
@@ -37,7 +42,10 @@ export class ListingListComponent {
 
   constructor(
     private readonly listingService: ListingService,
-    private readonly brokerageService: BrokerageService
+    private readonly brokerageService: BrokerageService,
+    private readonly savedSearchService: SavedSearchService,
+    private readonly notification: NotificationService,
+    protected readonly auth: AuthService
   ) {
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
   }
@@ -52,5 +60,34 @@ export class ListingListComponent {
 
   setCompanyFilter(term: string): void {
     this.companyFilter.set(term);
+  }
+
+  toggleSaveSearchForm(): void {
+    this.showSaveSearchForm.update((v) => !v);
+  }
+
+  setSaveSearchName(name: string): void {
+    this.saveSearchName.set(name);
+  }
+
+  saveCurrentSearch(): void {
+    const name = this.saveSearchName().trim();
+    if (!name) return;
+
+    const type = this.typeFilter();
+
+    this.savedSearchService
+      .create({
+        name,
+        listingType: type === 'all' ? undefined : type
+      })
+      .subscribe({
+        next: () => {
+          this.notification.success('savedSearches.saved');
+          this.saveSearchName.set('');
+          this.showSaveSearchForm.set(false);
+        },
+        error: () => this.notification.error('savedSearches.saveError')
+      });
   }
 }

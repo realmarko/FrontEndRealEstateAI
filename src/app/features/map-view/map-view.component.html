@@ -51,6 +51,23 @@
       {{ (showMoreFilters() ? 'map.fewerFilters' : 'map.moreFilters') | translate }}
     </button>
 
+    <ng-container *ngIf="auth.isAuthenticated()">
+      <button type="button" class="more-filters-btn" (click)="toggleSaveSearchForm()">
+        {{ 'savedSearches.saveButton' | translate }}
+      </button>
+      <div class="save-search-form" *ngIf="showSaveSearchForm()">
+        <input
+          type="text"
+          class="filter-input"
+          [placeholder]="'savedSearches.namePlaceholder' | translate"
+          [value]="saveSearchName()"
+          (input)="setSaveSearchName($any($event.target).value)"
+          (keyup.enter)="saveCurrentSearch()"
+        />
+        <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+      </div>
+    </ng-container>
+
     <div class="more-filters-panel" *ngIf="showMoreFilters()">
       <select class="filter-select" [value]="minBaths()" (change)="setMinBaths($any($event.target).value)">
         <option value="any">{{ 'map.bathsAny' | translate }}</option>
