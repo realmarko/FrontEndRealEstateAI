@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild, computed, effect, signal } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
 import { SavedSearchService } from '../../core/services/saved-search.service';
+import { GeomarketingService } from '../../core/services/geomarketing.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -89,13 +91,23 @@ interface OpportunityCategoryConfig {
   // a future business type belongs in its own entry below with its own thresholds, not these.
   goodMaxCount: number;
   moderateMaxCount: number;
+  // INEGI DENUE's search matches business name/street/colonia/economic-activity text — this is
+  // the Spanish term for the activity, not the Google Places `placeType` (that comes from the
+  // POI_CATEGORIES entry via poiKey instead).
+  denueSearchTerm: string;
 }
 
 // One entry per "analyze opportunity for X" button this page can offer. Pharmacy is the only
 // one today (the original ask) — adding gyms/cafés/etc. later means adding an entry here and a
 // toolbar button wired to it, not forking analyzeOpportunity/drawOpportunityCircle per type.
 const OPPORTUNITY_CATEGORIES = {
-  pharmacy: { poiKey: 'pharmacies', radiusMeters: 1000, goodMaxCount: 2, moderateMaxCount: 5 } satisfies OpportunityCategoryConfig
+  pharmacy: {
+    poiKey: 'pharmacies',
+    radiusMeters: 1000,
+    goodMaxCount: 2,
+    moderateMaxCount: 5,
+    denueSearchTerm: 'farmacia'
+  } satisfies OpportunityCategoryConfig
 };
 
 // Nearby Search returns at most 20 results per page without paginating (each extra page is a
@@ -154,7 +166,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   opportunityMode = false;
   readonly loadingOpportunity = signal(false);
-  readonly opportunityResult = signal<{ count: number; level: OpportunityLevel } | null>(null);
+  readonly opportunityResult = signal<{ count: number; level: OpportunityLevel; source: 'denue' | 'places' } | null>(null);
 
   readonly poiCategories = POI_CATEGORIES;
   readonly showPoiChecklist = signal(false);
@@ -256,7 +268,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     protected readonly auth: AuthService,
     protected readonly favorites: FavoritesService,
     private readonly brokerageService: BrokerageService,
-    private readonly savedSearchService: SavedSearchService
+    private readonly savedSearchService: SavedSearchService,
+    private readonly geomarketingService: GeomarketingService
   ) {
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
     // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
@@ -557,12 +570,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Counts nearby competitors of the configured category (Google Places Nearby Search — the
-  // same API the POI checklist already uses, just radius-scoped to a clicked point instead of
-  // the whole viewport) and draws a traffic-light circle from the count. Only "pharmacy" exists
-  // today; a second category means adding an OPPORTUNITY_CATEGORIES entry and a toolbar button,
-  // not a second version of this method.
-  private analyzeOpportunity(latLng: google.maps.LatLng): void {
+  // Counts nearby competitors of the configured category and draws a traffic-light circle from
+  // the count. Two sources are queried in parallel: INEGI DENUE (Mexico's official business
+  // registry, proxied through our backend — see GeomarketingService) and Google Places Nearby
+  // Search (the same API the POI checklist already uses, just radius-scoped to a clicked point
+  // instead of the whole viewport). DENUE is preferred when it succeeds; Places is the fallback
+  // (including today, while DenueOptions still holds its CHANGE_ME placeholder token). Only
+  // "pharmacy" exists today; a second category means adding an OPPORTUNITY_CATEGORIES entry and
+  // a toolbar button, not a second version of this method.
+  private async analyzeOpportunity(latLng: google.maps.LatLng): Promise<void> {
     if (!this.map) return;
 
     const config = OPPORTUNITY_CATEGORIES.pharmacy;
@@ -573,32 +589,56 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const requestId = ++this.infoWindowGeneration;
     this.loadingOpportunity.set(true);
 
-    const service = new google.maps.places.PlacesService(this.map);
-    service.nearbySearch(
-      { location: position, radius: config.radiusMeters, type: poiConfig.placeType },
-      (results, status) => {
-        this.zone.run(() => {
-          if (requestId !== this.infoWindowGeneration) return;
-          this.loadingOpportunity.set(false);
+    const [placesCount, denueCount] = await Promise.all([
+      this.searchPlacesCount(position, config.radiusMeters, poiConfig.placeType),
+      this.searchDenueCount(position, config.radiusMeters, config.denueSearchTerm)
+    ]);
 
-          if (status !== google.maps.places.PlacesServiceStatus.OK && status !== google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-            this.notification.error('map.opportunityError');
-            return;
-          }
+    this.zone.run(() => {
+      if (requestId !== this.infoWindowGeneration) return;
+      this.loadingOpportunity.set(false);
 
-          const count = results?.length ?? 0;
-          const level = opportunityLevel(count, config);
-          this.opportunityResult.set({ count, level });
-          this.drawOpportunityCircle(position, level, count, config.radiusMeters, poiConfig.icon);
-        });
+      if (placesCount === null && denueCount === null) {
+        this.notification.error('map.opportunityError');
+        return;
       }
-    );
+
+      const source: 'denue' | 'places' = denueCount !== null ? 'denue' : 'places';
+      const count = denueCount ?? placesCount ?? 0;
+      const level = opportunityLevel(count, config);
+      this.opportunityResult.set({ count, level, source });
+      this.drawOpportunityCircle(position, level, count, source, config.radiusMeters, poiConfig.icon);
+    });
+  }
+
+  // Resolves to null (rather than rejecting) on any failure — analyzeOpportunity treats "one
+  // source unavailable" as normal, not exceptional, since DENUE in particular is expected to
+  // fail until a real token replaces the placeholder in DenueOptions.
+  private searchPlacesCount(position: google.maps.LatLngLiteral, radiusMeters: number, placeType: string): Promise<number | null> {
+    return new Promise((resolve) => {
+      if (!this.map) {
+        resolve(null);
+        return;
+      }
+      const service = new google.maps.places.PlacesService(this.map);
+      service.nearbySearch({ location: position, radius: radiusMeters, type: placeType }, (results, status) => {
+        const ok = status === google.maps.places.PlacesServiceStatus.OK || status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS;
+        resolve(ok ? results?.length ?? 0 : null);
+      });
+    });
+  }
+
+  private searchDenueCount(position: google.maps.LatLngLiteral, radiusMeters: number, searchTerm: string): Promise<number | null> {
+    return firstValueFrom(this.geomarketingService.businessDensity(searchTerm, position.lat, position.lng, radiusMeters))
+      .then((result) => result.count)
+      .catch(() => null);
   }
 
   private drawOpportunityCircle(
     position: google.maps.LatLngLiteral,
     level: OpportunityLevel,
     count: number,
+    source: 'denue' | 'places',
     radiusMeters: number,
     icon: string
   ): void {
@@ -628,7 +668,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     const label = this.translation.t(level.labelKey);
     const countLabel = this.translation.t('map.opportunityCompetitorCount', { count });
-    this.infoWindow?.setContent(`<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}</div>`);
+    const sourceLabel = this.translation.t(source === 'denue' ? 'map.opportunitySourceDenue' : 'map.opportunitySourcePlaces');
+    this.infoWindow?.setContent(
+      `<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}<br><span class="opportunity-source">${sourceLabel}</span></div>`
+    );
     this.infoWindow?.setPosition(position);
     this.infoWindow?.open(this.map);
     this.infoWindowShowsOpportunity = true;

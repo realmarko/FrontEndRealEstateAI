@@ -222,6 +222,8 @@ export const es: Record<string, string> = {
   'map.opportunitySaturated': 'Zona saturada',
   'map.opportunityCompetitorCount': '{{count}} farmacias en 1 km',
   'map.opportunityError': 'No se pudo analizar esta ubicación. Intenta de nuevo.',
+  'map.opportunitySourceDenue': 'Fuente: INEGI DENUE (registro oficial)',
+  'map.opportunitySourcePlaces': 'Fuente: Google Places',
   'map.otherListings': 'Otras propiedades',
   'map.priceMin': 'Precio mín.',
   'map.priceMax': 'Precio máx.',
