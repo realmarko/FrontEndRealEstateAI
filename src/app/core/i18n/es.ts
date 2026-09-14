@@ -74,6 +74,7 @@ export const es: Record<string, string> = {
   'listingDetail.daysOnMarket': '{{count}} días en el mercado',
   'listingDetail.mortgageTitle': 'Calculadora de hipoteca',
   'listingDetail.priceHistoryTitle': 'Historial de precio',
+  'listingDetail.similarListingsTitle': 'Propiedades similares',
   'listingDetail.priceHistoryDate': 'Fecha',
   'listingDetail.priceHistoryEvent': 'Evento',
   'listingDetail.priceHistoryPrice': 'Precio',

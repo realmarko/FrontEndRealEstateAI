@@ -211,6 +211,11 @@
             </tbody>
           </table>
         }
+
+        @if (similarListings().length) {
+          <h2 class="section-title">{{ 'listingDetail.similarListingsTitle' | translate }}</h2>
+          <app-listing-grid [listings]="similarListings()" />
+        }
       </div>
 
       <div class="info">

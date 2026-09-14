@@ -11,6 +11,7 @@ import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry } from '../../../core
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
+import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
 
 export interface NearbySchool {
@@ -35,7 +36,7 @@ function haversineDistanceKm(lat1: number, lng1: number, lat2: number, lng2: num
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent, ListingGridComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -65,6 +66,7 @@ export class ListingDetailComponent {
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
+  readonly similarListings = signal<Listing[]>([]);
   readonly nearbySchools = signal<NearbySchool[]>([]);
   readonly schoolsLoaded = signal(false);
   readonly streetViewAvailable = signal(false);
@@ -124,6 +126,7 @@ export class ListingDetailComponent {
     });
 
     this.listingService.getPriceHistory(this.id).subscribe((history) => this.priceHistory.set(history));
+    this.listingService.getSimilar(this.id).subscribe((listings) => this.similarListings.set(listings));
   }
 
   private async initLocationMap(lat: number, lng: number): Promise<void> {

@@ -74,6 +74,7 @@ export const en: Record<string, string> = {
   'listingDetail.daysOnMarket': '{{count}} days on market',
   'listingDetail.mortgageTitle': 'Mortgage calculator',
   'listingDetail.priceHistoryTitle': 'Price history',
+  'listingDetail.similarListingsTitle': 'Similar listings',
   'listingDetail.priceHistoryDate': 'Date',
   'listingDetail.priceHistoryEvent': 'Event',
   'listingDetail.priceHistoryPrice': 'Price',

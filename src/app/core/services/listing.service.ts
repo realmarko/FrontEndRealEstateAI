@@ -39,6 +39,10 @@ export class ListingService {
       .pipe(map((entries) => entries.map(priceHistoryFromDto)));
   }
 
+  getSimilar(id: string): Observable<Listing[]> {
+    return this.http.get<ListingDto[]>(`${this.apiUrl}/${id}/similar`).pipe(map((dtos) => dtos.map(fromDto)));
+  }
+
   create(input: ListingInput): Observable<Listing> {
     return this.http.post<ListingDto>(this.apiUrl, toFormData(input)).pipe(
       map(fromDto),
