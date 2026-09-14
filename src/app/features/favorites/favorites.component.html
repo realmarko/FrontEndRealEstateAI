@@ -1,8 +1,8 @@
 <div class="page">
   <h1>{{ 'favorites.title' | translate }}</h1>
 
-  @if (favoriteListings().length) {
-    <app-listing-grid [listings]="favoriteListings()" />
+  @if (favorites.favoriteListings().length) {
+    <app-listing-grid [listings]="favorites.favoriteListings()" />
   } @else {
     <p class="empty">
       {{ 'favorites.emptyPrefix' | translate }}

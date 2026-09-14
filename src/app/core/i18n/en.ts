@@ -115,6 +115,8 @@ export const en: Record<string, string> = {
   'favorites.title': 'Your favorites',
   'favorites.emptyPrefix': "You haven't saved any listings yet.",
   'favorites.browseLink': 'Browse listings',
+  'favorites.loginRequired': 'Log in to save favorites.',
+  'favorites.toggleError': 'Could not update your favorites. Please try again.',
 
   'savedSearches.title': 'Saved searches',
   'savedSearches.emptyPrefix': "You haven't saved any searches yet.",

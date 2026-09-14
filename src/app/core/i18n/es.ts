@@ -115,6 +115,8 @@ export const es: Record<string, string> = {
   'favorites.title': 'Tus favoritos',
   'favorites.emptyPrefix': 'Aún no has guardado ninguna propiedad.',
   'favorites.browseLink': 'Explora propiedades',
+  'favorites.loginRequired': 'Inicia sesión para guardar favoritos.',
+  'favorites.toggleError': 'No se pudo actualizar tus favoritos. Intenta de nuevo.',
 
   'savedSearches.title': 'Búsquedas guardadas',
   'savedSearches.emptyPrefix': 'Aún no has guardado ninguna búsqueda.',
