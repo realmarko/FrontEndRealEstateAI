@@ -127,6 +127,11 @@
     </label>
 
     <label>
+      {{ 'listingForm.videoTourUrl' | translate }}
+      <input type="url" formControlName="videoTourUrl" placeholder="https://..." />
+    </label>
+
+    <label>
       {{ 'listingForm.photos' | translate }}
       <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
     </label>

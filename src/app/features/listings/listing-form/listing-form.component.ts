@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { AbstractControl, FormsModule, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ListingService } from '../../../core/services/listing.service';
 import { Currency, ListingInput, PROPERTY_TYPE_OPTIONS, PropertyType } from '../../../core/models/listing.model';
@@ -10,6 +10,14 @@ import { NotificationService } from '../../../core/services/notification.service
 import { amountToWords } from '../../../shared/utils/amount-to-words';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
+
+// Blank/whitespace-only counts as "not entered" (matches the trim-and-clear treatment at
+// submit time) rather than a pattern mismatch — only an actually-typed value gets validated.
+function optionalUrlValidator(control: AbstractControl): ValidationErrors | null {
+  const value = (control.value ?? '').trim();
+  if (!value) return null;
+  return /^https?:\/\/\S+$/i.test(value) ? null : { pattern: true };
+}
 
 @Component({
   selector: 'app-listing-form',
@@ -51,7 +59,8 @@ export class ListingFormComponent {
     lotSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
     gardenSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
     hasHeatingCooling: [false],
-    hoaFee: this.fb.control<number | null>(null, Validators.min(0))
+    hoaFee: this.fb.control<number | null>(null, Validators.min(0)),
+    videoTourUrl: ['', optionalUrlValidator]
   });
 
   // Already-hosted photos (pasted URLs, or S3 URLs kept from a previous edit) vs. newly
@@ -161,6 +170,11 @@ export class ListingFormComponent {
       lotSizeSqm: raw.lotSizeSqm ?? undefined,
       gardenSizeSqm: raw.gardenSizeSqm ?? undefined,
       hoaFee: raw.hoaFee ?? undefined,
+      // Nullish-guarded even though the control is typed as a plain (non-nullable) string:
+      // patchValue() (edit mode, see constructor) sets it straight from a Listing whose
+      // videoTourUrl is genuinely optional, which can leave the control's runtime value
+      // undefined despite what the type says.
+      videoTourUrl: (raw.videoTourUrl ?? '').trim() || undefined,
       existingImageUrls: this.existingImageUrls(),
       photos: this.newPhotos().map((p) => p.file),
       lat: this.lat ?? this.existingLat ?? undefined,

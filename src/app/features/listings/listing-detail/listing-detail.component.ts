@@ -1,5 +1,6 @@
 import { Component, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
@@ -33,6 +34,14 @@ function haversineDistanceKm(lat1: number, lng1: number, lat2: number, lng2: num
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Recognizes youtube.com/watch, youtu.be, and already-an-embed-link youtube.com/embed URLs.
+// Returns null for anything else (Matterport, Vimeo, a raw video file, ...), which the
+// template treats as "no embeddable preview" and falls back to a plain external link instead.
+function getYouTubeVideoId(url: string): string | null {
+  const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+}
+
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
@@ -54,6 +63,7 @@ export class ListingDetailComponent {
   private readonly messageService = inject(MessageService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -61,6 +71,16 @@ export class ListingDetailComponent {
   readonly loading = signal(true);
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
+
+  // Only YouTube links get an inline player (see getYouTubeVideoId) — anything else falls
+  // back to a plain "open in new tab" link in the template.
+  readonly videoEmbedUrl = computed<SafeResourceUrl | null>(() => {
+    const url = this.listing()?.videoTourUrl;
+    if (!url) return null;
+    const videoId = getYouTubeVideoId(url);
+    if (!videoId) return null;
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
+  });
   readonly messageBody = signal('');
   readonly activePhotoIndex = signal(0);
   readonly showContactModal = signal(false);

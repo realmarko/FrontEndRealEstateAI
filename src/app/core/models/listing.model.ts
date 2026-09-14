@@ -58,6 +58,7 @@ export interface Listing {
   gardenSizeSqm?: number;
   hasHeatingCooling: boolean;
   hoaFee?: number;
+  videoTourUrl?: string;
   imageUrls: string[];
   ownerId: string;
   createdAt: string;

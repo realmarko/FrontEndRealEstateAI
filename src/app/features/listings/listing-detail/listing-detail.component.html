@@ -197,6 +197,19 @@
           }
         }
 
+        @if (listing.videoTourUrl) {
+          <h2 class="section-title">{{ 'listingDetail.videoTourTitle' | translate }}</h2>
+          @if (videoEmbedUrl(); as embedUrl) {
+            <div class="video-embed">
+              <iframe [src]="embedUrl" title="Video tour" frameborder="0" allowfullscreen></iframe>
+            </div>
+          } @else {
+            <a [href]="listing.videoTourUrl" target="_blank" rel="noopener noreferrer" class="video-link">
+              {{ 'listingDetail.videoTourLink' | translate }}
+            </a>
+          }
+        }
+
         @if (listing.type === 'sale') {
           <h2 class="section-title">{{ 'listingDetail.mortgageTitle' | translate }}</h2>
           <app-mortgage-calculator [price]="listing.price" [currency]="listing.currency" />
