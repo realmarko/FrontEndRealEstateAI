@@ -74,6 +74,40 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
   }
 ];
 
+interface OpportunityLevel {
+  color: string;
+  labelKey: string;
+}
+
+interface OpportunityCategoryConfig {
+  // Points at a POI_CATEGORIES entry so the search's placeType and the drawn marker's icon
+  // come from that one existing definition instead of a second, driftable copy of the same choice.
+  poiKey: PoiCategoryKey;
+  radiusMeters: number;
+  // Competitor count at/below which the area still counts as "good"/"moderate" — above the
+  // second threshold it's "saturated". Tuned for a walk-in trade-area business like a pharmacy;
+  // a future business type belongs in its own entry below with its own thresholds, not these.
+  goodMaxCount: number;
+  moderateMaxCount: number;
+}
+
+// One entry per "analyze opportunity for X" button this page can offer. Pharmacy is the only
+// one today (the original ask) — adding gyms/cafés/etc. later means adding an entry here and a
+// toolbar button wired to it, not forking analyzeOpportunity/drawOpportunityCircle per type.
+const OPPORTUNITY_CATEGORIES = {
+  pharmacy: { poiKey: 'pharmacies', radiusMeters: 1000, goodMaxCount: 2, moderateMaxCount: 5 } satisfies OpportunityCategoryConfig
+};
+
+// Nearby Search returns at most 20 results per page without paginating (each extra page is a
+// separate billed call with a mandatory ~2s delay before Google will serve it) — for a traffic
+// light this coarse, treating "20 found" the same as "37 found" (both land in the top band) is
+// an acceptable approximation, so pagination isn't pursued here.
+function opportunityLevel(competitorCount: number, config: OpportunityCategoryConfig): OpportunityLevel {
+  if (competitorCount <= config.goodMaxCount) return { color: '#16a34a', labelKey: 'map.opportunityGood' };
+  if (competitorCount <= config.moderateMaxCount) return { color: '#ca8a04', labelKey: 'map.opportunityModerate' };
+  return { color: '#dc2626', labelKey: 'map.opportunitySaturated' };
+}
+
 // The library's default renderer colors every cluster plain blue (red once it's unusually
 // large) regardless of what it's clustering — which would collide with this page's own
 // blue/red "My listings"/"Other listings" legend and give a school cluster the same blue as
@@ -117,6 +151,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   locatingMe = false;
   selectedLat: number | null = null;
   selectedLng: number | null = null;
+
+  opportunityMode = false;
+  readonly loadingOpportunity = signal(false);
+  readonly opportunityResult = signal<{ count: number; level: OpportunityLevel } | null>(null);
 
   readonly poiCategories = POI_CATEGORIES;
   readonly showPoiChecklist = signal(false);
@@ -189,6 +227,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private map?: google.maps.Map;
   private marker?: google.maps.Marker;
   private myLocationMarker?: google.maps.Marker;
+  private opportunityCircle?: google.maps.Circle;
+  private opportunityMarker?: google.maps.Marker;
+  // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
+  // this feature's own search) — an async opportunity search checks it against the value it
+  // captured when the search started, so a slow response can't steal focus back from a listing
+  // or POI popup the user has since opened while it was in flight.
+  private infoWindowGeneration = 0;
+  // True only while the shared infoWindow is currently showing this feature's own content —
+  // read by clearOpportunityOverlay so toggling the mode off doesn't close a listing/POI popup
+  // that has since taken the window over.
+  private infoWindowShowsOpportunity = false;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
   // One clusterer per marker type (listings + one per POI category) so a cluster icon never
   // mixes categories together, keeping each type's color meaningful when markers group up.
@@ -274,8 +323,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       // so clicking anywhere else on the map is the only way left to dismiss it.
       this.infoWindow?.close();
 
-      if (!this.addMode || !event.latLng) return;
-      this.zone.run(() => this.placeMarker(event.latLng!));
+      if (!event.latLng) return;
+      if (this.addMode) {
+        this.zone.run(() => this.placeMarker(event.latLng!));
+      } else if (this.opportunityMode) {
+        this.zone.run(() => this.analyzeOpportunity(event.latLng!));
+      }
     });
 
     // Fires after every pan/zoom settles (and once on initial load) — keeps the results
@@ -316,6 +369,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   private openListingInfo(listing: Listing, marker: google.maps.Marker): void {
     if (!this.infoWindow) return;
+    this.infoWindowGeneration++;
+    this.infoWindowShowsOpportunity = false;
 
     // Matches ListingCardComponent's formatting exactly (Angular's CurrencyPipe with no
     // digitsInfo override defaults to 2 decimal places) so the same listing never shows a
@@ -502,6 +557,102 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // Counts nearby competitors of the configured category (Google Places Nearby Search — the
+  // same API the POI checklist already uses, just radius-scoped to a clicked point instead of
+  // the whole viewport) and draws a traffic-light circle from the count. Only "pharmacy" exists
+  // today; a second category means adding an OPPORTUNITY_CATEGORIES entry and a toolbar button,
+  // not a second version of this method.
+  private analyzeOpportunity(latLng: google.maps.LatLng): void {
+    if (!this.map) return;
+
+    const config = OPPORTUNITY_CATEGORIES.pharmacy;
+    const poiConfig = POI_CATEGORIES.find((c) => c.key === config.poiKey)!;
+    const position = { lat: latLng.lat(), lng: latLng.lng() };
+    // Also serves as the "info window generation" this request was started at — see
+    // infoWindowGeneration's own comment for why that's what guards against a stale response.
+    const requestId = ++this.infoWindowGeneration;
+    this.loadingOpportunity.set(true);
+
+    const service = new google.maps.places.PlacesService(this.map);
+    service.nearbySearch(
+      { location: position, radius: config.radiusMeters, type: poiConfig.placeType },
+      (results, status) => {
+        this.zone.run(() => {
+          if (requestId !== this.infoWindowGeneration) return;
+          this.loadingOpportunity.set(false);
+
+          if (status !== google.maps.places.PlacesServiceStatus.OK && status !== google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+            this.notification.error('map.opportunityError');
+            return;
+          }
+
+          const count = results?.length ?? 0;
+          const level = opportunityLevel(count, config);
+          this.opportunityResult.set({ count, level });
+          this.drawOpportunityCircle(position, level, count, config.radiusMeters, poiConfig.icon);
+        });
+      }
+    );
+  }
+
+  private drawOpportunityCircle(
+    position: google.maps.LatLngLiteral,
+    level: OpportunityLevel,
+    count: number,
+    radiusMeters: number,
+    icon: string
+  ): void {
+    if (!this.map) return;
+
+    if (this.opportunityCircle) {
+      this.opportunityCircle.setOptions({ center: position, strokeColor: level.color, fillColor: level.color });
+    } else {
+      this.opportunityCircle = new google.maps.Circle({
+        map: this.map,
+        center: position,
+        radius: radiusMeters,
+        strokeColor: level.color,
+        strokeOpacity: 0.9,
+        strokeWeight: 2,
+        fillColor: level.color,
+        fillOpacity: 0.15,
+        clickable: false
+      });
+    }
+
+    if (this.opportunityMarker) {
+      this.opportunityMarker.setPosition(position);
+    } else {
+      this.opportunityMarker = new google.maps.Marker({ position, map: this.map, icon });
+    }
+
+    const label = this.translation.t(level.labelKey);
+    const countLabel = this.translation.t('map.opportunityCompetitorCount', { count });
+    this.infoWindow?.setContent(`<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}</div>`);
+    this.infoWindow?.setPosition(position);
+    this.infoWindow?.open(this.map);
+    this.infoWindowShowsOpportunity = true;
+  }
+
+  private clearOpportunityOverlay(): void {
+    // Invalidates any in-flight analyzeOpportunity request in the same stroke as marking that
+    // this feature no longer owns the info window, since both checks read this one counter.
+    this.infoWindowGeneration++;
+    this.loadingOpportunity.set(false);
+    this.opportunityResult.set(null);
+    this.opportunityCircle?.setMap(null);
+    this.opportunityCircle = undefined;
+    this.opportunityMarker?.setMap(null);
+    this.opportunityMarker = undefined;
+
+    // Only close the shared info window if it's still showing this feature's own content — a
+    // listing/POI popup opened since (which already reset this flag itself) isn't ours to close.
+    if (this.infoWindowShowsOpportunity) {
+      this.infoWindow?.close();
+      this.infoWindowShowsOpportunity = false;
+    }
+  }
+
   togglePoiChecklist(): void {
     this.showPoiChecklist.update((visible) => !visible);
   }
@@ -594,6 +745,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   private openPoiInfo(name: string, marker: google.maps.Marker): void {
     if (!this.infoWindow) return;
+    this.infoWindowGeneration++;
+    this.infoWindowShowsOpportunity = false;
 
     // textContent (not innerHTML) — the place name comes from the Places API, not our own data.
     const container = document.createElement('div');
@@ -610,6 +763,21 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   toggleAddMode(): void {
     this.addMode = !this.addMode;
+    // Mutually exclusive with opportunity mode — both interpret a map click differently, so
+    // leaving both on at once would make a click's effect ambiguous.
+    if (this.addMode && this.opportunityMode) {
+      this.opportunityMode = false;
+      this.clearOpportunityOverlay();
+    }
+  }
+
+  toggleOpportunityMode(): void {
+    this.opportunityMode = !this.opportunityMode;
+    if (this.opportunityMode) {
+      this.addMode = false;
+    } else {
+      this.clearOpportunityOverlay();
+    }
   }
 
   confirmLocation(): void {

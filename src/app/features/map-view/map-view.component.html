@@ -115,6 +115,12 @@
           <button type="button" class="locate-btn" [disabled]="locatingMe" (click)="centerOnCurrentLocation(true)">
             {{ (locatingMe ? 'map.locating' : 'map.myLocation') | translate }}
           </button>
+          <button type="button" class="opportunity-btn" [class.active]="opportunityMode" (click)="toggleOpportunityMode()">
+            {{ (opportunityMode ? 'map.clickToAnalyze' : 'map.analyzeOpportunity') | translate }}
+          </button>
+          @if (loadingOpportunity()) {
+            <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
+          }
           <button
             type="button"
             class="confirm-btn"

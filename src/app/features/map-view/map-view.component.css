@@ -159,7 +159,8 @@
 
 .add-property-btn,
 .confirm-btn,
-.locate-btn {
+.locate-btn,
+.opportunity-btn {
   border: none;
   border-radius: 4px;
   padding: 0.55rem 1.1rem;
@@ -190,6 +191,23 @@
 .confirm-btn {
   background: #15803d;
   color: #fff;
+}
+
+/* Purple to match the pharmacy POI marker/cluster color elsewhere on this page. */
+.opportunity-btn {
+  background: #fff;
+  color: #7c3aed;
+}
+
+.opportunity-btn.active {
+  background: #7c3aed;
+  color: #fff;
+}
+
+.opportunity-loading {
+  align-self: center;
+  font-size: 0.85rem;
+  color: #6b7280;
 }
 
 .poi-toggle-btn {
