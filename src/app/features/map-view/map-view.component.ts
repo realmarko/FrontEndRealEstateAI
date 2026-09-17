@@ -7,7 +7,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
 import { SavedSearchService } from '../../core/services/saved-search.service';
-import { GeomarketingService } from '../../core/services/geomarketing.service';
+import { GeomarketingService, PopulationDensity } from '../../core/services/geomarketing.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -79,6 +79,13 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
 interface OpportunityLevel {
   color: string;
   labelKey: string;
+}
+
+interface OpportunityAnalysisResult {
+  count: number;
+  level: OpportunityLevel;
+  source: 'denue' | 'places';
+  population: PopulationDensity | null;
 }
 
 interface OpportunityCategoryConfig {
@@ -166,7 +173,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   opportunityMode = false;
   readonly loadingOpportunity = signal(false);
-  readonly opportunityResult = signal<{ count: number; level: OpportunityLevel; source: 'denue' | 'places' } | null>(null);
+  readonly opportunityResult = signal<OpportunityAnalysisResult | null>(null);
 
   readonly poiCategories = POI_CATEGORIES;
   readonly showPoiChecklist = signal(false);
@@ -589,9 +596,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const requestId = ++this.infoWindowGeneration;
     this.loadingOpportunity.set(true);
 
-    const [placesCount, denueCount] = await Promise.all([
+    const [placesCount, denueCount, population] = await Promise.all([
       this.searchPlacesCount(position, config.radiusMeters, poiConfig.placeType),
-      this.searchDenueCount(position, config.radiusMeters, config.denueSearchTerm)
+      this.searchDenueCount(position, config.radiusMeters, config.denueSearchTerm),
+      this.searchPopulationDensity(position)
     ]);
 
     this.zone.run(() => {
@@ -606,8 +614,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const source: 'denue' | 'places' = denueCount !== null ? 'denue' : 'places';
       const count = denueCount ?? placesCount ?? 0;
       const level = opportunityLevel(count, config);
-      this.opportunityResult.set({ count, level, source });
-      this.drawOpportunityCircle(position, level, count, source, config.radiusMeters, poiConfig.icon);
+      const result: OpportunityAnalysisResult = { count, level, source, population };
+      this.opportunityResult.set(result);
+      this.drawOpportunityCircle(position, result, config.radiusMeters, poiConfig.icon);
     });
   }
 
@@ -634,15 +643,24 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       .catch(() => null);
   }
 
+  // Resolves to null both on error and on the (expected, not exceptional) 404 for a point
+  // outside the states whose census data has been imported so far — see PopulationDensityService.
+  private searchPopulationDensity(position: google.maps.LatLngLiteral): Promise<PopulationDensity | null> {
+    return firstValueFrom(this.geomarketingService.populationDensity(position.lat, position.lng)).catch(() => null);
+  }
+
+  // Takes the already-built OpportunityAnalysisResult rather than its fields spread as loose
+  // positional parameters — count and radiusMeters (both plain numbers) sat next to each other
+  // in the old signature, one silent transposition away from mislabeling the popup or drawing
+  // the wrong-radius circle with no compiler error to catch it.
   private drawOpportunityCircle(
     position: google.maps.LatLngLiteral,
-    level: OpportunityLevel,
-    count: number,
-    source: 'denue' | 'places',
+    result: OpportunityAnalysisResult,
     radiusMeters: number,
     icon: string
   ): void {
     if (!this.map) return;
+    const { level, count, source, population } = result;
 
     if (this.opportunityCircle) {
       this.opportunityCircle.setOptions({ center: position, strokeColor: level.color, fillColor: level.color });
@@ -669,8 +687,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const label = this.translation.t(level.labelKey);
     const countLabel = this.translation.t('map.opportunityCompetitorCount', { count });
     const sourceLabel = this.translation.t(source === 'denue' ? 'map.opportunitySourceDenue' : 'map.opportunitySourcePlaces');
+    // Population is INEGI Census 2020 data, imported once for Puebla state only (see
+    // AgebPopulation) — null anywhere else, which is expected coverage, not a failure, so it's
+    // simply omitted rather than shown as an error line.
+    const populationLine = population
+      ? `<br>${this.translation.t('map.opportunityPopulationDensity', {
+          density: Math.round(population.densityPerSqKm).toLocaleString(),
+          year: population.censusYear
+        })}`
+      : '';
     this.infoWindow?.setContent(
-      `<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}<br><span class="opportunity-source">${sourceLabel}</span></div>`
+      `<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}<br><span class="opportunity-source">${sourceLabel}</span>${populationLine}</div>`
     );
     this.infoWindow?.setPosition(position);
     this.infoWindow?.open(this.map);
