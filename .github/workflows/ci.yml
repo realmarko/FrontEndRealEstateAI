@@ -19,6 +19,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # env-keys.ts holds the real Google Maps API key and is gitignored on purpose (see
+      # env-keys.example.ts) — it never exists on a clean checkout, so environment.ts's import
+      # fails to resolve without this. A placeholder key is fine for build/test: nothing in the
+      # test suite or the build itself actually calls the Maps API.
+      - name: Add placeholder Google Maps key
+        run: cp src/environments/env-keys.example.ts src/environments/env-keys.ts
+
       # karma-chrome-launcher's auto-detection doesn't reliably find ubuntu-latest's preinstalled
       # Chrome, and guessing at its binary name/path directly (google-chrome vs
       # google-chrome-stable, etc.) proved fragile across runner image variations. This action
