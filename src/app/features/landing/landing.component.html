@@ -1,0 +1,242 @@
+<main class="landing">
+  <section class="hero">
+    <!-- Stylized skyline, standing in for the "4K photo" request: a hand-drawn illustration
+         (not a stock photo) that mixes a colonial dome, a stepped Mesoamerican-echo silhouette,
+         and a modern glass tower — evoking the region generally rather than any one city, so it
+         doesn't overclaim a specific market the way a real photo of one skyline would. -->
+    <svg class="hero-skyline" viewBox="0 0 1440 300" preserveAspectRatio="none" aria-hidden="true">
+      <g fill="var(--gold)" opacity="0.14">
+        <rect x="0" y="170" width="70" height="130" />
+        <rect x="70" y="140" width="55" height="160" />
+        <path d="M125,300 V150 a40,40 0 0 1 80,0 V300 Z" />
+        <rect x="205" y="190" width="45" height="110" />
+        <rect x="250" y="90" width="120" height="210" />
+        <rect x="380" y="200" width="60" height="100" />
+        <path d="M440,300 V230 h20 V210 h20 V190 h20 V210 h20 V230 h20 V300 Z" />
+        <rect x="560" y="160" width="50" height="140" />
+        <rect x="610" y="120" width="90" height="180" />
+        <rect x="700" y="205" width="65" height="95" />
+        <rect x="765" y="70" width="40" height="230" />
+        <rect x="805" y="180" width="75" height="120" />
+        <path d="M880,300 V160 a45,45 0 0 1 90,0 V300 Z" />
+        <rect x="970" y="150" width="55" height="150" />
+        <rect x="1025" y="100" width="130" height="200" />
+        <rect x="1155" y="210" width="60" height="90" />
+        <path d="M1215,300 V240 h18 V222 h18 V204 h18 V222 h18 V240 h18 V300 Z" />
+        <rect x="1305" y="175" width="50" height="125" />
+        <rect x="1355" y="130" width="85" height="170" />
+      </g>
+      <g stroke="var(--gold)" stroke-width="1" opacity="0.2">
+        <line x1="275" y1="110" x2="345" y2="110" />
+        <line x1="275" y1="140" x2="345" y2="140" />
+        <line x1="275" y1="170" x2="345" y2="170" />
+        <line x1="275" y1="200" x2="345" y2="200" />
+        <line x1="1045" y1="120" x2="1130" y2="120" />
+        <line x1="1045" y1="155" x2="1130" y2="155" />
+        <line x1="1045" y1="190" x2="1130" y2="190" />
+        <line x1="1045" y1="225" x2="1130" y2="225" />
+      </g>
+    </svg>
+
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="hero-rule" aria-hidden="true"></div>
+        <h1>{{ 'landing.heroHeadline' | translate }}</h1>
+        <p class="hero-body">{{ 'landing.heroBody' | translate }}</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" routerLink="/listings">{{ 'landing.heroSearchCta' | translate }}</a>
+          <a class="btn btn-ghost" [routerLink]="auth.isAuthenticated() ? '/listings/new' : '/login'">
+            {{ 'landing.heroListCta' | translate }}
+          </a>
+        </div>
+
+        <div class="hero-flags" aria-hidden="true">
+          <span class="hero-flags-label">{{ 'landing.heroFlagsLabel' | translate }}</span>
+          <div class="hero-flags-row">
+            <!-- Simplified national flags (no coat-of-arms detail needed at this size) for a
+                 representative spread across the region, not an exhaustive list. -->
+            <svg viewBox="0 0 24 16" class="flag" title="México"><rect width="8" height="16" fill="#006847"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#ce1126"/></svg>
+            <svg viewBox="0 0 24 16" class="flag" title="Colombia"><rect width="24" height="8" fill="#fcd116"/><rect y="8" width="24" height="4" fill="#003893"/><rect y="12" width="24" height="4" fill="#ce1126"/></svg>
+            <svg viewBox="0 0 24 16" class="flag" title="Argentina"><rect width="24" height="16" fill="#fff"/><rect width="24" height="5.3" fill="#74acdf"/><rect y="10.7" width="24" height="5.3" fill="#74acdf"/></svg>
+            <svg viewBox="0 0 24 16" class="flag" title="Brasil"><rect width="24" height="16" fill="#009739"/><path d="M12 2 L22 8 L12 14 L2 8 Z" fill="#fedd00"/><circle cx="12" cy="8" r="3.4" fill="#012169"/></svg>
+            <svg viewBox="0 0 24 16" class="flag" title="Chile"><rect width="24" height="16" fill="#fff"/><rect width="24" height="8" y="8" fill="#d52b1e"/><rect width="9" height="8" fill="#0039a6"/></svg>
+            <svg viewBox="0 0 24 16" class="flag" title="Perú"><rect width="8" height="16" fill="#d91023"/><rect x="8" width="8" height="16" fill="#fff"/><rect x="16" width="8" height="16" fill="#d91023"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 480 440" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0.5" y="0.5" width="479" height="439" fill="var(--charcoal)" stroke="var(--gold)" stroke-width="1" />
+
+          <!-- Street grid, Puebla's centro histórico is famously laid out on one -->
+          <g stroke="var(--silver)" stroke-width="1" opacity="0.22">
+            <line x1="0" y1="90" x2="480" y2="90" />
+            <line x1="0" y1="170" x2="480" y2="170" />
+            <line x1="0" y1="250" x2="480" y2="250" />
+            <line x1="0" y1="330" x2="480" y2="330" />
+            <line x1="90" y1="0" x2="90" y2="440" />
+            <line x1="180" y1="0" x2="180" y2="440" />
+            <line x1="280" y1="0" x2="280" y2="440" />
+            <line x1="380" y1="0" x2="380" y2="440" />
+          </g>
+
+          <!-- Property pins. Position/scale live on this outer <g>'s SVG "transform" attribute;
+               the CSS drop-in animation applies its own "transform" to the inner .pin group
+               instead of this one — a CSS transform on an element completely replaces an
+               existing transform ATTRIBUTE on that same element rather than composing with it,
+               which was silently teleporting every pin to the canvas origin once the animation
+               finished. -->
+          <g transform="translate(150,150)">
+            <g class="pin">
+              <path d="M0,16 C-15,-4 -13,-25 0,-25 C13,-25 15,-4 0,16 Z" fill="none" stroke="var(--silver)" stroke-width="1.5" />
+              <circle cy="-13" r="4" fill="var(--silver)" />
+            </g>
+          </g>
+          <g transform="translate(300,120) scale(0.75)">
+            <g class="pin">
+              <path d="M0,16 C-15,-4 -13,-25 0,-25 C13,-25 15,-4 0,16 Z" fill="none" stroke="var(--silver)" stroke-width="1.5" />
+              <circle cy="-13" r="4" fill="var(--silver)" />
+            </g>
+          </g>
+          <g transform="translate(340,260) scale(0.85)">
+            <g class="pin">
+              <path d="M0,16 C-15,-4 -13,-25 0,-25 C13,-25 15,-4 0,16 Z" fill="none" stroke="var(--silver)" stroke-width="1.5" />
+              <circle cy="-13" r="4" fill="var(--silver)" />
+            </g>
+          </g>
+          <g transform="translate(220,300) scale(1.2)">
+            <g class="pin pin-featured">
+              <path d="M0,16 C-15,-4 -13,-25 0,-25 C13,-25 15,-4 0,16 Z" fill="var(--gold)" />
+              <circle cy="-13" r="4.5" fill="var(--charcoal)" />
+            </g>
+          </g>
+
+          <!-- Map caption chip -->
+          <g transform="translate(150,372)">
+            <rect x="0.5" y="0.5" width="129" height="33" rx="1" fill="var(--ink)" stroke="var(--gold)" stroke-width="1" />
+            <text x="65" y="22" text-anchor="middle" fill="var(--gold)" font-family="Manrope, sans-serif" font-weight="600" font-size="13" letter-spacing="0.03em">{{ 'landing.heroMapCaption' | translate }}</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="corridor" aria-label="Diferenciadores">
+    <div class="corridor-track">
+      <article class="panel">
+        <svg class="panel-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 14c0-4.4 3.6-8 8-8s8 3.6 8 8c0 6-8 15-8 15s-8-9-8-15Z" stroke="currentColor" stroke-width="2" />
+          <circle cx="22" cy="14" r="3" stroke="currentColor" stroke-width="2" />
+          <path d="M8 30c0-2.2 3.6-4 8-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <h3>{{ 'landing.diffMapTitle' | translate }}</h3>
+        <p>{{ 'landing.diffMapBody' | translate }}</p>
+      </article>
+
+      <article class="panel">
+        <svg class="panel-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="10" width="28" height="20" rx="2" stroke="currentColor" stroke-width="2" />
+          <path d="M6 12l14 10 14-10" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+          <circle cx="31" cy="9" r="4" fill="currentColor" />
+        </svg>
+        <h3>{{ 'landing.diffAlertsTitle' | translate }}</h3>
+        <p>{{ 'landing.diffAlertsBody' | translate }}</p>
+      </article>
+
+      <article class="panel">
+        <svg class="panel-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 12h24v14H18l-6 5v-5H8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+          <path d="M14 19l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <h3>{{ 'landing.diffMessagesTitle' | translate }}</h3>
+        <p>{{ 'landing.diffMessagesBody' | translate }}</p>
+      </article>
+
+      <article class="panel">
+        <svg class="panel-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="3" fill="currentColor" />
+          <circle cx="20" cy="20" r="9" stroke="currentColor" stroke-width="2" />
+          <circle cx="20" cy="20" r="15" stroke="currentColor" stroke-width="2" opacity="0.5" />
+        </svg>
+        <h3>{{ 'landing.diffGeoTitle' | translate }}</h3>
+        <p>{{ 'landing.diffGeoBody' | translate }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="how">
+    <h2>{{ 'landing.howHeadline' | translate }}</h2>
+    <ol class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div>
+          <h3>{{ 'landing.howStep1Title' | translate }}</h3>
+          <p>{{ 'landing.howStep1Body' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div>
+          <h3>{{ 'landing.howStep2Title' | translate }}</h3>
+          <p>{{ 'landing.howStep2Body' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div>
+          <h3>{{ 'landing.howStep3Title' | translate }}</h3>
+          <p>{{ 'landing.howStep3Body' | translate }}</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="geo-spotlight">
+    <div class="geo-inner">
+      <div class="geo-copy">
+        <p class="geo-kicker">{{ 'landing.geoEyebrow' | translate }}</p>
+        <h2>{{ 'landing.geoHeadline' | translate }}</h2>
+        <p>{{ 'landing.geoBody' | translate }}</p>
+        <a class="btn btn-primary" routerLink="/map">{{ 'landing.geoCta' | translate }}</a>
+      </div>
+      <div class="geo-stats">
+        <div class="stat">
+          <span class="stat-value">{{ 'landing.geoStat1Value' | translate }}</span>
+          <span class="stat-label">{{ 'landing.geoStat1Label' | translate }}</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{ 'landing.geoStat2Value' | translate }}</span>
+          <span class="stat-label">{{ 'landing.geoStat2Label' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta">
+    <h2>{{ 'landing.finalHeadline' | translate }}</h2>
+    <a class="btn btn-primary" routerLink="/listings">{{ 'landing.finalCta' | translate }}</a>
+  </section>
+
+  <footer class="landing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span class="footer-mark">RealEstateApp</span>
+        <p>{{ 'landing.footerTagline' | translate }}</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>{{ 'landing.footerBrowse' | translate }}</h4>
+          <a routerLink="/listings">{{ 'landing.footerSearch' | translate }}</a>
+          <a routerLink="/map">{{ 'landing.footerMap' | translate }}</a>
+          <a routerLink="/agents">{{ 'landing.footerAgents' | translate }}</a>
+        </div>
+        <div class="footer-col">
+          <h4>{{ 'landing.footerAccount' | translate }}</h4>
+          <a routerLink="/listings/new">{{ 'landing.footerList' | translate }}</a>
+          <a routerLink="/login">{{ 'landing.footerLogin' | translate }}</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</main>
