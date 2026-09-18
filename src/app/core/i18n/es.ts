@@ -6,6 +6,7 @@ export const es: Record<string, string> = {
   'nav.favorites': 'Favoritos',
   'nav.savedSearches': 'Búsquedas guardadas',
   'nav.messages': 'Mensajes',
+  'nav.adminErrors': 'Errores',
   'nav.logIn': 'Iniciar sesión',
   'nav.logOut': 'Cerrar sesión',
   'nav.register': 'Registrarse',
@@ -378,5 +379,22 @@ export const es: Record<string, string> = {
   'landing.footerAgents': 'Buscar un agente',
   'landing.footerAccount': 'Cuenta',
   'landing.footerList': 'Publicar propiedad',
-  'landing.footerLogin': 'Iniciar sesión'
+  'landing.footerLogin': 'Iniciar sesión',
+
+  'adminErrors.title': 'Errores del sistema',
+  'adminErrors.filterUnresolved': 'Sin resolver',
+  'adminErrors.filterResolved': 'Resueltos',
+  'adminErrors.filterAll': 'Todos',
+  'adminErrors.loading': 'Cargando errores...',
+  'adminErrors.empty': 'No hay errores aquí — nada que ver.',
+  'adminErrors.anonymousUser': 'No autenticado',
+  'adminErrors.showStack': 'Ver stack trace',
+  'adminErrors.hideStack': 'Ocultar stack trace',
+  'adminErrors.resolve': 'Marcar resuelto',
+  'adminErrors.resolvedLabel': 'Resuelto',
+  'adminErrors.resolveError': 'No se pudo marcar como resuelto. Intenta de nuevo.',
+  'adminErrors.loadError': 'No se pudieron cargar los errores. Intenta de nuevo.',
+  'adminErrors.prevPage': 'Anterior',
+  'adminErrors.nextPage': 'Siguiente',
+  'adminErrors.pageOf': 'Página {{page}} de {{total}}'
 };

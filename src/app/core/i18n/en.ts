@@ -6,6 +6,7 @@ export const en: Record<string, string> = {
   'nav.favorites': 'Favorites',
   'nav.savedSearches': 'Saved searches',
   'nav.messages': 'Messages',
+  'nav.adminErrors': 'Errors',
   'nav.logIn': 'Log in',
   'nav.logOut': 'Log out',
   'nav.register': 'Register',
@@ -378,5 +379,22 @@ export const en: Record<string, string> = {
   'landing.footerAgents': 'Find an agent',
   'landing.footerAccount': 'Account',
   'landing.footerList': 'List a property',
-  'landing.footerLogin': 'Log in'
+  'landing.footerLogin': 'Log in',
+
+  'adminErrors.title': 'System errors',
+  'adminErrors.filterUnresolved': 'Unresolved',
+  'adminErrors.filterResolved': 'Resolved',
+  'adminErrors.filterAll': 'All',
+  'adminErrors.loading': 'Loading errors...',
+  'adminErrors.empty': 'No errors here — nothing to see.',
+  'adminErrors.anonymousUser': 'Not signed in',
+  'adminErrors.showStack': 'Show stack trace',
+  'adminErrors.hideStack': 'Hide stack trace',
+  'adminErrors.resolve': 'Mark resolved',
+  'adminErrors.resolvedLabel': 'Resolved',
+  'adminErrors.resolveError': "Couldn't mark this as resolved. Please try again.",
+  'adminErrors.loadError': "Couldn't load errors. Please try again.",
+  'adminErrors.prevPage': 'Previous',
+  'adminErrors.nextPage': 'Next',
+  'adminErrors.pageOf': 'Page {{page}} of {{total}}'
 };

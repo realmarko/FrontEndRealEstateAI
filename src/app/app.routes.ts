@@ -106,5 +106,13 @@ export const routes: Routes = [
         (m) => m.SavedSearchesComponent
       )
   },
+  {
+    path: 'admin/errors',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-errors/admin-errors.component').then(
+        (m) => m.AdminErrorsComponent
+      )
+  },
   { path: '**', redirectTo: 'listings' }
 ];

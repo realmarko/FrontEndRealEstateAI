@@ -22,6 +22,9 @@
       @if (auth.currentUser()?.roles?.includes('Owner')) {
         <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
       }
+      @if (auth.currentUser()?.roles?.includes('Admin')) {
+        <a routerLink="/admin/errors" routerLinkActive="active">{{ 'nav.adminErrors' | translate }}</a>
+      }
     </div>
 
     <div class="session">

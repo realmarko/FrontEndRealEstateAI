@@ -1,0 +1,74 @@
+<div class="page">
+  <h1>{{ 'adminErrors.title' | translate }}</h1>
+
+  <div class="filters">
+    <button type="button" [class.active]="statusFilter() === 'unresolved'" (click)="setFilter('unresolved')">
+      {{ 'adminErrors.filterUnresolved' | translate }}
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'resolved'" (click)="setFilter('resolved')">
+      {{ 'adminErrors.filterResolved' | translate }}
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'all'" (click)="setFilter('all')">
+      {{ 'adminErrors.filterAll' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="loading">{{ 'adminErrors.loading' | translate }}</p>
+  } @else if (errors().length) {
+    <div class="error-list">
+      @for (error of errors(); track error.id) {
+        <div class="error-card" [class.resolved]="error.resolved">
+          <div class="error-summary" (click)="toggleExpanded(error)">
+            <span class="badge" [class]="'source-' + error.source.toLowerCase()">{{ error.source }}</span>
+            <span class="badge" [class]="'severity-' + error.severity.toLowerCase()">{{ error.severity }}</span>
+            <span class="section">{{ error.section }}</span>
+            <span class="date">{{ error.occurredAt | date: 'short' }}</span>
+          </div>
+
+          <p class="message">{{ error.message }}</p>
+
+          <div class="meta">
+            <span>{{ error.userEmail ?? ('adminErrors.anonymousUser' | translate) }}</span>
+            @if (error.userAgent) {
+              <span class="user-agent">{{ error.userAgent }}</span>
+            }
+          </div>
+
+          @if (expandedId() === error.id) {
+            @if (loadingStackTrace()) {
+              <p class="loading">{{ 'adminErrors.loading' | translate }}</p>
+            } @else if (expandedStackTrace()) {
+              <pre class="stack-trace">{{ expandedStackTrace() }}</pre>
+            }
+          }
+
+          <div class="actions">
+            @if (error.hasStackTrace) {
+              <button type="button" class="link-btn" (click)="toggleExpanded(error)">
+                {{ (expandedId() === error.id ? 'adminErrors.hideStack' : 'adminErrors.showStack') | translate }}
+              </button>
+            }
+            @if (!error.resolved) {
+              <button type="button" class="resolve-btn" [disabled]="isResolving(error)" (click)="resolve(error)">
+                {{ 'adminErrors.resolve' | translate }}
+              </button>
+            } @else {
+              <span class="resolved-label">{{ 'adminErrors.resolvedLabel' | translate }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button type="button" [disabled]="page() === 1" (click)="goToPage(page() - 1)">{{ 'adminErrors.prevPage' | translate }}</button>
+        <span>{{ 'adminErrors.pageOf' | translate: { page: page(), total: totalPages() } }}</span>
+        <button type="button" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">{{ 'adminErrors.nextPage' | translate }}</button>
+      </div>
+    }
+  } @else {
+    <p class="empty">{{ 'adminErrors.empty' | translate }}</p>
+  }
+</div>
