@@ -50,6 +50,14 @@
         @for (type of propertyTypeOptions; track type) {
           <option [value]="type">{{ ('listingForm.' + type) | translate }}</option>
         }
+        <!-- 'commercial' isn't in propertyTypeOptions (no longer selectable for new listings —
+             see LAND_OR_COMMERCIAL_PROPERTY_TYPES's comment), but a pre-existing listing can
+             still have it. Without this, editing that listing would show no matching <option>
+             for its actual value, making the dropdown look blank/wrong despite the real value
+             being intact underneath. -->
+        @if (form.value.propertyType === 'commercial') {
+          <option value="commercial">{{ 'listingForm.commercial' | translate }}</option>
+        }
       </select>
     </label>
 
@@ -156,61 +164,77 @@
       </label>
     </div>
 
-    <div class="grid-3">
-      <label>
-        {{ 'listingForm.bedrooms' | translate }}
-        <input type="number" formControlName="bedrooms" min="0" />
-      </label>
+    @if (!isLandOrCommercial()) {
+      <div class="grid-2">
+        <label>
+          {{ 'listingForm.bedrooms' | translate }}
+          <input type="number" formControlName="bedrooms" min="0" />
+        </label>
 
-      <label>
-        {{ 'listingForm.bathrooms' | translate }}
-        <input type="number" formControlName="bathrooms" min="0" />
-      </label>
+        <label>
+          {{ 'listingForm.bathrooms' | translate }}
+          <input type="number" formControlName="bathrooms" min="0" />
+        </label>
+      </div>
+    }
 
-      <label>
-        {{ 'listingForm.area' | translate }}
-        <input type="number" formControlName="areaSqm" min="0" />
-      </label>
-    </div>
+    <label>
+      {{ 'listingForm.area' | translate }}
+      <input type="number" formControlName="areaSqm" min="0" />
+    </label>
 
-    <div class="grid-2">
-      <label>
-        {{ 'listingForm.parkingSpaces' | translate }}
-        <input type="number" formControlName="parkingSpaces" min="0" />
-      </label>
+    @if (!isPureLand()) {
+      <div class="grid-2">
+        <label>
+          {{ 'listingForm.parkingSpaces' | translate }}
+          <input type="number" formControlName="parkingSpaces" min="0" />
+        </label>
 
-      <label>
-        {{ 'listingForm.floors' | translate }}
-        <input type="number" formControlName="floors" min="0" />
-      </label>
-    </div>
+        <label>
+          {{ 'listingForm.floors' | translate }}
+          <input type="number" formControlName="floors" min="0" />
+        </label>
+      </div>
+    }
 
-    <div class="grid-2">
+    @if (isLandOrCommercial()) {
       <label>
         {{ 'listingForm.lotSize' | translate }}
         <input type="number" formControlName="lotSizeSqm" min="0" />
       </label>
+    } @else {
+      <div class="grid-2">
+        <label>
+          {{ 'listingForm.lotSize' | translate }}
+          <input type="number" formControlName="lotSizeSqm" min="0" />
+        </label>
+        <label>
+          {{ 'listingForm.gardenSize' | translate }}
+          <input type="number" formControlName="gardenSizeSqm" min="0" />
+        </label>
+      </div>
+    }
 
+    @if (!isPureLand()) {
       <label>
-        {{ 'listingForm.gardenSize' | translate }}
-        <input type="number" formControlName="gardenSizeSqm" min="0" />
+        {{ 'listingForm.yearBuilt' | translate }}
+        <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
       </label>
-    </div>
+    }
 
-    <label>
-      {{ 'listingForm.yearBuilt' | translate }}
-      <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
-    </label>
+    @if (!isLandOrCommercial()) {
+      <label>
+        {{ 'listingForm.hoaFee' | translate }}
+        <input type="number" formControlName="hoaFee" min="0" />
+      </label>
+    }
 
-    <label>
-      {{ 'listingForm.hoaFee' | translate }}
-      <input type="number" formControlName="hoaFee" min="0" />
-    </label>
-
-    <label class="checkbox-label">
-      <input type="checkbox" formControlName="hasHeatingCooling" />
-      {{ 'listingForm.hasHeatingCooling' | translate }}
-    </label>
+    @if (!isPureLand()) {
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="hasHeatingCooling" />
+        {{ 'listingForm.hasHeatingCooling' | translate }}
+      </label>
+    }
 
     <label>
       {{ 'listingForm.videoTourUrl' | translate }}

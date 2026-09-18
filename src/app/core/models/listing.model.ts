@@ -18,6 +18,11 @@ export type PropertyType =
   | 'commercial';
 // Single source of truth for the property-type dropdown, shared by the listing form and the
 // map filter — each option's label lives at `listingForm.<value>` in the i18n files.
+// 'commercial' is deliberately excluded: it duplicated 'commercialLand' ("Terreno comercial")
+// with no distinct meaning of its own. Kept out of PropertyType's selectable options but not
+// out of the type/i18n/mapping entirely, so any pre-existing listing that already has this
+// value keeps reading, editing, and displaying correctly — only new listings can no longer
+// choose it.
 export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
   'house',
   'condoHouse',
@@ -33,26 +38,44 @@ export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
   'room',
   'commercialStorage',
   'industrialLand',
-  'land',
-  'commercial'
+  'land'
 ];
 
 export type Currency = 'MXN' | 'USD';
 
-// PropertyType values for which the land/commercial characteristics section and the ROI
-// calculator are shown — everything else has no use for zoning/tenure/COS-CUS data.
+// PropertyType values with no residential dwelling of their own — raw land, and commercial/
+// industrial structures (office, retail, storage, warehouse). These get the land/commercial
+// characteristics section and the ROI calculator; bedrooms/bathrooms/garden/HOA (residential-
+// dwelling-only concepts) are hidden for all of them. 'commercial' stays in this list (even
+// though it's no longer selectable — see PROPERTY_TYPE_OPTIONS) so a pre-existing listing with
+// that value still gets the right sections.
 export const LAND_OR_COMMERCIAL_PROPERTY_TYPES: PropertyType[] = [
   'land',
   'commercial',
   'residentialLand',
   'commercialLand',
-  'industrialLand'
+  'industrialLand',
+  'office',
+  'retailSpace',
+  'building',
+  'commercialStorage',
+  'industrialStorage',
+  'industrialWarehouse'
 ];
+
+// Subset of the above with no structure at all — raw land only. Also hides parking/floors/
+// year-built/heating-cooling (structure-only concepts), on top of the residential-dwelling
+// fields every LAND_OR_COMMERCIAL_PROPERTY_TYPES member already hides.
+export const PURE_LAND_PROPERTY_TYPES: PropertyType[] = ['land', 'residentialLand', 'commercialLand', 'industrialLand'];
 
 // Single source of truth for the gate — used by both the form (which section to show) and
 // listing-detail (whether to show the ROI calculator), so the two can't drift out of sync.
 export function isLandOrCommercialPropertyType(propertyType: PropertyType | null | undefined): boolean {
   return propertyType != null && LAND_OR_COMMERCIAL_PROPERTY_TYPES.includes(propertyType);
+}
+
+export function isPureLandPropertyType(propertyType: PropertyType | null | undefined): boolean {
+  return propertyType != null && PURE_LAND_PROPERTY_TYPES.includes(propertyType);
 }
 
 export type LandTenureType = 'privado' | 'ejidal' | 'comunal' | 'enRegularizacion';

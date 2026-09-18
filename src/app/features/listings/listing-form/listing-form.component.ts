@@ -12,7 +12,8 @@ import {
   PropertyType,
   TopographyType,
   VialidadType,
-  isLandOrCommercialPropertyType
+  isLandOrCommercialPropertyType,
+  isPureLandPropertyType
 } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -60,8 +61,13 @@ export class ListingFormComponent {
     type: ['rent' as 'rent' | 'sale', Validators.required],
     propertyType: ['house' as PropertyType, Validators.required],
     address: ['', Validators.required],
-    bedrooms: [1, [Validators.required, Validators.min(0)]],
-    bathrooms: [1, [Validators.required, Validators.min(0)]],
+    // Not required: for a land/commercial listing these fields are hidden (see
+    // isLandOrCommercial()) and submitted as 0 regardless of whatever value sits in the
+    // control — a required validator here could otherwise leave the form permanently
+    // unsubmittable if the user clears one of these fields, then switches to a type where
+    // it's hidden and has no way to fix the now-invalid, now-invisible control.
+    bedrooms: [1, Validators.min(0)],
+    bathrooms: [1, Validators.min(0)],
     areaSqm: [0, [Validators.required, Validators.min(0)]],
     yearBuilt: this.fb.control<number | null>(null, [Validators.min(1800), Validators.max(this.currentYear)]),
     parkingSpaces: this.fb.control<number | null>(null, Validators.min(0)),
@@ -133,6 +139,12 @@ export class ListingFormComponent {
     return isLandOrCommercialPropertyType(this.form.value.propertyType);
   }
 
+  // Raw land: no structure exists, so parking/floors/year-built/heating-cooling don't apply
+  // either (on top of the residential-dwelling fields isLandOrCommercial() already covers).
+  isPureLand(): boolean {
+    return isPureLandPropertyType(this.form.value.propertyType);
+  }
+
   get priceInWords(): string {
     return amountToWords(
       this.form.value.price ?? 0,
@@ -200,14 +212,24 @@ export class ListingFormComponent {
     }
 
     const raw = this.form.getRawValue();
+    // Fields hidden by isLandOrCommercial()/isPureLand() keep whatever value was last typed
+    // into them (Angular doesn't clear a control just because its template @if stops
+    // rendering it) — without this, switching property type right before submitting would
+    // silently ship stale residential/structure data for a type that no longer shows those
+    // fields at all.
+    const landOrCommercial = this.isLandOrCommercial();
+    const pureLand = this.isPureLand();
     const value: ListingInput = {
       ...raw,
-      yearBuilt: raw.yearBuilt ?? undefined,
-      parkingSpaces: raw.parkingSpaces ?? undefined,
-      floors: raw.floors ?? undefined,
+      bedrooms: landOrCommercial ? 0 : raw.bedrooms,
+      bathrooms: landOrCommercial ? 0 : raw.bathrooms,
+      gardenSizeSqm: landOrCommercial ? undefined : (raw.gardenSizeSqm ?? undefined),
+      hoaFee: landOrCommercial ? undefined : (raw.hoaFee ?? undefined),
+      yearBuilt: pureLand ? undefined : (raw.yearBuilt ?? undefined),
+      parkingSpaces: pureLand ? undefined : (raw.parkingSpaces ?? undefined),
+      floors: pureLand ? undefined : (raw.floors ?? undefined),
+      hasHeatingCooling: pureLand ? false : raw.hasHeatingCooling,
       lotSizeSqm: raw.lotSizeSqm ?? undefined,
-      gardenSizeSqm: raw.gardenSizeSqm ?? undefined,
-      hoaFee: raw.hoaFee ?? undefined,
       // Nullish-guarded even though the control is typed as a plain (non-nullable) string:
       // patchValue() (edit mode, see constructor) sets it straight from a Listing whose
       // videoTourUrl is genuinely optional, which can leave the control's runtime value
