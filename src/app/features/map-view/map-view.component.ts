@@ -7,7 +7,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
 import { SavedSearchService } from '../../core/services/saved-search.service';
-import { GeomarketingService, PopulationDensity } from '../../core/services/geomarketing.service';
+import { GeomarketingService, PopulationDensity, SocioeconomicLevel } from '../../core/services/geomarketing.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -87,6 +87,17 @@ interface OpportunityAnalysisResult {
   source: 'denue' | 'places';
   population: PopulationDensity | null;
 }
+
+// One i18n key per SocioeconomicLevel value the backend can send — see PopulationDensity. Keyed
+// by the actual union type (like FUNDING_METHOD_KEYS/TIMELINE_KEYS in messages.component.ts) so
+// adding or renaming a level without updating this map is a compile error, not a silent runtime gap.
+const SOCIOECONOMIC_LEVEL_LABEL_KEYS: Record<SocioeconomicLevel, string> = {
+  Bajo: 'map.socioeconomicBajo',
+  MedioBajo: 'map.socioeconomicMedioBajo',
+  Medio: 'map.socioeconomicMedio',
+  MedioAlto: 'map.socioeconomicMedioAlto',
+  Alto: 'map.socioeconomicAlto'
+};
 
 interface OpportunityCategoryConfig {
   // Points at a POI_CATEGORIES entry so the search's placeType and the drawn marker's icon
@@ -696,8 +707,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
           year: population.censusYear
         })}`
       : '';
+    // Same "only shown when present" rule as populationLine — null covers both an AGEB outside
+    // the imported area and one INEGI's own data masking left with too little source data to
+    // estimate (see SocioeconomicLevel), neither of which is worth surfacing as an error.
+    const socioeconomicLevelKey = population?.estimatedSocioeconomicLevel
+      ? SOCIOECONOMIC_LEVEL_LABEL_KEYS[population.estimatedSocioeconomicLevel]
+      : null;
+    const socioeconomicLine = socioeconomicLevelKey
+      ? `<br>${this.translation.t('map.opportunitySocioeconomicLevel', { level: this.translation.t(socioeconomicLevelKey) })}`
+      : '';
     this.infoWindow?.setContent(
-      `<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}<br><span class="opportunity-source">${sourceLabel}</span>${populationLine}</div>`
+      `<div class="opportunity-info"><strong>${label}</strong><br>${countLabel}<br><span class="opportunity-source">${sourceLabel}</span>${populationLine}${socioeconomicLine}</div>`
     );
     this.infoWindow?.setPosition(position);
     this.infoWindow?.open(this.map);

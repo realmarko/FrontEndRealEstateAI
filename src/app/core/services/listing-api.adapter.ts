@@ -1,4 +1,14 @@
-import { Listing, ListingInput, ListingType, PriceHistoryEntry, PropertyType } from '../models/listing.model';
+import {
+  Listing,
+  ListingInput,
+  ListingType,
+  LandTenureType,
+  LotShapeType,
+  PriceHistoryEntry,
+  PropertyType,
+  TopographyType,
+  VialidadType
+} from '../models/listing.model';
 
 // Backend enums serialize as numbers when writing (Create/Update) but as
 // their .ToString() name when reading (the DTOs use different representations).
@@ -45,6 +55,36 @@ export const PROPERTY_TYPE_FROM_STRING: Record<string, PropertyType> = {
   IndustrialLand: 'industrialLand'
 };
 
+export const LAND_TENURE_TO_NUMBER: Record<LandTenureType, number> = {
+  privado: 0,
+  ejidal: 1,
+  comunal: 2,
+  enRegularizacion: 3
+};
+export const LAND_TENURE_FROM_STRING: Record<string, LandTenureType> = {
+  Privado: 'privado',
+  Ejidal: 'ejidal',
+  Comunal: 'comunal',
+  EnRegularizacion: 'enRegularizacion'
+};
+
+export const VIALIDAD_TYPE_TO_NUMBER: Record<VialidadType, number> = {
+  avenidaPrincipal: 0,
+  calleSecundaria: 1,
+  privada: 2
+};
+export const VIALIDAD_TYPE_FROM_STRING: Record<string, VialidadType> = {
+  AvenidaPrincipal: 'avenidaPrincipal',
+  CalleSecundaria: 'calleSecundaria',
+  Privada: 'privada'
+};
+
+export const LOT_SHAPE_TO_NUMBER: Record<LotShapeType, number> = { regular: 0, irregular: 1 };
+export const LOT_SHAPE_FROM_STRING: Record<string, LotShapeType> = { Regular: 'regular', Irregular: 'irregular' };
+
+export const TOPOGRAPHY_TO_NUMBER: Record<TopographyType, number> = { plana: 0, inclinada: 1 };
+export const TOPOGRAPHY_FROM_STRING: Record<string, TopographyType> = { Plana: 'plana', Inclinada: 'inclinada' };
+
 const SQM_PER_SQFT = 0.09290304;
 
 export interface ListingDto {
@@ -73,6 +113,30 @@ export interface ListingDto {
   hasHeatingCooling: boolean;
   hoaFee: number | null;
   videoTourUrl: string | null;
+  landUseZoning: string | null;
+  landTenure: string | null;
+  cosCoefficient: number | null;
+  cusCoefficient: number | null;
+  maxHeightMeters: number | null;
+  isFreeOfLiens: boolean | null;
+  hasPropertyTaxDebt: boolean | null;
+  hasWaterDebt: boolean | null;
+  frontageWidthMeters: number | null;
+  frontageDepthMeters: number | null;
+  hasPotableWater: boolean | null;
+  hasDrainage: boolean | null;
+  hasElectricity: boolean | null;
+  hasThreePhaseElectricity: boolean | null;
+  hasTelecomService: boolean | null;
+  hasVehicleAccess: boolean | null;
+  hasNearbyUTurn: boolean | null;
+  isCornerLot: boolean | null;
+  streetFrontageCount: number | null;
+  primaryVialidadType: string | null;
+  lotShape: string | null;
+  topography: string | null;
+  isFloodRiskZone: boolean | null;
+  cadastralValue: number | null;
   ownerId: string;
   ownerName: string;
   ownerCompany: string | null;
@@ -117,6 +181,30 @@ export function fromDto(dto: ListingDto): Listing {
     hasHeatingCooling: dto.hasHeatingCooling,
     hoaFee: dto.hoaFee ?? undefined,
     videoTourUrl: dto.videoTourUrl ?? undefined,
+    landUseZoning: dto.landUseZoning ?? undefined,
+    landTenure: dto.landTenure ? LAND_TENURE_FROM_STRING[dto.landTenure] : undefined,
+    cosCoefficient: dto.cosCoefficient ?? undefined,
+    cusCoefficient: dto.cusCoefficient ?? undefined,
+    maxHeightMeters: dto.maxHeightMeters ?? undefined,
+    isFreeOfLiens: dto.isFreeOfLiens ?? undefined,
+    hasPropertyTaxDebt: dto.hasPropertyTaxDebt ?? undefined,
+    hasWaterDebt: dto.hasWaterDebt ?? undefined,
+    frontageWidthMeters: dto.frontageWidthMeters ?? undefined,
+    frontageDepthMeters: dto.frontageDepthMeters ?? undefined,
+    hasPotableWater: dto.hasPotableWater ?? undefined,
+    hasDrainage: dto.hasDrainage ?? undefined,
+    hasElectricity: dto.hasElectricity ?? undefined,
+    hasThreePhaseElectricity: dto.hasThreePhaseElectricity ?? undefined,
+    hasTelecomService: dto.hasTelecomService ?? undefined,
+    hasVehicleAccess: dto.hasVehicleAccess ?? undefined,
+    hasNearbyUTurn: dto.hasNearbyUTurn ?? undefined,
+    isCornerLot: dto.isCornerLot ?? undefined,
+    streetFrontageCount: dto.streetFrontageCount ?? undefined,
+    primaryVialidadType: dto.primaryVialidadType ? VIALIDAD_TYPE_FROM_STRING[dto.primaryVialidadType] : undefined,
+    lotShape: dto.lotShape ? LOT_SHAPE_FROM_STRING[dto.lotShape] : undefined,
+    topography: dto.topography ? TOPOGRAPHY_FROM_STRING[dto.topography] : undefined,
+    isFloodRiskZone: dto.isFloodRiskZone ?? undefined,
+    cadastralValue: dto.cadastralValue ?? undefined,
     ownerCompany: dto.ownerCompany ?? undefined,
     // No fallback here on purpose — a listing with zero real photos should stay an empty
     // array. Substituting a stock photo would let it round-trip back to the server as if it
@@ -160,6 +248,30 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('hasHeatingCooling', String(input.hasHeatingCooling));
   if (input.hoaFee != null) form.append('hoaFee', String(input.hoaFee));
   if (input.videoTourUrl) form.append('videoTourUrl', input.videoTourUrl);
+  if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
+  if (input.landTenure != null) form.append('landTenure', String(LAND_TENURE_TO_NUMBER[input.landTenure]));
+  if (input.cosCoefficient != null) form.append('cosCoefficient', String(input.cosCoefficient));
+  if (input.cusCoefficient != null) form.append('cusCoefficient', String(input.cusCoefficient));
+  if (input.maxHeightMeters != null) form.append('maxHeightMeters', String(input.maxHeightMeters));
+  if (input.isFreeOfLiens != null) form.append('isFreeOfLiens', String(input.isFreeOfLiens));
+  if (input.hasPropertyTaxDebt != null) form.append('hasPropertyTaxDebt', String(input.hasPropertyTaxDebt));
+  if (input.hasWaterDebt != null) form.append('hasWaterDebt', String(input.hasWaterDebt));
+  if (input.frontageWidthMeters != null) form.append('frontageWidthMeters', String(input.frontageWidthMeters));
+  if (input.frontageDepthMeters != null) form.append('frontageDepthMeters', String(input.frontageDepthMeters));
+  if (input.hasPotableWater != null) form.append('hasPotableWater', String(input.hasPotableWater));
+  if (input.hasDrainage != null) form.append('hasDrainage', String(input.hasDrainage));
+  if (input.hasElectricity != null) form.append('hasElectricity', String(input.hasElectricity));
+  if (input.hasThreePhaseElectricity != null) form.append('hasThreePhaseElectricity', String(input.hasThreePhaseElectricity));
+  if (input.hasTelecomService != null) form.append('hasTelecomService', String(input.hasTelecomService));
+  if (input.hasVehicleAccess != null) form.append('hasVehicleAccess', String(input.hasVehicleAccess));
+  if (input.hasNearbyUTurn != null) form.append('hasNearbyUTurn', String(input.hasNearbyUTurn));
+  if (input.isCornerLot != null) form.append('isCornerLot', String(input.isCornerLot));
+  if (input.streetFrontageCount != null) form.append('streetFrontageCount', String(input.streetFrontageCount));
+  if (input.primaryVialidadType != null) form.append('primaryVialidadType', String(VIALIDAD_TYPE_TO_NUMBER[input.primaryVialidadType]));
+  if (input.lotShape != null) form.append('lotShape', String(LOT_SHAPE_TO_NUMBER[input.lotShape]));
+  if (input.topography != null) form.append('topography', String(TOPOGRAPHY_TO_NUMBER[input.topography]));
+  if (input.isFloodRiskZone != null) form.append('isFloodRiskZone', String(input.isFloodRiskZone));
+  if (input.cadastralValue != null) form.append('cadastralValue', String(input.cadastralValue));
   if (status !== undefined) form.append('status', String(status));
 
   input.existingImageUrls.forEach((url) => form.append('existingImageUrls', url));

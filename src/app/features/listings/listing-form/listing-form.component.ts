@@ -3,7 +3,17 @@ import { Component, inject, signal } from '@angular/core';
 import { AbstractControl, FormsModule, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ListingService } from '../../../core/services/listing.service';
-import { Currency, ListingInput, PROPERTY_TYPE_OPTIONS, PropertyType } from '../../../core/models/listing.model';
+import {
+  Currency,
+  LandTenureType,
+  ListingInput,
+  LotShapeType,
+  PROPERTY_TYPE_OPTIONS,
+  PropertyType,
+  TopographyType,
+  VialidadType,
+  isLandOrCommercialPropertyType
+} from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -60,7 +70,31 @@ export class ListingFormComponent {
     gardenSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
     hasHeatingCooling: [false],
     hoaFee: this.fb.control<number | null>(null, Validators.min(0)),
-    videoTourUrl: ['', optionalUrlValidator]
+    videoTourUrl: ['', optionalUrlValidator],
+    landUseZoning: this.fb.control<string | null>(null),
+    landTenure: this.fb.control<LandTenureType | null>(null),
+    cosCoefficient: this.fb.control<number | null>(null, Validators.min(0)),
+    cusCoefficient: this.fb.control<number | null>(null, Validators.min(0)),
+    maxHeightMeters: this.fb.control<number | null>(null, Validators.min(0)),
+    isFreeOfLiens: this.fb.control<boolean | null>(null),
+    hasPropertyTaxDebt: this.fb.control<boolean | null>(null),
+    hasWaterDebt: this.fb.control<boolean | null>(null),
+    frontageWidthMeters: this.fb.control<number | null>(null, Validators.min(0)),
+    frontageDepthMeters: this.fb.control<number | null>(null, Validators.min(0)),
+    hasPotableWater: this.fb.control<boolean | null>(null),
+    hasDrainage: this.fb.control<boolean | null>(null),
+    hasElectricity: this.fb.control<boolean | null>(null),
+    hasThreePhaseElectricity: this.fb.control<boolean | null>(null),
+    hasTelecomService: this.fb.control<boolean | null>(null),
+    hasVehicleAccess: this.fb.control<boolean | null>(null),
+    hasNearbyUTurn: this.fb.control<boolean | null>(null),
+    isCornerLot: this.fb.control<boolean | null>(null),
+    streetFrontageCount: this.fb.control<number | null>(null, Validators.min(0)),
+    primaryVialidadType: this.fb.control<VialidadType | null>(null),
+    lotShape: this.fb.control<LotShapeType | null>(null),
+    topography: this.fb.control<TopographyType | null>(null),
+    isFloodRiskZone: this.fb.control<boolean | null>(null),
+    cadastralValue: this.fb.control<number | null>(null, Validators.min(0))
   });
 
   // Already-hosted photos (pasted URLs, or S3 URLs kept from a previous edit) vs. newly
@@ -94,6 +128,10 @@ export class ListingFormComponent {
     ...this.existingImageUrls(),
     ...this.newPhotos().map((p) => p.previewUrl)
   ];
+
+  isLandOrCommercial(): boolean {
+    return isLandOrCommercialPropertyType(this.form.value.propertyType);
+  }
 
   get priceInWords(): string {
     return amountToWords(
@@ -175,6 +213,30 @@ export class ListingFormComponent {
       // videoTourUrl is genuinely optional, which can leave the control's runtime value
       // undefined despite what the type says.
       videoTourUrl: (raw.videoTourUrl ?? '').trim() || undefined,
+      landUseZoning: (raw.landUseZoning ?? '').trim() || undefined,
+      landTenure: raw.landTenure ?? undefined,
+      cosCoefficient: raw.cosCoefficient ?? undefined,
+      cusCoefficient: raw.cusCoefficient ?? undefined,
+      maxHeightMeters: raw.maxHeightMeters ?? undefined,
+      isFreeOfLiens: raw.isFreeOfLiens ?? undefined,
+      hasPropertyTaxDebt: raw.hasPropertyTaxDebt ?? undefined,
+      hasWaterDebt: raw.hasWaterDebt ?? undefined,
+      frontageWidthMeters: raw.frontageWidthMeters ?? undefined,
+      frontageDepthMeters: raw.frontageDepthMeters ?? undefined,
+      hasPotableWater: raw.hasPotableWater ?? undefined,
+      hasDrainage: raw.hasDrainage ?? undefined,
+      hasElectricity: raw.hasElectricity ?? undefined,
+      hasThreePhaseElectricity: raw.hasThreePhaseElectricity ?? undefined,
+      hasTelecomService: raw.hasTelecomService ?? undefined,
+      hasVehicleAccess: raw.hasVehicleAccess ?? undefined,
+      hasNearbyUTurn: raw.hasNearbyUTurn ?? undefined,
+      isCornerLot: raw.isCornerLot ?? undefined,
+      streetFrontageCount: raw.streetFrontageCount ?? undefined,
+      primaryVialidadType: raw.primaryVialidadType ?? undefined,
+      lotShape: raw.lotShape ?? undefined,
+      topography: raw.topography ?? undefined,
+      isFloodRiskZone: raw.isFloodRiskZone ?? undefined,
+      cadastralValue: raw.cadastralValue ?? undefined,
       existingImageUrls: this.existingImageUrls(),
       photos: this.newPhotos().map((p) => p.file),
       lat: this.lat ?? this.existingLat ?? undefined,

@@ -215,6 +215,11 @@
           <app-mortgage-calculator [price]="listing.price" [currency]="listing.currency" />
         }
 
+        @if (isLandOrCommercial()) {
+          <h2 class="section-title">{{ 'listingDetail.roiTitle' | translate }}</h2>
+          <app-roi-calculator [landPrice]="listing.price" [currency]="listing.currency" />
+        }
+
         @if (priceHistoryRows().length) {
           <h2 class="section-title">{{ 'listingDetail.priceHistoryTitle' | translate }}</h2>
           <table class="price-history">

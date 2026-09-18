@@ -53,6 +53,92 @@
       </select>
     </label>
 
+    @if (isLandOrCommercial()) {
+      <div class="land-commercial-section">
+        <h2 class="section-title">{{ 'listingForm.landCommercialTitle' | translate }}</h2>
+
+        <div class="grid-2">
+          <label>
+            {{ 'listingForm.landUseZoning' | translate }}
+            <input type="text" formControlName="landUseZoning" placeholder="H30-A" />
+          </label>
+          <label>
+            {{ 'listingForm.landTenure' | translate }}
+            <select formControlName="landTenure">
+              <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+              <option value="privado">{{ 'listingForm.tenurePrivado' | translate }}</option>
+              <option value="ejidal">{{ 'listingForm.tenureEjidal' | translate }}</option>
+              <option value="comunal">{{ 'listingForm.tenureComunal' | translate }}</option>
+              <option value="enRegularizacion">{{ 'listingForm.tenureEnRegularizacion' | translate }}</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="grid-3">
+          <label>{{ 'listingForm.cosCoefficient' | translate }}<input type="number" step="0.01" min="0" formControlName="cosCoefficient" /></label>
+          <label>{{ 'listingForm.cusCoefficient' | translate }}<input type="number" step="0.01" min="0" formControlName="cusCoefficient" /></label>
+          <label>{{ 'listingForm.maxHeightMeters' | translate }}<input type="number" step="0.1" min="0" formControlName="maxHeightMeters" /></label>
+        </div>
+
+        <div class="grid-2">
+          <label>{{ 'listingForm.frontageWidthMeters' | translate }}<input type="number" step="0.01" min="0" formControlName="frontageWidthMeters" /></label>
+          <label>{{ 'listingForm.frontageDepthMeters' | translate }}<input type="number" step="0.01" min="0" formControlName="frontageDepthMeters" /></label>
+        </div>
+
+        <div class="grid-2">
+          <label>{{ 'listingForm.cadastralValue' | translate }}<input type="number" step="0.01" min="0" formControlName="cadastralValue" /></label>
+          <label>
+            {{ 'listingForm.streetFrontageCount' | translate }}
+            <input type="number" min="0" formControlName="streetFrontageCount" />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label>
+            {{ 'listingForm.primaryVialidadType' | translate }}
+            <select formControlName="primaryVialidadType">
+              <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+              <option value="avenidaPrincipal">{{ 'listingForm.vialidadAvenidaPrincipal' | translate }}</option>
+              <option value="calleSecundaria">{{ 'listingForm.vialidadCalleSecundaria' | translate }}</option>
+              <option value="privada">{{ 'listingForm.vialidadPrivada' | translate }}</option>
+            </select>
+          </label>
+          <label>
+            {{ 'listingForm.lotShape' | translate }}
+            <select formControlName="lotShape">
+              <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+              <option value="regular">{{ 'listingForm.shapeRegular' | translate }}</option>
+              <option value="irregular">{{ 'listingForm.shapeIrregular' | translate }}</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          {{ 'listingForm.topography' | translate }}
+          <select formControlName="topography">
+            <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+            <option value="plana">{{ 'listingForm.topographyPlana' | translate }}</option>
+            <option value="inclinada">{{ 'listingForm.topographyInclinada' | translate }}</option>
+          </select>
+        </label>
+
+        <div class="grid-2">
+          <label class="checkbox-label"><input type="checkbox" formControlName="isFreeOfLiens" />{{ 'listingForm.isFreeOfLiens' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasPropertyTaxDebt" />{{ 'listingForm.hasPropertyTaxDebt' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasWaterDebt" />{{ 'listingForm.hasWaterDebt' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasPotableWater" />{{ 'listingForm.hasPotableWater' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasDrainage" />{{ 'listingForm.hasDrainage' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasElectricity" />{{ 'listingForm.hasElectricity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasThreePhaseElectricity" />{{ 'listingForm.hasThreePhaseElectricity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasTelecomService" />{{ 'listingForm.hasTelecomService' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasVehicleAccess" />{{ 'listingForm.hasVehicleAccess' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasNearbyUTurn" />{{ 'listingForm.hasNearbyUTurn' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="isCornerLot" />{{ 'listingForm.isCornerLot' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="isFloodRiskZone" />{{ 'listingForm.isFloodRiskZone' | translate }}</label>
+        </div>
+      </div>
+    }
+
     <label>
       {{ 'listingForm.address' | translate }}
       <input type="text" formControlName="address" />

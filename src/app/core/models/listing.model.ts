@@ -39,6 +39,27 @@ export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
 
 export type Currency = 'MXN' | 'USD';
 
+// PropertyType values for which the land/commercial characteristics section and the ROI
+// calculator are shown — everything else has no use for zoning/tenure/COS-CUS data.
+export const LAND_OR_COMMERCIAL_PROPERTY_TYPES: PropertyType[] = [
+  'land',
+  'commercial',
+  'residentialLand',
+  'commercialLand',
+  'industrialLand'
+];
+
+// Single source of truth for the gate — used by both the form (which section to show) and
+// listing-detail (whether to show the ROI calculator), so the two can't drift out of sync.
+export function isLandOrCommercialPropertyType(propertyType: PropertyType | null | undefined): boolean {
+  return propertyType != null && LAND_OR_COMMERCIAL_PROPERTY_TYPES.includes(propertyType);
+}
+
+export type LandTenureType = 'privado' | 'ejidal' | 'comunal' | 'enRegularizacion';
+export type VialidadType = 'avenidaPrincipal' | 'calleSecundaria' | 'privada';
+export type LotShapeType = 'regular' | 'irregular';
+export type TopographyType = 'plana' | 'inclinada';
+
 export interface Listing {
   id: string;
   title: string;
@@ -59,6 +80,30 @@ export interface Listing {
   hasHeatingCooling: boolean;
   hoaFee?: number;
   videoTourUrl?: string;
+  landUseZoning?: string;
+  landTenure?: LandTenureType;
+  cosCoefficient?: number;
+  cusCoefficient?: number;
+  maxHeightMeters?: number;
+  isFreeOfLiens?: boolean;
+  hasPropertyTaxDebt?: boolean;
+  hasWaterDebt?: boolean;
+  frontageWidthMeters?: number;
+  frontageDepthMeters?: number;
+  hasPotableWater?: boolean;
+  hasDrainage?: boolean;
+  hasElectricity?: boolean;
+  hasThreePhaseElectricity?: boolean;
+  hasTelecomService?: boolean;
+  hasVehicleAccess?: boolean;
+  hasNearbyUTurn?: boolean;
+  isCornerLot?: boolean;
+  streetFrontageCount?: number;
+  primaryVialidadType?: VialidadType;
+  lotShape?: LotShapeType;
+  topography?: TopographyType;
+  isFloodRiskZone?: boolean;
+  cadastralValue?: number;
   ownerCompany?: string;
   imageUrls: string[];
   ownerId: string;

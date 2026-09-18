@@ -1,0 +1,68 @@
+<div class="roi-calc">
+  <label class="scenario-picker">
+    {{ 'roiCalc.scenarioLabel' | translate }}
+    <select (change)="setScenario($any($event.target).value)">
+      <option value="lease" [selected]="scenario() === 'lease'">{{ 'roiCalc.scenarioLease' | translate }}</option>
+      <option value="landBanking" [selected]="scenario() === 'landBanking'">{{ 'roiCalc.scenarioLandBanking' | translate }}</option>
+      <option value="developSell" [selected]="scenario() === 'developSell'">{{ 'roiCalc.scenarioDevelopSell' | translate }}</option>
+    </select>
+  </label>
+
+  @switch (scenario()) {
+    @case ('lease') {
+      <div class="fields">
+        <label>
+          {{ 'roiCalc.constructionCost' | translate }}
+          <input type="number" min="0" [value]="constructionCost()" (input)="setConstructionCost($any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'roiCalc.monthlyRent' | translate }}
+          <input type="number" min="0" [value]="monthlyRent()" (input)="setMonthlyRent($any($event.target).value)" />
+        </label>
+      </div>
+      <div class="result">
+        <span class="result-value">{{ leaseResult().annualYieldPercent | number:'1.1-1' }}%</span>
+        <span class="result-label">{{ 'roiCalc.annualYield' | translate }}</span>
+      </div>
+      @if (leaseResult().paybackYears !== null) {
+        <p class="result-secondary">{{ 'roiCalc.paybackYears' | translate:{ years: (leaseResult().paybackYears! | number:'1.1-1') ?? '' } }}</p>
+      }
+    }
+    @case ('landBanking') {
+      <div class="fields">
+        <label>
+          {{ 'roiCalc.appreciationPercent' | translate }}
+          <input type="number" step="0.1" [value]="appreciationPercent()" (input)="setAppreciationPercent($any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'roiCalc.years' | translate }}
+          <input type="number" min="1" [value]="bankingYears()" (input)="setBankingYears($any($event.target).value)" />
+        </label>
+      </div>
+      <div class="result">
+        <span class="result-value">{{ landBankingResult().projectedValue | currency:currency():'symbol':'1.0-0' }}</span>
+        <span class="result-label">{{ 'roiCalc.projectedValue' | translate }}</span>
+      </div>
+      <p class="result-secondary">{{ 'roiCalc.totalGain' | translate:{ percent: (landBankingResult().totalGainPercent | number:'1.1-1') ?? '' } }}</p>
+    }
+    @case ('developSell') {
+      <div class="fields">
+        <label>
+          {{ 'roiCalc.constructionCost' | translate }}
+          <input type="number" min="0" [value]="constructionCost()" (input)="setConstructionCost($any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'roiCalc.projectedSalePrice' | translate }}
+          <input type="number" min="0" [value]="projectedSalePrice()" (input)="setProjectedSalePrice($any($event.target).value)" />
+        </label>
+      </div>
+      <div class="result">
+        <span class="result-value">{{ developSellResult().roiPercent | number:'1.1-1' }}%</span>
+        <span class="result-label">{{ 'roiCalc.roi' | translate }}</span>
+      </div>
+      <p class="result-secondary">{{ 'roiCalc.projectedProfit' | translate:{ amount: (developSellResult().projectedProfit | currency:currency():'symbol':'1.0-0') ?? '' } }}</p>
+    }
+  }
+
+  <p class="disclaimer">{{ 'roiCalc.disclaimer' | translate }}</p>
+</div>

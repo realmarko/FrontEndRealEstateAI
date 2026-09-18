@@ -132,6 +132,17 @@ input:disabled {
   gap: 0.4rem;
 }
 
+.land-commercial-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: #f9fafb;
+}
+
+
 .section-title {
   margin: 0;
   font-size: 1.05rem;
