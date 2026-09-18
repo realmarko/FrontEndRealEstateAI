@@ -41,6 +41,11 @@ export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
   'land'
 ];
 
+// For filtering existing listings (map, search), not creating new ones — unlike
+// PROPERTY_TYPE_OPTIONS, this includes 'commercial' so the pre-existing listing that already
+// has that value can still be found by filtering for its exact type, not just 'all'.
+export const PROPERTY_TYPE_FILTER_OPTIONS: PropertyType[] = [...PROPERTY_TYPE_OPTIONS, 'commercial'];
+
 export type Currency = 'MXN' | 'USD';
 
 // PropertyType values with no residential dwelling of their own — raw land, and commercial/
