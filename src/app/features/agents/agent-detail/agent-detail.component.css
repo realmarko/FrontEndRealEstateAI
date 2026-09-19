@@ -17,6 +17,20 @@
   margin-bottom: 1.5rem;
 }
 
+.header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-contact {
+  margin-top: 0.5rem;
+}
+
+.header-action {
+  flex-shrink: 0;
+  align-self: center;
+}
+
 .photo {
   flex-shrink: 0;
   width: 140px;

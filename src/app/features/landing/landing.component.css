@@ -9,7 +9,6 @@
   --platinum: #e7e5e1;
 
   display: block;
-  font-family: 'Manrope', system-ui, sans-serif;
   color: var(--ink);
   background: var(--paper);
   overflow-x: hidden;
@@ -18,7 +17,6 @@
 .landing h1,
 .landing h2,
 .landing h3 {
-  font-family: 'Bodoni Moda', Georgia, serif;
   font-weight: 500;
   line-height: 1.1;
   margin: 0;
@@ -282,7 +280,6 @@
 }
 
 .step-num {
-  font-family: 'Bodoni Moda', serif;
   font-size: 2.2rem;
   font-weight: 500;
   font-style: italic;
@@ -355,7 +352,6 @@
 
 .stat-value {
   display: block;
-  font-family: 'Bodoni Moda', serif;
   font-size: 2.6rem;
   font-weight: 500;
   color: var(--paper);
@@ -400,7 +396,6 @@
 }
 
 .footer-mark {
-  font-family: 'Bodoni Moda', serif;
   font-size: 1.3rem;
   color: var(--gold);
   font-weight: 500;

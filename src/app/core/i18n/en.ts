@@ -246,6 +246,7 @@ export const en: Record<string, string> = {
   'listingForm.photoUrlPlaceholder': 'https://...',
   'listingForm.addPhoto': 'Add',
   'listingForm.atLeastOnePhoto': 'Add at least one photo.',
+  'listingForm.locationRequired': 'Choose your property\'s location on the map first.',
   'listingForm.createSubmit': 'Create listing',
   'listingForm.saveSubmit': 'Save changes',
   'listingForm.cancel': 'Cancel',

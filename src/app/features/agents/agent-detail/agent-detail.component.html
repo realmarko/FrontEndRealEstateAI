@@ -28,6 +28,14 @@
         <p class="stat">
           <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
         </p>
+        <div class="header-contact">
+          <h2 class="sr-only">{{ 'agentDetail.contactTitle' | translate }}</h2>
+          <p class="contact-line"><a [href]="'mailto:' + agent.email">{{ agent.email }}</a></p>
+          <p class="contact-line">{{ agent.phone }}</p>
+        </div>
+      </div>
+
+      <div class="header-action">
         @if (isOwnProfile()) {
           <a class="primary-link" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
         } @else {
@@ -120,11 +128,6 @@
       }
     </section>
 
-    <section class="section">
-      <h2>{{ 'agentDetail.contactTitle' | translate }}</h2>
-      <p class="contact-line"><a [href]="'mailto:' + agent.email">{{ agent.email }}</a></p>
-      <p class="contact-line">{{ agent.phone }}</p>
-    </section>
   </div>
 
   @if (showContactModal()) {

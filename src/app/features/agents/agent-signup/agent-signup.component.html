@@ -21,12 +21,12 @@
 
     <label>
       {{ 'agentSignup.phone' | translate }}
-      <input type="tel" formControlName="phone" autocomplete="tel" />
+      <input type="tel" formControlName="phone" autocomplete="tel" maxlength="30" />
     </label>
 
     <label>
       {{ 'agentSignup.company' | translate }}
-      <input type="text" formControlName="company" list="brokerage-options" autocomplete="off" [placeholder]="'agentSignup.companyPlaceholder' | translate" />
+      <input type="text" formControlName="company" list="brokerage-options" autocomplete="off" [placeholder]="'agentSignup.companyPlaceholder' | translate" maxlength="200" />
       <datalist id="brokerage-options">
         @for (name of brokerages(); track name) {
           <option [value]="name"></option>
@@ -41,12 +41,12 @@
 
     <label>
       {{ 'agentSignup.bio' | translate }}
-      <textarea rows="4" formControlName="bio" [placeholder]="'agentSignup.bioPlaceholder' | translate"></textarea>
+      <textarea rows="4" formControlName="bio" [placeholder]="'agentSignup.bioPlaceholder' | translate" maxlength="2000"></textarea>
     </label>
 
     <label>
       {{ 'agentSignup.specialties' | translate }}
-      <input type="text" formControlName="specialties" [placeholder]="'agentSignup.specialtiesPlaceholder' | translate" />
+      <input type="text" formControlName="specialties" [placeholder]="'agentSignup.specialtiesPlaceholder' | translate" maxlength="500" />
     </label>
 
     <label>

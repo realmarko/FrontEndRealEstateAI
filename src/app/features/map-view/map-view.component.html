@@ -63,6 +63,7 @@
           [value]="saveSearchName()"
           (input)="setSaveSearchName($any($event.target).value)"
           (keyup.enter)="saveCurrentSearch()"
+          maxlength="200"
         />
         <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
       </div>

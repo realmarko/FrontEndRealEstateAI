@@ -5,19 +5,19 @@
 
     <label>
       {{ 'contactModal.name' | translate }}
-      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" />
+      <input type="text" [value]="name()" (input)="name.set($any($event.target).value)" maxlength="200" />
     </label>
     <label>
       {{ 'contactModal.phone' | translate }}
-      <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" />
+      <input type="tel" [value]="phone()" (input)="phone.set($any($event.target).value)" maxlength="30" />
     </label>
     <label>
       {{ 'contactModal.email' | translate }}
-      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" />
+      <input type="email" [value]="email()" (input)="email.set($any($event.target).value)" maxlength="320" />
     </label>
     <label>
       {{ 'contactModal.message' | translate }}
-      <textarea rows="4" [value]="message()" (input)="message.set($any($event.target).value)"></textarea>
+      <textarea rows="4" [value]="message()" (input)="message.set($any($event.target).value)" maxlength="5000"></textarea>
     </label>
 
     @if (showQualifyingQuestions) {

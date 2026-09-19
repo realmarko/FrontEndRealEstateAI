@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { hasCoordinatesGuard } from './core/guards/has-coordinates.guard';
 import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
@@ -26,7 +27,7 @@ export const routes: Routes = [
   },
   {
     path: 'listings/new',
-    canActivate: [authGuard],
+    canActivate: [authGuard, hasCoordinatesGuard],
     loadComponent: () =>
       import('./features/listings/listing-form/listing-form.component').then(
         (m) => m.ListingFormComponent

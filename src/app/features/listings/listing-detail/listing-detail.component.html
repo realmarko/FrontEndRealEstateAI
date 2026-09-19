@@ -299,6 +299,7 @@
                 [placeholder]="'listingDetail.messagePlaceholder' | translate"
                 [value]="messageBody()"
                 (input)="messageBody.set($any($event.target).value)"
+                maxlength="5000"
               ></textarea>
               <button type="button" class="primary" [disabled]="sendingMessage()" (click)="sendMessage()">{{ 'listingDetail.sendMessage' | translate }}</button>
             } @else {

@@ -4,12 +4,12 @@
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
       {{ 'listingForm.titleLabel' | translate }}
-      <input type="text" formControlName="title" />
+      <input type="text" formControlName="title" maxlength="200" />
     </label>
 
     <label>
       {{ 'listingForm.description' | translate }}
-      <textarea rows="4" formControlName="description"></textarea>
+      <textarea rows="4" formControlName="description" maxlength="5000"></textarea>
     </label>
 
     <div class="grid-3">
@@ -68,7 +68,7 @@
         <div class="grid-2">
           <label>
             {{ 'listingForm.landUseZoning' | translate }}
-            <input type="text" formControlName="landUseZoning" placeholder="H30-A" />
+            <input type="text" formControlName="landUseZoning" placeholder="H30-A" maxlength="50" />
           </label>
           <label>
             {{ 'listingForm.landTenure' | translate }}
@@ -149,7 +149,7 @@
 
     <label>
       {{ 'listingForm.address' | translate }}
-      <input type="text" formControlName="address" />
+      <input type="text" formControlName="address" maxlength="300" />
     </label>
 
     <div class="grid-2" *ngIf="lat !== null && lng !== null">
@@ -238,7 +238,7 @@
 
     <label>
       {{ 'listingForm.videoTourUrl' | translate }}
-      <input type="url" formControlName="videoTourUrl" placeholder="https://..." />
+      <input type="url" formControlName="videoTourUrl" placeholder="https://..." maxlength="2048" />
     </label>
 
     <label>
