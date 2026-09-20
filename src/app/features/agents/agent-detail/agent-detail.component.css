@@ -1,124 +1,203 @@
-.page {
+.page.detail {
+  --gold: #c6a15b;
+  --gold-soft: #d9c08c;
+  --navy: #1e3a5f;
+  --navy-deep: #16304d;
+  --ink: #1f2937;
+  --ink-soft: #6b7280;
+  --hairline: #e5e7eb;
   max-width: 720px;
   margin: 0 auto;
 }
 
 .back {
-  display: inline-block;
-  margin-bottom: 1rem;
-  color: #1e3a5f;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.25rem;
+  color: var(--navy);
   text-decoration: none;
+  font-size: 0.9rem;
 }
 
-.header {
+.back svg {
+  width: 16px;
+  height: 16px;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+/* The agent's public profile is framed as a literal credential card — the identity block a
+   visitor reads first — echoing the navbar's own dark/gold brand register instead of the site's
+   usual light navy-on-white, so an agent's page visibly signals "verified professional." */
+.id-card {
   display: flex;
   gap: 1.5rem;
-  align-items: flex-start;
-  margin-bottom: 1.5rem;
+  background: linear-gradient(155deg, #14263f, #0d1b30);
+  border-radius: 16px;
+  padding: 1.75rem;
+  margin-bottom: 2rem;
+  border-top: 3px solid var(--gold);
+  box-shadow: 0 12px 30px -12px rgba(13, 27, 48, 0.55);
 }
 
-.header-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.header-contact {
-  margin-top: 0.5rem;
-}
-
-.header-action {
+.id-card-photo {
   flex-shrink: 0;
-  align-self: center;
+  width: 116px;
+  height: 116px;
 }
 
-.photo {
-  flex-shrink: 0;
-  width: 140px;
-  height: 140px;
-}
-
-.photo img {
+.id-card-photo img {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 12px;
   object-fit: cover;
   display: block;
+  border: 1px solid rgba(198, 161, 91, 0.5);
 }
 
-.avatar {
+.id-card-photo-fallback {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  background: #1e3a5f;
-  color: #fff;
+  border-radius: 12px;
+  background: rgba(198, 161, 91, 0.12);
+  border: 1px solid rgba(198, 161, 91, 0.5);
+  color: var(--gold-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 2.2rem;
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-weight: 500;
+  font-size: 2rem;
 }
 
-.header-info h1 {
-  margin: 0 0 0.2rem;
-  font-size: 1.7rem;
-}
-
-.company {
-  margin: 0 0 0.5rem;
-  color: #4b5563;
-  font-size: 1rem;
-}
-
-.rating-summary {
+.id-card-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
+  flex-direction: column;
+}
+
+.id-card-identity h1 {
+  margin: 0 0 0.15rem;
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.6rem;
+  line-height: 1.15;
+  color: #f6f5f3;
+}
+
+.id-card-company {
+  margin: 0 0 0.85rem;
+  color: var(--gold-soft);
+  font-size: 0.92rem;
+}
+
+.id-card-credentials {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+  column-gap: 1.5rem;
+}
+
+.credential {
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  margin: 0 0 0.6rem;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  color: #e7e4de;
 }
 
-.rating-value {
-  font-weight: 600;
-  color: #374151;
+.credential svg {
+  width: 15px;
+  height: 15px;
+  color: var(--gold-soft);
 }
 
-.rating-count {
-  color: #6b7280;
-}
-
-.stat {
-  margin: 0 0 1rem;
-  color: #374151;
-  font-size: 0.95rem;
-}
-
-.stat strong {
-  font-weight: 600;
-}
-
-.primary-link {
-  display: inline-block;
-  background: #1e3a5f;
+.credential b {
   color: #fff;
+  font-weight: 600;
+}
+
+.credential-note {
+  color: #a9a49b;
+}
+
+.id-card-divider {
+  height: 1px;
+  margin: 1.25rem 0 1rem;
+  background: linear-gradient(90deg, rgba(198, 161, 91, 0.55), rgba(198, 161, 91, 0));
+}
+
+.id-card-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.id-card-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.contact-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #d7d3cb;
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+
+.contact-line svg {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--gold-soft);
+}
+
+a.contact-line:hover {
+  color: #fff;
+}
+
+.id-card-cta {
+  display: inline-block;
+  background: var(--gold);
+  color: #14263f;
   text-decoration: none;
   border: none;
-  padding: 0.55rem 1.1rem;
-  border-radius: 4px;
+  padding: 0.6rem 1.3rem;
+  border-radius: 6px;
   font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   font-family: inherit;
+  white-space: nowrap;
+}
+
+.id-card-cta:hover {
+  background: #d4b273;
 }
 
 .section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--hairline);
 }
 
 
 .section h2 {
   margin: 0 0 0.75rem;
+  padding-top: 0.6rem;
   font-size: 1.15rem;
+  color: var(--ink);
+  border-top: 2px solid var(--gold);
+  display: inline-block;
 }
 
 .bio {
@@ -138,20 +217,6 @@
   border-radius: 999px;
   padding: 0.35rem 0.85rem;
   font-size: 0.85rem;
-}
-
-.contact-line {
-  margin: 0.2rem 0;
-  color: #374151;
-}
-
-.contact-line a {
-  color: #1e3a5f;
-  text-decoration: none;
-}
-
-.contact-line a:hover {
-  text-decoration: underline;
 }
 
 .review-form {
@@ -268,9 +333,33 @@
 }
 
 @media (max-width: 560px) {
-  .header {
+  .id-card {
     flex-direction: column;
     align-items: center;
+    text-align: center;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .id-card-photo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .id-card-credentials {
+    justify-content: center;
+  }
+
+  .id-card-footer {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .id-card-contact {
+    align-items: center;
+  }
+
+  .id-card-cta {
+    width: 100%;
     text-align: center;
   }
 }

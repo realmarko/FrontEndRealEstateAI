@@ -322,7 +322,7 @@ export const es: Record<string, string> = {
   'agents.nextPage': 'Siguiente →',
   'agents.pageStatus': 'Página {{page}} de {{totalPages}}',
 
-  'agentDetail.back': '← Volver a agentes',
+  'agentDetail.back': 'Volver a agentes',
   'agentDetail.contact': 'Contactar a {{name}}',
   'agentDetail.aboutTitle': 'Sobre {{name}}',
   'agentDetail.specialtiesTitle': 'Especialidades',
@@ -452,10 +452,14 @@ export const es: Record<string, string> = {
   'adminErrors.showStack': 'Ver stack trace',
   'adminErrors.hideStack': 'Ocultar stack trace',
   'adminErrors.resolve': 'Marcar resuelto',
+  'adminErrors.resolveAll': 'Marcar resueltos ({{count}})',
   'adminErrors.resolvedLabel': 'Resuelto',
   'adminErrors.resolveError': 'No se pudo marcar como resuelto. Intenta de nuevo.',
   'adminErrors.loadError': 'No se pudieron cargar los errores. Intenta de nuevo.',
   'adminErrors.prevPage': 'Anterior',
   'adminErrors.nextPage': 'Siguiente',
-  'adminErrors.pageOf': 'Página {{page}} de {{total}}'
+  'adminErrors.pageOf': 'Página {{page}} de {{total}}',
+  'adminErrors.countTitle': 'Ocurrió {{count}} veces',
+  'adminErrors.firstSeen': 'Desde',
+  'adminErrors.pageSize': 'Mostrar'
 };

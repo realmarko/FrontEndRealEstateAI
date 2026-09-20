@@ -62,6 +62,13 @@
 .severity-error { background: #fee2e2; color: #991b1b; }
 .severity-critical { background: #dc2626; color: #fff; }
 
+.count-badge {
+  background: #1e3a5f;
+  color: #fff;
+  text-transform: none;
+  font-variant-numeric: tabular-nums;
+}
+
 .section {
   font-family: monospace;
   font-size: 0.85rem;
@@ -93,6 +100,10 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 40ch;
+}
+
+.first-seen {
+  margin-left: auto;
 }
 
 .stack-trace {
@@ -144,12 +155,37 @@
   color: #6b7280;
 }
 
+.list-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+
+.page-size {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.page-size select {
+  padding: 0.3rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.85rem;
+  color: #1f2937;
+}
+
 .pagination {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-top: 1.5rem;
 }
 
 .pagination button {

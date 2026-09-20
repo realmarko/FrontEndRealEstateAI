@@ -314,7 +314,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   private waitForGoogleMaps(): void {
     if (typeof google !== 'undefined' && google.maps) {
-      this.initMap();
+      // Deferred a tick even on this already-loaded path (e.g. navigating back to /map with the
+      // script already cached): calling initMap synchronously here runs it inside the same
+      // change-detection pass as ngAfterViewInit itself, and initMap's centerOnCurrentLocation()
+      // mutates `locatingMe` — a value that pass already rendered — which trips Angular's
+      // dev-mode ExpressionChangedAfterItHasBeenCheckedError (NG0100). setTimeout hands it a
+      // fresh macrotask/CD cycle instead, matching how the polling branch below already behaves.
+      setTimeout(() => this.initMap());
       return;
     }
 

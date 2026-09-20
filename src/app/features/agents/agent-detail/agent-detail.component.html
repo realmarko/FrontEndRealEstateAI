@@ -1,50 +1,80 @@
 @if (agent(); as agent) {
   <div class="page detail">
-    <a class="back" routerLink="/agents">{{ 'agentDetail.back' | translate }}</a>
+    <a class="back" routerLink="/agents">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+      {{ 'agentDetail.back' | translate }}
+    </a>
 
-    <div class="header">
-      <div class="photo">
+    <article class="id-card">
+      <div class="id-card-photo">
         @if (agent.photoUrl) {
           <img [src]="agent.photoUrl" [alt]="agent.name" />
         } @else {
-          <div class="avatar">{{ initials }}</div>
+          <div class="id-card-photo-fallback">{{ initials }}</div>
         }
       </div>
 
-      <div class="header-info">
-        <h1>{{ agent.name }}</h1>
-        @if (agent.isIndependent) {
-          <p class="company">{{ 'agents.independent' | translate }}</p>
-        } @else if (agent.company) {
-          <p class="company">{{ agent.company }}</p>
-        }
-        @if (agent.reviewsCount > 0) {
-          <p class="rating-summary">
-            <app-rating-stars [rating]="agent.averageRating ?? 0" />
-            <span class="rating-value">{{ agent.averageRating | number:'1.1-1' }}</span>
-            <span class="rating-count">{{ 'agentDetail.reviewsCount' | translate:{ count: agent.reviewsCount } }}</span>
-          </p>
-        }
-        <p class="stat">
-          <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
-        </p>
-        <div class="header-contact">
-          <h2 class="sr-only">{{ 'agentDetail.contactTitle' | translate }}</h2>
-          <p class="contact-line"><a [href]="'mailto:' + agent.email">{{ agent.email }}</a></p>
-          <p class="contact-line">{{ agent.phone }}</p>
+      <div class="id-card-body">
+        <div class="id-card-identity">
+          <h1>{{ agent.name }}</h1>
+          @if (agent.isIndependent) {
+            <p class="id-card-company">{{ 'agents.independent' | translate }}</p>
+          } @else if (agent.company) {
+            <p class="id-card-company">{{ agent.company }}</p>
+          }
+
+          <div class="id-card-credentials">
+            @if (agent.reviewsCount > 0) {
+              <span class="credential">
+                <app-rating-stars [rating]="agent.averageRating ?? 0" />
+                <b>{{ agent.averageRating | number:'1.1-1' }}</b>
+                <span class="credential-note">{{ 'agentDetail.reviewsCount' | translate:{ count: agent.reviewsCount } }}</span>
+              </span>
+            }
+            <span class="credential">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+              <b>{{ agent.propertiesCount }}</b>
+              <span class="credential-note">{{ 'agents.propertiesCount' | translate }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="id-card-divider"></div>
+
+        <div class="id-card-footer">
+          <div class="id-card-contact">
+            <h2 class="sr-only">{{ 'agentDetail.contactTitle' | translate }}</h2>
+            <a class="contact-line" [href]="'mailto:' + agent.email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 7l9 6 9-6" />
+              </svg>
+              {{ agent.email }}
+            </a>
+            <span class="contact-line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              {{ agent.phone }}
+            </span>
+          </div>
+
+          @if (isOwnProfile()) {
+            <a class="id-card-cta" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
+          } @else {
+            <button type="button" class="id-card-cta" (click)="openContactModal()">
+              {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
+            </button>
+          }
         </div>
       </div>
-
-      <div class="header-action">
-        @if (isOwnProfile()) {
-          <a class="primary-link" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
-        } @else {
-          <button type="button" class="primary-link" (click)="openContactModal()">
-            {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
-          </button>
-        }
-      </div>
-    </div>
+    </article>
 
     @if (agent.bio) {
       <section class="section">
