@@ -193,8 +193,7 @@
 }
 
 .add-property-btn,
-.confirm-btn,
-.locate-btn {
+.confirm-btn {
   border: none;
   border-radius: 4px;
   padding: 0.55rem 1.1rem;
@@ -212,9 +211,25 @@
   background: #b45309;
 }
 
+/* Same icon-button shape as .poi-toggle-btn/.opportunity-btn — it isn't a toggle, so it has no
+   .active state, just a disabled one while a location lookup is in flight. */
 .locate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: none;
+  border-radius: 4px;
   background: #fff;
   color: #1e3a5f;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.locate-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .locate-btn:disabled {

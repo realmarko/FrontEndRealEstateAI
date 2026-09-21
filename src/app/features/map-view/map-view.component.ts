@@ -25,6 +25,11 @@ import {
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
+// How long the very first render waits on a geolocation answer before giving up and falling
+// back to DEFAULT_CENTER — long enough for an already-granted permission to resolve (typically
+// near-instant), short enough that a first-time visitor still ignoring/denying the permission
+// prompt doesn't leave the map blank for long.
+const INITIAL_LOCATE_TIMEOUT_MS = 2500;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
 
@@ -32,13 +37,17 @@ const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
 // default zoom (16-18, street level) — raised so nearby markers still group up there too.
 const CLUSTER_ALGORITHM_OPTIONS = { maxZoom: 20 };
 
-export type PoiCategoryKey = 'schools' | 'pharmacies' | 'malls' | 'parks';
+export type PoiCategoryKey = 'schools' | 'pharmacies' | 'malls' | 'parks' | 'gyms' | 'oxxo';
 
 interface PoiCategoryConfig {
   key: PoiCategoryKey;
   labelKey: string;
   // Google Places "type" filter — see https://developers.google.com/maps/documentation/places/web-service/supported_types
   placeType: string;
+  // Narrows results within placeType to a specific name match — Places has no dedicated "type"
+  // for a single chain like OXXO, so 'convenience_store' + this keyword is how that's filtered
+  // down to just OXXO locations instead of every convenience store in view.
+  keyword?: string;
   icon: string;
   clusterColor: string;
 }
@@ -73,6 +82,21 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     placeType: 'park',
     icon: 'https://maps.google.com/mapfiles/ms/icons/pink-dot.png',
     clusterColor: '#db2777'
+  },
+  {
+    key: 'gyms',
+    labelKey: 'map.poiGyms',
+    placeType: 'gym',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    clusterColor: '#2563eb'
+  },
+  {
+    key: 'oxxo',
+    labelKey: 'map.poiOxxo',
+    placeType: 'convenience_store',
+    keyword: 'OXXO',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    clusterColor: '#dc2626'
   }
 ];
 
@@ -369,8 +393,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (typeof google !== 'undefined' && google.maps) {
       // Deferred a tick even on this already-loaded path (e.g. navigating back to /map with the
       // script already cached): calling initMap synchronously here runs it inside the same
-      // change-detection pass as ngAfterViewInit itself, and initMap's centerOnCurrentLocation()
-      // mutates `locatingMe` — a value that pass already rendered — which trips Angular's
+      // change-detection pass as ngAfterViewInit itself, and initMap immediately sets
+      // `locatingMe` — a value that pass already rendered — which trips Angular's
       // dev-mode ExpressionChangedAfterItHasBeenCheckedError (NG0100). setTimeout hands it a
       // fresh macrotask/CD cycle instead, matching how the polling branch below already behaves.
       setTimeout(() => this.initMap());
@@ -394,9 +418,53 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }, 10000);
   }
 
+  // Resolves the visitor's real coordinates before the map is created, so the first paint can
+  // already be centered there instead of opening at DEFAULT_CENTER and visibly jumping once
+  // geolocation resolves (previously done via a post-creation centerOnCurrentLocation() call).
+  // Resolves to null — falling back to DEFAULT_CENTER — when geolocation is unsupported, denied,
+  // or doesn't answer within INITIAL_LOCATE_TIMEOUT_MS.
+  private resolveInitialCenter(): Promise<google.maps.LatLngLiteral | null> {
+    if (!navigator.geolocation) return Promise.resolve(null);
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const settleOnce = (value: google.maps.LatLngLiteral | null) => {
+        if (settled) return;
+        settled = true;
+        resolve(value);
+      };
+
+      setTimeout(() => settleOnce(null), INITIAL_LOCATE_TIMEOUT_MS);
+      navigator.geolocation.getCurrentPosition(
+        (position) => settleOnce({ lat: position.coords.latitude, lng: position.coords.longitude }),
+        () => settleOnce(null)
+      );
+    });
+  }
+
   private initMap(): void {
+    this.locatingMe = true;
+    this.resolveInitialCenter().then((userLocation) => {
+      this.zone.run(() => {
+        this.locatingMe = false;
+        this.buildMap(userLocation ?? DEFAULT_CENTER);
+
+        if (userLocation) {
+          this.myLocationMarker = new google.maps.Marker({
+            position: userLocation,
+            map: this.map,
+            title: this.translation.t('map.myLocation'),
+            icon: { url: MY_LOCATION_ICON, scaledSize: new google.maps.Size(32, 32) },
+            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1
+          });
+        }
+      });
+    });
+  }
+
+  private buildMap(center: google.maps.LatLngLiteral): void {
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
-      center: DEFAULT_CENTER,
+      center,
       zoom: DEFAULT_ZOOM,
       mapTypeControl: false,
       streetViewControl: false,
@@ -429,7 +497,6 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     });
 
     this.renderListingMarkers();
-    this.centerOnCurrentLocation();
   }
 
   private renderListingMarkers(): void {
@@ -856,7 +923,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.poiRequestIds.set(key, requestId);
 
     const service = new google.maps.places.PlacesService(this.map);
-    service.nearbySearch({ bounds, type: config.placeType }, (results, status) => {
+    service.nearbySearch({ bounds, type: config.placeType, keyword: config.keyword }, (results, status) => {
       this.zone.run(() => {
         // Ignore responses to superseded searches (e.g. the user unchecked/rechecked, or
         // panned and re-triggered a search, before this one came back) — otherwise a slower
