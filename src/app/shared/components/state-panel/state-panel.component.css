@@ -1,0 +1,44 @@
+.state-panel {
+  border-radius: 0.5rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.state-panel p {
+  margin: 0;
+}
+
+.state-panel.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.state-panel.error svg {
+  width: 28px;
+  height: 28px;
+}
+
+.retry-btn {
+  background: var(--navy);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.retry-btn:hover {
+  background: var(--navy-deep);
+}
+
+.state-panel.empty {
+  border: 1px dashed var(--hairline);
+  color: var(--ink-soft);
+}

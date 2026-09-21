@@ -8,25 +8,36 @@
   </div>
 
   <div class="body">
-    <h3>{{ agent.name }}</h3>
-    @if (agent.isIndependent) {
-      <p class="company">{{ 'agents.independent' | translate }}</p>
-    } @else if (agent.company) {
-      <p class="company">{{ agent.company }}</p>
-    }
+    <h3 [attr.title]="agent.name">{{ agent.name }}</h3>
 
-    @if (agent.reviewsCount > 0) {
-      <p class="rating">
-        <app-rating-stars [rating]="agent.averageRating ?? 0" />
-        <span class="rating-value">{{ agent.averageRating | number:'1.1-1' }}</span>
-        <span class="rating-count">({{ agent.reviewsCount }})</span>
-      </p>
-    }
+    <!-- Fixed-height slots (not just the <p> tags themselves) for the two fields that don't
+         always apply — company/independent and rating — so a card without them still reserves
+         the same vertical space as one with them, instead of shrinking and breaking row-to-row
+         height consistency across the grid. Combined with the one-line truncation below (on
+         name, company, and contact lines) this keeps every card the same height regardless of
+         content length, not just content presence. -->
+    <div class="company-slot">
+      @if (agent.isIndependent) {
+        <p class="company">{{ 'agents.independent' | translate }}</p>
+      } @else if (agent.company) {
+        <p class="company" [attr.title]="agent.company">{{ agent.company }}</p>
+      }
+    </div>
+
+    <div class="rating-slot">
+      @if (agent.reviewsCount > 0) {
+        <p class="rating">
+          <app-rating-stars [rating]="agent.averageRating ?? 0" />
+          <span class="rating-value">{{ agent.averageRating | number:'1.1-1' }}</span>
+          <span class="rating-count">({{ agent.reviewsCount }})</span>
+        </p>
+      }
+    </div>
 
     <p class="stat">
       <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
     </p>
-    <p class="contact">{{ agent.email }}</p>
+    <p class="contact" [attr.title]="agent.email">{{ agent.email }}</p>
     <p class="contact">{{ agent.phone }}</p>
   </div>
 </a>

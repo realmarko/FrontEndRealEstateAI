@@ -1,12 +1,37 @@
 <div class="page">
-  <h1>{{ 'favorites.title' | translate }}</h1>
+  <div class="header">
+    <h1>{{ 'favorites.title' | translate }}</h1>
+    @if (favorites.count() > 0) {
+      <span class="count-badge">{{ 'favorites.count' | translate: { count: favorites.count() } }}</span>
+    }
+  </div>
 
+  <!-- Visually hidden live region: the skeleton below is aria-hidden (it's decorative filler,
+       not real content), so without this a screen-reader user gets no indication anything is
+       happening while favorites load. -->
+  <p class="sr-only" role="status">
+    @if (favorites.loading()) {
+      {{ 'favorites.loadingAnnouncement' | translate }}
+    }
+  </p>
+
+  <!-- Order matters: a successfully-loaded list always wins over a later loading/error state.
+       FavoritesService.refresh() never clears favoriteListings() on failure or while a refresh
+       is in-flight, so if we already have favorites to show, a background refresh failing (or
+       re-running) must not hide them behind a full-page error/skeleton — only show those when
+       there's truly nothing loaded yet. -->
   @if (favorites.favoriteListings().length) {
     <app-listing-grid [listings]="favorites.favoriteListings()" />
+  } @else if (favorites.loading()) {
+    <app-skeleton-loader variant="grid" [count]="4" [lines]="2" />
+  } @else if (favorites.loadError()) {
+    <app-state-panel kind="error" [retryLabel]="'favorites.retry' | translate" (retry)="retry()">
+      {{ 'favorites.loadError' | translate }}
+    </app-state-panel>
   } @else {
-    <p class="empty">
+    <app-state-panel kind="empty">
       {{ 'favorites.emptyPrefix' | translate }}
       <a routerLink="/listings">{{ 'favorites.browseLink' | translate }}</a>.
-    </p>
+    </app-state-panel>
   }
 </div>

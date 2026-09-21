@@ -1,0 +1,12 @@
+<div class="skeleton-container" [class.grid]="variant === 'grid'" aria-hidden="true">
+  @for (row of rows; track row) {
+    <div class="skeleton-card">
+      @if (variant === 'grid') {
+        <div class="skeleton-photo"></div>
+      }
+      @for (line of lineIndexes; track line) {
+        <div class="skeleton-line" [class.short]="line === 0" [class.medium]="line === lines - 1"></div>
+      }
+    </div>
+  }
+</div>

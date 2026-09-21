@@ -1,10 +1,34 @@
 <div class="page">
-  <h1>{{ 'messages.title' | translate }}</h1>
+  <div class="header">
+    <h1>{{ 'messages.title' | translate }}</h1>
+    @if (inquiryService.received().length) {
+      <span class="count-badge" [class.has-unread]="unreadCount() > 0">
+        {{
+          (unreadCount() > 0 ? 'messages.unreadCount' : 'messages.totalCount')
+            | translate: { count: unreadCount() > 0 ? unreadCount() : inquiryService.received().length }
+        }}
+      </span>
+    }
+  </div>
 
+  <!-- Visually hidden live region: the skeleton below is aria-hidden (it's decorative filler,
+       not real content), so without this a screen-reader user gets no indication anything is
+       happening while inquiries load. -->
+  <p class="sr-only" role="status">
+    @if (inquiryService.loading()) {
+      {{ 'messages.loadingAnnouncement' | translate }}
+    }
+  </p>
+
+  <!-- Order matters: a successfully-loaded list always wins over a later loading/error state.
+       InquiryService.refresh() never clears received() on failure or while a refresh is
+       in-flight, so if we already have inquiries to show, a background refresh failing (or
+       re-running) must not hide them behind a full-page error/skeleton — only show those when
+       there's truly nothing loaded yet. -->
   @if (inquiryService.received().length) {
-    <div class="inquiry-list">
+    <ul class="inquiry-list">
       @for (inquiry of inquiryService.received(); track inquiry.id) {
-        <div class="inquiry-card" [class.unread]="!inquiry.isRead" (click)="markRead(inquiry)">
+        <li class="inquiry-card" [class.unread]="!inquiry.isRead" (click)="markRead(inquiry)">
           <div class="inquiry-header">
             <a [routerLink]="['/listings', inquiry.listingId]" (click)="$event.stopPropagation()">{{ inquiry.listingTitle }}</a>
             <span class="date">{{ inquiry.createdAt | date:'short' }}</span>
@@ -35,16 +59,32 @@
           }
 
           @if (!inquiry.isRead) {
-            <span class="unread-badge">{{ 'messages.unread' | translate }}</span>
+            <div class="card-footer">
+              <span class="unread-badge">{{ 'messages.unread' | translate }}</span>
+              <button
+                type="button"
+                class="mark-read-btn"
+                [disabled]="isMarkingRead(inquiry)"
+                (click)="markRead(inquiry); $event.stopPropagation()"
+              >
+                {{ 'messages.markAsRead' | translate }}
+              </button>
+            </div>
           }
-        </div>
+        </li>
       }
-    </div>
+    </ul>
+  } @else if (inquiryService.loading()) {
+    <app-skeleton-loader variant="list" [count]="3" [lines]="3" />
+  } @else if (inquiryService.loadError()) {
+    <app-state-panel kind="error" [retryLabel]="'messages.retry' | translate" (retry)="retry()">
+      {{ 'messages.loadError' | translate }}
+    </app-state-panel>
   } @else {
-    <p class="empty">
+    <app-state-panel kind="empty">
       {{ 'messages.emptyPrefix' | translate }}
       <a routerLink="/listings">{{ 'messages.browseLink' | translate }}</a>
       {{ 'messages.emptySuffix' | translate }}
-    </p>
+    </app-state-panel>
   }
 </div>

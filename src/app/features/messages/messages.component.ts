@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, computed, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { finalize } from 'rxjs/operators';
@@ -6,6 +6,8 @@ import { InquiryService } from '../../core/services/inquiry.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { FundingMethod, Inquiry, PurchaseTimeline } from '../../core/models/inquiry.model';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
+import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
+import { StatePanelComponent } from '../../shared/components/state-panel/state-panel.component';
 
 // Exact i18n key per value — a string-transform (e.g. camelCase -> "funding" + Titlecase)
 // would silently miss keys like fundingInfonavitFovissste or timelineOneToThreeMonths.
@@ -26,12 +28,14 @@ const TIMELINE_KEYS: Record<PurchaseTimeline, string> = {
 @Component({
   selector: 'app-messages',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, DatePipe],
+  imports: [RouterLink, TranslatePipe, DatePipe, SkeletonLoaderComponent, StatePanelComponent],
   templateUrl: './messages.component.html',
   styleUrl: './messages.component.css'
 })
 export class MessagesComponent implements OnInit {
   private readonly markingReadIds = signal<ReadonlySet<string>>(new Set());
+
+  readonly unreadCount = computed(() => this.inquiryService.received().filter((i) => !i.isRead).length);
 
   constructor(
     readonly inquiryService: InquiryService,
@@ -39,6 +43,10 @@ export class MessagesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.inquiryService.refresh();
+  }
+
+  retry(): void {
     this.inquiryService.refresh();
   }
 

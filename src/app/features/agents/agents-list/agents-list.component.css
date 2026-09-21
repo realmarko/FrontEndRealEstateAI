@@ -26,11 +26,24 @@
   padding: 0.5rem 0.8rem;
 }
 
+/* Highlights the whole pill-shaped row (not just the borderless input inside it) when the input
+   has keyboard focus — the search-row's own border is the only visible edge here, so that's
+   where a focus indicator needs to show up. */
+.search-row:focus-within {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+
 .search-row input {
   flex: 1;
   border: none;
-  outline: none;
   font-size: 0.95rem;
+}
+
+/* The row above already shows focus; suppress the input's own ring so there aren't two nested
+   outlines competing for the same edge. */
+.search-row input:focus-visible {
+  outline: none;
 }
 
 .icon {

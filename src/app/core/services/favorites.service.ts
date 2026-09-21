@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { finalize } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Listing } from '../models/listing.model';
 import { ListingDto, fromDto } from './listing-api.adapter';
@@ -35,6 +36,17 @@ export class FavoritesService {
   readonly favoriteListings = this.favoriteListingsSignal.asReadonly();
   readonly count = computed(() => this.favoriteIdsSignal().size);
 
+  // Exposed so /favorites can render its own loading/error states — refresh() previously
+  // swallowed a failed fetch entirely (error: () => {}), leaving a visitor whose list failed to
+  // load looking at the same "no favorites yet" empty state as someone who genuinely has none.
+  readonly loading = signal(false);
+  readonly loadError = signal(false);
+  // Bumped on every refresh() call and captured per-request — the login-state effect below can
+  // fire refresh() again (e.g. a fast logout-then-login) before an earlier call's HTTP response
+  // arrives; without this, that stale response's next/error handler could overwrite signals set
+  // by a newer, already-resolved call with an unrelated (or wrong-user's) result.
+  private refreshSequence = 0;
+
   constructor() {
     this.clearLegacyLocalStorage();
 
@@ -47,22 +59,38 @@ export class FavoritesService {
   }
 
   refresh(): void {
+    const sequence = ++this.refreshSequence;
+
     if (!this.auth.isAuthenticated()) {
       this.favoriteIdsSignal.set(new Set());
       this.favoriteListingsSignal.set([]);
+      this.loadError.set(false);
+      this.loading.set(false);
       return;
     }
 
-    this.http.get<FavoriteDto[]>(this.apiUrl).subscribe({
-      next: (dtos) => {
-        const listings = dtos.map((d) => fromDto(d.listing));
-        this.favoriteListingsSignal.set(listings);
-        this.favoriteIdsSignal.set(new Set(listings.map((l) => l.id)));
-      },
-      // Best-effort: leave whatever was last successfully loaded rather than clearing it out
-      // from under the user on a transient failure.
-      error: () => {}
-    });
+    this.loading.set(true);
+    this.loadError.set(false);
+    this.http
+      .get<FavoriteDto[]>(this.apiUrl)
+      .pipe(finalize(() => { if (sequence === this.refreshSequence) this.loading.set(false); }))
+      .subscribe({
+        next: (dtos) => {
+          // A newer refresh() (e.g. a fast logout-then-login re-triggering the auth-change
+          // effect) may have already started — its own result, not this now-stale one, should
+          // win, whether this one is about to succeed or fail.
+          if (sequence !== this.refreshSequence) return;
+          const listings = dtos.map((d) => fromDto(d.listing));
+          this.favoriteListingsSignal.set(listings);
+          this.favoriteIdsSignal.set(new Set(listings.map((l) => l.id)));
+        },
+        // Data is left as whatever was last successfully loaded (not cleared) on a transient
+        // failure — loadError still flips so /favorites can show a real error state instead of
+        // silently looking identical to "you have no favorites".
+        error: () => {
+          if (sequence === this.refreshSequence) this.loadError.set(true);
+        }
+      });
   }
 
   isFavorite(listingId: string): boolean {

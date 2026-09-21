@@ -136,6 +136,10 @@ export const en: Record<string, string> = {
   'favorites.browseLink': 'Browse listings',
   'favorites.loginRequired': 'Log in to save favorites.',
   'favorites.toggleError': 'Could not update your favorites. Please try again.',
+  'favorites.count': '{{count}} saved listings',
+  'favorites.loadError': "Couldn't load your favorites.",
+  'favorites.retry': 'Retry',
+  'favorites.loadingAnnouncement': 'Loading your favorites…',
 
   'savedSearches.title': 'Saved searches',
   'savedSearches.emptyPrefix': "You haven't saved any searches yet.",
@@ -158,6 +162,12 @@ export const en: Record<string, string> = {
   'messages.emptyPrefix': 'No messages yet.',
   'messages.browseLink': 'Browse listings',
   'messages.emptySuffix': 'and contact an owner.',
+  'messages.unreadCount': '{{count}} unread',
+  'messages.totalCount': '{{count}} messages',
+  'messages.markAsRead': 'Mark as read',
+  'messages.loadError': "Couldn't load your messages.",
+  'messages.retry': 'Retry',
+  'messages.loadingAnnouncement': 'Loading your messages…',
 
   'listingForm.addTitle': 'Add a new listing',
   'listingForm.editTitle': 'Edit listing',

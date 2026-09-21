@@ -1,3 +1,19 @@
-.empty {
-  color: #6b7280;
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.count-badge {
+  background: #f1f3f5;
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
 }

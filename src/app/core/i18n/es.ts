@@ -136,6 +136,10 @@ export const es: Record<string, string> = {
   'favorites.browseLink': 'Explora propiedades',
   'favorites.loginRequired': 'Inicia sesión para guardar favoritos.',
   'favorites.toggleError': 'No se pudo actualizar tus favoritos. Intenta de nuevo.',
+  'favorites.count': '{{count}} propiedades guardadas',
+  'favorites.loadError': 'No se pudieron cargar tus favoritos.',
+  'favorites.retry': 'Reintentar',
+  'favorites.loadingAnnouncement': 'Cargando tus favoritos…',
 
   'savedSearches.title': 'Búsquedas guardadas',
   'savedSearches.emptyPrefix': 'Aún no has guardado ninguna búsqueda.',
@@ -158,6 +162,12 @@ export const es: Record<string, string> = {
   'messages.emptyPrefix': 'Aún no tienes mensajes.',
   'messages.browseLink': 'Explora propiedades',
   'messages.emptySuffix': 'y contacta a un propietario.',
+  'messages.unreadCount': '{{count}} sin leer',
+  'messages.totalCount': '{{count}} mensajes',
+  'messages.markAsRead': 'Marcar como leído',
+  'messages.loadError': 'No se pudieron cargar tus mensajes.',
+  'messages.retry': 'Reintentar',
+  'messages.loadingAnnouncement': 'Cargando tus mensajes…',
 
   'listingForm.addTitle': 'Agregar una nueva propiedad',
   'listingForm.editTitle': 'Editar propiedad',

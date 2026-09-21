@@ -22,6 +22,19 @@
 
 /* Visually hides content while keeping it in the accessibility tree — for headings/labels that
    give screen-reader users a landmark or name, but that a sighted layout doesn't need to show. */
+/* Visible keyboard-focus ring, applied globally (WCAG 2.1 AA 2.4.7) — previously only the
+   landing page defined this itself, so every other page's buttons/links/inputs had no visible
+   focus indicator at all for keyboard users. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
