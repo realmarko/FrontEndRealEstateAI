@@ -141,7 +141,6 @@
           <label class="checkbox-label"><input type="checkbox" formControlName="hasTelecomService" />{{ 'listingForm.hasTelecomService' | translate }}</label>
           <label class="checkbox-label"><input type="checkbox" formControlName="hasVehicleAccess" />{{ 'listingForm.hasVehicleAccess' | translate }}</label>
           <label class="checkbox-label"><input type="checkbox" formControlName="hasNearbyUTurn" />{{ 'listingForm.hasNearbyUTurn' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="isCornerLot" />{{ 'listingForm.isCornerLot' | translate }}</label>
           <label class="checkbox-label"><input type="checkbox" formControlName="isFloodRiskZone" />{{ 'listingForm.isFloodRiskZone' | translate }}</label>
         </div>
       </div>
@@ -150,6 +149,13 @@
     <label>
       {{ 'listingForm.address' | translate }}
       <input type="text" formControlName="address" maxlength="300" />
+    </label>
+
+    <!-- Not gated by isLandOrCommercial() like the rest of that section — a corner lot is just
+         as relevant for a house or apartment building as for raw land or a commercial parcel. -->
+    <label class="checkbox-label">
+      <input type="checkbox" formControlName="isCornerLot" />
+      {{ 'listingForm.isCornerLot' | translate }}
     </label>
 
     <div class="grid-2" *ngIf="lat !== null && lng !== null">

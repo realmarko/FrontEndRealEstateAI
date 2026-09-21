@@ -1,5 +1,21 @@
 /* You can add global styles to this file, and also import other style files */
 
+/* Shared brand tokens — defined once here so every page's own stylesheet references the same
+   values via var(...) instead of redeclaring them locally (which had already drifted into 3+
+   near-identical copies across agent-detail/listing-list/listing-detail before this). Angular's
+   view encapsulation scopes selectors, not CSS custom-property inheritance, so any component
+   stylesheet can read these through the normal DOM cascade without special syntax. */
+:root {
+  --gold: #c6a15b;
+  --gold-hover: #d4b273;
+  --on-gold: #14263f;
+  --navy: #1e3a5f;
+  --navy-deep: #16304d;
+  --ink: #1f2937;
+  --ink-soft: #6b7280;
+  --hairline: #e5e7eb;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -26,17 +42,20 @@ body {
 }
 
 .auth-card {
-  max-width: 360px;
-  margin: 3rem auto;
-  padding: 2rem;
+  max-width: 380px;
+  margin: 3.5rem auto;
+  padding: 2.25rem 2rem;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  border-top: 3px solid var(--gold);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .auth-card h1 {
   margin-top: 0;
-  font-size: 1.4rem;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #1f2937;
 }
 
 .auth-card form {
@@ -62,7 +81,21 @@ body {
   font-size: 1rem;
 }
 
-.auth-card button,
+.auth-card button {
+  padding: 0.6rem 1rem;
+  background: var(--gold);
+  color: var(--on-gold);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.auth-card button:hover {
+  background: var(--gold-hover);
+}
+
 .page button.primary {
   padding: 0.55rem 1rem;
   background: #1e3a5f;
@@ -73,7 +106,6 @@ body {
   font-size: 0.95rem;
 }
 
-.auth-card button:hover,
 .page button.primary:hover {
   background: #16304d;
 }

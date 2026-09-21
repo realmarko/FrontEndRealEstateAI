@@ -179,6 +179,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   hasError = false;
   addMode = false;
   locatingMe = false;
+  // The real browser Fullscreen API can be blocked by the embedding context's permissions policy
+  // (confirmed: this page silently no-ops when viewed inside an embedded preview pane), which
+  // made Google Maps' native fullscreenControl button look broken with no visible error.
+  // document.fullscreenEnabled is NOT a reliable predictor of this — tested directly in that same
+  // embedding context and it reports `true` while a real requestFullscreen() call still throws
+  // "Permissions check failed". Since there's no reliable way to know in advance whether native
+  // fullscreen will actually work, this always uses a CSS-only "expand within the viewport"
+  // toggle instead (see toggleMapExpanded) rather than Google's native control (disabled below) —
+  // it loses the OS-chrome-hiding effect of real fullscreen, but it's the one implementation that
+  // is correct in every context, with no dependency on a permissions check that can't be trusted.
+  readonly mapExpanded = signal(false);
   selectedLat: number | null = null;
   selectedLng: number | null = null;
 
@@ -346,7 +357,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
       mapTypeControl: false,
-      streetViewControl: false
+      streetViewControl: false,
+      fullscreenControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
     this.listingClusterer = new MarkerClusterer({
@@ -874,6 +886,20 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     } else {
       this.clearOpportunityOverlay();
     }
+  }
+
+  toggleMapExpanded(): void {
+    this.mapExpanded.update((expanded) => !expanded);
+    // The container's on-screen size changes via the CSS class binding, but Google Maps caches
+    // its last-known size and won't redraw to fill it until told to. Zone.js flushes Angular's
+    // own change detection (and the resulting class/layout change) synchronously right after this
+    // method returns, well before the next paint — one rAF is enough to land after that and see
+    // the container's final size.
+    requestAnimationFrame(() => {
+      if (!this.map) return;
+      google.maps.event.trigger(this.map, 'resize');
+      this.map.setCenter(this.map.getCenter() ?? DEFAULT_CENTER);
+    });
   }
 
   confirmLocation(): void {

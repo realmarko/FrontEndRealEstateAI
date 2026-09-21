@@ -149,15 +149,21 @@ input:disabled {
   color: #1e3a5f;
 }
 
+/* minmax(0, 1fr), not plain 1fr: a grid track's automatic minimum width is its content's
+   intrinsic min-content size, not 0 — a <select> with a long option (e.g. "MXN - Peso mexicano")
+   refuses to shrink below that text's width, so at some viewport widths the Moneda column claims
+   more than its fair third and squeezes/misaligns whatever sits next to it (reported: the
+   Operación column). minmax(0, 1fr) overrides that automatic minimum so every column actually
+   shares the row equally regardless of a sibling's content length. */
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -180,4 +186,17 @@ input:disabled {
 .actions a {
   color: #4b5563;
   text-decoration: none;
+}
+
+/* .grid-2/.grid-3 had no responsive fallback at all — a fixed 2 or 3-equal-column grid squeezed
+   into a ~327px-wide mobile viewport (375px minus the form's own 1.5rem side padding) forced
+   selects like Moneda ("MXN - Peso mexicano") to overflow past the card and off-screen instead
+   of wrapping or shrinking, which is exactly the "dropdowns look misaligned" report. Collapsing
+   to one column below the form's own 640px max-width keeps every field readable at its full
+   width instead of fighting for space in a column too narrow for its content. */
+@media (max-width: 640px) {
+  .grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
 }

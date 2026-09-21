@@ -58,7 +58,7 @@ export class ListingFormComponent {
     description: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0)]],
     currency: ['MXN' as Currency, Validators.required],
-    type: ['rent' as 'rent' | 'sale', Validators.required],
+    type: ['sale' as 'rent' | 'sale', Validators.required],
     propertyType: ['house' as PropertyType, Validators.required],
     address: ['', Validators.required],
     // Not required: for a land/commercial listing these fields are hidden (see

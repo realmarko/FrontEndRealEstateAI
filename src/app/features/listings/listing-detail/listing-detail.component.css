@@ -1,7 +1,7 @@
 .back {
   display: inline-block;
   margin-bottom: 1rem;
-  color: #1e3a5f;
+  color: var(--navy);
   text-decoration: none;
 }
 
@@ -137,7 +137,20 @@
 
 .section-title {
   margin: 0.4rem 0 0;
+  padding-top: 0.5rem;
   font-size: 1.05rem;
+  color: var(--ink);
+  border-top: 2px solid var(--gold);
+  display: inline-block;
+}
+
+/* The Street View heading uses [hidden] to stay out of the DOM's visible flow when no street
+   view is available (listing-detail.component.html) — an author-origin `display` declaration
+   above always beats the UA stylesheet's `[hidden] { display: none }` at equal specificity, so
+   without this the heading would show even when hidden. Higher specificity here wins regardless
+   of cascade order. */
+.section-title[hidden] {
+  display: none;
 }
 
 .location-map {
@@ -277,7 +290,9 @@
 
 .gallery h1 {
   margin: 0.2rem 0 0;
+  font-weight: 700;
   font-size: 1.6rem;
+  color: var(--ink);
 }
 
 .action-row {
@@ -310,13 +325,14 @@
 }
 
 .price {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 0.2rem 0;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0.3rem 0 0.1rem;
 }
 
 .price-meta {
-  color: #6b7280;
+  color: var(--ink-soft);
   font-size: 0.85rem;
   margin: 0 0 0.2rem;
 }
@@ -342,12 +358,19 @@
 }
 
 .primary-link {
-  background: #1e3a5f;
-  color: #fff;
+  background: var(--gold);
+  color: var(--on-gold);
   text-decoration: none;
-  padding: 0.5rem 0.9rem;
-  border-radius: 4px;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
   font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-link:hover {
+  background: var(--gold-hover);
 }
 
 .danger {

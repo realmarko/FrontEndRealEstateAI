@@ -6,69 +6,81 @@
     }
   </div>
 
-  <div class="filters">
-    <input
-      type="search"
-      [placeholder]="'listings.searchPlaceholder' | translate"
-      [value]="search()"
-      (input)="onSearchChange($any($event.target).value)"
-    />
+  <div class="filter-panel">
+    <div class="filter-row">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="search"
+          [placeholder]="'listings.searchPlaceholder' | translate"
+          [value]="search()"
+          (input)="onSearchChange($any($event.target).value)"
+        />
+      </div>
 
-    <div class="type-toggle">
-      <button
-        type="button"
-        [class.active]="typeFilter() === 'all'"
-        (click)="setTypeFilter('all')"
-      >
-        {{ 'listings.filterAll' | translate }}
-      </button>
-      <button
-        type="button"
-        [class.active]="typeFilter() === 'rent'"
-        (click)="setTypeFilter('rent')"
-      >
-        {{ 'listings.filterRent' | translate }}
-      </button>
-      <button
-        type="button"
-        [class.active]="typeFilter() === 'sale'"
-        (click)="setTypeFilter('sale')"
-      >
-        {{ 'listings.filterSale' | translate }}
-      </button>
+      <div class="type-toggle">
+        <button
+          type="button"
+          [class.active]="typeFilter() === 'all'"
+          (click)="setTypeFilter('all')"
+        >
+          {{ 'listings.filterAll' | translate }}
+        </button>
+        <button
+          type="button"
+          [class.active]="typeFilter() === 'rent'"
+          (click)="setTypeFilter('rent')"
+        >
+          {{ 'listings.filterRent' | translate }}
+        </button>
+        <button
+          type="button"
+          [class.active]="typeFilter() === 'sale'"
+          (click)="setTypeFilter('sale')"
+        >
+          {{ 'listings.filterSale' | translate }}
+        </button>
+      </div>
     </div>
 
-    <input
-      type="text"
-      list="listing-company-options"
-      [placeholder]="'listings.companyPlaceholder' | translate"
-      [value]="companyFilter()"
-      (input)="setCompanyFilter($any($event.target).value)"
-    />
-    <datalist id="listing-company-options">
-      @for (name of brokerages(); track name) {
-        <option [value]="name"></option>
-      }
-    </datalist>
+    <div class="filter-row">
+      <input
+        type="text"
+        class="company-field"
+        list="listing-company-options"
+        [placeholder]="'listings.companyPlaceholder' | translate"
+        [value]="companyFilter()"
+        (input)="setCompanyFilter($any($event.target).value)"
+      />
+      <datalist id="listing-company-options">
+        @for (name of brokerages(); track name) {
+          <option [value]="name"></option>
+        }
+      </datalist>
 
-    @if (auth.isAuthenticated()) {
-      <button type="button" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
-      @if (showSaveSearchForm()) {
-        <div class="save-search-form">
-          <input
-            type="text"
-            [placeholder]="'savedSearches.namePlaceholder' | translate"
-            [value]="saveSearchName()"
-            (input)="setSaveSearchName($any($event.target).value)"
-            (keyup.enter)="saveCurrentSearch()"
-          />
-          <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
-        </div>
+      @if (auth.isAuthenticated()) {
+        <button type="button" class="save-search-btn" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
+        @if (showSaveSearchForm()) {
+          <div class="save-search-form">
+            <input
+              type="text"
+              [placeholder]="'savedSearches.namePlaceholder' | translate"
+              [value]="saveSearchName()"
+              (input)="setSaveSearchName($any($event.target).value)"
+              (keyup.enter)="saveCurrentSearch()"
+            />
+            <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+          </div>
+        }
       }
-    }
+    </div>
   </div>
 
   @if (listings().length) {
+    <p class="results-count">{{ 'listings.resultsCount' | translate:{ count: listings().length } }}</p>
     <app-listing-grid [listings]="listings()" />
   } @else {
     <p class="empty">{{ 'listings.empty' | translate }}</p>
