@@ -194,8 +194,7 @@
 
 .add-property-btn,
 .confirm-btn,
-.locate-btn,
-.opportunity-btn {
+.locate-btn {
   border: none;
   border-radius: 4px;
   padding: 0.55rem 1.1rem;
@@ -228,10 +227,26 @@
   color: #fff;
 }
 
-/* Purple to match the pharmacy POI marker/cluster color elsewhere on this page. */
+/* Same icon-button shape as .poi-toggle-btn, kept in its own rule (rather than merged via a
+   shared selector) since its active-state color is purple — the opportunity tool's established
+   accent — instead of navy. */
 .opportunity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: none;
+  border-radius: 4px;
   background: #fff;
   color: #7c3aed;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.opportunity-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .opportunity-btn.active {
@@ -243,6 +258,14 @@
   align-self: center;
   font-size: 0.85rem;
   color: #6b7280;
+}
+
+.opportunity-hint {
+  margin: 0.2rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e5e7eb;
+  font-size: 0.8rem;
+  color: #7c3aed;
 }
 
 .poi-toggle-btn {
@@ -269,7 +292,10 @@
   color: #fff;
 }
 
-.poi-checklist {
+/* Shared by both toolbar picker panels — the POI checklist and the opportunity-category radio
+   group are visually the same panel shape, just with different controls inside. */
+.poi-checklist,
+.opportunity-checklist {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -281,7 +307,8 @@
   color: #1f2937;
 }
 
-.poi-checklist-item {
+.poi-checklist-item,
+.opportunity-checklist-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;

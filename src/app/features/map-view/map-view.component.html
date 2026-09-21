@@ -116,8 +116,17 @@
           <button type="button" class="locate-btn" [disabled]="locatingMe" (click)="centerOnCurrentLocation(true)">
             {{ (locatingMe ? 'map.locating' : 'map.myLocation') | translate }}
           </button>
-          <button type="button" class="opportunity-btn" [class.active]="opportunityMode" (click)="toggleOpportunityMode()">
-            {{ (opportunityMode ? 'map.clickToAnalyze' : 'map.analyzeOpportunity') | translate }}
+          <button
+            type="button"
+            class="opportunity-btn"
+            [class.active]="showOpportunityChecklist()"
+            [attr.aria-label]="'map.analyzeOpportunity' | translate"
+            [attr.aria-expanded]="showOpportunityChecklist()"
+            (click)="toggleOpportunityChecklist()"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" />
+            </svg>
           </button>
           @if (loadingOpportunity()) {
             <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
@@ -150,6 +159,25 @@
                   <span class="poi-loading">…</span>
                 }
               </label>
+            }
+          </div>
+        }
+
+        @if (showOpportunityChecklist()) {
+          <div class="opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
+            @for (category of opportunityCategories; track category.key) {
+              <label class="opportunity-checklist-item">
+                <input
+                  type="radio"
+                  name="opportunity-category"
+                  [checked]="selectedOpportunityCategory() === category.key"
+                  (change)="selectOpportunityCategory(category.key)"
+                />
+                {{ category.labelKey | translate }}
+              </label>
+            }
+            @if (opportunityMode) {
+              <p class="opportunity-hint">{{ 'map.clickToAnalyze' | translate }}</p>
             }
           </div>
         }

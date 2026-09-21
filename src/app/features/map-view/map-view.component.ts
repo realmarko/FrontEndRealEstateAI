@@ -99,34 +99,71 @@ const SOCIOECONOMIC_LEVEL_LABEL_KEYS: Record<SocioeconomicLevel, string> = {
   Alto: 'map.socioeconomicAlto'
 };
 
+export type OpportunityCategoryKey = 'pharmacy' | 'gym' | 'oxxo';
+
 interface OpportunityCategoryConfig {
-  // Points at a POI_CATEGORIES entry so the search's placeType and the drawn marker's icon
-  // come from that one existing definition instead of a second, driftable copy of the same choice.
-  poiKey: PoiCategoryKey;
+  key: OpportunityCategoryKey;
+  labelKey: string;
+  // The plural noun used in "N {{category}} within {{radiusKm}} km" — kept separate from
+  // labelKey (the radio button's own label) since "OXXO"/"gyms" read naturally in that sentence
+  // but "Pharmacy" (singular, capitalized) does not.
+  pluralLabelKey: string;
+  // Its own Google Places "type" and marker icon — not borrowed from POI_CATEGORIES via a
+  // poiKey lookup, since that coupling only existed because pharmacy happened to already be a
+  // POI checklist entry. The opportunity tool and the POI checklist are separate features that
+  // shouldn't have to share category definitions.
+  placeType: string;
+  icon: string;
   radiusMeters: number;
   // Competitor count at/below which the area still counts as "good"/"moderate" — above the
-  // second threshold it's "saturated". Tuned for a walk-in trade-area business like a pharmacy;
-  // a future business type belongs in its own entry below with its own thresholds, not these.
+  // second threshold it's "saturated". Each category is tuned to its own typical density
+  // (a convenience-store chain like OXXO clusters far tighter than pharmacies or gyms do).
   goodMaxCount: number;
   moderateMaxCount: number;
-  // INEGI DENUE's search matches business name/street/colonia/economic-activity text — this is
-  // the Spanish term for the activity, not the Google Places `placeType` (that comes from the
-  // POI_CATEGORIES entry via poiKey instead).
+  // INEGI DENUE's search matches business name/street/colonia/economic-activity text — for OXXO
+  // this matches on the chain's actual registered name rather than a generic activity term.
   denueSearchTerm: string;
 }
 
-// One entry per "analyze opportunity for X" button this page can offer. Pharmacy is the only
-// one today (the original ask) — adding gyms/cafés/etc. later means adding an entry here and a
-// toolbar button wired to it, not forking analyzeOpportunity/drawOpportunityCircle per type.
-const OPPORTUNITY_CATEGORIES = {
-  pharmacy: {
-    poiKey: 'pharmacies',
+// One entry per business type the opportunity tool can analyze, picked via the radio buttons in
+// the opportunity-checklist panel (map-view.component.html). Adding another type means adding an
+// entry here (plus its i18n keys and the backend's AllowedSearchTerms), not forking
+// analyzeOpportunity/drawOpportunityCircle per type.
+const OPPORTUNITY_CATEGORIES: OpportunityCategoryConfig[] = [
+  {
+    key: 'pharmacy',
+    labelKey: 'map.opportunityPharmacy',
+    pluralLabelKey: 'map.opportunityPharmacyPlural',
+    placeType: 'pharmacy',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
     radiusMeters: 1000,
     goodMaxCount: 2,
     moderateMaxCount: 5,
     denueSearchTerm: 'farmacia'
-  } satisfies OpportunityCategoryConfig
-};
+  },
+  {
+    key: 'gym',
+    labelKey: 'map.opportunityGym',
+    pluralLabelKey: 'map.opportunityGymPlural',
+    placeType: 'gym',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    radiusMeters: 1000,
+    goodMaxCount: 2,
+    moderateMaxCount: 4,
+    denueSearchTerm: 'gimnasio'
+  },
+  {
+    key: 'oxxo',
+    labelKey: 'map.opportunityOxxo',
+    pluralLabelKey: 'map.opportunityOxxoPlural',
+    placeType: 'convenience_store',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    radiusMeters: 500,
+    goodMaxCount: 1,
+    moderateMaxCount: 3,
+    denueSearchTerm: 'oxxo'
+  }
+];
 
 // Nearby Search returns at most 20 results per page without paginating (each extra page is a
 // separate billed call with a mandatory ~2s delay before Google will serve it) — for a traffic
@@ -196,6 +233,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   opportunityMode = false;
   readonly loadingOpportunity = signal(false);
   readonly opportunityResult = signal<OpportunityAnalysisResult | null>(null);
+  readonly opportunityCategories = OPPORTUNITY_CATEGORIES;
+  readonly showOpportunityChecklist = signal(false);
+  // null until the user picks one from the radio buttons — there's no sensible default business
+  // type to start "in analyze mode" for before they've chosen one.
+  readonly selectedOpportunityCategory = signal<OpportunityCategoryKey | null>(null);
 
   readonly poiCategories = POI_CATEGORIES;
   readonly showPoiChecklist = signal(false);
@@ -606,19 +648,20 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Counts nearby competitors of the configured category and draws a traffic-light circle from
+  // Counts nearby competitors of the selected category and draws a traffic-light circle from
   // the count. Two sources are queried in parallel: INEGI DENUE (Mexico's official business
   // registry, proxied through our backend — see GeomarketingService) and Google Places Nearby
   // Search (the same API the POI checklist already uses, just radius-scoped to a clicked point
   // instead of the whole viewport). DENUE is preferred when it succeeds; Places is the fallback
-  // (including today, while DenueOptions still holds its CHANGE_ME placeholder token). Only
-  // "pharmacy" exists today; a second category means adding an OPPORTUNITY_CATEGORIES entry and
-  // a toolbar button, not a second version of this method.
+  // (including today, while DenueOptions still holds its CHANGE_ME placeholder token). Adding a
+  // new business type means adding an OPPORTUNITY_CATEGORIES entry, not a second version of this
+  // method.
   private async analyzeOpportunity(latLng: google.maps.LatLng): Promise<void> {
     if (!this.map) return;
 
-    const config = OPPORTUNITY_CATEGORIES.pharmacy;
-    const poiConfig = POI_CATEGORIES.find((c) => c.key === config.poiKey)!;
+    const categoryKey = this.selectedOpportunityCategory();
+    if (!categoryKey) return;
+    const config = OPPORTUNITY_CATEGORIES.find((c) => c.key === categoryKey)!;
     const position = { lat: latLng.lat(), lng: latLng.lng() };
     // Also serves as the "info window generation" this request was started at — see
     // infoWindowGeneration's own comment for why that's what guards against a stale response.
@@ -626,7 +669,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.loadingOpportunity.set(true);
 
     const [placesCount, denueCount, population] = await Promise.all([
-      this.searchPlacesCount(position, config.radiusMeters, poiConfig.placeType),
+      this.searchPlacesCount(position, config.radiusMeters, config.placeType),
       this.searchDenueCount(position, config.radiusMeters, config.denueSearchTerm),
       this.searchPopulationDensity(position)
     ]);
@@ -645,7 +688,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const level = opportunityLevel(count, config);
       const result: OpportunityAnalysisResult = { count, level, source, population };
       this.opportunityResult.set(result);
-      this.drawOpportunityCircle(position, result, config.radiusMeters, poiConfig.icon);
+      this.drawOpportunityCircle(position, result, config.radiusMeters, config.icon, this.translation.t(config.pluralLabelKey));
     });
   }
 
@@ -686,7 +729,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     position: google.maps.LatLngLiteral,
     result: OpportunityAnalysisResult,
     radiusMeters: number,
-    icon: string
+    icon: string,
+    categoryPluralLabel: string
   ): void {
     if (!this.map) return;
     const { level, count, source, population } = result;
@@ -708,13 +752,21 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
 
     if (this.opportunityMarker) {
+      // Reusing the marker across analyses now matters: with a single category (pharmacy) every
+      // analysis shared the same icon, but switching categories without closing the panel means
+      // a reused marker must also pick up the new category's icon, not just move.
       this.opportunityMarker.setPosition(position);
+      this.opportunityMarker.setIcon(icon);
     } else {
       this.opportunityMarker = new google.maps.Marker({ position, map: this.map, icon });
     }
 
     const label = this.translation.t(level.labelKey);
-    const countLabel = this.translation.t('map.opportunityCompetitorCount', { count });
+    const countLabel = this.translation.t('map.opportunityCompetitorCount', {
+      count,
+      category: categoryPluralLabel,
+      radiusKm: radiusMeters / 1000
+    });
     const sourceLabel = this.translation.t(source === 'denue' ? 'map.opportunitySourceDenue' : 'map.opportunitySourcePlaces');
     // Population is INEGI Census 2020 data, imported once for Puebla state only (see
     // AgebPopulation) — null anywhere else, which is expected coverage, not a failure, so it's
@@ -879,13 +931,23 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  toggleOpportunityMode(): void {
-    this.opportunityMode = !this.opportunityMode;
-    if (this.opportunityMode) {
-      this.addMode = false;
-    } else {
+  // Toggles the category-picker panel, mirroring togglePoiChecklist. Closing it while a category
+  // is active also stops click-to-analyze mode — closing the tool reads as "I'm done with this,"
+  // so leaving the map silently still in analyze mode after would be surprising.
+  toggleOpportunityChecklist(): void {
+    this.showOpportunityChecklist.update((visible) => !visible);
+    if (!this.showOpportunityChecklist() && this.opportunityMode) {
+      this.opportunityMode = false;
       this.clearOpportunityOverlay();
     }
+  }
+
+  selectOpportunityCategory(key: OpportunityCategoryKey): void {
+    this.selectedOpportunityCategory.set(key);
+    this.opportunityMode = true;
+    // Mutually exclusive with add-property mode — both interpret a map click differently, so
+    // leaving both on at once would make a click's effect ambiguous.
+    this.addMode = false;
   }
 
   toggleMapExpanded(): void {
