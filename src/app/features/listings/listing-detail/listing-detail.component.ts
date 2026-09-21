@@ -8,7 +8,7 @@ import { ListingService } from '../../../core/services/listing.service';
 import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, isLandOrCommercialPropertyType, isPureLandPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
@@ -95,6 +95,7 @@ export class ListingDetailComponent {
   readonly streetViewChecked = signal(false);
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
+  readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
 
   // Newest first for display (matches how Redfin/Zillow order their price-history table),
   // with each row's change computed against the entry right before it chronologically —

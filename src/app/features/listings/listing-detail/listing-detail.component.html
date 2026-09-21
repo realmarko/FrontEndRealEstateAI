@@ -60,24 +60,26 @@
             </svg>
             <span>{{ 'listingDetail.propertyIdAbbr' | translate }} {{ shortId(listing.id) }}</span>
           </div>
-          <div class="fact">
-            <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="6" rx="1" />
-              <rect x="5" y="8" width="5" height="4" rx="1" />
-              <line x1="3" y1="17" x2="3" y2="20" />
-              <line x1="21" y1="17" x2="21" y2="20" />
-            </svg>
-            <span>{{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }}</span>
-          </div>
-          <div class="fact">
-            <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="10" width="18" height="8" rx="4" />
-              <line x1="3" y1="14" x2="21" y2="14" />
-              <line x1="7" y1="18" x2="7" y2="20" />
-              <line x1="17" y1="18" x2="17" y2="20" />
-            </svg>
-            <span>{{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }}</span>
-          </div>
+          @if (!isLandOrCommercial()) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="6" rx="1" />
+                <rect x="5" y="8" width="5" height="4" rx="1" />
+                <line x1="3" y1="17" x2="3" y2="20" />
+                <line x1="21" y1="17" x2="21" y2="20" />
+              </svg>
+              <span>{{ listing.bedrooms }} {{ 'listing.bedroomsAbbr' | translate }}</span>
+            </div>
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="10" width="18" height="8" rx="4" />
+                <line x1="3" y1="14" x2="21" y2="14" />
+                <line x1="7" y1="18" x2="7" y2="20" />
+                <line x1="17" y1="18" x2="17" y2="20" />
+              </svg>
+              <span>{{ listing.bathrooms }} {{ 'listing.bathroomsAbbr' | translate }}</span>
+            </div>
+          }
           @if (listing.parkingSpaces != null) {
             <div class="fact">
               <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -108,7 +110,7 @@
               <line x1="3" y1="8" x2="6" y2="8" />
               <line x1="3" y1="13" x2="6" y2="13" />
             </svg>
-            <span>{{ listing.areaSqm }} m² {{ 'listingDetail.builtAreaAbbr' | translate }}</span>
+            <span>{{ listing.areaSqm }} m² {{ (isPureLand() ? 'listingDetail.totalAreaAbbr' : 'listingDetail.builtAreaAbbr') | translate }}</span>
           </div>
           @if (listing.lotSizeSqm != null) {
             <div class="fact">
