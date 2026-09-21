@@ -882,6 +882,23 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   togglePoiChecklist(): void {
     this.showPoiChecklist.update((visible) => !visible);
+    // Both picker panels are positioned near the same corner of the toolbar — having both open
+    // at once visually overlaps them, so opening one closes the other.
+    if (this.showPoiChecklist()) {
+      this.closeOpportunityPicker();
+    }
+  }
+
+  // Shared by togglePoiChecklist's forced-close and toggleOpportunityChecklist's own close, so
+  // both paths cancel click-to-analyze mode the same way — otherwise opening the POI panel would
+  // hide the opportunity picker (and its "click to analyze" hint) while leaving the map silently
+  // still armed to run an analysis on the next click.
+  private closeOpportunityPicker(): void {
+    this.showOpportunityChecklist.set(false);
+    if (this.opportunityMode) {
+      this.opportunityMode = false;
+      this.clearOpportunityOverlay();
+    }
   }
 
   // Searches once per check, not on every pan/zoom — each search is a billed Places API call,
@@ -1002,11 +1019,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // is active also stops click-to-analyze mode — closing the tool reads as "I'm done with this,"
   // so leaving the map silently still in analyze mode after would be surprising.
   toggleOpportunityChecklist(): void {
-    this.showOpportunityChecklist.update((visible) => !visible);
-    if (!this.showOpportunityChecklist() && this.opportunityMode) {
-      this.opportunityMode = false;
-      this.clearOpportunityOverlay();
+    if (this.showOpportunityChecklist()) {
+      this.closeOpportunityPicker();
+      return;
     }
+    this.showOpportunityChecklist.set(true);
+    // Both picker panels are positioned near the same corner of the toolbar — having both
+    // open at once visually overlaps them, so opening one closes the other.
+    this.showPoiChecklist.set(false);
   }
 
   selectOpportunityCategory(key: OpportunityCategoryKey): void {
