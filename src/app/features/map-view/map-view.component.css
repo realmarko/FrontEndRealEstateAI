@@ -292,10 +292,23 @@
   color: #fff;
 }
 
+/* Wraps a toggle button together with the panel it opens, so the panel can be positioned
+   relative to that specific button (below it) instead of the whole toolbar row. */
+.picker-anchor {
+  position: relative;
+  display: flex;
+}
+
 /* Shared by both toolbar picker panels — the POI checklist and the opportunity-category radio
-   group are visually the same panel shape, just with different controls inside. */
+   group are visually the same panel shape, just with different controls inside. Anchored to
+   their own button via .picker-anchor rather than the toolbar row, so the panel always opens
+   directly under the button that toggled it regardless of where that button sits in the row. */
 .poi-checklist,
 .opportunity-checklist {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -305,6 +318,15 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   font-size: 0.85rem;
   color: #1f2937;
+  white-space: nowrap;
+}
+
+/* The opportunity button sits furthest right in the toolbar — anchoring its panel from the
+   left (like .poi-checklist, closer to the toolbar's left edge) pushed it past the right edge
+   of the viewport on narrow screens. Anchoring from the right instead keeps it on-screen. */
+.opportunity-checklist {
+  left: auto;
+  right: 0;
 }
 
 .poi-checklist-item,

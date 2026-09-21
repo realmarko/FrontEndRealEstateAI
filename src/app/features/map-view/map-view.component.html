@@ -99,35 +99,74 @@
           <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
             {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
           </button>
-          <button
-            type="button"
-            class="poi-toggle-btn"
-            [class.active]="showPoiChecklist()"
-            [attr.aria-label]="'map.togglePoi' | translate"
-            [attr.aria-expanded]="showPoiChecklist()"
-            (click)="togglePoiChecklist()"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3 2 8l10 5 10-5-10-5z" />
-              <path d="M2 12l10 5 10-5" />
-              <path d="M2 16l10 5 10-5" />
-            </svg>
-          </button>
+          <div class="picker-anchor">
+            <button
+              type="button"
+              class="poi-toggle-btn"
+              [class.active]="showPoiChecklist()"
+              [attr.aria-label]="'map.togglePoi' | translate"
+              [attr.aria-expanded]="showPoiChecklist()"
+              (click)="togglePoiChecklist()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3 2 8l10 5 10-5-10-5z" />
+                <path d="M2 12l10 5 10-5" />
+                <path d="M2 16l10 5 10-5" />
+              </svg>
+            </button>
+            @if (showPoiChecklist()) {
+              <div class="poi-checklist">
+                @for (category of poiCategories; track category.key) {
+                  <label class="poi-checklist-item">
+                    <input
+                      type="checkbox"
+                      [checked]="checkedPoiCategories().has(category.key)"
+                      (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                    />
+                    {{ category.labelKey | translate }}
+                    @if (loadingPoiCategories().has(category.key)) {
+                      <span class="poi-loading">…</span>
+                    }
+                  </label>
+                }
+              </div>
+            }
+          </div>
           <button type="button" class="locate-btn" [disabled]="locatingMe" (click)="centerOnCurrentLocation(true)">
             {{ (locatingMe ? 'map.locating' : 'map.myLocation') | translate }}
           </button>
-          <button
-            type="button"
-            class="opportunity-btn"
-            [class.active]="showOpportunityChecklist()"
-            [attr.aria-label]="'map.analyzeOpportunity' | translate"
-            [attr.aria-expanded]="showOpportunityChecklist()"
-            (click)="toggleOpportunityChecklist()"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" />
-            </svg>
-          </button>
+          <div class="picker-anchor">
+            <button
+              type="button"
+              class="opportunity-btn"
+              [class.active]="showOpportunityChecklist()"
+              [attr.aria-label]="'map.analyzeOpportunity' | translate"
+              [attr.aria-expanded]="showOpportunityChecklist()"
+              (click)="toggleOpportunityChecklist()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" />
+              </svg>
+            </button>
+            @if (showOpportunityChecklist()) {
+              <div class="opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
+                @for (category of opportunityCategories; track category.key) {
+                  <label class="opportunity-checklist-item">
+                    <input
+                      type="radio"
+                      name="opportunity-category"
+                      [checked]="selectedOpportunityCategory() === category.key"
+                      (change)="selectOpportunityCategory(category.key)"
+                    />
+                    {{ category.labelKey | translate }}
+                  </label>
+                }
+                @if (opportunityMode) {
+                  <p class="opportunity-hint">{{ 'map.clickToAnalyze' | translate }}</p>
+                }
+              </div>
+            }
+          </div>
           @if (loadingOpportunity()) {
             <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
           }
@@ -144,43 +183,6 @@
             <span class="dot other"></span>{{ 'map.otherListings' | translate }}
           </div>
         </div>
-
-        @if (showPoiChecklist()) {
-          <div class="poi-checklist">
-            @for (category of poiCategories; track category.key) {
-              <label class="poi-checklist-item">
-                <input
-                  type="checkbox"
-                  [checked]="checkedPoiCategories().has(category.key)"
-                  (change)="togglePoiCategory(category.key, $any($event.target).checked)"
-                />
-                {{ category.labelKey | translate }}
-                @if (loadingPoiCategories().has(category.key)) {
-                  <span class="poi-loading">…</span>
-                }
-              </label>
-            }
-          </div>
-        }
-
-        @if (showOpportunityChecklist()) {
-          <div class="opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
-            @for (category of opportunityCategories; track category.key) {
-              <label class="opportunity-checklist-item">
-                <input
-                  type="radio"
-                  name="opportunity-category"
-                  [checked]="selectedOpportunityCategory() === category.key"
-                  (change)="selectOpportunityCategory(category.key)"
-                />
-                {{ category.labelKey | translate }}
-              </label>
-            }
-            @if (opportunityMode) {
-              <p class="opportunity-hint">{{ 'map.clickToAnalyze' | translate }}</p>
-            }
-          </div>
-        }
       </div>
       <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
       <button
