@@ -94,6 +94,7 @@
 
   <div class="map-content">
     <div class="map-pane" [class.expanded]="mapExpanded()">
+      @if (!streetViewActive()) {
       <div class="map-toolbar-wrap">
         <div class="map-toolbar">
           <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
@@ -196,6 +197,7 @@
           </div>
         </div>
       </div>
+      }
       <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
       <button
         type="button"

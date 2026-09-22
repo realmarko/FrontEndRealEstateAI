@@ -59,9 +59,51 @@ interface PoiCategoryConfig {
   // for a single chain like OXXO, so 'convenience_store' + this keyword is how that's filtered
   // down to just OXXO locations instead of every convenience store in view.
   keyword?: string;
-  icon: string;
+  icon: google.maps.Icon;
   clusterColor: string;
 }
+
+// Builds a small circular badge (category color + a white glyph) instead of a generic colored
+// dot, so each POI type reads at a glance. scaledSize/anchor are plain object literals typed via
+// `as` rather than `new google.maps.Size(...)`/`new google.maps.Point(...)`: POI_CATEGORIES below
+// is built at module-evaluation time, before this lazy-loaded chunk is guaranteed the Google Maps
+// script has finished loading elsewhere on the page — a constructor call would risk "google is
+// not defined", while a plain literal only needs the *type* (compile-time only) to exist.
+function createPoiIcon(color: string, glyph: string): google.maps.Icon {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">` +
+    `<circle cx="17" cy="17" r="16" fill="${color}" stroke="#fff" stroke-width="2"/>` +
+    glyph +
+    `</svg>`;
+  return {
+    url: `data:image/svg+xml;base64,${btoa(svg)}`,
+    scaledSize: { width: 34, height: 34 } as google.maps.Size,
+    anchor: { x: 17, y: 17 } as google.maps.Point
+  };
+}
+
+const SCHOOL_GLYPH =
+  '<polygon points="17,10 26,14 17,18 8,14" fill="#fff"/>' +
+  '<path d="M12,15.5 L12,20.5 Q17,23.5 22,20.5 L22,15.5" fill="none" stroke="#fff" stroke-width="1.6"/>' +
+  '<line x1="26" y1="14" x2="26" y2="20" stroke="#fff" stroke-width="1.4"/>';
+
+const PHARMACY_GLYPH = '<rect x="14" y="8" width="6" height="18" rx="1.5" fill="#fff"/><rect x="8" y="14" width="18" height="6" rx="1.5" fill="#fff"/>';
+
+const MALL_GLYPH =
+  '<path d="M13,14 C13,9.5 21,9.5 21,14" fill="none" stroke="#fff" stroke-width="1.8"/>' +
+  '<path d="M11,14 L23,14 L22,26 L12,26 Z" fill="#fff"/>';
+
+const PARK_GLYPH = '<circle cx="17" cy="13" r="6.2" fill="#fff"/><rect x="15.3" y="18.5" width="3.4" height="7.5" fill="#fff"/>';
+
+const GYM_GLYPH =
+  '<rect x="9" y="15.3" width="16" height="3.4" fill="#fff"/>' +
+  '<rect x="6.5" y="11.5" width="4.5" height="11" rx="1.3" fill="#fff"/>' +
+  '<rect x="23" y="11.5" width="4.5" height="11" rx="1.3" fill="#fff"/>';
+
+const CONVENIENCE_STORE_GLYPH =
+  '<path d="M8,16 L17,9 L26,16 Z" fill="#fff"/>' +
+  '<rect x="9" y="16" width="16" height="9" fill="#fff"/>' +
+  '<rect x="14.5" y="19" width="5" height="6" fill="rgba(0,0,0,0.25)"/>';
 
 // One entry per checklist item on the map page. Each category gets its own marker color and
 // cluster color so overlapping categories (e.g. schools + parks) stay visually distinguishable.
@@ -70,35 +112,39 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     key: 'schools',
     labelKey: 'map.poiSchools',
     placeType: 'school',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+    icon: createPoiIcon('#15803d', SCHOOL_GLYPH),
     clusterColor: '#15803d'
   },
   {
     key: 'pharmacies',
     labelKey: 'map.poiPharmacies',
     placeType: 'pharmacy',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
-    clusterColor: '#7c3aed'
+    // A shade apart from oxxo's red (#dc2626) so the two stay distinguishable when both layers
+    // are active at once, rather than sharing one pixel-identical red.
+    icon: createPoiIcon('#b91c1c', PHARMACY_GLYPH),
+    clusterColor: '#b91c1c'
   },
   {
     key: 'malls',
     labelKey: 'map.poiMalls',
     placeType: 'shopping_mall',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    icon: createPoiIcon('#c2410c', MALL_GLYPH),
     clusterColor: '#c2410c'
   },
   {
     key: 'parks',
     labelKey: 'map.poiParks',
     placeType: 'park',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/pink-dot.png',
-    clusterColor: '#db2777'
+    // A shade apart from schools' green (#15803d) so the two stay distinguishable when both
+    // layers are active at once, rather than sharing one pixel-identical green.
+    icon: createPoiIcon('#16a34a', PARK_GLYPH),
+    clusterColor: '#16a34a'
   },
   {
     key: 'gyms',
     labelKey: 'map.poiGyms',
     placeType: 'gym',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    icon: createPoiIcon('#2563eb', GYM_GLYPH),
     clusterColor: '#2563eb'
   },
   {
@@ -106,7 +152,7 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     labelKey: 'map.poiOxxo',
     placeType: 'convenience_store',
     keyword: 'OXXO',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    icon: createPoiIcon('#dc2626', CONVENIENCE_STORE_GLYPH),
     clusterColor: '#dc2626'
   }
 ];
@@ -262,6 +308,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // it loses the OS-chrome-hiding effect of real fullscreen, but it's the one implementation that
   // is correct in every context, with no dependency on a permissions check that can't be trusted.
   readonly mapExpanded = signal(false);
+  // Drives hiding the toolbar (add-property, POI/opportunity pickers, legend) while Street View
+  // fills the map pane — those controls interpret map clicks (placing a marker, analyzing
+  // opportunity) that don't make sense once the view isn't looking down at the map anymore.
+  readonly streetViewActive = signal(false);
   selectedLat: number | null = null;
   selectedLng: number | null = null;
 
@@ -482,10 +532,20 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       center,
       zoom: DEFAULT_ZOOM,
       mapTypeControl: false,
-      streetViewControl: false,
+      streetViewControl: true,
+      streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
       fullscreenControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
+
+    // The pegman opens Street View in the same panorama Google attaches to this map (not a
+    // separate view) — listening for its own visible_changed is how the toolbar knows to hide
+    // itself, rather than trying to infer "in street view" from the pegman control's own state.
+    const streetView = this.map.getStreetView();
+    streetView.addListener('visible_changed', () => {
+      this.zone.run(() => this.streetViewActive.set(streetView.getVisible()));
+    });
+
     this.listingClusterer = new MarkerClusterer({
       map: this.map,
       algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
