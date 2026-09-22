@@ -14,6 +14,8 @@ import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
+import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
+import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
@@ -32,6 +34,15 @@ const GOOGLE_LOAD_POLL_MS = 100;
 const INITIAL_LOCATE_TIMEOUT_MS = 2500;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
+// Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
+// "featured/special" — fitting for a whole development rather than a single unit.
+const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+const FRACCIONAMIENTO_CLUSTER_COLOR = '#c6a15b';
+// Published developments are still few in number at this stage — one fetch covers the realistic
+// total without needing map-bounds-driven pagination like listings use. Capped at 100, matching
+// GET /api/fraccionamientos/published's own Math.Clamp(pageSize, 1, 100) ceiling — asking for
+// more than that wouldn't get more back, just silently look like it did.
+const FRACCIONAMIENTOS_MAP_PAGE_SIZE = 100;
 
 // The clustering algorithm's default maxZoom (16) stops clustering well before this app's own
 // default zoom (16-18, street level) — raised so nearby markers still group up there too.
@@ -346,9 +357,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // that has since taken the window over.
   private infoWindowShowsOpportunity = false;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
-  // One clusterer per marker type (listings + one per POI category) so a cluster icon never
-  // mixes categories together, keeping each type's color meaningful when markers group up.
+  private readonly fraccionamientoMarkers = new Map<string, google.maps.Marker>();
+  // One clusterer per marker type (listings + fraccionamientos + one per POI category) so a
+  // cluster icon never mixes categories together, keeping each type's color meaningful when
+  // markers group up.
   private listingClusterer?: MarkerClusterer;
+  private fraccionamientoClusterer?: MarkerClusterer;
   private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
   private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
@@ -364,7 +378,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     protected readonly favorites: FavoritesService,
     private readonly brokerageService: BrokerageService,
     private readonly savedSearchService: SavedSearchService,
-    private readonly geomarketingService: GeomarketingService
+    private readonly geomarketingService: GeomarketingService,
+    private readonly fraccionamientoService: FraccionamientoService
   ) {
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
     // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
@@ -497,6 +512,110 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     });
 
     this.renderListingMarkers();
+    this.loadFraccionamientos();
+  }
+
+  // Fetched once per map load (not bounds-driven like listings) and rendered as their own
+  // clustered layer — a visitor should see every published development regardless of the
+  // current viewport, same as they'd see it from the /fraccionamientos list page.
+  private loadFraccionamientos(): void {
+    this.fraccionamientoService.listPublished({ pageSize: FRACCIONAMIENTOS_MAP_PAGE_SIZE }).subscribe({
+      next: (result) => this.zone.run(() => this.renderFraccionamientoMarkers(result.items)),
+      // Silent failure: the map's core purpose (browsing listings) still works without this
+      // layer, so a fraccionamientos-fetch error shouldn't surface a toast over the whole page.
+      error: () => {}
+    });
+  }
+
+  private renderFraccionamientoMarkers(items: FraccionamientoPublicListItem[]): void {
+    this.fraccionamientoClusterer?.clearMarkers();
+    this.fraccionamientoMarkers.clear();
+
+    const markers = items.map((frac) => {
+      const marker = new google.maps.Marker({
+        position: { lat: frac.latitude, lng: frac.longitude },
+        title: frac.name,
+        icon: FRACCIONAMIENTO_ICON
+      });
+
+      marker.addListener('click', () => {
+        this.zone.run(() => this.openFraccionamientoInfo(frac, marker));
+      });
+
+      this.fraccionamientoMarkers.set(frac.id, marker);
+      return marker;
+    });
+
+    if (!this.fraccionamientoClusterer) {
+      this.fraccionamientoClusterer = new MarkerClusterer({
+        map: this.map,
+        algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
+        renderer: createClusterRenderer(FRACCIONAMIENTO_CLUSTER_COLOR)
+      });
+    }
+    this.fraccionamientoClusterer.addMarkers(markers);
+  }
+
+  private openFraccionamientoInfo(frac: FraccionamientoPublicListItem, marker: google.maps.Marker): void {
+    if (!this.infoWindow) return;
+    this.infoWindowGeneration++;
+    this.infoWindowShowsOpportunity = false;
+
+    const navigate = (event: Event) => {
+      event.preventDefault();
+      this.zone.run(() => this.router.navigate(['/fraccionamientos', frac.id]));
+    };
+
+    const container = document.createElement('div');
+    container.className = 'map-info-card';
+
+    if (frac.masterPlanImageUrl) {
+      const media = document.createElement('div');
+      media.className = 'map-info-media';
+      media.style.cursor = 'pointer';
+      media.addEventListener('click', navigate);
+
+      const img = document.createElement('img');
+      img.src = frac.masterPlanImageUrl;
+      img.alt = frac.name;
+      media.appendChild(img);
+
+      if (frac.stage) {
+        const badge = document.createElement('span');
+        badge.className = 'map-info-badge';
+        badge.textContent = frac.stage;
+        media.appendChild(badge);
+      }
+
+      container.appendChild(media);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'map-info-body';
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'map-info-title';
+    titleEl.textContent = frac.name;
+    titleEl.style.cursor = 'pointer';
+    titleEl.addEventListener('click', navigate);
+    body.appendChild(titleEl);
+
+    if (frac.developerName) {
+      const developerEl = document.createElement('p');
+      developerEl.className = 'map-info-address';
+      developerEl.textContent = frac.developerName;
+      body.appendChild(developerEl);
+    }
+
+    const locationEl = document.createElement('p');
+    locationEl.className = 'map-info-address';
+    locationEl.textContent = !frac.masterPlanImageUrl && frac.stage ? `${frac.city}, ${frac.state} · ${frac.stage}` : `${frac.city}, ${frac.state}`;
+    body.appendChild(locationEl);
+
+    container.appendChild(body);
+
+    this.infoWindow.setContent(container);
+    this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
   private renderListingMarkers(): void {

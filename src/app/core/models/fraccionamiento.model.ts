@@ -103,6 +103,8 @@ export interface FraccionamientoPublicListItem {
   stage: string | null;
   masterPlanImageUrl: string | null;
   publishedAt: string | null;
+  latitude: number;
+  longitude: number;
 }
 
 export interface PagedFraccionamientosPublic {
