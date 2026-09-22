@@ -1,0 +1,164 @@
+.page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3.5rem;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--navy);
+  text-decoration: none;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.back svg {
+  width: 18px;
+  height: 18px;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: stretch;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 2.5rem;
+}
+
+.hero-image {
+  min-height: 260px;
+  background: #eef1f4;
+}
+
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.hero-fallback {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  color: var(--gold);
+  font-size: 4rem;
+  font-weight: 600;
+}
+
+.hero-body {
+  padding: 2rem 2rem 2rem 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.hero-body h1 {
+  margin: 0 0 0.4rem;
+  color: var(--navy);
+  font-size: 1.9rem;
+}
+
+.developer {
+  margin: 0 0 0.3rem;
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+
+.location {
+  margin: 0 0 0.9rem;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.stage-badge {
+  align-self: flex-start;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(198, 161, 91, 0.16);
+  color: var(--on-gold);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.3rem;
+}
+
+.contact-button {
+  align-self: flex-start;
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--navy);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.contact-button:hover {
+  background: var(--navy-deep);
+}
+
+.section {
+  margin-bottom: 2.5rem;
+}
+
+.section h2 {
+  margin: 0 0 1rem;
+  color: var(--navy);
+  font-size: 1.3rem;
+}
+
+.description {
+  margin: 0;
+  color: var(--ink);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.amenities {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.6rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.amenities li {
+  padding: 0.55rem 0.9rem;
+  background: #f4f6f8;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.empty-listings {
+  color: var(--ink-soft);
+}
+
+@media (max-width: 700px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-body {
+    padding: 1.5rem;
+  }
+}

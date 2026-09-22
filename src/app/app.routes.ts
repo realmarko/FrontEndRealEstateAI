@@ -108,11 +108,33 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'fraccionamientos',
+    loadComponent: () =>
+      import('./features/fraccionamientos/fraccionamientos-list/fraccionamientos-list.component').then(
+        (m) => m.FraccionamientosListComponent
+      )
+  },
+  {
+    path: 'fraccionamientos/:id',
+    loadComponent: () =>
+      import('./features/fraccionamientos/fraccionamientos-detail/fraccionamientos-detail.component').then(
+        (m) => m.FraccionamientosDetailComponent
+      )
+  },
+  {
     path: 'admin/errors',
     canActivate: [authGuard, roleGuard('Admin')],
     loadComponent: () =>
       import('./features/admin/admin-errors/admin-errors.component').then(
         (m) => m.AdminErrorsComponent
+      )
+  },
+  {
+    path: 'admin/fraccionamientos',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-fraccionamientos/admin-fraccionamientos.component').then(
+        (m) => m.AdminFraccionamientosComponent
       )
   },
   { path: '**', redirectTo: 'listings' }
