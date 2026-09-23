@@ -28,6 +28,12 @@ export interface PopulationDensity {
 export interface MunicipalityListItem {
   cvegeo: string;
   name: string;
+  stateName: string;
+}
+
+export interface StateListItem {
+  code: string;
+  name: string;
 }
 
 // Raw GeoJSON Geometry as the backend's GeoJsonWriter produces it — coordinates are [lng, lat]
@@ -82,6 +88,11 @@ export class GeomarketingService {
   // every keystroke of a search box.
   listMunicipalities(): Observable<MunicipalityListItem[]> {
     return this.http.get<MunicipalityListItem[]>(`${this.apiUrl}/municipalities`);
+  }
+
+  // All 32 Mexican states — static reference data, callers fetch once and cache.
+  listStates(): Observable<StateListItem[]> {
+    return this.http.get<StateListItem[]>(`${this.apiUrl}/states`);
   }
 
   getMunicipalityBoundary(cvegeo: string): Observable<MunicipalityBoundary> {

@@ -24,6 +24,7 @@ import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIO
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
+import { normalizeText } from '../../shared/utils/normalize-text';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
   DEFAULT_INTEREST_RATE_PERCENT,
@@ -34,6 +35,7 @@ import {
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
+
 // How long the very first render waits on a geolocation answer before giving up and falling
 // back to DEFAULT_CENTER — long enough for an already-granted permission to resolve (typically
 // near-instant), short enough that a first-time visitor still ignoring/denying the permission
@@ -369,6 +371,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // municipalityFilter() is '' (see selectMunicipality).
   private readonly municipalityPolygon = signal<google.maps.Polygon | null>(null);
 
+  // Separate from the dropdown above: set when the main search box's own text exactly matches a
+  // municipality name (see syncSearchMunicipality), so filteredListings can widen matchesTerm —
+  // not narrow it with an AND like the dropdown's matchesMunicipality does — to also include
+  // listings whose free-text address doesn't mention the municipality but which fall inside its
+  // shape. Independent state from municipalityFilter/municipalityPolygon so picking one doesn't
+  // affect the other.
+  private readonly searchMunicipalityPolygon = signal<google.maps.Polygon | null>(null);
+  private searchMunicipalityCvegeo: string | null = null;
+  private searchMunicipalityRequestId = 0;
+
   readonly showAgebLayer = signal(false);
   readonly showSaveSearchForm = signal(false);
   readonly saveSearchName = signal('');
@@ -383,12 +395,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const minBa = this.minBaths();
     const company = this.companyFilter().trim().toLowerCase();
     const polygon = this.municipalityPolygon();
+    const searchShape = this.searchMunicipalityPolygon();
 
     return this.listingService.listings().filter((listing) => {
       const matchesTerm =
         !term ||
         listing.title.toLowerCase().includes(term) ||
-        listing.address.toLowerCase().includes(term);
+        listing.address.toLowerCase().includes(term) ||
+        (searchShape != null &&
+          listing.lat != null &&
+          listing.lng != null &&
+          google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), searchShape));
       const matchesType = type === 'all' || listing.type === type;
       const matchesPropertyType = propertyType === 'all' || listing.propertyType === propertyType;
       const matchesMinPrice = minP === null || listing.price >= minP;
@@ -1289,6 +1306,52 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   onSearchChange(term: string): void {
     this.search.set(term);
+    this.syncSearchMunicipality(term);
+  }
+
+  // If the typed term exactly matches a municipality name (accent/case-insensitive), fetches its
+  // shape so filteredListings' matchesTerm can widen to include listings geometrically inside it
+  // — see the comment on searchMunicipalityPolygon. Only fires on an exact match (not on every
+  // partial keystroke) so it doesn't flood the backend with lookups, or guess between ambiguous
+  // partial matches, while the visitor is still typing.
+  private syncSearchMunicipality(term: string): void {
+    const normalizedTerm = normalizeText(term);
+    const match = normalizedTerm
+      ? this.municipalities().find((m) => normalizeText(m.name) === normalizedTerm)
+      : undefined;
+
+    if (!match) {
+      this.searchMunicipalityRequestId++;
+      this.searchMunicipalityCvegeo = null;
+      this.searchMunicipalityPolygon()?.setMap(null);
+      this.searchMunicipalityPolygon.set(null);
+      return;
+    }
+
+    if (match.cvegeo === this.searchMunicipalityCvegeo) return; // already have (or are fetching) this one
+
+    const requestId = ++this.searchMunicipalityRequestId;
+    this.searchMunicipalityCvegeo = match.cvegeo;
+
+    this.geomarketingService.getMunicipalityBoundary(match.cvegeo).subscribe({
+      next: (result) => {
+        // The visitor may have kept typing (or cleared the box) while this was in flight — only
+        // apply a response that's still for the currently-matched municipality.
+        if (requestId !== this.searchMunicipalityRequestId) return;
+
+        const paths = this.geoJsonToPaths(result.boundary);
+        this.searchMunicipalityPolygon()?.setMap(null);
+        this.searchMunicipalityPolygon.set(this.buildMunicipalityPolygon(paths));
+        this.fitBoundsToPaths(paths);
+      },
+      // Silently give up rather than toast — unlike the dropdown, this fires implicitly while
+      // typing, not from a deliberate click, so a failed lookup shouldn't interrupt the visitor.
+      // The plain text search (matchesTerm's first three conditions) still applies either way.
+      error: () => {
+        if (requestId !== this.searchMunicipalityRequestId) return;
+        this.searchMunicipalityCvegeo = null;
+      }
+    });
   }
 
   setTypeFilter(type: ListingType | 'all'): void {
@@ -1330,6 +1393,26 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     return rings.map((ring) => ring.map(([lng, lat]) => ({ lat, lng })));
   }
 
+  // Shared styling for both municipality-boundary overlays (the dropdown's and the search box's)
+  // — same gold outline, not clickable (neither is meant to intercept map clicks).
+  private buildMunicipalityPolygon(paths: google.maps.LatLngLiteral[][]): google.maps.Polygon {
+    return new google.maps.Polygon({
+      paths,
+      map: this.map,
+      strokeColor: FRACCIONAMIENTO_CLUSTER_COLOR,
+      strokeWeight: 2,
+      fillColor: FRACCIONAMIENTO_CLUSTER_COLOR,
+      fillOpacity: 0.08,
+      clickable: false
+    });
+  }
+
+  private fitBoundsToPaths(paths: google.maps.LatLngLiteral[][]): void {
+    const bounds = new google.maps.LatLngBounds();
+    paths.forEach((ring) => ring.forEach((point) => bounds.extend(point)));
+    this.map?.fitBounds(bounds);
+  }
+
   selectMunicipality(cvegeo: string): void {
     this.municipalityFilter.set(cvegeo);
 
@@ -1347,20 +1430,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
         const paths = this.geoJsonToPaths(result.boundary);
         this.municipalityPolygon()?.setMap(null);
-        const polygon = new google.maps.Polygon({
-          paths,
-          map: this.map,
-          strokeColor: FRACCIONAMIENTO_CLUSTER_COLOR,
-          strokeWeight: 2,
-          fillColor: FRACCIONAMIENTO_CLUSTER_COLOR,
-          fillOpacity: 0.08,
-          clickable: false
-        });
-        this.municipalityPolygon.set(polygon);
-
-        const bounds = new google.maps.LatLngBounds();
-        paths.forEach((ring) => ring.forEach((point) => bounds.extend(point)));
-        this.map?.fitBounds(bounds);
+        this.municipalityPolygon.set(this.buildMunicipalityPolygon(paths));
+        this.fitBoundsToPaths(paths);
       },
       error: () => {
         // Same staleness check as `next` — a superseded request's failure shouldn't toast an

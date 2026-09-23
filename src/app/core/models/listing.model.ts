@@ -96,6 +96,16 @@ export interface Listing {
   currency: Currency;
   type: ListingType;
   propertyType?: PropertyType;
+  // Structured fields the form edits directly.
+  street: string;
+  colonia: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  // Derived, read-only display string built by fromDto() (listing-api.adapter.ts) by joining the
+  // fields above — never submitted by the form (see ListingInput's Omit list below). Used by the
+  // card, the detail page, the map popup, and the free-text search in listing-list/map-view.
   address: string;
   bedrooms: number;
   bathrooms: number;
@@ -143,7 +153,7 @@ export interface Listing {
 // The write model splits photos in two: URLs already hosted somewhere (pasted external links,
 // or S3 URLs kept from a previous edit) vs. raw File objects the browser just picked, which the
 // backend uploads to S3 itself — see ListingsController.BuildImageUrlsAsync.
-export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'createdAt' | 'imageUrls'> & {
+export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'createdAt' | 'imageUrls' | 'address'> & {
   existingImageUrls: string[];
   photos: File[];
 };
