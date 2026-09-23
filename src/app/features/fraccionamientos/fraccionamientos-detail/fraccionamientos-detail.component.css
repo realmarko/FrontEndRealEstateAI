@@ -72,6 +72,12 @@
   margin: 0 0 0.4rem;
   color: var(--navy);
   font-size: 1.9rem;
+  /* A long compound name ("Fraccionamiento...") at this size can exceed the column width on
+     narrow viewports — without this the browser hard-breaks mid-word instead of at a syllable
+     boundary. hyphens needs lang set on the document (index.html sets lang dynamically via
+     TranslationService) to know Spanish hyphenation rules; falls back to a plain break otherwise. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .developer {

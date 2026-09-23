@@ -1,5 +1,11 @@
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  /* min(260px, 100%), not a bare 260px floor: this component is reused both as a full-width
+     page grid (/listings) and embedded in a narrower host column ("Similar listings" inside
+     listing-detail's .gallery) — a fixed 260px minimum forced every card wider than that
+     narrower column actually was, overflowing it. min() caps the floor at the container's
+     own width so a single narrow column still collapses to one card per row instead of
+     overflowing. */
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 1.25rem;
 }

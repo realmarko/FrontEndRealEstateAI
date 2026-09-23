@@ -23,7 +23,9 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  /* min(260px, 100%): same fix as agents-list/listing-grid's identical pattern — a bare
+     260px floor overflows the page on narrower phones than that. */
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 1.5rem;
 }
 
