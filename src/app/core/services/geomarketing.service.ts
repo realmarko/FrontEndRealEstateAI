@@ -25,6 +25,36 @@ export interface PopulationDensity {
   estimatedSocioeconomicLevel: SocioeconomicLevel | null;
 }
 
+export interface MunicipalityListItem {
+  cvegeo: string;
+  name: string;
+}
+
+// Raw GeoJSON Geometry as the backend's GeoJsonWriter produces it — coordinates are [lng, lat]
+// pairs per the GeoJSON spec (opposite order from google.maps.LatLngLiteral), one ring deeper for
+// MultiPolygon than Polygon. See toLatLngPaths in map-view.component.ts for the conversion.
+export interface GeoJsonPolygonGeometry {
+  type: 'Polygon';
+  coordinates: number[][][];
+}
+export interface GeoJsonMultiPolygonGeometry {
+  type: 'MultiPolygon';
+  coordinates: number[][][][];
+}
+export type GeoJsonGeometry = GeoJsonPolygonGeometry | GeoJsonMultiPolygonGeometry;
+
+export interface MunicipalityBoundary {
+  cvegeo: string;
+  name: string;
+  boundary: GeoJsonGeometry;
+}
+
+export interface AgebBoundary {
+  cvegeo: string;
+  boundary: GeoJsonGeometry;
+  estimatedSocioeconomicLevel: SocioeconomicLevel | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GeomarketingService {
   private readonly http = inject(HttpClient);
@@ -45,6 +75,23 @@ export class GeomarketingService {
   populationDensity(lat: number, lng: number): Observable<PopulationDensity> {
     return this.http.get<PopulationDensity>(`${this.apiUrl}/population-density`, {
       params: { lat: String(lat), lng: String(lng) }
+    });
+  }
+
+  // Small, near-static list (217 rows for Puebla today) — callers fetch once and cache, not on
+  // every keystroke of a search box.
+  listMunicipalities(): Observable<MunicipalityListItem[]> {
+    return this.http.get<MunicipalityListItem[]>(`${this.apiUrl}/municipalities`);
+  }
+
+  getMunicipalityBoundary(cvegeo: string): Observable<MunicipalityBoundary> {
+    return this.http.get<MunicipalityBoundary>(`${this.apiUrl}/municipalities/${cvegeo}/boundary`);
+  }
+
+  // AGEBs intersecting the given viewport — see GeomarketingController.ListAgebsInBounds.
+  agebsInBounds(swLat: number, swLng: number, neLat: number, neLng: number): Observable<AgebBoundary[]> {
+    return this.http.get<AgebBoundary[]>(`${this.apiUrl}/agebs`, {
+      params: { swLat: String(swLat), swLng: String(swLng), neLat: String(neLat), neLng: String(neLng) }
     });
   }
 }

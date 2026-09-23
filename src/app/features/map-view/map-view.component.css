@@ -356,6 +356,14 @@
   color: #6b7280;
 }
 
+/* Visually set apart from the Places-backed categories above it — a different kind of layer
+   (our own AGEB data, not a Places search), not just one more checklist entry. */
+.ageb-checklist-item {
+  margin-top: 0.2rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--hairline, #e5e7eb);
+}
+
 .map-error {
   position: absolute;
   inset: 0;

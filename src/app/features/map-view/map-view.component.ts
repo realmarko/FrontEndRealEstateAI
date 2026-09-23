@@ -7,7 +7,14 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
 import { SavedSearchService } from '../../core/services/saved-search.service';
-import { GeomarketingService, PopulationDensity, SocioeconomicLevel } from '../../core/services/geomarketing.service';
+import {
+  AgebBoundary,
+  GeoJsonGeometry,
+  GeomarketingService,
+  MunicipalityListItem,
+  PopulationDensity,
+  SocioeconomicLevel
+} from '../../core/services/geomarketing.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -180,6 +187,19 @@ const SOCIOECONOMIC_LEVEL_LABEL_KEYS: Record<SocioeconomicLevel, string> = {
   Alto: 'map.socioeconomicAlto'
 };
 
+// Sequential choropleth palette (light -> dark = low -> high) for the AGEB layer — ColorBrewer's
+// "Reds", chosen because none of its steps collide with any color already used elsewhere on this
+// map (listing clusters navy, municipality polygon gold, POI categories green/red/orange/pink/
+// blue). AGEBs with no estimate (INEGI's own data masking) fall back to a neutral grey.
+const SOCIOECONOMIC_LEVEL_COLORS: Record<SocioeconomicLevel, string> = {
+  Bajo: '#fee5d9',
+  MedioBajo: '#fcae91',
+  Medio: '#fb6a4a',
+  MedioAlto: '#de2d26',
+  Alto: '#a50f15'
+};
+const AGEB_UNSCORED_COLOR = '#9ca3af';
+
 export type OpportunityCategoryKey = 'pharmacy' | 'gym' | 'oxxo';
 
 interface OpportunityCategoryConfig {
@@ -340,6 +360,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly propertyTypeOptions = PROPERTY_TYPE_FILTER_OPTIONS;
   readonly companyFilter = signal('');
   readonly brokerages = signal<string[]>([]);
+  readonly municipalities = signal<MunicipalityListItem[]>([]);
+  // Empty string = no municipality filter applied (the "todos" option) — not null, so it binds
+  // directly to a <select>'s value like every other filter here.
+  readonly municipalityFilter = signal('');
+  // The live polygon drawn on the map for the selected municipality — read inside
+  // filteredListings below via google.maps.geometry.poly.containsLocation. Null exactly when
+  // municipalityFilter() is '' (see selectMunicipality).
+  private readonly municipalityPolygon = signal<google.maps.Polygon | null>(null);
+
+  readonly showAgebLayer = signal(false);
   readonly showSaveSearchForm = signal(false);
   readonly saveSearchName = signal('');
 
@@ -352,6 +382,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const minBd = this.minBeds();
     const minBa = this.minBaths();
     const company = this.companyFilter().trim().toLowerCase();
+    const polygon = this.municipalityPolygon();
 
     return this.listingService.listings().filter((listing) => {
       const matchesTerm =
@@ -365,6 +396,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const matchesBeds = minBd === 'any' || listing.bedrooms >= minBd;
       const matchesBaths = minBa === 'any' || listing.bathrooms >= minBa;
       const matchesCompany = !company || (listing.ownerCompany?.toLowerCase().includes(company) ?? false);
+      const matchesMunicipality =
+        !polygon ||
+        (listing.lat != null &&
+          listing.lng != null &&
+          google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), polygon));
       return (
         matchesTerm &&
         matchesType &&
@@ -373,7 +409,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         matchesMaxPrice &&
         matchesBeds &&
         matchesBaths &&
-        matchesCompany
+        matchesCompany &&
+        matchesMunicipality
       );
     });
   });
@@ -397,6 +434,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private myLocationMarker?: google.maps.Marker;
   private opportunityCircle?: google.maps.Circle;
   private opportunityMarker?: google.maps.Marker;
+  private agebDataLayer?: google.maps.Data;
+  // Guards against a slow response overwriting fresher AGEBs after another pan/zoom or an
+  // uncheck — same shape as poiRequestIds, one counter since only one AGEB fetch is ever in
+  // flight (unlike POI's one-counter-per-category).
+  private agebRequestId = 0;
   // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
   // this feature's own search) — an async opportunity search checks it against the value it
   // captured when the search started, so a slow response can't steal focus back from a listing
@@ -442,6 +484,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     });
 
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
+    this.geomarketingService.listMunicipalities().subscribe((list) => this.municipalities.set(list));
   }
 
   ngAfterViewInit(): void {
@@ -568,7 +611,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // Fires after every pan/zoom settles (and once on initial load) — keeps the results
     // list scoped to whatever's actually visible on the map right now.
     this.map.addListener('idle', () => {
-      this.zone.run(() => this.mapBounds.set(this.map!.getBounds() ?? null));
+      this.zone.run(() => {
+        this.mapBounds.set(this.map!.getBounds() ?? null);
+        // Unlike POI markers (a billed Places API call, deliberately searched once per check —
+        // see togglePoiCategory), AGEBs are our own indexed Postgres query, cheap enough to
+        // refetch on every pan/zoom so the layer actually follows the viewport.
+        if (this.showAgebLayer()) this.loadAgebsForCurrentBounds();
+      });
     });
 
     this.renderListingMarkers();
@@ -1270,6 +1319,151 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   setCompanyFilter(term: string): void {
     this.companyFilter.set(term);
+  }
+
+  // GeoJSON coordinates are [lng, lat] pairs (opposite order from LatLngLiteral), one ring deeper
+  // for MultiPolygon than Polygon — google.maps.Polygon's `paths` takes an array of rings either
+  // way, so both cases flatten to the same shape here (a MultiPolygon's separate polygons are
+  // just additional disjoint rings, which is exactly how Polygon already renders multiple rings).
+  private geoJsonToPaths(geometry: GeoJsonGeometry): google.maps.LatLngLiteral[][] {
+    const rings = geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat();
+    return rings.map((ring) => ring.map(([lng, lat]) => ({ lat, lng })));
+  }
+
+  selectMunicipality(cvegeo: string): void {
+    this.municipalityFilter.set(cvegeo);
+
+    if (!cvegeo) {
+      this.municipalityPolygon()?.setMap(null);
+      this.municipalityPolygon.set(null);
+      return;
+    }
+
+    this.geomarketingService.getMunicipalityBoundary(cvegeo).subscribe({
+      next: (result) => {
+        // The visitor may have already changed/cleared the selection while this was in flight —
+        // only apply a response that's still for the currently-selected municipality.
+        if (this.municipalityFilter() !== cvegeo) return;
+
+        const paths = this.geoJsonToPaths(result.boundary);
+        this.municipalityPolygon()?.setMap(null);
+        const polygon = new google.maps.Polygon({
+          paths,
+          map: this.map,
+          strokeColor: FRACCIONAMIENTO_CLUSTER_COLOR,
+          strokeWeight: 2,
+          fillColor: FRACCIONAMIENTO_CLUSTER_COLOR,
+          fillOpacity: 0.08,
+          clickable: false
+        });
+        this.municipalityPolygon.set(polygon);
+
+        const bounds = new google.maps.LatLngBounds();
+        paths.forEach((ring) => ring.forEach((point) => bounds.extend(point)));
+        this.map?.fitBounds(bounds);
+      },
+      error: () => {
+        // Same staleness check as `next` — a superseded request's failure shouldn't toast an
+        // error for a municipality the visitor already moved away from.
+        if (this.municipalityFilter() !== cvegeo) return;
+        this.notification.error('map.municipalityLoadError');
+      }
+    });
+  }
+
+  toggleAgebLayer(checked: boolean): void {
+    this.showAgebLayer.set(checked);
+
+    if (checked) {
+      this.loadAgebsForCurrentBounds();
+      return;
+    }
+
+    // Invalidate any in-flight fetch so a late response can't repopulate the layer right after
+    // it was turned off, then drop every feature — cheaper than tearing down and recreating the
+    // google.maps.Data instance on every toggle.
+    this.agebRequestId++;
+    this.agebDataLayer?.forEach((feature) => this.agebDataLayer!.remove(feature));
+  }
+
+  private loadAgebsForCurrentBounds(): void {
+    const bounds = this.map?.getBounds();
+    if (!bounds) return;
+
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const requestId = ++this.agebRequestId;
+
+    this.geomarketingService.agebsInBounds(sw.lat(), sw.lng(), ne.lat(), ne.lng()).subscribe({
+      next: (agebs) => this.zone.run(() => {
+        // A pan/zoom (or the layer being unchecked) while this was in flight already bumped
+        // agebRequestId — a stale response repainting the layer would show AGEBs for a viewport
+        // the visitor has since scrolled away from.
+        if (requestId !== this.agebRequestId) return;
+        this.renderAgebLayer(agebs);
+      }),
+      error: () => {
+        if (requestId !== this.agebRequestId) return;
+        this.notification.error('map.agebLoadError');
+      }
+    });
+  }
+
+  private renderAgebLayer(agebs: AgebBoundary[]): void {
+    if (!this.map) return;
+
+    if (!this.agebDataLayer) {
+      this.agebDataLayer = new google.maps.Data({ map: this.map });
+      this.agebDataLayer.setStyle((feature) => {
+        const level = feature.getProperty('estimatedSocioeconomicLevel') as SocioeconomicLevel | null;
+        const color = level ? SOCIOECONOMIC_LEVEL_COLORS[level] : AGEB_UNSCORED_COLOR;
+        return { fillColor: color, fillOpacity: 0.35, strokeColor: color, strokeWeight: 1 };
+      });
+      this.agebDataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        this.zone.run(() => this.openAgebInfo(event));
+      });
+    }
+
+    this.agebDataLayer.forEach((feature) => this.agebDataLayer!.remove(feature));
+    for (const ageb of agebs) {
+      this.agebDataLayer.addGeoJson({
+        type: 'Feature',
+        geometry: ageb.boundary,
+        properties: { cvegeo: ageb.cvegeo, estimatedSocioeconomicLevel: ageb.estimatedSocioeconomicLevel }
+      });
+    }
+  }
+
+  // Reuses the same population-density lookup and popup content shape as the opportunity tool's
+  // drawOpportunityCircle (see SOCIOECONOMIC_LEVEL_LABEL_KEYS and the map.opportunity* i18n
+  // keys) — an AGEB click is asking the same question ("what's the density/level here?"), just
+  // triggered by clicking a shaded zone instead of running a business-count analysis first.
+  private openAgebInfo(event: google.maps.Data.MouseEvent): void {
+    if (!this.infoWindow || !event.latLng) return;
+    const requestId = ++this.infoWindowGeneration;
+    this.infoWindowShowsOpportunity = false;
+
+    const position = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+    firstValueFrom(this.geomarketingService.populationDensity(position.lat, position.lng))
+      .catch(() => null)
+      .then((population) => {
+        if (!population || requestId !== this.infoWindowGeneration) return;
+
+        const densityLine = this.translation.t('map.opportunityPopulationDensity', {
+          density: Math.round(population.densityPerSqKm).toLocaleString(),
+          year: population.censusYear
+        });
+        const levelKey = population.estimatedSocioeconomicLevel
+          ? SOCIOECONOMIC_LEVEL_LABEL_KEYS[population.estimatedSocioeconomicLevel]
+          : null;
+        const levelLine = levelKey
+          ? `<br>${this.translation.t('map.opportunitySocioeconomicLevel', { level: this.translation.t(levelKey) })}`
+          : '';
+
+        this.infoWindow!.setContent(`<div class="opportunity-info">${densityLine}${levelLine}</div>`);
+        this.infoWindow!.setPosition(position);
+        this.infoWindow!.open(this.map);
+      });
   }
 
   toggleSaveSearchForm(): void {

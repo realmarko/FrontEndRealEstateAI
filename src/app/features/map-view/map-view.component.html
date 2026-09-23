@@ -89,6 +89,16 @@
           <option [value]="name"></option>
         }
       </datalist>
+      <select
+        class="filter-select"
+        [value]="municipalityFilter()"
+        (change)="selectMunicipality($any($event.target).value)"
+      >
+        <option value="">{{ 'map.municipalityAll' | translate }}</option>
+        @for (municipality of municipalities(); track municipality.cvegeo) {
+          <option [value]="municipality.cvegeo">{{ municipality.name }}</option>
+        }
+      </select>
     </div>
   </div>
 
@@ -130,6 +140,10 @@
                     }
                   </label>
                 }
+                <label class="poi-checklist-item ageb-checklist-item">
+                  <input type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
+                  {{ 'map.agebLayer' | translate }}
+                </label>
               </div>
             }
           </div>
