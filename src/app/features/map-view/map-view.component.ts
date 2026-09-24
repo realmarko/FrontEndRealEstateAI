@@ -7,14 +7,24 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
 import { SavedSearchService } from '../../core/services/saved-search.service';
-import { GeomarketingService, PopulationDensity, SocioeconomicLevel } from '../../core/services/geomarketing.service';
+import {
+  AgebBoundary,
+  GeoJsonGeometry,
+  GeomarketingService,
+  MunicipalityListItem,
+  PopulationDensity,
+  SocioeconomicLevel
+} from '../../core/services/geomarketing.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
+import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
+import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
+import { normalizeText } from '../../shared/utils/normalize-text';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
   DEFAULT_INTEREST_RATE_PERCENT,
@@ -25,6 +35,7 @@ import {
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
+
 // How long the very first render waits on a geolocation answer before giving up and falling
 // back to DEFAULT_CENTER — long enough for an already-granted permission to resolve (typically
 // near-instant), short enough that a first-time visitor still ignoring/denying the permission
@@ -32,6 +43,15 @@ const GOOGLE_LOAD_POLL_MS = 100;
 const INITIAL_LOCATE_TIMEOUT_MS = 2500;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
+// Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
+// "featured/special" — fitting for a whole development rather than a single unit.
+const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
+const FRACCIONAMIENTO_CLUSTER_COLOR = '#c6a15b';
+// Published developments are still few in number at this stage — one fetch covers the realistic
+// total without needing map-bounds-driven pagination like listings use. Capped at 100, matching
+// GET /api/fraccionamientos/published's own Math.Clamp(pageSize, 1, 100) ceiling — asking for
+// more than that wouldn't get more back, just silently look like it did.
+const FRACCIONAMIENTOS_MAP_PAGE_SIZE = 100;
 
 // The clustering algorithm's default maxZoom (16) stops clustering well before this app's own
 // default zoom (16-18, street level) — raised so nearby markers still group up there too.
@@ -48,9 +68,51 @@ interface PoiCategoryConfig {
   // for a single chain like OXXO, so 'convenience_store' + this keyword is how that's filtered
   // down to just OXXO locations instead of every convenience store in view.
   keyword?: string;
-  icon: string;
+  icon: google.maps.Icon;
   clusterColor: string;
 }
+
+// Builds a small circular badge (category color + a white glyph) instead of a generic colored
+// dot, so each POI type reads at a glance. scaledSize/anchor are plain object literals typed via
+// `as` rather than `new google.maps.Size(...)`/`new google.maps.Point(...)`: POI_CATEGORIES below
+// is built at module-evaluation time, before this lazy-loaded chunk is guaranteed the Google Maps
+// script has finished loading elsewhere on the page — a constructor call would risk "google is
+// not defined", while a plain literal only needs the *type* (compile-time only) to exist.
+function createPoiIcon(color: string, glyph: string): google.maps.Icon {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">` +
+    `<circle cx="17" cy="17" r="16" fill="${color}" stroke="#fff" stroke-width="2"/>` +
+    glyph +
+    `</svg>`;
+  return {
+    url: `data:image/svg+xml;base64,${btoa(svg)}`,
+    scaledSize: { width: 34, height: 34 } as google.maps.Size,
+    anchor: { x: 17, y: 17 } as google.maps.Point
+  };
+}
+
+const SCHOOL_GLYPH =
+  '<polygon points="17,10 26,14 17,18 8,14" fill="#fff"/>' +
+  '<path d="M12,15.5 L12,20.5 Q17,23.5 22,20.5 L22,15.5" fill="none" stroke="#fff" stroke-width="1.6"/>' +
+  '<line x1="26" y1="14" x2="26" y2="20" stroke="#fff" stroke-width="1.4"/>';
+
+const PHARMACY_GLYPH = '<rect x="14" y="8" width="6" height="18" rx="1.5" fill="#fff"/><rect x="8" y="14" width="18" height="6" rx="1.5" fill="#fff"/>';
+
+const MALL_GLYPH =
+  '<path d="M13,14 C13,9.5 21,9.5 21,14" fill="none" stroke="#fff" stroke-width="1.8"/>' +
+  '<path d="M11,14 L23,14 L22,26 L12,26 Z" fill="#fff"/>';
+
+const PARK_GLYPH = '<circle cx="17" cy="13" r="6.2" fill="#fff"/><rect x="15.3" y="18.5" width="3.4" height="7.5" fill="#fff"/>';
+
+const GYM_GLYPH =
+  '<rect x="9" y="15.3" width="16" height="3.4" fill="#fff"/>' +
+  '<rect x="6.5" y="11.5" width="4.5" height="11" rx="1.3" fill="#fff"/>' +
+  '<rect x="23" y="11.5" width="4.5" height="11" rx="1.3" fill="#fff"/>';
+
+const CONVENIENCE_STORE_GLYPH =
+  '<path d="M8,16 L17,9 L26,16 Z" fill="#fff"/>' +
+  '<rect x="9" y="16" width="16" height="9" fill="#fff"/>' +
+  '<rect x="14.5" y="19" width="5" height="6" fill="rgba(0,0,0,0.25)"/>';
 
 // One entry per checklist item on the map page. Each category gets its own marker color and
 // cluster color so overlapping categories (e.g. schools + parks) stay visually distinguishable.
@@ -59,35 +121,39 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     key: 'schools',
     labelKey: 'map.poiSchools',
     placeType: 'school',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+    icon: createPoiIcon('#15803d', SCHOOL_GLYPH),
     clusterColor: '#15803d'
   },
   {
     key: 'pharmacies',
     labelKey: 'map.poiPharmacies',
     placeType: 'pharmacy',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
-    clusterColor: '#7c3aed'
+    // A shade apart from oxxo's red (#dc2626) so the two stay distinguishable when both layers
+    // are active at once, rather than sharing one pixel-identical red.
+    icon: createPoiIcon('#b91c1c', PHARMACY_GLYPH),
+    clusterColor: '#b91c1c'
   },
   {
     key: 'malls',
     labelKey: 'map.poiMalls',
     placeType: 'shopping_mall',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    icon: createPoiIcon('#c2410c', MALL_GLYPH),
     clusterColor: '#c2410c'
   },
   {
     key: 'parks',
     labelKey: 'map.poiParks',
     placeType: 'park',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/pink-dot.png',
-    clusterColor: '#db2777'
+    // A shade apart from schools' green (#15803d) so the two stay distinguishable when both
+    // layers are active at once, rather than sharing one pixel-identical green.
+    icon: createPoiIcon('#16a34a', PARK_GLYPH),
+    clusterColor: '#16a34a'
   },
   {
     key: 'gyms',
     labelKey: 'map.poiGyms',
     placeType: 'gym',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    icon: createPoiIcon('#2563eb', GYM_GLYPH),
     clusterColor: '#2563eb'
   },
   {
@@ -95,7 +161,7 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     labelKey: 'map.poiOxxo',
     placeType: 'convenience_store',
     keyword: 'OXXO',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    icon: createPoiIcon('#dc2626', CONVENIENCE_STORE_GLYPH),
     clusterColor: '#dc2626'
   }
 ];
@@ -122,6 +188,19 @@ const SOCIOECONOMIC_LEVEL_LABEL_KEYS: Record<SocioeconomicLevel, string> = {
   MedioAlto: 'map.socioeconomicMedioAlto',
   Alto: 'map.socioeconomicAlto'
 };
+
+// Sequential choropleth palette (light -> dark = low -> high) for the AGEB layer — ColorBrewer's
+// "Reds", chosen because none of its steps collide with any color already used elsewhere on this
+// map (listing clusters navy, municipality polygon gold, POI categories green/red/orange/pink/
+// blue). AGEBs with no estimate (INEGI's own data masking) fall back to a neutral grey.
+const SOCIOECONOMIC_LEVEL_COLORS: Record<SocioeconomicLevel, string> = {
+  Bajo: '#fee5d9',
+  MedioBajo: '#fcae91',
+  Medio: '#fb6a4a',
+  MedioAlto: '#de2d26',
+  Alto: '#a50f15'
+};
+const AGEB_UNSCORED_COLOR = '#9ca3af';
 
 export type OpportunityCategoryKey = 'pharmacy' | 'gym' | 'oxxo';
 
@@ -251,6 +330,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // it loses the OS-chrome-hiding effect of real fullscreen, but it's the one implementation that
   // is correct in every context, with no dependency on a permissions check that can't be trusted.
   readonly mapExpanded = signal(false);
+  // Drives hiding the toolbar (add-property, POI/opportunity pickers, legend) while Street View
+  // fills the map pane — those controls interpret map clicks (placing a marker, analyzing
+  // opportunity) that don't make sense once the view isn't looking down at the map anymore.
+  readonly streetViewActive = signal(false);
   selectedLat: number | null = null;
   selectedLng: number | null = null;
 
@@ -279,6 +362,26 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly propertyTypeOptions = PROPERTY_TYPE_FILTER_OPTIONS;
   readonly companyFilter = signal('');
   readonly brokerages = signal<string[]>([]);
+  readonly municipalities = signal<MunicipalityListItem[]>([]);
+  // Empty string = no municipality filter applied (the "todos" option) — not null, so it binds
+  // directly to a <select>'s value like every other filter here.
+  readonly municipalityFilter = signal('');
+  // The live polygon drawn on the map for the selected municipality — read inside
+  // filteredListings below via google.maps.geometry.poly.containsLocation. Null exactly when
+  // municipalityFilter() is '' (see selectMunicipality).
+  private readonly municipalityPolygon = signal<google.maps.Polygon | null>(null);
+
+  // Separate from the dropdown above: set when the main search box's own text exactly matches a
+  // municipality name (see syncSearchMunicipality), so filteredListings can widen matchesTerm —
+  // not narrow it with an AND like the dropdown's matchesMunicipality does — to also include
+  // listings whose free-text address doesn't mention the municipality but which fall inside its
+  // shape. Independent state from municipalityFilter/municipalityPolygon so picking one doesn't
+  // affect the other.
+  private readonly searchMunicipalityPolygon = signal<google.maps.Polygon | null>(null);
+  private searchMunicipalityCvegeo: string | null = null;
+  private searchMunicipalityRequestId = 0;
+
+  readonly showAgebLayer = signal(false);
   readonly showSaveSearchForm = signal(false);
   readonly saveSearchName = signal('');
 
@@ -291,12 +394,18 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const minBd = this.minBeds();
     const minBa = this.minBaths();
     const company = this.companyFilter().trim().toLowerCase();
+    const polygon = this.municipalityPolygon();
+    const searchShape = this.searchMunicipalityPolygon();
 
     return this.listingService.listings().filter((listing) => {
       const matchesTerm =
         !term ||
         listing.title.toLowerCase().includes(term) ||
-        listing.address.toLowerCase().includes(term);
+        listing.address.toLowerCase().includes(term) ||
+        (searchShape != null &&
+          listing.lat != null &&
+          listing.lng != null &&
+          google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), searchShape));
       const matchesType = type === 'all' || listing.type === type;
       const matchesPropertyType = propertyType === 'all' || listing.propertyType === propertyType;
       const matchesMinPrice = minP === null || listing.price >= minP;
@@ -304,6 +413,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const matchesBeds = minBd === 'any' || listing.bedrooms >= minBd;
       const matchesBaths = minBa === 'any' || listing.bathrooms >= minBa;
       const matchesCompany = !company || (listing.ownerCompany?.toLowerCase().includes(company) ?? false);
+      const matchesMunicipality =
+        !polygon ||
+        (listing.lat != null &&
+          listing.lng != null &&
+          google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), polygon));
       return (
         matchesTerm &&
         matchesType &&
@@ -312,7 +426,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         matchesMaxPrice &&
         matchesBeds &&
         matchesBaths &&
-        matchesCompany
+        matchesCompany &&
+        matchesMunicipality
       );
     });
   });
@@ -336,6 +451,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private myLocationMarker?: google.maps.Marker;
   private opportunityCircle?: google.maps.Circle;
   private opportunityMarker?: google.maps.Marker;
+  private agebDataLayer?: google.maps.Data;
+  // Guards against a slow response overwriting fresher AGEBs after another pan/zoom or an
+  // uncheck — same shape as poiRequestIds, one counter since only one AGEB fetch is ever in
+  // flight (unlike POI's one-counter-per-category).
+  private agebRequestId = 0;
   // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
   // this feature's own search) — an async opportunity search checks it against the value it
   // captured when the search started, so a slow response can't steal focus back from a listing
@@ -346,9 +466,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // that has since taken the window over.
   private infoWindowShowsOpportunity = false;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
-  // One clusterer per marker type (listings + one per POI category) so a cluster icon never
-  // mixes categories together, keeping each type's color meaningful when markers group up.
+  private readonly fraccionamientoMarkers = new Map<string, google.maps.Marker>();
+  // One clusterer per marker type (listings + fraccionamientos + one per POI category) so a
+  // cluster icon never mixes categories together, keeping each type's color meaningful when
+  // markers group up.
   private listingClusterer?: MarkerClusterer;
+  private fraccionamientoClusterer?: MarkerClusterer;
   private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
   private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
@@ -364,7 +487,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     protected readonly favorites: FavoritesService,
     private readonly brokerageService: BrokerageService,
     private readonly savedSearchService: SavedSearchService,
-    private readonly geomarketingService: GeomarketingService
+    private readonly geomarketingService: GeomarketingService,
+    private readonly fraccionamientoService: FraccionamientoService
   ) {
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
     // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
@@ -377,6 +501,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     });
 
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
+    this.geomarketingService.listMunicipalities().subscribe((list) => this.municipalities.set(list));
   }
 
   ngAfterViewInit(): void {
@@ -467,10 +592,20 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       center,
       zoom: DEFAULT_ZOOM,
       mapTypeControl: false,
-      streetViewControl: false,
+      streetViewControl: true,
+      streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
       fullscreenControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
+
+    // The pegman opens Street View in the same panorama Google attaches to this map (not a
+    // separate view) — listening for its own visible_changed is how the toolbar knows to hide
+    // itself, rather than trying to infer "in street view" from the pegman control's own state.
+    const streetView = this.map.getStreetView();
+    streetView.addListener('visible_changed', () => {
+      this.zone.run(() => this.streetViewActive.set(streetView.getVisible()));
+    });
+
     this.listingClusterer = new MarkerClusterer({
       map: this.map,
       algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
@@ -493,10 +628,120 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // Fires after every pan/zoom settles (and once on initial load) — keeps the results
     // list scoped to whatever's actually visible on the map right now.
     this.map.addListener('idle', () => {
-      this.zone.run(() => this.mapBounds.set(this.map!.getBounds() ?? null));
+      this.zone.run(() => {
+        this.mapBounds.set(this.map!.getBounds() ?? null);
+        // Unlike POI markers (a billed Places API call, deliberately searched once per check —
+        // see togglePoiCategory), AGEBs are our own indexed Postgres query, cheap enough to
+        // refetch on every pan/zoom so the layer actually follows the viewport.
+        if (this.showAgebLayer()) this.loadAgebsForCurrentBounds();
+      });
     });
 
     this.renderListingMarkers();
+    this.loadFraccionamientos();
+  }
+
+  // Fetched once per map load (not bounds-driven like listings) and rendered as their own
+  // clustered layer — a visitor should see every published development regardless of the
+  // current viewport, same as they'd see it from the /fraccionamientos list page.
+  private loadFraccionamientos(): void {
+    this.fraccionamientoService.listPublished({ pageSize: FRACCIONAMIENTOS_MAP_PAGE_SIZE }).subscribe({
+      next: (result) => this.zone.run(() => this.renderFraccionamientoMarkers(result.items)),
+      // Silent failure: the map's core purpose (browsing listings) still works without this
+      // layer, so a fraccionamientos-fetch error shouldn't surface a toast over the whole page.
+      error: () => {}
+    });
+  }
+
+  private renderFraccionamientoMarkers(items: FraccionamientoPublicListItem[]): void {
+    this.fraccionamientoClusterer?.clearMarkers();
+    this.fraccionamientoMarkers.clear();
+
+    const markers = items.map((frac) => {
+      const marker = new google.maps.Marker({
+        position: { lat: frac.latitude, lng: frac.longitude },
+        title: frac.name,
+        icon: FRACCIONAMIENTO_ICON
+      });
+
+      marker.addListener('click', () => {
+        this.zone.run(() => this.openFraccionamientoInfo(frac, marker));
+      });
+
+      this.fraccionamientoMarkers.set(frac.id, marker);
+      return marker;
+    });
+
+    if (!this.fraccionamientoClusterer) {
+      this.fraccionamientoClusterer = new MarkerClusterer({
+        map: this.map,
+        algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
+        renderer: createClusterRenderer(FRACCIONAMIENTO_CLUSTER_COLOR)
+      });
+    }
+    this.fraccionamientoClusterer.addMarkers(markers);
+  }
+
+  private openFraccionamientoInfo(frac: FraccionamientoPublicListItem, marker: google.maps.Marker): void {
+    if (!this.infoWindow) return;
+    this.infoWindowGeneration++;
+    this.infoWindowShowsOpportunity = false;
+
+    const navigate = (event: Event) => {
+      event.preventDefault();
+      this.zone.run(() => this.router.navigate(['/fraccionamientos', frac.id]));
+    };
+
+    const container = document.createElement('div');
+    container.className = 'map-info-card';
+
+    if (frac.masterPlanImageUrl) {
+      const media = document.createElement('div');
+      media.className = 'map-info-media';
+      media.style.cursor = 'pointer';
+      media.addEventListener('click', navigate);
+
+      const img = document.createElement('img');
+      img.src = frac.masterPlanImageUrl;
+      img.alt = frac.name;
+      media.appendChild(img);
+
+      if (frac.stage) {
+        const badge = document.createElement('span');
+        badge.className = 'map-info-badge';
+        badge.textContent = frac.stage;
+        media.appendChild(badge);
+      }
+
+      container.appendChild(media);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'map-info-body';
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'map-info-title';
+    titleEl.textContent = frac.name;
+    titleEl.style.cursor = 'pointer';
+    titleEl.addEventListener('click', navigate);
+    body.appendChild(titleEl);
+
+    if (frac.developerName) {
+      const developerEl = document.createElement('p');
+      developerEl.className = 'map-info-address';
+      developerEl.textContent = frac.developerName;
+      body.appendChild(developerEl);
+    }
+
+    const locationEl = document.createElement('p');
+    locationEl.className = 'map-info-address';
+    locationEl.textContent = !frac.masterPlanImageUrl && frac.stage ? `${frac.city}, ${frac.state} · ${frac.stage}` : `${frac.city}, ${frac.state}`;
+    body.appendChild(locationEl);
+
+    container.appendChild(body);
+
+    this.infoWindow.setContent(container);
+    this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
   private renderListingMarkers(): void {
@@ -1061,6 +1306,52 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   onSearchChange(term: string): void {
     this.search.set(term);
+    this.syncSearchMunicipality(term);
+  }
+
+  // If the typed term exactly matches a municipality name (accent/case-insensitive), fetches its
+  // shape so filteredListings' matchesTerm can widen to include listings geometrically inside it
+  // — see the comment on searchMunicipalityPolygon. Only fires on an exact match (not on every
+  // partial keystroke) so it doesn't flood the backend with lookups, or guess between ambiguous
+  // partial matches, while the visitor is still typing.
+  private syncSearchMunicipality(term: string): void {
+    const normalizedTerm = normalizeText(term);
+    const match = normalizedTerm
+      ? this.municipalities().find((m) => normalizeText(m.name) === normalizedTerm)
+      : undefined;
+
+    if (!match) {
+      this.searchMunicipalityRequestId++;
+      this.searchMunicipalityCvegeo = null;
+      this.searchMunicipalityPolygon()?.setMap(null);
+      this.searchMunicipalityPolygon.set(null);
+      return;
+    }
+
+    if (match.cvegeo === this.searchMunicipalityCvegeo) return; // already have (or are fetching) this one
+
+    const requestId = ++this.searchMunicipalityRequestId;
+    this.searchMunicipalityCvegeo = match.cvegeo;
+
+    this.geomarketingService.getMunicipalityBoundary(match.cvegeo).subscribe({
+      next: (result) => {
+        // The visitor may have kept typing (or cleared the box) while this was in flight — only
+        // apply a response that's still for the currently-matched municipality.
+        if (requestId !== this.searchMunicipalityRequestId) return;
+
+        const paths = this.geoJsonToPaths(result.boundary);
+        this.searchMunicipalityPolygon()?.setMap(null);
+        this.searchMunicipalityPolygon.set(this.buildMunicipalityPolygon(paths));
+        this.fitBoundsToPaths(paths);
+      },
+      // Silently give up rather than toast — unlike the dropdown, this fires implicitly while
+      // typing, not from a deliberate click, so a failed lookup shouldn't interrupt the visitor.
+      // The plain text search (matchesTerm's first three conditions) still applies either way.
+      error: () => {
+        if (requestId !== this.searchMunicipalityRequestId) return;
+        this.searchMunicipalityCvegeo = null;
+      }
+    });
   }
 
   setTypeFilter(type: ListingType | 'all'): void {
@@ -1091,6 +1382,159 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   setCompanyFilter(term: string): void {
     this.companyFilter.set(term);
+  }
+
+  // GeoJSON coordinates are [lng, lat] pairs (opposite order from LatLngLiteral), one ring deeper
+  // for MultiPolygon than Polygon — google.maps.Polygon's `paths` takes an array of rings either
+  // way, so both cases flatten to the same shape here (a MultiPolygon's separate polygons are
+  // just additional disjoint rings, which is exactly how Polygon already renders multiple rings).
+  private geoJsonToPaths(geometry: GeoJsonGeometry): google.maps.LatLngLiteral[][] {
+    const rings = geometry.type === 'Polygon' ? geometry.coordinates : geometry.coordinates.flat();
+    return rings.map((ring) => ring.map(([lng, lat]) => ({ lat, lng })));
+  }
+
+  // Shared styling for both municipality-boundary overlays (the dropdown's and the search box's)
+  // — same gold outline, not clickable (neither is meant to intercept map clicks).
+  private buildMunicipalityPolygon(paths: google.maps.LatLngLiteral[][]): google.maps.Polygon {
+    return new google.maps.Polygon({
+      paths,
+      map: this.map,
+      strokeColor: FRACCIONAMIENTO_CLUSTER_COLOR,
+      strokeWeight: 2,
+      fillColor: FRACCIONAMIENTO_CLUSTER_COLOR,
+      fillOpacity: 0.08,
+      clickable: false
+    });
+  }
+
+  private fitBoundsToPaths(paths: google.maps.LatLngLiteral[][]): void {
+    const bounds = new google.maps.LatLngBounds();
+    paths.forEach((ring) => ring.forEach((point) => bounds.extend(point)));
+    this.map?.fitBounds(bounds);
+  }
+
+  selectMunicipality(cvegeo: string): void {
+    this.municipalityFilter.set(cvegeo);
+
+    if (!cvegeo) {
+      this.municipalityPolygon()?.setMap(null);
+      this.municipalityPolygon.set(null);
+      return;
+    }
+
+    this.geomarketingService.getMunicipalityBoundary(cvegeo).subscribe({
+      next: (result) => {
+        // The visitor may have already changed/cleared the selection while this was in flight —
+        // only apply a response that's still for the currently-selected municipality.
+        if (this.municipalityFilter() !== cvegeo) return;
+
+        const paths = this.geoJsonToPaths(result.boundary);
+        this.municipalityPolygon()?.setMap(null);
+        this.municipalityPolygon.set(this.buildMunicipalityPolygon(paths));
+        this.fitBoundsToPaths(paths);
+      },
+      error: () => {
+        // Same staleness check as `next` — a superseded request's failure shouldn't toast an
+        // error for a municipality the visitor already moved away from.
+        if (this.municipalityFilter() !== cvegeo) return;
+        this.notification.error('map.municipalityLoadError');
+      }
+    });
+  }
+
+  toggleAgebLayer(checked: boolean): void {
+    this.showAgebLayer.set(checked);
+
+    if (checked) {
+      this.loadAgebsForCurrentBounds();
+      return;
+    }
+
+    // Invalidate any in-flight fetch so a late response can't repopulate the layer right after
+    // it was turned off, then drop every feature — cheaper than tearing down and recreating the
+    // google.maps.Data instance on every toggle.
+    this.agebRequestId++;
+    this.agebDataLayer?.forEach((feature) => this.agebDataLayer!.remove(feature));
+  }
+
+  private loadAgebsForCurrentBounds(): void {
+    const bounds = this.map?.getBounds();
+    if (!bounds) return;
+
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const requestId = ++this.agebRequestId;
+
+    this.geomarketingService.agebsInBounds(sw.lat(), sw.lng(), ne.lat(), ne.lng()).subscribe({
+      next: (agebs) => this.zone.run(() => {
+        // A pan/zoom (or the layer being unchecked) while this was in flight already bumped
+        // agebRequestId — a stale response repainting the layer would show AGEBs for a viewport
+        // the visitor has since scrolled away from.
+        if (requestId !== this.agebRequestId) return;
+        this.renderAgebLayer(agebs);
+      }),
+      error: () => {
+        if (requestId !== this.agebRequestId) return;
+        this.notification.error('map.agebLoadError');
+      }
+    });
+  }
+
+  private renderAgebLayer(agebs: AgebBoundary[]): void {
+    if (!this.map) return;
+
+    if (!this.agebDataLayer) {
+      this.agebDataLayer = new google.maps.Data({ map: this.map });
+      this.agebDataLayer.setStyle((feature) => {
+        const level = feature.getProperty('estimatedSocioeconomicLevel') as SocioeconomicLevel | null;
+        const color = level ? SOCIOECONOMIC_LEVEL_COLORS[level] : AGEB_UNSCORED_COLOR;
+        return { fillColor: color, fillOpacity: 0.35, strokeColor: color, strokeWeight: 1 };
+      });
+      this.agebDataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        this.zone.run(() => this.openAgebInfo(event));
+      });
+    }
+
+    this.agebDataLayer.forEach((feature) => this.agebDataLayer!.remove(feature));
+    for (const ageb of agebs) {
+      this.agebDataLayer.addGeoJson({
+        type: 'Feature',
+        geometry: ageb.boundary,
+        properties: { cvegeo: ageb.cvegeo, estimatedSocioeconomicLevel: ageb.estimatedSocioeconomicLevel }
+      });
+    }
+  }
+
+  // Reuses the same population-density lookup and popup content shape as the opportunity tool's
+  // drawOpportunityCircle (see SOCIOECONOMIC_LEVEL_LABEL_KEYS and the map.opportunity* i18n
+  // keys) — an AGEB click is asking the same question ("what's the density/level here?"), just
+  // triggered by clicking a shaded zone instead of running a business-count analysis first.
+  private openAgebInfo(event: google.maps.Data.MouseEvent): void {
+    if (!this.infoWindow || !event.latLng) return;
+    const requestId = ++this.infoWindowGeneration;
+    this.infoWindowShowsOpportunity = false;
+
+    const position = { lat: event.latLng.lat(), lng: event.latLng.lng() };
+    firstValueFrom(this.geomarketingService.populationDensity(position.lat, position.lng))
+      .catch(() => null)
+      .then((population) => {
+        if (!population || requestId !== this.infoWindowGeneration) return;
+
+        const densityLine = this.translation.t('map.opportunityPopulationDensity', {
+          density: Math.round(population.densityPerSqKm).toLocaleString(),
+          year: population.censusYear
+        });
+        const levelKey = population.estimatedSocioeconomicLevel
+          ? SOCIOECONOMIC_LEVEL_LABEL_KEYS[population.estimatedSocioeconomicLevel]
+          : null;
+        const levelLine = levelKey
+          ? `<br>${this.translation.t('map.opportunitySocioeconomicLevel', { level: this.translation.t(levelKey) })}`
+          : '';
+
+        this.infoWindow!.setContent(`<div class="opportunity-info">${densityLine}${levelLine}</div>`);
+        this.infoWindow!.setPosition(position);
+        this.infoWindow!.open(this.map);
+      });
   }
 
   toggleSaveSearchForm(): void {

@@ -164,6 +164,14 @@
     align-items: stretch;
   }
 
+  /* .search-field's min-width: 220px (set above for the desktop row layout) survives the
+     column stack above unless reset here — a flex item's min-width doesn't get cleared just
+     because its container's flex-direction changed, so it kept forcing horizontal overflow
+     on any viewport narrower than 220px plus the page's own side padding. */
+  .search-field {
+    min-width: 0;
+  }
+
   .type-toggle {
     justify-content: space-between;
   }

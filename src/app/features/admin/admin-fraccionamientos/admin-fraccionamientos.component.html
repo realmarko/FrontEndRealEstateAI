@@ -1,0 +1,225 @@
+<div class="page">
+  <div class="page-header">
+    <h1>{{ 'adminFraccionamientos.title' | translate }}</h1>
+    <button type="button" class="add-toggle-btn" (click)="toggleAddForm()">
+      {{ (showAddForm() ? 'adminFraccionamientos.addCancel' : 'adminFraccionamientos.addManually') | translate }}
+    </button>
+  </div>
+
+  @if (showAddForm()) {
+    <form class="add-form" (submit)="$event.preventDefault(); submitAdd()">
+      <div class="form-grid">
+        <label>
+          {{ 'adminFraccionamientos.formName' | translate }}
+          <input type="text" [value]="addForm().name" (input)="updateAddForm('name', $any($event.target).value)" required />
+        </label>
+        <label>
+          {{ 'adminFraccionamientos.formDeveloper' | translate }}
+          <input type="text" [value]="addForm().developerName" (input)="updateAddForm('developerName', $any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'adminFraccionamientos.formCity' | translate }}
+          <input type="text" [value]="addForm().city" (input)="updateAddForm('city', $any($event.target).value)" required />
+        </label>
+        <label>
+          {{ 'adminFraccionamientos.formState' | translate }}
+          <input type="text" [value]="addForm().state" (input)="updateAddForm('state', $any($event.target).value)" required />
+        </label>
+        <label>
+          {{ 'adminFraccionamientos.formCoordinates' | translate }}
+          <input
+            type="text"
+            [value]="addForm().coordinates"
+            (input)="updateAddForm('coordinates', $any($event.target).value)"
+            placeholder="19.04, -98.20"
+            required
+          />
+        </label>
+        <label>
+          {{ 'adminFraccionamientos.formStage' | translate }}
+          <input type="text" [value]="addForm().stage" (input)="updateAddForm('stage', $any($event.target).value)" />
+        </label>
+      </div>
+
+      <p class="add-form-hint">{{ 'adminFraccionamientos.addFormHint' | translate }}</p>
+
+      <div class="actions">
+        <button type="submit" class="approve-btn" [disabled]="creating()">
+          {{ 'adminFraccionamientos.addSubmit' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+
+  <div class="filters">
+    <button type="button" [class.active]="statusFilter() === 'Candidate'" (click)="setFilter('Candidate')">
+      {{ 'adminFraccionamientos.filterCandidate' | translate }}
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'Published'" (click)="setFilter('Published')">
+      {{ 'adminFraccionamientos.filterPublished' | translate }}
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'Rejected'" (click)="setFilter('Rejected')">
+      {{ 'adminFraccionamientos.filterRejected' | translate }}
+    </button>
+    <button type="button" [class.active]="statusFilter() === 'all'" (click)="setFilter('all')">
+      {{ 'adminFraccionamientos.filterAll' | translate }}
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="loading">{{ 'adminFraccionamientos.loading' | translate }}</p>
+  } @else if (items().length) {
+    <div class="item-list">
+      @for (item of items(); track item.id) {
+        <div class="item-card">
+          <div class="item-summary" (click)="toggleExpanded(item)">
+            <span class="badge" [class]="'status-' + item.status.toLowerCase()">
+              {{ ('adminFraccionamientos.status' + item.status) | translate }}
+            </span>
+            <span class="name">{{ item.name }}</span>
+            <span class="location">{{ item.city }}, {{ item.state }}</span>
+            @if (item.sourceCount > 1) {
+              <span class="badge source-count-badge">
+                {{ 'adminFraccionamientos.sourceCount' | translate: { count: item.sourceCount } }}
+              </span>
+            }
+            <span class="date">{{ item.firstDetectedAt | date: 'short' }}</span>
+          </div>
+
+          @if (expandedId() === item.id) {
+            <div class="detail">
+              @if (loadingDetail()) {
+                <p class="loading">{{ 'adminFraccionamientos.loading' | translate }}</p>
+              } @else if (expandedDetail(); as detail) {
+                @if (detail.sources.length) {
+                  <div class="sources">
+                    <h3>{{ 'adminFraccionamientos.sourcesTitle' | translate }}</h3>
+                    <ul>
+                      @for (source of detail.sources; track source.id) {
+                        <li>
+                          <span class="badge source-badge">{{ ('adminFraccionamientos.sourceType' + source.sourceType) | translate }}</span>
+                          @if (source.sourceUrl) {
+                            <a [href]="source.sourceUrl" target="_blank" rel="noopener">{{ source.sourceUrl }}</a>
+                          }
+                          <span class="date">{{ source.detectedAt | date: 'short' }}</span>
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+                @if (detail.linkedListingCount > 0) {
+                  <p class="linked-listings">
+                    {{ 'adminFraccionamientos.linkedListings' | translate: { count: detail.linkedListingCount } }}
+                  </p>
+                }
+
+                @if (detail.status !== 'MergedInto') {
+                  <form class="approve-form" (submit)="$event.preventDefault(); approve(item.id)">
+                    <div class="form-grid">
+                      <label>
+                        {{ 'adminFraccionamientos.formName' | translate }}
+                        <input type="text" [value]="form().name" (input)="updateForm('name', $any($event.target).value)" required />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formDeveloper' | translate }}
+                        <input type="text" [value]="form().developerName" (input)="updateForm('developerName', $any($event.target).value)" />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formCity' | translate }}
+                        <input type="text" [value]="form().city" (input)="updateForm('city', $any($event.target).value)" required />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formState' | translate }}
+                        <input type="text" [value]="form().state" (input)="updateForm('state', $any($event.target).value)" required />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formStage' | translate }}
+                        <input type="text" [value]="form().stage" (input)="updateForm('stage', $any($event.target).value)" />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formMasterPlanUrl' | translate }}
+                        <input type="url" [value]="form().masterPlanImageUrl" (input)="updateForm('masterPlanImageUrl', $any($event.target).value)" />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formContactPhone' | translate }}
+                        <input type="tel" [value]="form().contactPhone" (input)="updateForm('contactPhone', $any($event.target).value)" />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formContactEmail' | translate }}
+                        <input type="email" [value]="form().contactEmail" (input)="updateForm('contactEmail', $any($event.target).value)" />
+                      </label>
+                    </div>
+
+                    <label class="full-width">
+                      {{ 'adminFraccionamientos.formDescription' | translate }}
+                      <textarea rows="2" [value]="form().description" (input)="updateForm('description', $any($event.target).value)"></textarea>
+                    </label>
+
+                    <label class="full-width">
+                      {{ 'adminFraccionamientos.formAmenities' | translate }}
+                      <input
+                        type="text"
+                        [value]="form().amenitiesText"
+                        (input)="updateForm('amenitiesText', $any($event.target).value)"
+                        [placeholder]="'adminFraccionamientos.formAmenitiesPlaceholder' | translate"
+                      />
+                    </label>
+
+                    <div class="actions">
+                      <button type="submit" class="approve-btn" [disabled]="approving()">
+                        {{ (detail.status === 'Published' ? 'adminFraccionamientos.saveChanges' : 'adminFraccionamientos.approve') | translate }}
+                      </button>
+
+                      @if (detail.status !== 'Rejected') {
+                        <button type="button" class="reject-btn" [disabled]="rejecting()" (click)="reject(item.id)">
+                          {{ 'adminFraccionamientos.reject' | translate }}
+                        </button>
+                      }
+
+                      <span class="merge-group">
+                        <input
+                          type="text"
+                          class="merge-input"
+                          [value]="mergeTargetId()"
+                          (input)="mergeTargetId.set($any($event.target).value)"
+                          [placeholder]="'adminFraccionamientos.mergeTargetPlaceholder' | translate"
+                        />
+                        <button type="button" class="merge-btn" [disabled]="merging() || !mergeTargetId().trim()" (click)="merge(item.id)">
+                          {{ 'adminFraccionamientos.merge' | translate }}
+                        </button>
+                      </span>
+                    </div>
+                  </form>
+                } @else {
+                  <p class="merged-note">{{ 'adminFraccionamientos.mergedNote' | translate }}</p>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="list-footer">
+      <label class="page-size">
+        {{ 'adminFraccionamientos.pageSize' | translate }}
+        <select [value]="pageSize()" (change)="setPageSize(+$any($event.target).value)">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button type="button" [disabled]="page() === 1" (click)="goToPage(page() - 1)">{{ 'adminFraccionamientos.prevPage' | translate }}</button>
+          <span>{{ 'adminFraccionamientos.pageOf' | translate: { page: page(), total: totalPages() } }}</span>
+          <button type="button" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">{{ 'adminFraccionamientos.nextPage' | translate }}</button>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">{{ 'adminFraccionamientos.empty' | translate }}</p>
+  }
+</div>

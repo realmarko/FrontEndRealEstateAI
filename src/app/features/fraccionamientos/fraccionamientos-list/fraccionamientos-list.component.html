@@ -1,0 +1,62 @@
+<div class="page">
+  <header class="page-header">
+    <h1>{{ 'fraccionamientos.title' | translate }}</h1>
+    <p class="subtitle">{{ 'fraccionamientos.subtitle' | translate }}</p>
+  </header>
+
+  <p class="sr-only" role="status">
+    @if (loading()) {
+      {{ 'fraccionamientos.loadingAnnouncement' | translate }}
+    }
+  </p>
+
+  @if (items().length) {
+    <div class="grid">
+      @for (item of items(); track item.id) {
+        <a class="card" [routerLink]="['/fraccionamientos', item.id]">
+          <div class="photo">
+            @if (item.masterPlanImageUrl) {
+              <img [src]="item.masterPlanImageUrl" [alt]="item.name" />
+            } @else {
+              <div class="photo-fallback">{{ item.name.charAt(0) }}</div>
+            }
+          </div>
+          <div class="body">
+            <h3 [attr.title]="item.name">{{ item.name }}</h3>
+            @if (item.developerName) {
+              <p class="developer" [attr.title]="item.developerName">{{ item.developerName }}</p>
+            }
+            <p class="location">{{ item.city }}, {{ item.state }}</p>
+            @if (item.stage) {
+              <span class="stage-badge">{{ item.stage }}</span>
+            }
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button type="button" [disabled]="page() === 1" (click)="goToPage(page() - 1)">
+          {{ 'fraccionamientos.prevPage' | translate }}
+        </button>
+        <span class="pagination-status">
+          {{ 'fraccionamientos.pageOf' | translate: { page: page(), total: totalPages() } }}
+        </span>
+        <button type="button" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">
+          {{ 'fraccionamientos.nextPage' | translate }}
+        </button>
+      </div>
+    }
+  } @else if (loading()) {
+    <app-skeleton-loader variant="grid" [count]="6" [lines]="2" />
+  } @else if (loadError()) {
+    <app-state-panel kind="error" [retryLabel]="'fraccionamientos.retry' | translate" (retry)="retry()">
+      {{ 'fraccionamientos.loadError' | translate }}
+    </app-state-panel>
+  } @else {
+    <app-state-panel kind="empty">
+      {{ 'fraccionamientos.empty' | translate }}
+    </app-state-panel>
+  }
+</div>
