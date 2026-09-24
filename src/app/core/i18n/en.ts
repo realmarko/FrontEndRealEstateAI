@@ -18,6 +18,7 @@ export const en: Record<string, string> = {
   'login.submit': 'Log in',
   'login.noAccount': 'No account?',
   'login.registerLink': 'Register',
+  'login.forgotPassword': 'Forgot your password?',
 
   'register.title': 'Create an account',
   'register.firstName': 'First name',
@@ -33,10 +34,30 @@ export const en: Record<string, string> = {
   'register.loginLink': 'Log in',
   'register.success': 'Account created! Welcome to RealEstateApp.',
 
+  'forgotPassword.title': 'Reset your password',
+  'forgotPassword.intro': "Enter your account's email and we'll send you a link to reset your password.",
+  'forgotPassword.email': 'Email',
+  'forgotPassword.submit': 'Send reset link',
+  'forgotPassword.backToLogin': 'Back to log in',
+  'forgotPassword.checkEmailTitle': 'Check your email',
+  'forgotPassword.checkEmailBody': "If an account exists for that email, we've sent a link to reset your password.",
+
+  'resetPassword.title': 'Set a new password',
+  'resetPassword.newPassword': 'New password',
+  'resetPassword.confirmPassword': 'Confirm new password',
+  'resetPassword.passwordMismatch': "Passwords don't match.",
+  'resetPassword.submit': 'Reset password',
+  'resetPassword.success': 'Your password has been reset. Log in with your new password.',
+  'resetPassword.invalidLinkTitle': 'Invalid reset link',
+  'resetPassword.invalidLinkBody': "This link is missing what it needs to work — it may be incomplete or already used.",
+  'resetPassword.requestNewLink': 'Request a new link',
+
   'auth.errors.emailTaken': 'An account with this email already exists.',
   'auth.errors.invalidCredentials': 'Invalid email or password.',
   'auth.errors.loginFailed': 'Unable to log in.',
   'auth.errors.registerFailed': 'Unable to register.',
+  'auth.errors.forgotPasswordFailed': 'Could not send the reset link right now. Please try again.',
+  'auth.errors.resetPasswordFailed': 'Could not reset your password. The link may be invalid or expired.',
 
   'listings.title': 'Listings',
   'listings.addListing': '+ Add listing',
