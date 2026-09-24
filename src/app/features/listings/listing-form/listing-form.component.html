@@ -317,7 +317,10 @@
       <button type="submit" class="primary" [disabled]="isSubmitting()" [class.loading]="isSubmitting()">
         {{ (isSubmitting() ? (isEditMode ? 'listingForm.saving' : 'listingForm.creating') : (isEditMode ? 'listingForm.saveSubmit' : 'listingForm.createSubmit')) | translate }}
       </button>
-      <a routerLink="/listings">{{ 'listingForm.cancel' | translate }}</a>
+      <!-- Creating a listing only ever gets here from the map's "add property" flow (see
+           hasCoordinatesGuard) — cancelling should return there, not to the unrelated /listings
+           index. Editing isn't guarded that way, so /listings stays the right fallback there. -->
+      <a [routerLink]="isEditMode ? '/listings' : '/map'">{{ 'listingForm.cancel' | translate }}</a>
     </div>
   </form>
 </div>

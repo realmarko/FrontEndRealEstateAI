@@ -1,5 +1,10 @@
 :host {
-  --ink: #0d0d0d;
+  /* Named --landing-ink, not --ink: this page's near-black is a bespoke editorial/luxury brand
+     color used as both text and dark-panel background (hero, footer, geo-spotlight), distinct
+     from the app-wide --ink (styles.css, #1f2937 slate, body-text only). Reusing the shared
+     token name here silently shadowed it for this whole component, so var(--ink) meant a
+     different color depending on which file you read it in. */
+  --landing-ink: #0d0d0d;
   --charcoal: #1b1b1c;
   --gold: #c6a15b;
   --gold-dim: #8a723f;
@@ -9,7 +14,7 @@
   --platinum: #e7e5e1;
 
   display: block;
-  color: var(--ink);
+  color: var(--landing-ink);
   background: var(--paper);
   overflow-x: hidden;
 }
@@ -45,7 +50,7 @@
 
 .btn-primary {
   background: var(--gold);
-  color: var(--ink);
+  color: var(--landing-ink);
 }
 
 .btn-primary:hover {
@@ -65,7 +70,7 @@
 }
 
 .btn-dark {
-  background: var(--ink);
+  background: var(--landing-ink);
   color: var(--paper);
 }
 
@@ -77,7 +82,7 @@
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
-  background: var(--ink);
+  background: var(--landing-ink);
   padding: 4.5rem 1.5rem 5.5rem;
   overflow: hidden;
 }
@@ -300,7 +305,7 @@
 
 /* ---------- Geomarketing spotlight ---------- */
 .geo-spotlight {
-  background: var(--ink);
+  background: var(--landing-ink);
   color: var(--paper);
   padding: 5.5rem 1.5rem;
 }
@@ -380,7 +385,7 @@
 
 /* ---------- Footer ---------- */
 .landing-footer {
-  background: var(--ink);
+  background: var(--landing-ink);
   color: var(--silver);
   padding: 3.5rem 1.5rem 2.5rem;
   border-top: 1px solid var(--silver-line);

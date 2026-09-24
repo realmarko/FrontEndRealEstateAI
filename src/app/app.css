@@ -1,7 +1,14 @@
 .app-shell {
   display: flex;
   flex-direction: column;
+  /* 100vh on a real mobile browser is measured as if the address bar were always hidden, so the
+     actually-visible area ends up shorter than this — every page that fills the shell exactly
+     (like /map, which relies on internal scroll regions instead of page scroll) can end up with
+     content pushed below the real fold. 100dvh tracks the address bar's actual state; kept as a
+     second declaration (not a fallback var) so older browsers that don't parse dvh still get the
+     100vh rule instead of an invalid one. */
   height: 100vh;
+  height: 100dvh;
 }
 
 /* Bounds every routed page to the space left under the navbar. Pages that need normal

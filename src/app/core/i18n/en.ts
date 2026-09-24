@@ -34,7 +34,7 @@ export const en: Record<string, string> = {
   'register.submit': 'Register',
   'register.haveAccount': 'Already have an account?',
   'register.loginLink': 'Log in',
-  'register.success': 'Account created! Welcome to RealEstateApp.',
+  'register.success': 'Account created! Welcome to Espacial.com.mx.',
 
   'forgotPassword.title': 'Reset your password',
   'forgotPassword.intro': "Enter your account's email and we'll send you a link to reset your password.",
@@ -306,6 +306,7 @@ export const en: Record<string, string> = {
   'map.addProperty': 'Add property',
   'map.clickToPlace': 'Click on the map to place a marker',
   'map.continue': 'Continue with this location',
+  'map.cancelLocation': 'Cancel',
   'map.viewDetails': 'View details',
   'map.myListings': 'My listings',
   'map.togglePoi': 'Show map layers',
