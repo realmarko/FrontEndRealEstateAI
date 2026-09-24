@@ -5,17 +5,20 @@
     <label>
       {{ 'listingForm.titleLabel' | translate }}
       <input type="text" formControlName="title" maxlength="200" />
+      <app-form-error [control]="form.controls.title" />
     </label>
 
     <label>
       {{ 'listingForm.description' | translate }}
       <textarea rows="4" formControlName="description" maxlength="5000"></textarea>
+      <app-form-error [control]="form.controls.description" />
     </label>
 
     <div class="grid-3">
       <label>
         {{ 'listingForm.price' | translate }}
         <input type="text" inputmode="numeric" class="price-mask" formControlName="price" appCurrencyInput />
+        <app-form-error [control]="form.controls.price" />
       </label>
 
       <label>
@@ -147,9 +150,51 @@
     }
 
     <label>
-      {{ 'listingForm.address' | translate }}
-      <input type="text" formControlName="address" maxlength="300" />
+      {{ 'listingForm.street' | translate }}
+      <input type="text" formControlName="street" maxlength="300" />
+      <app-form-error [control]="form.controls.street" />
     </label>
+
+    <div class="grid-3">
+      <label>
+        {{ 'listingForm.colonia' | translate }}
+        <input type="text" formControlName="colonia" maxlength="150" />
+      </label>
+
+      <label>
+        {{ 'listingForm.city' | translate }}
+        <input type="text" formControlName="city" list="listing-city-options" maxlength="100" />
+        <datalist id="listing-city-options">
+          @for (city of citiesForState(); track city.cvegeo) {
+            <option [value]="city.name"></option>
+          }
+        </datalist>
+        <app-form-error [control]="form.controls.city" />
+      </label>
+
+      <label>
+        {{ 'listingForm.zipCode' | translate }}
+        <input type="text" formControlName="zipCode" maxlength="20" />
+      </label>
+    </div>
+
+    <div class="grid-2">
+      <label>
+        {{ 'listingForm.state' | translate }}
+        <input type="text" formControlName="state" list="listing-state-options" maxlength="100" />
+        <datalist id="listing-state-options">
+          @for (state of states(); track state.code) {
+            <option [value]="state.name"></option>
+          }
+        </datalist>
+        <app-form-error [control]="form.controls.state" />
+      </label>
+
+      <label>
+        {{ 'listingForm.country' | translate }}
+        <input type="text" formControlName="country" maxlength="100" />
+      </label>
+    </div>
 
     <!-- Not gated by isLandOrCommercial() like the rest of that section — a corner lot is just
          as relevant for a house or apartment building as for raw land or a commercial parcel. -->
@@ -187,6 +232,7 @@
     <label>
       {{ 'listingForm.area' | translate }}
       <input type="number" formControlName="areaSqm" min="0" />
+      <app-form-error [control]="form.controls.areaSqm" />
     </label>
 
     @if (!isPureLand()) {
@@ -245,6 +291,7 @@
     <label>
       {{ 'listingForm.videoTourUrl' | translate }}
       <input type="url" formControlName="videoTourUrl" placeholder="https://..." maxlength="2048" />
+      <app-form-error [control]="form.controls.videoTourUrl" />
     </label>
 
     <label>
@@ -266,16 +313,10 @@
       </div>
     }
 
-    <label>
-      {{ 'listingForm.addPhotoUrl' | translate }}
-      <div class="add-url-row">
-        <input type="text" [(ngModel)]="newImageUrl" [ngModelOptions]="{standalone: true}" [placeholder]="'listingForm.photoUrlPlaceholder' | translate" />
-        <button type="button" (click)="addImageUrl()">{{ 'listingForm.addPhoto' | translate }}</button>
-      </div>
-    </label>
-
     <div class="actions">
-      <button type="submit" class="primary">{{ (isEditMode ? 'listingForm.saveSubmit' : 'listingForm.createSubmit') | translate }}</button>
+      <button type="submit" class="primary" [disabled]="isSubmitting()" [class.loading]="isSubmitting()">
+        {{ (isSubmitting() ? (isEditMode ? 'listingForm.saving' : 'listingForm.creating') : (isEditMode ? 'listingForm.saveSubmit' : 'listingForm.createSubmit')) | translate }}
+      </button>
       <!-- Creating a listing only ever gets here from the map's "add property" flow (see
            hasCoordinatesGuard) — cancelling should return there, not to the unrelated /listings
            index. Editing isn't guarded that way, so /listings stays the right fallback there. -->

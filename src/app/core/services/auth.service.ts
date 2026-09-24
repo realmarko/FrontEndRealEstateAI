@@ -58,6 +58,16 @@ export class AuthService {
     );
   }
 
+  // Always resolves — the backend returns 204 whether or not the email is registered, so this
+  // can't be used to enumerate accounts. Callers should always show the same generic message.
+  forgotPassword(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/forgot-password`, { email });
+  }
+
+  resetPassword(email: string, token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/reset-password`, { email, token, newPassword });
+  }
+
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);

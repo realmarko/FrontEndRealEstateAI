@@ -1,0 +1,96 @@
+@if (frac(); as frac) {
+  <div class="page">
+    <a class="back" routerLink="/fraccionamientos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+      {{ 'fraccionamientoDetail.back' | translate }}
+    </a>
+
+    <div class="hero">
+      <div class="hero-image">
+        @if (frac.masterPlanImageUrl) {
+          <img [src]="frac.masterPlanImageUrl" [alt]="frac.name" />
+        } @else {
+          <div class="hero-fallback">{{ frac.name.charAt(0) }}</div>
+        }
+      </div>
+
+      <div class="hero-body">
+        <h1>{{ frac.name }}</h1>
+        @if (frac.developerName) {
+          <p class="developer">{{ 'fraccionamientoDetail.by' | translate }} {{ frac.developerName }}</p>
+        }
+        <p class="location">{{ frac.city }}, {{ frac.state }}</p>
+        @if (frac.stage) {
+          <span class="stage-badge">{{ frac.stage }}</span>
+        }
+
+        @if (frac.contactEmail) {
+          <button type="button" class="contact-button" (click)="openContactModal()">
+            {{ 'fraccionamientoDetail.contactDeveloper' | translate }}
+          </button>
+        } @else if (frac.contactPhone) {
+          <a class="contact-button" [href]="'tel:' + frac.contactPhone">
+            {{ 'fraccionamientoDetail.callDeveloper' | translate }}
+          </a>
+        }
+      </div>
+    </div>
+
+    @if (frac.description) {
+      <section class="section">
+        <h2>{{ 'fraccionamientoDetail.aboutTitle' | translate }}</h2>
+        <p class="description">{{ frac.description }}</p>
+      </section>
+    }
+
+    @if (amenities.length) {
+      <section class="section">
+        <h2>{{ 'fraccionamientoDetail.amenitiesTitle' | translate }}</h2>
+        <ul class="amenities">
+          @for (amenity of amenities; track amenity) {
+            <li>{{ amenity }}</li>
+          }
+        </ul>
+      </section>
+    }
+
+    <section class="section">
+      <h2>{{ 'fraccionamientoDetail.listingsTitle' | translate: { count: frac.listings.length } }}</h2>
+      @if (frac.listings.length) {
+        <app-listing-grid [listings]="frac.listings" />
+      } @else {
+        <p class="empty-listings">{{ 'fraccionamientoDetail.noListings' | translate }}</p>
+      }
+    </section>
+  </div>
+
+  @if (showContactModal()) {
+    <app-contact-modal
+      [title]="contactModalTitle"
+      [initialName]="contactInitialName"
+      [initialEmail]="contactInitialEmail"
+      [sending]="sendingContact()"
+      (closed)="closeContactModal()"
+      (sent)="sendContactMessage($event)"
+    />
+  }
+} @else if (loading()) {
+  <div class="page">
+    <app-skeleton-loader variant="grid" [count]="1" [lines]="4" />
+  </div>
+} @else if (notFound()) {
+  <div class="page">
+    <app-state-panel kind="empty">
+      {{ 'fraccionamientoDetail.notFound' | translate }}
+    </app-state-panel>
+  </div>
+} @else {
+  <div class="page">
+    <app-state-panel kind="error" [retryLabel]="'fraccionamientoDetail.retry' | translate" (retry)="retry()">
+      {{ 'fraccionamientoDetail.loadError' | translate }}
+    </app-state-panel>
+  </div>
+}

@@ -96,10 +96,12 @@ export interface ListingDto {
   status: string;
   price: number;
   currency: string;
-  addressLine: string;
+  street: string;
+  colonia: string;
   city: string;
   state: string;
   zipCode: string;
+  country: string;
   latitude: number;
   longitude: number;
   bedrooms: number;
@@ -169,7 +171,15 @@ export function fromDto(dto: ListingDto): Listing {
     currency: dto.currency as Listing['currency'],
     type: LISTING_TYPE_FROM_STRING[dto.listingType] ?? 'rent',
     propertyType: PROPERTY_TYPE_FROM_STRING[dto.propertyType] ?? 'house',
-    address: dto.addressLine,
+    street: dto.street,
+    colonia: dto.colonia,
+    city: dto.city,
+    state: dto.state,
+    zipCode: dto.zipCode,
+    country: dto.country,
+    // Short display line: street + colonia + city + state, skipping empty parts (colonia is
+    // blank for listings migrated before this field existed) — zip/country aren't shown inline.
+    address: [dto.street, dto.colonia, dto.city, dto.state].filter((part) => part.trim().length > 0).join(', '),
     bedrooms: dto.bedrooms,
     bathrooms: dto.bathrooms,
     areaSqm: Math.round(dto.areaSqFt * SQM_PER_SQFT),
@@ -231,10 +241,12 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('propertyType', String(PROPERTY_TYPE_TO_NUMBER[input.propertyType ?? 'house']));
   form.append('price', String(input.price));
   form.append('currency', input.currency);
-  form.append('addressLine', input.address);
-  form.append('city', 'Puebla');
-  form.append('state', 'Puebla');
-  form.append('zipCode', '');
+  form.append('street', input.street);
+  form.append('colonia', input.colonia);
+  form.append('city', input.city);
+  form.append('state', input.state);
+  form.append('zipCode', input.zipCode);
+  form.append('country', input.country);
   form.append('latitude', String(input.lat ?? 0));
   form.append('longitude', String(input.lng ?? 0));
   form.append('bedrooms', String(input.bedrooms));

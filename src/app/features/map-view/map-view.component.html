@@ -89,11 +89,22 @@
           <option [value]="name"></option>
         }
       </datalist>
+      <select
+        class="filter-select"
+        [value]="municipalityFilter()"
+        (change)="selectMunicipality($any($event.target).value)"
+      >
+        <option value="">{{ 'map.municipalityAll' | translate }}</option>
+        @for (municipality of municipalities(); track municipality.cvegeo) {
+          <option [value]="municipality.cvegeo">{{ municipality.name }}</option>
+        }
+      </select>
     </div>
   </div>
 
   <div class="map-content">
     <div class="map-pane" [class.expanded]="mapExpanded()">
+      @if (!streetViewActive()) {
       <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
           <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
@@ -133,6 +144,10 @@
                       }
                     </label>
                   }
+                  <label class="poi-checklist-item ageb-checklist-item">
+                    <input type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
+                    {{ 'map.agebLayer' | translate }}
+                  </label>
                 </div>
               }
             </div>
@@ -193,6 +208,7 @@
           </ng-container>
         </div>
       </div>
+      }
       <div class="location-confirm-card" *ngIf="selectedLat !== null && selectedLng !== null">
         <div class="location-confirm-actions">
           <button type="button" class="location-cancel-btn" (click)="cancelAddMode()">

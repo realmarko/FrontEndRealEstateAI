@@ -7,7 +7,10 @@
 
 .fields {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* minmax(0, ...): a bare 1fr track won't shrink below its content's intrinsic width,
+     which overflowed this shared component's host column on narrow viewports (e.g. inside
+     listing-detail's .gallery column). */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -77,6 +80,6 @@
 
 @media (max-width: 480px) {
   .fields {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
