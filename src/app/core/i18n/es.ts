@@ -18,6 +18,7 @@ export const es: Record<string, string> = {
   'login.submit': 'Iniciar sesión',
   'login.noAccount': '¿No tienes cuenta?',
   'login.registerLink': 'Regístrate',
+  'login.forgotPassword': '¿Olvidaste tu contraseña?',
 
   'register.title': 'Crear una cuenta',
   'register.firstName': 'Nombre',
@@ -33,10 +34,30 @@ export const es: Record<string, string> = {
   'register.loginLink': 'Inicia sesión',
   'register.success': '¡Cuenta creada! Bienvenido a RealEstateApp.',
 
+  'forgotPassword.title': 'Recupera tu contraseña',
+  'forgotPassword.intro': 'Escribe el correo de tu cuenta y te mandaremos un link para restablecer tu contraseña.',
+  'forgotPassword.email': 'Correo electrónico',
+  'forgotPassword.submit': 'Enviar link de recuperación',
+  'forgotPassword.backToLogin': 'Volver a iniciar sesión',
+  'forgotPassword.checkEmailTitle': 'Revisa tu correo',
+  'forgotPassword.checkEmailBody': 'Si existe una cuenta con ese correo, te mandamos un link para restablecer tu contraseña.',
+
+  'resetPassword.title': 'Define una nueva contraseña',
+  'resetPassword.newPassword': 'Nueva contraseña',
+  'resetPassword.confirmPassword': 'Confirma la nueva contraseña',
+  'resetPassword.passwordMismatch': 'Las contraseñas no coinciden.',
+  'resetPassword.submit': 'Restablecer contraseña',
+  'resetPassword.success': 'Tu contraseña se restableció. Inicia sesión con tu nueva contraseña.',
+  'resetPassword.invalidLinkTitle': 'Link de recuperación inválido',
+  'resetPassword.invalidLinkBody': 'A este link le falta lo necesario para funcionar — puede estar incompleto o ya haberse usado.',
+  'resetPassword.requestNewLink': 'Pedir un link nuevo',
+
   'auth.errors.emailTaken': 'Ya existe una cuenta con este correo electrónico.',
   'auth.errors.invalidCredentials': 'Correo electrónico o contraseña inválidos.',
   'auth.errors.loginFailed': 'No se pudo iniciar sesión.',
   'auth.errors.registerFailed': 'No se pudo completar el registro.',
+  'auth.errors.forgotPasswordFailed': 'No se pudo enviar el link de recuperación. Intenta de nuevo.',
+  'auth.errors.resetPasswordFailed': 'No se pudo restablecer tu contraseña. El link puede ser inválido o haber expirado.',
 
   'listings.title': 'Propiedades',
   'listings.addListing': '+ Agregar propiedad',
