@@ -94,106 +94,113 @@
 
   <div class="map-content">
     <div class="map-pane" [class.expanded]="mapExpanded()">
-      <div class="map-toolbar-wrap">
+      <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
           <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
             {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
           </button>
-          <div class="picker-anchor">
+          <!-- Everything else in the toolbar competes for attention with placing/confirming a
+               pin, so it hides as soon as add-mode turns on (not just once a pin is placed) —
+               matching how the confirm card itself only appears once a pin is placed. -->
+          <ng-container *ngIf="!addMode">
+            <div class="picker-anchor">
+              <button
+                type="button"
+                class="poi-toggle-btn"
+                [class.active]="showPoiChecklist()"
+                [attr.aria-label]="'map.togglePoi' | translate"
+                [attr.aria-expanded]="showPoiChecklist()"
+                (click)="togglePoiChecklist()"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3 2 8l10 5 10-5-10-5z" />
+                  <path d="M2 12l10 5 10-5" />
+                  <path d="M2 16l10 5 10-5" />
+                </svg>
+              </button>
+              @if (showPoiChecklist()) {
+                <div class="poi-checklist">
+                  @for (category of poiCategories; track category.key) {
+                    <label class="poi-checklist-item">
+                      <input
+                        type="checkbox"
+                        [checked]="checkedPoiCategories().has(category.key)"
+                        (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                      />
+                      {{ category.labelKey | translate }}
+                      @if (loadingPoiCategories().has(category.key)) {
+                        <span class="poi-loading">…</span>
+                      }
+                    </label>
+                  }
+                </div>
+              }
+            </div>
             <button
               type="button"
-              class="poi-toggle-btn"
-              [class.active]="showPoiChecklist()"
-              [attr.aria-label]="'map.togglePoi' | translate"
-              [attr.aria-expanded]="showPoiChecklist()"
-              (click)="togglePoiChecklist()"
+              class="locate-btn"
+              [disabled]="locatingMe"
+              [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"
+              (click)="centerOnCurrentLocation(true)"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 3 2 8l10 5 10-5-10-5z" />
-                <path d="M2 12l10 5 10-5" />
-                <path d="M2 16l10 5 10-5" />
+                <circle cx="12" cy="12" r="7" />
+                <line x1="12" y1="1" x2="12" y2="4" />
+                <line x1="12" y1="20" x2="12" y2="23" />
+                <line x1="1" y1="12" x2="4" y2="12" />
+                <line x1="20" y1="12" x2="23" y2="12" />
               </svg>
             </button>
-            @if (showPoiChecklist()) {
-              <div class="poi-checklist">
-                @for (category of poiCategories; track category.key) {
-                  <label class="poi-checklist-item">
-                    <input
-                      type="checkbox"
-                      [checked]="checkedPoiCategories().has(category.key)"
-                      (change)="togglePoiCategory(category.key, $any($event.target).checked)"
-                    />
-                    {{ category.labelKey | translate }}
-                    @if (loadingPoiCategories().has(category.key)) {
-                      <span class="poi-loading">…</span>
-                    }
-                  </label>
-                }
-              </div>
+            <div class="picker-anchor">
+              <button
+                type="button"
+                class="opportunity-btn"
+                [class.active]="showOpportunityChecklist()"
+                [attr.aria-label]="'map.analyzeOpportunity' | translate"
+                [attr.aria-expanded]="showOpportunityChecklist()"
+                (click)="toggleOpportunityChecklist()"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" />
+                </svg>
+              </button>
+              @if (showOpportunityChecklist()) {
+                <div class="opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
+                  @for (category of opportunityCategories; track category.key) {
+                    <label class="opportunity-checklist-item">
+                      <input
+                        type="radio"
+                        name="opportunity-category"
+                        [checked]="selectedOpportunityCategory() === category.key"
+                        (change)="selectOpportunityCategory(category.key)"
+                      />
+                      {{ category.labelKey | translate }}
+                    </label>
+                  }
+                  @if (opportunityMode) {
+                    <p class="opportunity-hint">{{ 'map.clickToAnalyze' | translate }}</p>
+                  }
+                </div>
+              }
+            </div>
+            @if (loadingOpportunity()) {
+              <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
             }
-          </div>
-          <button
-            type="button"
-            class="locate-btn"
-            [disabled]="locatingMe"
-            [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"
-            (click)="centerOnCurrentLocation(true)"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="7" />
-              <line x1="12" y1="1" x2="12" y2="4" />
-              <line x1="12" y1="20" x2="12" y2="23" />
-              <line x1="1" y1="12" x2="4" y2="12" />
-              <line x1="20" y1="12" x2="23" y2="12" />
-            </svg>
+            <div class="map-legend" *ngIf="auth.isAuthenticated()">
+              <span class="dot mine"></span>{{ 'map.myListings' | translate }}
+              <span class="dot other"></span>{{ 'map.otherListings' | translate }}
+            </div>
+          </ng-container>
+        </div>
+      </div>
+      <div class="location-confirm-card" *ngIf="selectedLat !== null && selectedLng !== null">
+        <div class="location-confirm-actions">
+          <button type="button" class="location-cancel-btn" (click)="cancelAddMode()">
+            {{ 'map.cancelLocation' | translate }}
           </button>
-          <div class="picker-anchor">
-            <button
-              type="button"
-              class="opportunity-btn"
-              [class.active]="showOpportunityChecklist()"
-              [attr.aria-label]="'map.analyzeOpportunity' | translate"
-              [attr.aria-expanded]="showOpportunityChecklist()"
-              (click)="toggleOpportunityChecklist()"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" />
-              </svg>
-            </button>
-            @if (showOpportunityChecklist()) {
-              <div class="opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
-                @for (category of opportunityCategories; track category.key) {
-                  <label class="opportunity-checklist-item">
-                    <input
-                      type="radio"
-                      name="opportunity-category"
-                      [checked]="selectedOpportunityCategory() === category.key"
-                      (change)="selectOpportunityCategory(category.key)"
-                    />
-                    {{ category.labelKey | translate }}
-                  </label>
-                }
-                @if (opportunityMode) {
-                  <p class="opportunity-hint">{{ 'map.clickToAnalyze' | translate }}</p>
-                }
-              </div>
-            }
-          </div>
-          @if (loadingOpportunity()) {
-            <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
-          }
-          <button
-            type="button"
-            class="confirm-btn"
-            *ngIf="selectedLat !== null && selectedLng !== null"
-            (click)="confirmLocation()"
-          >
+          <button type="button" class="location-confirm-btn" (click)="confirmLocation()">
             {{ 'map.continue' | translate }}
           </button>
-          <div class="map-legend" *ngIf="auth.isAuthenticated()">
-            <span class="dot mine"></span>{{ 'map.myListings' | translate }}
-            <span class="dot other"></span>{{ 'map.otherListings' | translate }}
-          </div>
         </div>
       </div>
       <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
@@ -214,6 +221,10 @@
         }
       </button>
       <div #mapContainer class="map-container"></div>
+      <div class="map-loading" *ngIf="!mapReady">
+        <span class="map-loading-spinner" aria-hidden="true"></span>
+        {{ 'map.locating' | translate }}
+      </div>
     </div>
 
     <div class="listings-pane">

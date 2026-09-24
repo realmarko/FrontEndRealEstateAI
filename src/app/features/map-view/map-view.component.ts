@@ -26,10 +26,13 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 
 const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
 // How long the very first render waits on a geolocation answer before giving up and falling
-// back to DEFAULT_CENTER — long enough for an already-granted permission to resolve (typically
-// near-instant), short enough that a first-time visitor still ignoring/denying the permission
-// prompt doesn't leave the map blank for long.
-const INITIAL_LOCATE_TIMEOUT_MS = 2500;
+// back to DEFAULT_CENTER. Desktop browsers resolve location via Wi-Fi/IP positioning (no GPS),
+// which routinely takes several seconds — 2.5s was cutting that off before it could ever
+// finish, so nearly every desktop visitor saw Puebla first every time. 6s covers that case while
+// still bounding how long a first-time visitor who ignores/denies the permission prompt waits
+// before the map shows anything at all. If the real position still arrives after this timeout,
+// resolveInitialCenter's caller pans there instead of leaving the visitor stuck at Puebla.
+const INITIAL_LOCATE_TIMEOUT_MS = 6000;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
 
@@ -240,6 +243,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   hasError = false;
   addMode = false;
   locatingMe = false;
+  // False until buildMap() runs once on initial load — drives the loading overlay so the visitor
+  // sees "locating…" instead of a blank container while resolveInitialCenter is still working.
+  mapReady = false;
   // The real browser Fullscreen API can be blocked by the embedding context's permissions policy
   // (confirmed: this page silently no-ops when viewed inside an embedded preview pane), which
   // made Google Maps' native fullscreenControl button look broken with no visible error.
@@ -422,8 +428,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // already be centered there instead of opening at DEFAULT_CENTER and visibly jumping once
   // geolocation resolves (previously done via a post-creation centerOnCurrentLocation() call).
   // Resolves to null — falling back to DEFAULT_CENTER — when geolocation is unsupported, denied,
-  // or doesn't answer within INITIAL_LOCATE_TIMEOUT_MS.
-  private resolveInitialCenter(): Promise<google.maps.LatLngLiteral | null> {
+  // or doesn't answer within INITIAL_LOCATE_TIMEOUT_MS. If the real fix arrives after that
+  // timeout, onLateResult still gets it, so the caller can pan there instead of leaving the map
+  // stuck at Puebla for the rest of the visit.
+  private resolveInitialCenter(
+    onLateResult: (location: google.maps.LatLngLiteral) => void
+  ): Promise<google.maps.LatLngLiteral | null> {
     if (!navigator.geolocation) return Promise.resolve(null);
 
     return new Promise((resolve) => {
@@ -436,30 +446,59 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
       setTimeout(() => settleOnce(null), INITIAL_LOCATE_TIMEOUT_MS);
       navigator.geolocation.getCurrentPosition(
-        (position) => settleOnce({ lat: position.coords.latitude, lng: position.coords.longitude }),
-        () => settleOnce(null)
+        (position) => {
+          const location = { lat: position.coords.latitude, lng: position.coords.longitude };
+          if (settled) {
+            this.zone.run(() => onLateResult(location));
+          } else {
+            settleOnce(location);
+          }
+        },
+        () => settleOnce(null),
+        // A position cached within the last minute resolves near-instantly instead of forcing a
+        // fresh Wi-Fi/IP fix every time — the dominant cause of desktop visitors seeing the
+        // DEFAULT_CENTER fallback despite an already-granted permission.
+        { maximumAge: 60000 }
       );
     });
   }
 
   private initMap(): void {
     this.locatingMe = true;
-    this.resolveInitialCenter().then((userLocation) => {
+    this.resolveInitialCenter((lateLocation) => {
+      if (!this.map) return;
+      this.map.panTo(lateLocation);
+      this.placeMyLocationMarker(lateLocation);
+    }).then((userLocation) => {
       this.zone.run(() => {
         this.locatingMe = false;
         this.buildMap(userLocation ?? DEFAULT_CENTER);
+        this.mapReady = true;
 
         if (userLocation) {
-          this.myLocationMarker = new google.maps.Marker({
-            position: userLocation,
-            map: this.map,
-            title: this.translation.t('map.myLocation'),
-            icon: { url: MY_LOCATION_ICON, scaledSize: new google.maps.Size(32, 32) },
-            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1
-          });
+          this.placeMyLocationMarker(userLocation);
         }
       });
     });
+  }
+
+  // Shared by the initial load and the late-geolocation/recenter-button paths so "my location"
+  // is always drawn the same way instead of three slightly different inline copies of it.
+  private placeMyLocationMarker(location: google.maps.LatLngLiteral): void {
+    if (this.myLocationMarker) {
+      this.myLocationMarker.setPosition(location);
+      // Title isn't reactive like the template — refresh it too, in case the user switched
+      // language since the marker was first created.
+      this.myLocationMarker.setTitle(this.translation.t('map.myLocation'));
+    } else {
+      this.myLocationMarker = new google.maps.Marker({
+        position: location,
+        map: this.map,
+        title: this.translation.t('map.myLocation'),
+        icon: { url: MY_LOCATION_ICON, scaledSize: new google.maps.Size(32, 32) },
+        zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1
+      });
+    }
   }
 
   private buildMap(center: google.maps.LatLngLiteral): void {
@@ -651,11 +690,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
-  // Also wired to the "recenter" map button (template), not just the initial load — so
-  // wrapped in zone.run since the geolocation callback isn't guaranteed to run inside
-  // Angular's zone, and locatingMe is bound in the template. notifyOnError is off for the
-  // silent initial-load attempt (most first-time visitors haven't granted permission yet,
-  // and a toast on page load for that would be surprising) and on for the explicit button click.
+  // Wired to the explicit "recenter" map button (template) — wrapped in zone.run since the
+  // geolocation callback isn't guaranteed to run inside Angular's zone, and locatingMe is bound
+  // in the template. notifyOnError is on here (an explicit click deserves feedback if it fails),
+  // unlike the silent initial-load attempt in resolveInitialCenter.
   centerOnCurrentLocation(notifyOnError = false): void {
     if (!navigator.geolocation) return;
 
@@ -667,21 +705,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
           const here = { lat: position.coords.latitude, lng: position.coords.longitude };
           this.map?.setCenter(here);
           this.map?.setZoom(DEFAULT_ZOOM);
-
-          if (this.myLocationMarker) {
-            this.myLocationMarker.setPosition(here);
-            // Title isn't reactive like the template — refresh it too, in case the user
-            // switched language since the marker was first created.
-            this.myLocationMarker.setTitle(this.translation.t('map.myLocation'));
-          } else {
-            this.myLocationMarker = new google.maps.Marker({
-              position: here,
-              map: this.map,
-              title: this.translation.t('map.myLocation'),
-              icon: { url: MY_LOCATION_ICON, scaledSize: new google.maps.Size(32, 32) },
-              zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1
-            });
-          }
+          this.placeMyLocationMarker(here);
         });
       },
       () => {
@@ -1013,6 +1037,26 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.opportunityMode = false;
       this.clearOpportunityOverlay();
     }
+    // Turning add-mode off while a pin is already placed should drop it too — otherwise a
+    // dangling marker (and the confirmation card, which is keyed off selectedLat/Lng) would
+    // stick around after the visitor toggled the tool off.
+    if (!this.addMode) {
+      this.clearPendingLocation();
+    }
+  }
+
+  // Backs the floating confirmation card's "Cancelar" button — same cleanup as toggling
+  // add-mode off, exposed separately so the card doesn't have to know about that toggle.
+  cancelAddMode(): void {
+    this.addMode = false;
+    this.clearPendingLocation();
+  }
+
+  private clearPendingLocation(): void {
+    this.selectedLat = null;
+    this.selectedLng = null;
+    this.marker?.setMap(null);
+    this.marker = undefined;
   }
 
   // Toggles the category-picker panel, mirroring togglePoiChecklist. Closing it while a category
