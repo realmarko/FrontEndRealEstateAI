@@ -20,7 +20,9 @@ describe('TranslationService', () => {
 
   it('interpolates {{params}} into the translated string', () => {
     service.setLang('en');
-    expect(service.t('map.opportunityCompetitorCount', { count: 5 })).toBe('5 pharmacies within 1 km');
+    expect(
+      service.t('map.opportunityCompetitorCount', { count: 5, category: 'pharmacies', radiusKm: 1 })
+    ).toBe('5 pharmacies within 1 km');
   });
 
   it('falls back to the key itself when it exists in no dictionary', () => {
