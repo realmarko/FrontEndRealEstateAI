@@ -25,6 +25,7 @@ import { normalizeText } from '../../../shared/utils/normalize-text';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 
 // Blank/whitespace-only counts as "not entered" (matches the trim-and-clear treatment at
 // submit time) rather than a pattern mismatch — only an actually-typed value gets validated.
@@ -170,7 +171,48 @@ export class ListingFormComponent {
         this.existingLat = listing.lat ?? null;
         this.existingLng = listing.lng ?? null;
       });
+    } else if (this.lat !== null && this.lng !== null) {
+      // Arriving here from the map's "Continue with this location" — best-effort autofill so
+      // the owner doesn't have to retype an address the map already knows the coordinates of.
+      // Never blocks or fails the form: every address field stays freely editable regardless of
+      // whether (or how much of) this succeeds.
+      this.reverseGeocodeAddress(this.lat, this.lng);
     }
+  }
+
+  // Only overwrites a field that's still at its untouched default — if reverse geocoding takes
+  // long enough that the owner already started typing (or the browser only got a partial
+  // address back), their own input always wins over whatever this fills in.
+  private reverseGeocodeAddress(lat: number, lng: number): void {
+    loadGoogleMaps()
+      .then(() => {
+        new google.maps.Geocoder().geocode({ location: { lat, lng } }, (results, status) => {
+          if (status !== 'OK' || !results?.length) return;
+
+          const components = results[0].address_components;
+          const find = (type: string) => components.find((c) => c.types.includes(type))?.long_name;
+
+          const streetNumber = find('street_number');
+          const route = find('route');
+          const street = [route, streetNumber].filter(Boolean).join(' ');
+          const colonia = find('sublocality_level_1') ?? find('sublocality') ?? find('neighborhood');
+          const city = find('locality') ?? find('administrative_area_level_2');
+          const state = find('administrative_area_level_1');
+          const zipCode = find('postal_code');
+
+          const patch: Record<string, string> = {};
+          if (street && !this.form.controls.street.value) patch['street'] = street;
+          if (colonia && !this.form.controls.colonia.value) patch['colonia'] = colonia;
+          if (city && !this.form.controls.city.value) patch['city'] = city;
+          if (state && this.form.controls.state.value === 'Puebla') patch['state'] = state;
+          if (zipCode && !this.form.controls.zipCode.value) patch['zipCode'] = zipCode;
+          if (Object.keys(patch).length) this.form.patchValue(patch);
+        });
+      })
+      .catch(() => {
+        // No Maps script, no network — the form is still fully usable by hand, so this fails
+        // silently rather than blocking or warning about a purely optional convenience.
+      });
   }
 
   // Accent/case-insensitive match: state is free text (see the State input's datalist), so

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Listing, ListingInput, PriceHistoryEntry } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
@@ -15,14 +15,36 @@ export class ListingService {
   private readonly listingsSignal = signal<Listing[]>([]);
   readonly listings = this.listingsSignal.asReadonly();
 
+  // Exposed so /listings can render its own loading/error states — refresh() previously had no
+  // error handling at all, so a failed fetch looked identical to a genuinely empty result.
+  readonly loading = signal(false);
+  readonly loadError = signal(false);
+  // Bumped on every refresh() call and captured per-request — more than one refresh() can be in
+  // flight at once (the constructor's own call racing a caller-triggered one right after), and
+  // without this a stale response's handler could overwrite state set by a newer, already-
+  // resolved call.
+  private refreshSequence = 0;
+
   constructor() {
     this.refresh();
   }
 
   refresh(): void {
+    const sequence = ++this.refreshSequence;
+    this.loading.set(true);
+    this.loadError.set(false);
     this.http
       .get<PagedResult<ListingDto>>(this.apiUrl, { params: { pageSize: 100 } })
-      .subscribe((res) => this.listingsSignal.set(res.items.map(fromDto)));
+      .pipe(finalize(() => { if (sequence === this.refreshSequence) this.loading.set(false); }))
+      .subscribe({
+        next: (res) => {
+          if (sequence !== this.refreshSequence) return;
+          this.listingsSignal.set(res.items.map(fromDto));
+        },
+        error: () => {
+          if (sequence === this.refreshSequence) this.loadError.set(true);
+        }
+      });
   }
 
   getById(id: string): Listing | undefined {

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Agent, AgentFilters, AgentProfileInput, AgentReview } from '../models/agent.model';
 import { Listing } from '../models/listing.model';
@@ -20,21 +20,43 @@ export class AgentService {
   private readonly totalCountSignal = signal(0);
   readonly totalCount = this.totalCountSignal.asReadonly();
 
+  // Exposed so /agents can render its own loading/error states — refresh() previously had no
+  // error handling at all, so a failed fetch looked identical to a genuinely empty result.
+  readonly loading = signal(false);
+  readonly loadError = signal(false);
+  // Bumped on every refresh() call and captured per-request — AgentsListComponent's debounced
+  // search/pagination can fire a new refresh() before an earlier call's response arrives; without
+  // this, that stale response's next/error handler could overwrite state set by a newer,
+  // already-resolved call (e.g. an older, broader search result landing after a narrower one).
+  private refreshSequence = 0;
+
   constructor() {
     this.refresh();
   }
 
   refresh(filters?: AgentFilters, page = 1, pageSize = 20): void {
+    const sequence = ++this.refreshSequence;
     const params: Record<string, string | number> = { page, pageSize };
     if (filters?.name) params['name'] = filters.name;
     if (filters?.specialty) params['specialty'] = filters.specialty;
     if (filters?.company) params['company'] = filters.company;
     if (filters?.minRating) params['minRating'] = filters.minRating;
 
-    this.http.get<PagedResult<AgentDto>>(this.apiUrl, { params }).subscribe((res) => {
-      this.agentsSignal.set(res.items.map(fromDto));
-      this.totalCountSignal.set(res.totalCount);
-    });
+    this.loading.set(true);
+    this.loadError.set(false);
+    this.http
+      .get<PagedResult<AgentDto>>(this.apiUrl, { params })
+      .pipe(finalize(() => { if (sequence === this.refreshSequence) this.loading.set(false); }))
+      .subscribe({
+        next: (res) => {
+          if (sequence !== this.refreshSequence) return;
+          this.agentsSignal.set(res.items.map(fromDto));
+          this.totalCountSignal.set(res.totalCount);
+        },
+        error: () => {
+          if (sequence === this.refreshSequence) this.loadError.set(true);
+        }
+      });
   }
 
   fetchById(id: number): Observable<Agent> {

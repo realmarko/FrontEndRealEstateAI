@@ -45,7 +45,6 @@ const GOOGLE_LOAD_POLL_MS = 100;
 // resolveInitialCenter's caller pans there instead of leaving the visitor stuck at Puebla.
 const INITIAL_LOCATE_TIMEOUT_MS = 6000;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
-const MY_LOCATION_ICON = 'https://maps.google.com/mapfiles/kml/shapes/man.png';
 // Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
 // "featured/special" — fitting for a whole development rather than a single unit.
 const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
@@ -620,7 +619,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         position: location,
         map: this.map,
         title: this.translation.t('map.myLocation'),
-        icon: { url: MY_LOCATION_ICON, scaledSize: new google.maps.Size(32, 32) },
+        // A plain blue dot (Google's own "current location" convention) instead of a pin icon —
+        // reads as "you are here" without competing with the add-property flow's own marker,
+        // which uses the map's normal default pin.
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 8,
+          fillColor: '#4285F4',
+          fillOpacity: 1,
+          strokeColor: '#ffffff',
+          strokeWeight: 2
+        },
         zIndex: Number(google.maps.Marker.MAX_ZINDEX) + 1
       });
     }
