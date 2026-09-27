@@ -502,6 +502,8 @@ export const en: Record<string, string> = {
   'landing.footerAccount': 'Account',
   'landing.footerList': 'List a property',
   'landing.footerLogin': 'Log in',
+  'landing.footerLegal': 'Legal',
+  'landing.footerPrivacy': 'Privacy notice',
 
   'adminErrors.title': 'System errors',
   'adminErrors.filterUnresolved': 'Unresolved',
@@ -606,5 +608,61 @@ export const en: Record<string, string> = {
   'fraccionamientoDetail.retry': 'Retry',
   'fraccionamientoDetail.contactModalTitle': 'Contact about {{name}}',
   'fraccionamientoDetail.contactSuccess': 'Your message was sent to the developer.',
-  'fraccionamientoDetail.contactError': "Couldn't send your message. Please try again."
+  'fraccionamientoDetail.contactError': "Couldn't send your message. Please try again.",
+
+  'privacy.title': 'Privacy Notice',
+  'privacy.lastUpdated': 'Last updated: September 24, 2026',
+  'privacy.intro': 'This notice explains what personal data Espacial.com.mx collects, what we use it for, who we share it with, and how you can exercise your rights over it, in accordance with Mexico\'s Federal Law on Protection of Personal Data Held by Private Parties.',
+
+  'privacy.controllerTitle': 'Who is responsible for your data',
+  'privacy.controllerBody': 'Espacial.com.mx is the party responsible for processing your personal data. You can reach us with any questions about this notice at privacidad@espacial.com.mx.',
+
+  'privacy.dataCollectedTitle': 'What data we collect',
+  'privacy.dataCollectedIntro': 'We only collect the data you provide yourself when using the site, depending on the feature you use:',
+
+  'privacy.dataAccountTitle': 'User account',
+  'privacy.dataAccountBody': 'When you register: first name, last name, email address, and password. Your password is never stored in plain text — it is stored encrypted (hashed), and not even our own team can read it.',
+
+  'privacy.dataAgentTitle': 'Agent profile',
+  'privacy.dataAgentBody': 'If you create an agent profile: your name, phone number, email, photo, biography, brokerage, and specialties.',
+
+  'privacy.dataListingTitle': 'Published listings',
+  'privacy.dataListingBody': 'If you publish a listing: the full address, exact map location, photos, and any other details you enter in the form, along with your name as the owner.',
+
+  'privacy.dataContactTitle': 'Contact messages',
+  'privacy.dataContactBody': "If you contact an agent, a developer, or send an inquiry about a listing: your name, email, phone number (optional), and the message you write. Inquiries sent from a listing are saved to your account so the owner can reply to you; contact messages sent directly to an agent or developer are only forwarded by email and are not stored in our database.",
+
+  'privacy.useTitle': 'What we use your data for',
+  'privacy.useBody': "We use your data to create and operate your account, display your agent profile or published listings, connect you with other users through contact messages, send you emails you request yourself (such as resetting your password or saved-search alerts), and diagnose technical issues with the site. We do not use your data for advertising and we do not sell it to third parties.",
+
+  'privacy.publicTitle': 'What information is public',
+  'privacy.publicBody': "Espacial.com.mx is a public directory of agents and listings: if you create an agent profile, your name, phone number, email, and photo are shown publicly to any site visitor, without requiring them to sign in. The same applies to listings you publish: the address, location, and your name as the owner are publicly visible. This is necessary so that buyers and renters can find and contact you — if you don't want this information to be public, don't publish it on the site.",
+
+  'privacy.sharingTitle': 'Who we share your data with',
+  'privacy.sharingIntro': "We do not sell your data. We share it only with the service providers we use to operate the site:",
+  'privacy.sharingGoogle': 'Google Maps: we use their map to display locations. When the map loads, your browser communicates directly with Google under its own privacy policies.',
+  'privacy.sharingAws': 'Amazon Web Services (AWS): we store the photos you upload (agent profile or listing photos) on their servers.',
+  'privacy.sharingSentry': 'Sentry: we use this service to detect technical errors on the site (code failures), not to track your personal activity.',
+  'privacy.sharingDenue': "INEGI (DENUE): when you use the map's area-analysis tool, we send only geographic coordinates (never your data) to query INEGI's public business directory.",
+
+  'privacy.transferTitle': 'International data transfer',
+  'privacy.transferBody': 'Your data is stored on Amazon Web Services servers located in Virginia, United States. By using the site, you consent to this transfer, which is necessary to operate the service.',
+
+  'privacy.retentionTitle': 'How long we keep your data',
+  'privacy.retentionBody': "We keep your account data for as long as you keep your account active. We currently don't have an automated process for account or contact-message deletion — if you'd like us to delete your data, write to privacidad@espacial.com.mx and we'll handle it manually.",
+
+  'privacy.rightsTitle': 'Your rights (ARCO)',
+  'privacy.rightsBody': 'You have the right to Access, Rectify, and Cancel your personal data, as well as to Object to its use (ARCO rights). To exercise them, write to privacidad@espacial.com.mx with your name, the email you registered with, and what you would like to request. We will respond within a reasonable timeframe.',
+
+  'privacy.cookiesTitle': 'Cookies and local storage',
+  'privacy.cookiesBody': "We don't use tracking or advertising cookies. We use your browser's local storage (localStorage) solely to keep you signed in — it's cleared automatically when you sign out.",
+
+  'privacy.securityTitle': 'Security',
+  'privacy.securityBody': 'We protect your data with encrypted connections (HTTPS) and one-way encrypted password storage. No system is 100% foolproof, but we take reasonable measures to protect your information.',
+
+  'privacy.changesTitle': 'Changes to this notice',
+  'privacy.changesBody': "We may update this notice as the site evolves. We'll post any changes on this same page along with its updated date.",
+
+  'privacy.contactTitle': 'Contact',
+  'privacy.contactBody': 'For any questions about this notice or your personal data, write to us at privacidad@espacial.com.mx.'
 };

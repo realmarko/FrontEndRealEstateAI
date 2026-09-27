@@ -236,6 +236,10 @@
           <a [routerLink]="auth.isAuthenticated() ? '/map' : '/login'">{{ 'landing.footerList' | translate }}</a>
           <a routerLink="/login">{{ 'landing.footerLogin' | translate }}</a>
         </div>
+        <div class="footer-col">
+          <h4>{{ 'landing.footerLegal' | translate }}</h4>
+          <a routerLink="/privacy">{{ 'landing.footerPrivacy' | translate }}</a>
+        </div>
       </div>
     </div>
   </footer>
