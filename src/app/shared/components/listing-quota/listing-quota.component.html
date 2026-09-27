@@ -1,0 +1,14 @@
+@if (quota(); as q) {
+  <div class="listing-quota">
+    <div class="listing-quota-header">
+      <span class="listing-quota-label">{{ 'listingQuota.title' | translate }}</span>
+      <span class="listing-quota-count">{{ 'listingQuota.remaining' | translate: { remaining: q.remaining, limit: q.limit } }}</span>
+    </div>
+    <div class="listing-quota-bar">
+      <div class="listing-quota-bar-fill" [style.width.%]="percentUsed" [class.listing-quota-bar-fill--full]="q.remaining === 0"></div>
+    </div>
+    @if (q.remaining === 0) {
+      <p class="listing-quota-hint listing-quota-hint--warn">{{ 'listingQuota.limitReached' | translate }}</p>
+    }
+  </div>
+}

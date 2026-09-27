@@ -27,6 +27,7 @@ import { normalizeText } from '../../../shared/utils/normalize-text';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { ListingQuotaComponent } from '../../../shared/components/listing-quota/listing-quota.component';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 
 // Blank/whitespace-only counts as "not entered" (matches the trim-and-clear treatment at
@@ -40,7 +41,7 @@ function optionalUrlValidator(control: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, MortgageCalculatorComponent, FormErrorComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, MortgageCalculatorComponent, FormErrorComponent, ListingQuotaComponent],
   templateUrl: './listing-form.component.html',
   styleUrl: './listing-form.component.css'
 })
@@ -386,7 +387,11 @@ export class ListingFormComponent {
                   ? 'listingForm.photoTypeError'
                   : err.status === 400 && err.error?.message === 'Each photo must be 5 MB or smaller.'
                     ? 'listingForm.photoSizeError'
-                    : 'listingForm.submitError';
+                    : err.status === 400 && typeof err.error?.message === 'string' && err.error.message.includes('per month')
+                      ? 'listingForm.quotaExceededError'
+                      : err.status === 400 && typeof err.error?.message === 'string' && err.error.message.includes('at most')
+                        ? 'listingForm.tooManyPhotosError'
+                        : 'listingForm.submitError';
         this.notification.error(key);
         if (key === 'listingForm.submitError') {
           const action = this.isEditMode ? 'update' : 'create';

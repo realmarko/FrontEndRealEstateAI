@@ -4,11 +4,12 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FormErrorComponent],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })

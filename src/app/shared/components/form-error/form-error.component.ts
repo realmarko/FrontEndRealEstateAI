@@ -23,9 +23,22 @@ export class FormErrorComponent {
     if (!c || c.valid || !(c.touched || c.dirty)) return null;
 
     if (c.errors?.['required']) return this.translation.t('formErrors.required');
+    if (c.errors?.['email']) return this.translation.t('formErrors.email');
+    if (c.errors?.['minlength']) {
+      return this.translation.t('formErrors.minlength', { min: c.errors['minlength'].requiredLength });
+    }
     if (c.errors?.['pattern']) return this.translation.t('formErrors.invalidUrl');
     if (c.errors?.['min']) return this.translation.t('formErrors.min', { min: c.errors['min'].min });
     if (c.errors?.['max']) return this.translation.t('formErrors.max', { max: c.errors['max'].max });
+    if (c.errors?.['passwordStrength']) {
+      const missing = c.errors['passwordStrength'] as Record<string, boolean>;
+      const parts: string[] = [];
+      if (missing['missingUppercase']) parts.push(this.translation.t('formErrors.passwordUppercase'));
+      if (missing['missingLowercase']) parts.push(this.translation.t('formErrors.passwordLowercase'));
+      if (missing['missingDigit']) parts.push(this.translation.t('formErrors.passwordDigit'));
+      if (missing['missingSpecialChar']) parts.push(this.translation.t('formErrors.passwordSpecialChar'));
+      return this.translation.t('formErrors.passwordMissing', { requirements: parts.join(', ') });
+    }
     return this.translation.t('formErrors.invalid');
   }
 }

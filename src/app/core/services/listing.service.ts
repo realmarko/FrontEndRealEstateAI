@@ -3,9 +3,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Listing, ListingInput, PriceHistoryEntry } from '../models/listing.model';
+import { Listing, ListingInput, ListingQuota, PriceHistoryEntry } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
-import { ListingDto, ListingPriceHistoryDto, fromDto, priceHistoryFromDto, toFormData } from './listing-api.adapter';
+import { ListingDto, ListingPriceHistoryDto, ListingQuotaDto, fromDto, priceHistoryFromDto, toFormData } from './listing-api.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class ListingService {
@@ -63,6 +63,12 @@ export class ListingService {
 
   getSimilar(id: string): Observable<Listing[]> {
     return this.http.get<ListingDto[]>(`${this.apiUrl}/${id}/similar`).pipe(map((dtos) => dtos.map(fromDto)));
+  }
+
+  // Owner/Agent's remaining listing quota for the current calendar month — used by the
+  // quota panel on the "new listing" form, not by the general listings feed.
+  getMyQuota(): Observable<ListingQuota> {
+    return this.http.get<ListingQuotaDto>(`${this.apiUrl}/mine/quota`);
   }
 
   create(input: ListingInput): Observable<Listing> {

@@ -168,3 +168,10 @@ export interface PriceHistoryEntry {
   currency: Currency;
   recordedAt: string;
 }
+
+export interface ListingQuota {
+  limit: number;
+  used: number;
+  remaining: number;
+  resetsAt: string;
+}

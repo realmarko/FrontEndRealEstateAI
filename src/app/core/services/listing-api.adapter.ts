@@ -152,6 +152,13 @@ export interface ListingPriceHistoryDto {
   recordedAt: string;
 }
 
+export interface ListingQuotaDto {
+  limit: number;
+  used: number;
+  remaining: number;
+  resetsAt: string;
+}
+
 export function priceHistoryFromDto(dto: ListingPriceHistoryDto): PriceHistoryEntry {
   return {
     price: dto.price,

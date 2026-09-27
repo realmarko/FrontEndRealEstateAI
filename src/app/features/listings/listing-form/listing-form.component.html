@@ -1,6 +1,10 @@
 <div class="page form-page">
   <h1>{{ (isEditMode ? 'listingForm.editTitle' : 'listingForm.addTitle') | translate }}</h1>
 
+  @if (!isEditMode) {
+    <app-listing-quota />
+  }
+
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
       {{ 'listingForm.titleLabel' | translate }}

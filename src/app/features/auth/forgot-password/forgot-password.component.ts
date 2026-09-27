@@ -1,14 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, FormErrorComponent],
   templateUrl: './forgot-password.component.html',
   styleUrl: './forgot-password.component.css'
 })
@@ -35,8 +37,12 @@ export class ForgotPasswordComponent {
     this.auth.forgotPassword(this.form.getRawValue().email).subscribe({
       next: () => this.submitted.set(true),
       // A network/rate-limit failure is the only thing that lands here — a registered vs.
-      // unregistered email both resolve as success above.
-      error: () => this.notification.error('auth.errors.forgotPasswordFailed')
+      // unregistered email both resolve as success above. 429 (EnableRateLimiting("forgot-password")
+      // in Program.cs, 3 requests per 15 min per IP) gets its own message since "try again" is
+      // actively wrong advice for the next several minutes.
+      error: (err: HttpErrorResponse) => {
+        this.notification.error(err.status === 429 ? 'auth.errors.tooManyRequests' : 'auth.errors.forgotPasswordFailed');
+      }
     });
   }
 }

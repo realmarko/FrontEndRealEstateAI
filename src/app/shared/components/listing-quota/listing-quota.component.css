@@ -1,0 +1,52 @@
+.listing-quota {
+  background: #e5e7eb;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.listing-quota-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.listing-quota-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.listing-quota-count {
+  color: #6b7280;
+}
+
+.listing-quota-bar {
+  margin-top: 0.5rem;
+  height: 6px;
+  border-radius: 3px;
+  background: #d1d5db;
+  overflow: hidden;
+}
+
+.listing-quota-bar-fill {
+  height: 100%;
+  background: #1e3a5f;
+  border-radius: 3px;
+  transition: width 0.2s ease;
+}
+
+.listing-quota-bar-fill--full {
+  background: #b91c1c;
+}
+
+.listing-quota-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+}
+
+.listing-quota-hint--warn {
+  color: #b91c1c;
+}
