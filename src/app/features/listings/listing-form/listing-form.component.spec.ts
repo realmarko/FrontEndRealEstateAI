@@ -6,6 +6,7 @@ import { ListingService } from '../../../core/services/listing.service';
 import { GeomarketingService } from '../../../core/services/geomarketing.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ErrorReportingService } from '../../../core/services/error-reporting.service';
 import { Listing } from '../../../core/models/listing.model';
 
 // Resolves on a microtask, like loadGoogleMaps()'s own already-loaded fast path — never
@@ -35,6 +36,7 @@ describe('ListingFormComponent', () => {
   let listingServiceSpy: jasmine.SpyObj<ListingService>;
   let geomarketingServiceSpy: jasmine.SpyObj<GeomarketingService>;
   let notificationSpy: jasmine.SpyObj<NotificationService>;
+  let errorReportingSpy: jasmine.SpyObj<ErrorReportingService>;
   let router: Router;
 
   const makeListing = (overrides: Partial<Listing> = {}): Listing => ({
@@ -71,6 +73,7 @@ describe('ListingFormComponent', () => {
     geomarketingServiceSpy.listStates.and.returnValue(of([]));
     geomarketingServiceSpy.listMunicipalities.and.returnValue(of([]));
     notificationSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    errorReportingSpy = jasmine.createSpyObj('ErrorReportingService', ['report']);
 
     const queryParams: Record<string, string> = {};
     if (options.lat) queryParams['lat'] = options.lat;
@@ -83,6 +86,7 @@ describe('ListingFormComponent', () => {
         { provide: ListingService, useValue: listingServiceSpy },
         { provide: GeomarketingService, useValue: geomarketingServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },
+        { provide: ErrorReportingService, useValue: errorReportingSpy },
         {
           provide: TranslationService,
           useValue: jasmine.createSpyObj('TranslationService', [], { lang: () => 'es' })
@@ -330,6 +334,28 @@ describe('ListingFormComponent', () => {
       expect(listingServiceSpy.create).toHaveBeenCalledTimes(1);
     });
 
+    it('maps a 401 to the session-expired message, without reporting it', () => {
+      const component = createComponent();
+      listingServiceSpy.create.and.returnValue(throwError(() => ({ status: 401 })));
+      fillMinimumValidForm(component);
+
+      component.submit();
+
+      expect(notificationSpy.error).toHaveBeenCalledWith('listingForm.sessionExpiredError');
+      expect(errorReportingSpy.report).not.toHaveBeenCalled();
+    });
+
+    it('maps a 403 to the forbidden/not-an-Owner message, without reporting it', () => {
+      const component = createComponent();
+      listingServiceSpy.create.and.returnValue(throwError(() => ({ status: 403 })));
+      fillMinimumValidForm(component);
+
+      component.submit();
+
+      expect(notificationSpy.error).toHaveBeenCalledWith('listingForm.forbiddenError');
+      expect(errorReportingSpy.report).not.toHaveBeenCalled();
+    });
+
     it('maps a 502 to the photo-upload error message', () => {
       const component = createComponent();
       listingServiceSpy.create.and.returnValue(throwError(() => ({ status: 502 })));
@@ -364,14 +390,19 @@ describe('ListingFormComponent', () => {
       expect(notificationSpy.error).toHaveBeenCalledWith('listingForm.photoSizeError');
     });
 
-    it('falls back to a generic submitError for anything else', () => {
+    it('falls back to a generic submitError for anything else, and reports it for the admin error log', () => {
       const component = createComponent();
-      listingServiceSpy.create.and.returnValue(throwError(() => ({ status: 500 })));
+      listingServiceSpy.create.and.returnValue(
+        throwError(() => ({ status: 500, statusText: 'Internal Server Error', url: '/api/listings' }))
+      );
       fillMinimumValidForm(component);
 
       component.submit();
 
       expect(notificationSpy.error).toHaveBeenCalledWith('listingForm.submitError');
+      expect(errorReportingSpy.report).toHaveBeenCalledWith(
+        'HTTP 500 Internal Server Error for /api/listings (listing create)'
+      );
       expect(component.isSubmitting()).toBe(false);
     });
   });

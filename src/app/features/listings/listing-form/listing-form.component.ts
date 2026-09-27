@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, inject, signal } from '@angular/core';
 import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -20,6 +21,7 @@ import {
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ErrorReportingService } from '../../../core/services/error-reporting.service';
 import { amountToWords } from '../../../shared/utils/amount-to-words';
 import { normalizeText } from '../../../shared/utils/normalize-text';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
@@ -50,6 +52,7 @@ export class ListingFormComponent {
   private readonly geomarketingService = inject(GeomarketingService);
   private readonly translation = inject(TranslationService);
   private readonly notification = inject(NotificationService);
+  private readonly errorReporting = inject(ErrorReportingService);
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
 
   private readonly editingId = this.route.snapshot.paramMap.get('id');
@@ -366,16 +369,31 @@ export class ListingFormComponent {
         this.notification.success(this.isEditMode ? 'listingForm.updateSuccess' : 'listingForm.createSuccess');
         this.router.navigate(['/listings', listing.id]);
       },
-      error: (err) => {
+      error: (err: HttpErrorResponse) => {
+        // Photo-specific and 401/403 cases each have a message that tells the owner exactly
+        // what to do — nothing more to investigate, so only the remaining "we don't actually
+        // know why" fallback gets reported to the in-app error log (see ErrorReportingService).
+        // Without this, a case like this one was completely invisible after the fact: the toast
+        // is shown and gone, with no trace for an admin to look up later.
         const key =
-          err.status === 502
-            ? 'listingForm.photoUploadError'
-            : err.status === 400 && err.error?.message === 'Photos must be JPEG, PNG, or WEBP images.'
-              ? 'listingForm.photoTypeError'
-              : err.status === 400 && err.error?.message === 'Each photo must be 5 MB or smaller.'
-                ? 'listingForm.photoSizeError'
-                : 'listingForm.submitError';
+          err.status === 401
+            ? 'listingForm.sessionExpiredError'
+            : err.status === 403
+              ? 'listingForm.forbiddenError'
+              : err.status === 502
+                ? 'listingForm.photoUploadError'
+                : err.status === 400 && err.error?.message === 'Photos must be JPEG, PNG, or WEBP images.'
+                  ? 'listingForm.photoTypeError'
+                  : err.status === 400 && err.error?.message === 'Each photo must be 5 MB or smaller.'
+                    ? 'listingForm.photoSizeError'
+                    : 'listingForm.submitError';
         this.notification.error(key);
+        if (key === 'listingForm.submitError') {
+          const action = this.isEditMode ? 'update' : 'create';
+          this.errorReporting.report(
+            `HTTP ${err.status}${err.statusText ? ' ' + err.statusText : ''} for ${err.url ?? 'unknown URL'} (listing ${action})`
+          );
+        }
       }
     });
   }
