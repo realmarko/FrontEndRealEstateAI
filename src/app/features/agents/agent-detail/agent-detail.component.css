@@ -31,10 +31,10 @@
    usual light navy-on-white, so an agent's page visibly signals "verified professional." */
 .id-card {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.85rem;
   background: linear-gradient(155deg, #14263f, #0d1b30);
   border-radius: 16px;
-  padding: 1.75rem;
+  padding: 2rem;
   margin-bottom: 2rem;
   border-top: 3px solid var(--gold);
   box-shadow: 0 12px 30px -12px rgba(13, 27, 48, 0.55);
@@ -42,32 +42,36 @@
 
 .id-card-photo {
   flex-shrink: 0;
-  width: 116px;
-  height: 116px;
+  width: 148px;
+  height: 148px;
 }
 
 .id-card-photo img {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: 14px;
   object-fit: cover;
   display: block;
   border: 1px solid rgba(198, 161, 91, 0.5);
+  /* A faint gold ring standing off the border reads as a frame around the portrait, echoing the
+     card's own gold top edge, rather than the photo just sitting flush in the corner. */
+  box-shadow: 0 0 0 4px rgba(198, 161, 91, 0.16);
 }
 
 .id-card-photo-fallback {
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+  border-radius: 14px;
   background: rgba(198, 161, 91, 0.12);
   border: 1px solid rgba(198, 161, 91, 0.5);
+  box-shadow: 0 0 0 4px rgba(198, 161, 91, 0.16);
   color: var(--gold-soft);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: 'Bodoni Moda', Georgia, serif;
   font-weight: 500;
-  font-size: 2rem;
+  font-size: 2.5rem;
 }
 
 .id-card-body {
@@ -182,19 +186,30 @@ a.contact-line:hover {
 }
 
 .section {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--hairline);
+  margin-top: 2.5rem;
 }
 
-
+/* A short gold tick before the heading marks a new section, instead of a full-width hairline
+   plus a border-top-as-underline on the h2 itself — the previous pairing read as two competing
+   rules stacked right on top of each other. */
 .section h2 {
-  margin: 0 0 0.75rem;
-  padding-top: 0.6rem;
-  font-size: 1.15rem;
-  color: var(--ink);
-  border-top: 2px solid var(--gold);
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 1rem;
+  font-family: 'Bodoni Moda', Georgia, serif;
+  font-weight: 500;
+  font-size: 1.3rem;
+  color: var(--navy-deep);
+}
+
+.section h2::before {
+  content: '';
+  width: 26px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--gold);
+  flex-shrink: 0;
 }
 
 .bio {
@@ -205,15 +220,17 @@ a.contact-line:hover {
 .tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.55rem;
 }
 
 .tag {
-  background: #eef2f7;
-  color: #1e3a5f;
+  background: rgba(198, 161, 91, 0.12);
+  color: var(--navy-deep);
+  border: 1px solid rgba(198, 161, 91, 0.4);
   border-radius: 999px;
-  padding: 0.35rem 0.85rem;
+  padding: 0.35rem 0.9rem;
   font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .review-form {
@@ -338,8 +355,8 @@ a.contact-line:hover {
   }
 
   .id-card-photo {
-    width: 100px;
-    height: 100px;
+    width: 128px;
+    height: 128px;
   }
 
   .id-card-credentials {
