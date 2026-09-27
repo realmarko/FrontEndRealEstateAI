@@ -1,0 +1,56 @@
+name: Deploy frontend to dev
+
+# Gated on CI (build+test on ci.yml) passing on develop, not on the push itself — a push that
+# breaks the build/tests must never reach dev. Checks out workflow_run's head_sha rather than
+# develop's current tip, so a second push landing while this runs can't deploy untested code.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [develop]
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: realestateapp-frontend-dev
+  CLOUDFRONT_DISTRIBUTION_ID: E167T8J9F6YPOC
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # env-keys.ts is gitignored (holds the real Google Maps key) — write the real dev key from
+      # a repo secret so the deployed build actually has a working Maps key, unlike ci.yml's
+      # placeholder copy which is fine for build/test only.
+      - name: Write Google Maps key
+        run: echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > src/environments/env-keys.ts
+
+      - name: Build (dev-deploy config)
+        run: npx ng build --configuration=production,dev-deploy
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        run: aws s3 sync dist/realestateapp-frontend/browser "s3://${S3_BUCKET}" --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths '/*'
