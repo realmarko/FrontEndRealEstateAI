@@ -502,6 +502,8 @@ export const es: Record<string, string> = {
   'landing.footerAccount': 'Cuenta',
   'landing.footerList': 'Publicar propiedad',
   'landing.footerLogin': 'Iniciar sesión',
+  'landing.footerLegal': 'Legal',
+  'landing.footerPrivacy': 'Aviso de privacidad',
 
   'adminErrors.title': 'Errores del sistema',
   'adminErrors.filterUnresolved': 'Sin resolver',
@@ -606,5 +608,61 @@ export const es: Record<string, string> = {
   'fraccionamientoDetail.retry': 'Reintentar',
   'fraccionamientoDetail.contactModalTitle': 'Contactar sobre {{name}}',
   'fraccionamientoDetail.contactSuccess': 'Tu mensaje fue enviado a la desarrolladora.',
-  'fraccionamientoDetail.contactError': 'No se pudo enviar tu mensaje. Intenta de nuevo.'
+  'fraccionamientoDetail.contactError': 'No se pudo enviar tu mensaje. Intenta de nuevo.',
+
+  'privacy.title': 'Aviso de Privacidad',
+  'privacy.lastUpdated': 'Última actualización: 24 de septiembre de 2026',
+  'privacy.intro': 'Este aviso explica qué datos personales recaba Espacial.com.mx, para qué los usamos, con quién los compartimos y cómo puedes ejercer tus derechos sobre ellos, conforme a la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.',
+
+  'privacy.controllerTitle': 'Responsable de tus datos',
+  'privacy.controllerBody': 'Espacial.com.mx es el responsable del tratamiento de tus datos personales. Puedes contactarnos para cualquier duda sobre este aviso en privacidad@espacial.com.mx.',
+
+  'privacy.dataCollectedTitle': 'Qué datos recabamos',
+  'privacy.dataCollectedIntro': 'Solo recabamos los datos que tú mismo nos proporcionas al usar el sitio, según la función que uses:',
+
+  'privacy.dataAccountTitle': 'Cuenta de usuario',
+  'privacy.dataAccountBody': 'Al registrarte: nombre, apellido, correo electrónico y contraseña. Tu contraseña nunca se guarda en texto plano — se almacena de forma cifrada (hash) y ni siquiera nuestro propio equipo puede leerla.',
+
+  'privacy.dataAgentTitle': 'Perfil de agente',
+  'privacy.dataAgentBody': 'Si creas un perfil de agente: tu nombre, teléfono, correo, fotografía, biografía, inmobiliaria y especialidades.',
+
+  'privacy.dataListingTitle': 'Propiedades publicadas',
+  'privacy.dataListingBody': 'Si publicas una propiedad: la dirección completa, ubicación exacta en el mapa, fotografías y demás características que captures en el formulario, junto con tu nombre como propietario.',
+
+  'privacy.dataContactTitle': 'Mensajes de contacto',
+  'privacy.dataContactBody': 'Si contactas a un agente, a una desarrolladora, o envías una consulta sobre una propiedad: tu nombre, correo, teléfono (opcional) y el mensaje que escribas. Las consultas enviadas desde una propiedad se guardan en tu cuenta para que el propietario pueda responderte; los mensajes de contacto directo a un agente o desarrolladora solo se reenvían por correo y no se guardan en nuestra base de datos.',
+
+  'privacy.useTitle': 'Para qué usamos tus datos',
+  'privacy.useBody': 'Usamos tus datos para crear y operar tu cuenta, mostrar tu perfil de agente o tus propiedades publicadas, conectarte con otros usuarios a través de mensajes de contacto, enviarte correos que tú mismo solicitas (como recuperar tu contraseña o avisos de búsquedas guardadas), y diagnosticar errores técnicos del sitio. No usamos tus datos para publicidad ni los vendemos a terceros.',
+
+  'privacy.publicTitle': 'Qué información es pública',
+  'privacy.publicBody': 'Espacial.com.mx es un directorio público de agentes y propiedades: si creas un perfil de agente, tu nombre, teléfono, correo y fotografía se muestran públicamente a cualquier visitante del sitio, sin necesidad de que inicie sesión. Lo mismo aplica a las propiedades que publiques: la dirección, ubicación y tu nombre como propietario son visibles públicamente. Esto es necesario para que compradores y arrendatarios puedan encontrarte y contactarte — si no quieres que esta información sea pública, no la publiques en el sitio.',
+
+  'privacy.sharingTitle': 'Con quién compartimos tus datos',
+  'privacy.sharingIntro': 'No vendemos tus datos. Los compartimos únicamente con los proveedores de servicios que usamos para operar el sitio:',
+  'privacy.sharingGoogle': 'Google Maps: usamos su mapa para mostrar ubicaciones. Al cargar el mapa, tu navegador se comunica directamente con Google conforme a sus propias políticas de privacidad.',
+  'privacy.sharingAws': 'Amazon Web Services (AWS): almacenamos las fotografías que subes (de perfil de agente o de propiedades) en sus servidores.',
+  'privacy.sharingSentry': 'Sentry: usamos este servicio para detectar errores técnicos del sitio (fallas de código), no para rastrear tu actividad personal.',
+  'privacy.sharingDenue': 'INEGI (DENUE): cuando usas la herramienta de análisis de zona en el mapa, enviamos únicamente coordenadas geográficas (nunca datos tuyos) para consultar el directorio público de negocios del INEGI.',
+
+  'privacy.transferTitle': 'Transferencia internacional de datos',
+  'privacy.transferBody': 'Tus datos se almacenan en servidores de Amazon Web Services ubicados en Virginia, Estados Unidos. Al usar el sitio, consientes esta transferencia, necesaria para poder operar el servicio.',
+
+  'privacy.retentionTitle': 'Cuánto tiempo guardamos tus datos',
+  'privacy.retentionBody': 'Conservamos los datos de tu cuenta mientras la mantengas activa. Actualmente no contamos con un proceso automático de eliminación de cuenta ni de mensajes de contacto — si quieres que eliminemos tus datos, escríbenos a privacidad@espacial.com.mx y lo atenderemos manualmente.',
+
+  'privacy.rightsTitle': 'Tus derechos (ARCO)',
+  'privacy.rightsBody': 'Tienes derecho a Acceder, Rectificar y Cancelar tus datos personales, así como a Oponerte a su uso (derechos ARCO). Para ejercerlos, escríbenos a privacidad@espacial.com.mx indicando tu nombre, el correo con el que te registraste, y qué quieres solicitar. Responderemos en un plazo razonable.',
+
+  'privacy.cookiesTitle': 'Cookies y almacenamiento local',
+  'privacy.cookiesBody': 'No usamos cookies de rastreo ni publicidad. Usamos el almacenamiento local de tu navegador (localStorage) únicamente para mantener tu sesión iniciada — se borra automáticamente al cerrar sesión.',
+
+  'privacy.securityTitle': 'Seguridad',
+  'privacy.securityBody': 'Protegemos tus datos con conexiones cifradas (HTTPS) y contraseñas almacenadas con cifrado de un solo sentido. Ningún sistema es 100% infalible, pero tomamos medidas razonables para proteger tu información.',
+
+  'privacy.changesTitle': 'Cambios a este aviso',
+  'privacy.changesBody': 'Podemos actualizar este aviso conforme el sitio evolucione. Publicaremos cualquier cambio en esta misma página con su fecha de actualización.',
+
+  'privacy.contactTitle': 'Contacto',
+  'privacy.contactBody': 'Para cualquier duda sobre este aviso o tus datos personales, escríbenos a privacidad@espacial.com.mx.'
 };
