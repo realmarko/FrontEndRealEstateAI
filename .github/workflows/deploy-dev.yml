@@ -1,12 +1,12 @@
 name: Deploy frontend to dev
 
-# Gated on CI (build+test on ci.yml) passing on develop, not on the push itself — a push that
-# breaks the build/tests must never reach dev. Checks out workflow_run's head_sha rather than
-# develop's current tip, so a second push landing while this runs can't deploy untested code.
+# Deliberately not workflow_run against ci.yml: GitHub only ever triggers workflow_run for a
+# workflow file that also exists on the repo's default branch (main here), and this file only
+# lives on develop — that combination silently never fires (confirmed: the run never appeared).
+# Running test as its own job with `deploy: needs: test` gets the same "don't deploy broken code"
+# guarantee from a single push-triggered workflow, with no cross-workflow/default-branch pitfall.
 on:
-  workflow_run:
-    workflows: ["CI"]
-    types: [completed]
+  push:
     branches: [develop]
 
 env:
@@ -15,13 +15,36 @@ env:
   CLOUDFRONT_DISTRIBUTION_ID: E167T8J9F6YPOC
 
 jobs:
-  deploy:
-    if: github.event.workflow_run.conclusion == 'success'
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Add placeholder Google Maps key
+        run: cp src/environments/env-keys.example.ts src/environments/env-keys.ts
+
+      - uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+
+      - name: Set CHROME_BIN
+        run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+
+      - name: Test
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
@@ -32,7 +55,7 @@ jobs:
         run: npm ci
 
       # env-keys.ts is gitignored (holds the real Google Maps key) — write the real dev key from
-      # a repo secret so the deployed build actually has a working Maps key, unlike ci.yml's
+      # a repo secret so the deployed build actually has a working Maps key, unlike the test job's
       # placeholder copy which is fine for build/test only.
       - name: Write Google Maps key
         run: echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > src/environments/env-keys.ts
