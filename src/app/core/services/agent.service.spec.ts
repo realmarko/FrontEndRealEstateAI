@@ -56,6 +56,43 @@ describe('AgentService', () => {
     req.flush(emptyPage());
   });
 
+  it('ignores a stale response that resolves after a newer refresh() call', () => {
+    service.refresh({ name: 'first' });
+    service.refresh({ name: 'second' });
+
+    const reqs = httpMock.match((r) => r.url === '/api/agents');
+    expect(reqs.length).toBe(2);
+
+    // The newer call (second) resolves first; the older (first) call's response arrives late.
+    reqs[1].flush({ items: [makeAgentDto({ id: 2, name: 'Second' })], page: 1, pageSize: 20, totalCount: 1 });
+    reqs[0].flush({ items: [makeAgentDto({ id: 1, name: 'First' })], page: 1, pageSize: 20, totalCount: 1 });
+
+    expect(service.agents().map((a) => a.id)).toEqual([2]);
+  });
+
+  it('sets loadError on a failed refresh() without clearing already-loaded agents', () => {
+    service.refresh();
+    httpMock
+      .expectOne((r) => r.url === '/api/agents')
+      .flush({ items: [makeAgentDto({ id: 1 })], page: 1, pageSize: 20, totalCount: 1 });
+    expect(service.loadError()).toBe(false);
+
+    service.refresh();
+    httpMock.expectOne((r) => r.url === '/api/agents').flush('boom', { status: 500, statusText: 'Server Error' });
+
+    expect(service.loadError()).toBe(true);
+    expect(service.agents().map((a) => a.id)).toEqual([1]);
+  });
+
+  it('toggles loading true for the duration of the request', () => {
+    expect(service.loading()).toBe(false);
+    service.refresh();
+    expect(service.loading()).toBe(true);
+
+    httpMock.expectOne((r) => r.url === '/api/agents').flush(emptyPage());
+    expect(service.loading()).toBe(false);
+  });
+
   it('refresh() populates the agents and totalCount signals from the response', () => {
     service.refresh();
 

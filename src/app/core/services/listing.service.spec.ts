@@ -107,6 +107,43 @@ describe('ListingService', () => {
 
   afterEach(() => httpMock.verify());
 
+  it('ignores a stale response that resolves after a newer refresh() call', () => {
+    service.refresh();
+    service.refresh();
+
+    const reqs = httpMock.match((r) => r.url === '/api/listings');
+    expect(reqs.length).toBe(2);
+
+    // The newer call resolves first; the older call's response arrives late.
+    reqs[1].flush({ items: [makeListingDto({ id: 'newer' })], page: 1, pageSize: 100, totalCount: 1 });
+    reqs[0].flush({ items: [makeListingDto({ id: 'older' })], page: 1, pageSize: 100, totalCount: 1 });
+
+    expect(service.listings().map((l) => l.id)).toEqual(['newer']);
+  });
+
+  it('sets loadError on a failed refresh() without clearing already-loaded listings', () => {
+    service.refresh();
+    httpMock
+      .expectOne((r) => r.url === '/api/listings')
+      .flush({ items: [makeListingDto({ id: 'l7' })], page: 1, pageSize: 100, totalCount: 1 });
+    expect(service.loadError()).toBe(false);
+
+    service.refresh();
+    httpMock.expectOne((r) => r.url === '/api/listings').flush('boom', { status: 500, statusText: 'Server Error' });
+
+    expect(service.loadError()).toBe(true);
+    expect(service.listings().map((l) => l.id)).toEqual(['l7']);
+  });
+
+  it('toggles loading true for the duration of the request', () => {
+    expect(service.loading()).toBe(false);
+    service.refresh();
+    expect(service.loading()).toBe(true);
+
+    httpMock.expectOne((r) => r.url === '/api/listings').flush(emptyPage());
+    expect(service.loading()).toBe(false);
+  });
+
   it('refresh() requests a page of 100 and populates the listings signal', () => {
     service.refresh();
 
