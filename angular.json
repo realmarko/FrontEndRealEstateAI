@@ -67,6 +67,14 @@
                   "with": "src/environments/environment.dev-deploy.ts"
                 }
               ]
+            },
+            "prod-deploy": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod-deploy.ts"
+                }
+              ]
             }
           },
           "defaultConfiguration": "production"

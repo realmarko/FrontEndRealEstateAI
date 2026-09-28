@@ -1,0 +1,74 @@
+name: Deploy frontend to prod
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: realestateapp-frontend-prod
+  CLOUDFRONT_DISTRIBUTION_ID: E24P5VX8CULI3A
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Add placeholder Google Maps key
+        run: cp src/environments/env-keys.example.ts src/environments/env-keys.ts
+
+      - uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+
+      - name: Set CHROME_BIN
+        run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
+
+      - name: Test
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # env-keys.ts is gitignored (holds the real Google Maps key) — write the real key from a
+      # repo secret so the deployed build actually has a working Maps key, unlike the test job's
+      # placeholder copy which is fine for build/test only.
+      - name: Write Google Maps key
+        run: echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > src/environments/env-keys.ts
+
+      - name: Build (prod-deploy config)
+        run: npx ng build --configuration=production,prod-deploy
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sync to S3
+        run: aws s3 sync dist/realestateapp-frontend/browser "s3://${S3_BUCKET}" --delete
+
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
+            --paths '/*'
