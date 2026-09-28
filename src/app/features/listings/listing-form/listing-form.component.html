@@ -72,6 +72,20 @@
       <div class="land-commercial-section">
         <h2 class="section-title">{{ 'listingForm.landCommercialTitle' | translate }}</h2>
 
+        @if (isLand()) {
+          <div class="grid-2">
+            <label>
+              {{ 'listingForm.landUseCategory' | translate }}
+              <select formControlName="landUseCategoryId">
+                <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+                @for (category of landUseCategories(); track category.id) {
+                  <option [ngValue]="category.id">{{ category.name }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        }
+
         <div class="grid-2">
           <label>
             {{ 'listingForm.landUseZoning' | translate }}
@@ -207,18 +221,6 @@
       {{ 'listingForm.isCornerLot' | translate }}
     </label>
 
-    <div class="grid-2" *ngIf="lat !== null && lng !== null">
-      <label>
-        {{ 'listingForm.latitude' | translate }}
-        <input type="text" [value]="lat" disabled />
-      </label>
-
-      <label>
-        {{ 'listingForm.longitude' | translate }}
-        <input type="text" [value]="lng" disabled />
-      </label>
-    </div>
-
     @if (!isLandOrCommercial()) {
       <div class="grid-2">
         <label>
@@ -300,7 +302,11 @@
 
     <label>
       {{ 'listingForm.photos' | translate }}
-      <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
+      <!-- capture="environment": on mobile, the browser's file picker opens the rear camera as
+           the first/default option (falls back to the regular photo-library/file chooser if
+           camera access isn't available or the visitor backs out) — desktop browsers ignore it
+           and just show the normal file dialog. -->
+      <input type="file" accept="image/*" multiple capture="environment" (change)="onFilesSelected($event)" />
     </label>
 
     @if (displayImages().length) {

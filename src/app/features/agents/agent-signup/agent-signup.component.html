@@ -51,7 +51,8 @@
 
     <label>
       {{ 'agentSignup.photo' | translate }}
-      <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
+      <!-- See listing-form's photo input for why capture="environment" is here. -->
+      <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" (change)="onPhotoSelected($event)" />
     </label>
 
     @if (photoPreview()) {

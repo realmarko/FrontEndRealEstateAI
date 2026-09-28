@@ -18,11 +18,12 @@ export type PropertyType =
   | 'commercial';
 // Single source of truth for the property-type dropdown, shared by the listing form and the
 // map filter — each option's label lives at `listingForm.<value>` in the i18n files.
-// 'commercial' is deliberately excluded: it duplicated 'commercialLand' ("Terreno comercial")
-// with no distinct meaning of its own. Kept out of PropertyType's selectable options but not
-// out of the type/i18n/mapping entirely, so any pre-existing listing that already has this
-// value keeps reading, editing, and displaying correctly — only new listings can no longer
-// choose it.
+// 'commercial', 'commercialLand', and 'industrialLand' are deliberately excluded: 'commercial'
+// duplicated 'commercialLand' ("Terreno comercial") with no distinct meaning of its own, and
+// 'commercialLand'/'industrialLand' were removed from the picker by request. Kept out of
+// PropertyType's selectable options but not out of the type/i18n/mapping entirely, so any
+// pre-existing listing that already has one of these values keeps reading, editing, and
+// displaying correctly — only new listings can no longer choose them.
 export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
   'house',
   'condoHouse',
@@ -31,20 +32,24 @@ export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
   'ranch',
   'office',
   'industrialWarehouse',
-  'commercialLand',
   'industrialStorage',
   'retailSpace',
   'building',
   'room',
   'commercialStorage',
-  'industrialLand',
   'land'
 ];
 
 // For filtering existing listings (map, search), not creating new ones — unlike
-// PROPERTY_TYPE_OPTIONS, this includes 'commercial' so the pre-existing listing that already
-// has that value can still be found by filtering for its exact type, not just 'all'.
-export const PROPERTY_TYPE_FILTER_OPTIONS: PropertyType[] = [...PROPERTY_TYPE_OPTIONS, 'commercial'];
+// PROPERTY_TYPE_OPTIONS, this includes 'commercial'/'commercialLand'/'industrialLand' so a
+// pre-existing listing with one of those values can still be found by filtering for its exact
+// type, not just 'all'.
+export const PROPERTY_TYPE_FILTER_OPTIONS: PropertyType[] = [
+  ...PROPERTY_TYPE_OPTIONS,
+  'commercial',
+  'commercialLand',
+  'industrialLand'
+];
 
 export type Currency = 'MXN' | 'USD';
 
@@ -119,6 +124,7 @@ export interface Listing {
   hoaFee?: number;
   videoTourUrl?: string;
   landUseZoning?: string;
+  landUseCategoryId?: number;
   landTenure?: LandTenureType;
   cosCoefficient?: number;
   cusCoefficient?: number;

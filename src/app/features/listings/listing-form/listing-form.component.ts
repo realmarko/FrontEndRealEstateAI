@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, inject, signal } from '@angular/core';
 import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
@@ -6,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ListingService } from '../../../core/services/listing.service';
 import { GeomarketingService, MunicipalityListItem, StateListItem } from '../../../core/services/geomarketing.service';
+import { LandUseCategory, LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import {
   Currency,
   LandTenureType,
@@ -41,7 +41,7 @@ function optionalUrlValidator(control: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, MortgageCalculatorComponent, FormErrorComponent, ListingQuotaComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, MortgageCalculatorComponent, FormErrorComponent, ListingQuotaComponent],
   templateUrl: './listing-form.component.html',
   styleUrl: './listing-form.component.css'
 })
@@ -51,6 +51,7 @@ export class ListingFormComponent {
   private readonly router = inject(Router);
   private readonly listingService = inject(ListingService);
   private readonly geomarketingService = inject(GeomarketingService);
+  private readonly landUseCategoryService = inject(LandUseCategoryService);
   private readonly translation = inject(TranslationService);
   private readonly notification = inject(NotificationService);
   private readonly errorReporting = inject(ErrorReportingService);
@@ -105,6 +106,7 @@ export class ListingFormComponent {
     hoaFee: this.fb.control<number | null>(null, Validators.min(0)),
     videoTourUrl: ['', optionalUrlValidator],
     landUseZoning: this.fb.control<string | null>(null),
+    landUseCategoryId: this.fb.control<number | null>(null),
     landTenure: this.fb.control<LandTenureType | null>(null),
     cosCoefficient: this.fb.control<number | null>(null, Validators.min(0)),
     cusCoefficient: this.fb.control<number | null>(null, Validators.min(0)),
@@ -151,11 +153,13 @@ export class ListingFormComponent {
   readonly states = signal<StateListItem[]>([]);
   readonly municipalities = signal<MunicipalityListItem[]>([]);
   readonly citiesForState = signal<MunicipalityListItem[]>([]);
+  readonly landUseCategories = signal<LandUseCategory[]>([]);
 
   private existingLat: number | null = null;
   private existingLng: number | null = null;
 
   constructor() {
+    this.landUseCategoryService.listAll().subscribe((list) => this.landUseCategories.set(list));
     this.geomarketingService.listStates().subscribe((list) => this.states.set(list));
     this.geomarketingService.listMunicipalities().subscribe((list) => {
       this.municipalities.set(list);
@@ -237,6 +241,13 @@ export class ListingFormComponent {
     return isLandOrCommercialPropertyType(this.form.value.propertyType);
   }
 
+  // The "Uso de suelo" catalog dropdown only makes sense for the generic "Terreno" ('land')
+  // property type — not residentialLand/commercialLand/industrialLand, which are their own
+  // specific categories, and not the built/commercial property types isLandOrCommercial() covers.
+  isLand(): boolean {
+    return this.form.value.propertyType === 'land';
+  }
+
   // Raw land: no structure exists, so parking/floors/year-built/heating-cooling don't apply
   // either (on top of the residential-dwelling fields isLandOrCommercial() already covers).
   isPureLand(): boolean {
@@ -314,10 +325,12 @@ export class ListingFormComponent {
     // fields at all.
     const landOrCommercial = this.isLandOrCommercial();
     const pureLand = this.isPureLand();
+    const isLand = this.isLand();
     const value: ListingInput = {
       ...raw,
       bedrooms: landOrCommercial ? 0 : raw.bedrooms,
       bathrooms: landOrCommercial ? 0 : raw.bathrooms,
+      landUseCategoryId: isLand ? (raw.landUseCategoryId ?? undefined) : undefined,
       gardenSizeSqm: landOrCommercial ? undefined : (raw.gardenSizeSqm ?? undefined),
       hoaFee: landOrCommercial ? undefined : (raw.hoaFee ?? undefined),
       yearBuilt: pureLand ? undefined : (raw.yearBuilt ?? undefined),

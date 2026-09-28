@@ -116,6 +116,7 @@ export interface ListingDto {
   hoaFee: number | null;
   videoTourUrl: string | null;
   landUseZoning: string | null;
+  landUseCategoryId: number | null;
   landTenure: string | null;
   cosCoefficient: number | null;
   cusCoefficient: number | null;
@@ -199,6 +200,7 @@ export function fromDto(dto: ListingDto): Listing {
     hoaFee: dto.hoaFee ?? undefined,
     videoTourUrl: dto.videoTourUrl ?? undefined,
     landUseZoning: dto.landUseZoning ?? undefined,
+    landUseCategoryId: dto.landUseCategoryId ?? undefined,
     landTenure: dto.landTenure ? LAND_TENURE_FROM_STRING[dto.landTenure] : undefined,
     cosCoefficient: dto.cosCoefficient ?? undefined,
     cusCoefficient: dto.cusCoefficient ?? undefined,
@@ -268,6 +270,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.hoaFee != null) form.append('hoaFee', String(input.hoaFee));
   if (input.videoTourUrl) form.append('videoTourUrl', input.videoTourUrl);
   if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
+  if (input.landUseCategoryId != null) form.append('landUseCategoryId', String(input.landUseCategoryId));
   if (input.landTenure != null) form.append('landTenure', String(LAND_TENURE_TO_NUMBER[input.landTenure]));
   if (input.cosCoefficient != null) form.append('cosCoefficient', String(input.cosCoefficient));
   if (input.cusCoefficient != null) form.append('cusCoefficient', String(input.cusCoefficient));
