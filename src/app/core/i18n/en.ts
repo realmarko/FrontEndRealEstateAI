@@ -92,6 +92,7 @@ export const en: Record<string, string> = {
   'listingDetail.builtAreaAbbr': 'built',
   'listingDetail.totalAreaAbbr': 'total',
   'listingDetail.lotAreaAbbr': 'lot',
+  'listingDetail.landUseAbbr': 'Land use: {{category}}',
   'listingDetail.gardenAreaAbbr': 'garden',
   'listingDetail.hoaAbbr': 'HOA/mo',
   'listingDetail.hasHeatingCooling': 'Heating/AC',

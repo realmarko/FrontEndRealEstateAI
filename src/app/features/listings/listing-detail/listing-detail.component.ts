@@ -15,6 +15,7 @@ import { MortgageCalculatorComponent } from '../../../shared/components/mortgage
 import { RoiCalculatorComponent } from '../../../shared/components/roi-calculator/roi-calculator.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
+import { LandUseCategory, LandUseCategoryService } from '../../../core/services/land-use-category.service';
 
 export interface NearbySchool {
   name: string;
@@ -65,6 +66,7 @@ export class ListingDetailComponent {
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly landUseCategoryService = inject(LandUseCategoryService);
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -97,6 +99,15 @@ export class ListingDetailComponent {
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
   readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
 
+  // Fetched once (same fixed catalog the "new listing" form's dropdown uses) so this only needs
+  // the id the listing already carries — landUseCategoryName resolves it to a display string.
+  readonly landUseCategories = signal<LandUseCategory[]>([]);
+  readonly landUseCategoryName = computed(() => {
+    const id = this.listing()?.landUseCategoryId;
+    if (id == null) return null;
+    return this.landUseCategories().find((c) => c.id === id)?.name ?? null;
+  });
+
   // Newest first for display (matches how Redfin/Zillow order their price-history table),
   // with each row's change computed against the entry right before it chronologically —
   // computed from the ascending `priceHistory` signal, then reversed only for display.
@@ -125,6 +136,8 @@ export class ListingDetailComponent {
   }
 
   constructor() {
+    this.landUseCategoryService.listAll().subscribe((list) => this.landUseCategories.set(list));
+
     this.listingService.fetchById(this.id).subscribe({
       next: (listing) => {
         this.listing.set(listing);

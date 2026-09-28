@@ -92,6 +92,7 @@ export const es: Record<string, string> = {
   'listingDetail.builtAreaAbbr': 'construida',
   'listingDetail.totalAreaAbbr': 'total',
   'listingDetail.lotAreaAbbr': 'terreno',
+  'listingDetail.landUseAbbr': 'Uso de suelo: {{category}}',
   'listingDetail.gardenAreaAbbr': 'jardín',
   'listingDetail.hoaAbbr': 'HOA/mes',
   'listingDetail.hasHeatingCooling': 'Calefacción/AA',
