@@ -39,6 +39,7 @@ describe('ListingService', () => {
     hoaFee: null,
     videoTourUrl: null,
     landUseZoning: null,
+    landUseCategoryId: null,
     landTenure: null,
     cosCoefficient: null,
     cusCoefficient: null,

@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 import { ListingFormComponent } from './listing-form.component';
 import { ListingService } from '../../../core/services/listing.service';
 import { GeomarketingService } from '../../../core/services/geomarketing.service';
+import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorReportingService } from '../../../core/services/error-reporting.service';
@@ -72,6 +74,9 @@ describe('ListingFormComponent', () => {
     geomarketingServiceSpy = jasmine.createSpyObj('GeomarketingService', ['listStates', 'listMunicipalities']);
     geomarketingServiceSpy.listStates.and.returnValue(of([]));
     geomarketingServiceSpy.listMunicipalities.and.returnValue(of([]));
+    const landUseCategoryServiceSpy = jasmine.createSpyObj('LandUseCategoryService', ['listAll'], {
+      categories: signal([])
+    });
     notificationSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     errorReportingSpy = jasmine.createSpyObj('ErrorReportingService', ['report']);
 
@@ -85,6 +90,7 @@ describe('ListingFormComponent', () => {
         provideRouter([]),
         { provide: ListingService, useValue: listingServiceSpy },
         { provide: GeomarketingService, useValue: geomarketingServiceSpy },
+        { provide: LandUseCategoryService, useValue: landUseCategoryServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },
         { provide: ErrorReportingService, useValue: errorReportingSpy },
         {

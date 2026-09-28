@@ -69,5 +69,8 @@
 
     <h3><a [routerLink]="['/listings', listing.id]">{{ listing.title }}</a></h3>
     <p class="address">{{ listing.address }}</p>
+    @if (landUseCategoryName; as categoryName) {
+      <p class="land-use">{{ 'listingDetail.landUseAbbr' | translate:{ category: categoryName } }}</p>
+    }
   </div>
 </article>

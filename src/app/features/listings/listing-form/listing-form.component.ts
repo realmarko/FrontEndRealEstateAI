@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ListingService } from '../../../core/services/listing.service';
 import { GeomarketingService, MunicipalityListItem, StateListItem } from '../../../core/services/geomarketing.service';
-import { LandUseCategory, LandUseCategoryService } from '../../../core/services/land-use-category.service';
+import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import {
   Currency,
   LandTenureType,
@@ -153,13 +153,14 @@ export class ListingFormComponent {
   readonly states = signal<StateListItem[]>([]);
   readonly municipalities = signal<MunicipalityListItem[]>([]);
   readonly citiesForState = signal<MunicipalityListItem[]>([]);
-  readonly landUseCategories = signal<LandUseCategory[]>([]);
+  // Root-scoped LandUseCategoryService fetches this once for the whole app — read its cached
+  // signal directly instead of firing a second, redundant request here.
+  readonly landUseCategories = this.landUseCategoryService.categories;
 
   private existingLat: number | null = null;
   private existingLng: number | null = null;
 
   constructor() {
-    this.landUseCategoryService.listAll().subscribe((list) => this.landUseCategories.set(list));
     this.geomarketingService.listStates().subscribe((list) => this.states.set(list));
     this.geomarketingService.listMunicipalities().subscribe((list) => {
       this.municipalities.set(list);

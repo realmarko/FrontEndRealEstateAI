@@ -15,7 +15,7 @@ import { MortgageCalculatorComponent } from '../../../shared/components/mortgage
 import { RoiCalculatorComponent } from '../../../shared/components/roi-calculator/roi-calculator.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
-import { LandUseCategory, LandUseCategoryService } from '../../../core/services/land-use-category.service';
+import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 
 export interface NearbySchool {
   name: string;
@@ -99,13 +99,12 @@ export class ListingDetailComponent {
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
   readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
 
-  // Fetched once (same fixed catalog the "new listing" form's dropdown uses) so this only needs
-  // the id the listing already carries — landUseCategoryName resolves it to a display string.
-  readonly landUseCategories = signal<LandUseCategory[]>([]);
+  // Root-scoped LandUseCategoryService fetches this once for the whole app — read its cached
+  // signal directly instead of firing a second, redundant request here.
   readonly landUseCategoryName = computed(() => {
     const id = this.listing()?.landUseCategoryId;
     if (id == null) return null;
-    return this.landUseCategories().find((c) => c.id === id)?.name ?? null;
+    return this.landUseCategoryService.categories().find((c) => c.id === id)?.name ?? null;
   });
 
   // Newest first for display (matches how Redfin/Zillow order their price-history table),
@@ -136,8 +135,6 @@ export class ListingDetailComponent {
   }
 
   constructor() {
-    this.landUseCategoryService.listAll().subscribe((list) => this.landUseCategories.set(list));
-
     this.listingService.fetchById(this.id).subscribe({
       next: (listing) => {
         this.listing.set(listing);

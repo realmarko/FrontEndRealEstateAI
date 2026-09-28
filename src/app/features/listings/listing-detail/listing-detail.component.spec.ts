@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
+import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import { Listing, PriceHistoryEntry } from '../../../core/models/listing.model';
 import { User } from '../../../core/models/user.model';
 
@@ -70,6 +71,9 @@ describe('ListingDetailComponent', () => {
 
     inquiryServiceSpy = jasmine.createSpyObj('InquiryService', ['create']);
     notificationSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
+    const landUseCategoryServiceSpy = jasmine.createSpyObj('LandUseCategoryService', ['listAll'], {
+      categories: signal([])
+    });
 
     TestBed.configureTestingModule({
       imports: [ListingDetailComponent],
@@ -77,6 +81,7 @@ describe('ListingDetailComponent', () => {
         provideRouter([]),
         { provide: ListingService, useValue: listingServiceSpy },
         { provide: FavoritesService, useValue: favoritesServiceSpy },
+        { provide: LandUseCategoryService, useValue: landUseCategoryServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: InquiryService, useValue: inquiryServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },

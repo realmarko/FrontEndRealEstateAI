@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { ListingCardComponent } from './listing-card.component';
 import { Listing } from '../../../core/models/listing.model';
@@ -37,11 +39,16 @@ describe('ListingCardComponent', () => {
   function createComponent(): ListingCardComponent {
     TestBed.configureTestingModule({
       imports: [ListingCardComponent],
-      providers: [provideRouter([])]
+      providers: [provideRouter([]), provideHttpClient(), provideHttpClientTesting()]
     });
     const fixture = TestBed.createComponent(ListingCardComponent);
     fixture.componentInstance.listing = listing;
     fixture.detectChanges();
+
+    // LandUseCategoryService fetches its catalog once, eagerly, from its constructor — flush
+    // that request so it doesn't leak as a pending call into the next test.
+    TestBed.inject(HttpTestingController).expectOne('/api/land-use-categories').flush([]);
+
     return fixture.componentInstance;
   }
 
