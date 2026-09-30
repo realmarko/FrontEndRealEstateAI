@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -32,7 +33,17 @@ export class LoginComponent {
 
     this.auth.login(this.form.getRawValue()).subscribe({
       next: () => this.router.navigate(['/listings']),
-      error: () => this.notification.error('auth.errors.invalidCredentials')
+      // A 403 here means AuthController.Login found valid credentials but the account's email
+      // isn't confirmed yet — route straight to the verify-email screen (with the email
+      // pre-filled and a resend option) instead of the dead-end "invalid credentials" message.
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 403 && err.error?.requiresVerification) {
+          this.notification.error('auth.errors.emailNotVerified');
+          this.router.navigate(['/verify-email'], { queryParams: { email: err.error.email } });
+          return;
+        }
+        this.notification.error('auth.errors.invalidCredentials');
+      }
     });
   }
 }

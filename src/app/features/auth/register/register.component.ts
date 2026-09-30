@@ -43,8 +43,10 @@ export class RegisterComponent {
 
     this.auth.register(payload).subscribe({
       next: () => {
-        this.notification.success('register.success');
-        this.router.navigate([payload.role === 'Agent' ? '/agents/new' : '/listings']);
+        // No session yet — Register() no longer logs the visitor in (see AuthService.register).
+        // The verify-email screen is where role-based routing (agents/new vs listings) actually
+        // happens, once VerifyEmailComponent has a real logged-in user to read roles from.
+        this.router.navigate(['/verify-email'], { queryParams: { email: payload.email } });
       },
       error: (err) => {
         // Identity validation failures (result.Errors.Select(e => e.Description) in

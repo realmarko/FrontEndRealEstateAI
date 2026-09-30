@@ -36,19 +36,29 @@ export class AuthService {
     return localStorage.getItem(TOKEN_KEY);
   }
 
-  register(details: RegisterDetails): Observable<User> {
+  // No session starts here anymore — the account isn't usable until verifyEmail() succeeds, so
+  // this only triggers the backend to create the (unconfirmed) account and email a code.
+  register(details: RegisterDetails): Observable<void> {
     return this.http
-      .post<AuthResponseDto>(`${this.apiUrl}/register`, {
+      .post<void>(`${this.apiUrl}/register`, {
         firstName: details.firstName,
         lastName: details.lastName,
         email: details.email,
         password: details.password,
         role: details.role
-      })
-      .pipe(
-        tap((res) => this.startSession(res)),
-        map((res) => this.toUser(res.user))
-      );
+      });
+  }
+
+  verifyEmail(email: string, code: string): Observable<User> {
+    return this.http.post<AuthResponseDto>(`${this.apiUrl}/verify-email`, { email, code }).pipe(
+      tap((res) => this.startSession(res)),
+      map((res) => this.toUser(res.user))
+    );
+  }
+
+  // Always resolves, same enumeration-safety reasoning as forgotPassword.
+  resendVerificationCode(email: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/resend-verification-code`, { email });
   }
 
   login(credentials: AuthCredentials): Observable<User> {

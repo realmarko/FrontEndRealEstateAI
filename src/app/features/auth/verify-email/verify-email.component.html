@@ -1,0 +1,29 @@
+<div class="auth-card">
+  <h1>{{ 'verifyEmail.title' | translate }}</h1>
+  <p>{{ 'verifyEmail.intro' | translate:{ email: email() } }}</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      {{ 'verifyEmail.codeLabel' | translate }}
+      <input
+        type="text"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+        maxlength="6"
+        formControlName="code"
+      />
+      <app-form-error [control]="form.controls.code" />
+    </label>
+
+    <button type="submit" [disabled]="verifying()">{{ 'verifyEmail.submit' | translate }}</button>
+  </form>
+
+  <p class="switch">
+    {{ 'verifyEmail.noCode' | translate }}
+    <button type="button" class="link-button" [disabled]="resending()" (click)="resendCode()">
+      {{ 'verifyEmail.resend' | translate }}
+    </button>
+  </p>
+
+  <p class="switch"><a routerLink="/login">{{ 'verifyEmail.backToLogin' | translate }}</a></p>
+</div>

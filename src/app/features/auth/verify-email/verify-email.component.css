@@ -1,0 +1,28 @@
+:host {
+  display: block;
+}
+
+/* Overrides the global .auth-card button (gold, full-width) styling — this one sits inline in a
+   sentence next to "Didn't get a code?" and should read as a plain text link, not a second CTA. */
+.link-button {
+  display: inline;
+  width: auto;
+  padding: 0;
+  margin: 0;
+  background: none;
+  color: var(--gold, #b8860b);
+  font-size: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  background: none;
+}
+
+.link-button:disabled {
+  color: #9ca3af;
+  cursor: default;
+  text-decoration: none;
+}
