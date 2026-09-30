@@ -7,14 +7,19 @@
       "Action": ["s3:PutObject", "s3:DeleteObject", "s3:ListBucket"],
       "Resource": [
         "arn:aws:s3:::realestateapp-frontend-dev",
-        "arn:aws:s3:::realestateapp-frontend-dev/*"
+        "arn:aws:s3:::realestateapp-frontend-dev/*",
+        "arn:aws:s3:::realestateapp-frontend-prod",
+        "arn:aws:s3:::realestateapp-frontend-prod/*"
       ]
     },
     {
       "Sid": "InvalidateCloudFront",
       "Effect": "Allow",
       "Action": ["cloudfront:CreateInvalidation"],
-      "Resource": "arn:aws:cloudfront::212901747626:distribution/E167T8J9F6YPOC"
+      "Resource": [
+        "arn:aws:cloudfront::212901747626:distribution/E167T8J9F6YPOC",
+        "arn:aws:cloudfront::212901747626:distribution/E24P5VX8CULI3A"
+      ]
     }
   ]
 }
