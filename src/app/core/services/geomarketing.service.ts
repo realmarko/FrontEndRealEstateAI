@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -66,6 +66,23 @@ export class GeomarketingService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/geomarketing`;
 
+  // Fetched once here (root-scoped service, so this constructor runs once per app load) and
+  // cached in a signal — same pattern as LandUseCategoryService.categories. Previously each
+  // caller (listing-form, map-view) fetched its own copy in its own constructor, so every
+  // navigation to /listings/new or /map re-fetched both lists from the backend despite the
+  // comments on listStates/listMunicipalities below claiming callers already cached them — they
+  // didn't actually do so until now.
+  private readonly statesSignal = signal<StateListItem[]>([]);
+  readonly states = this.statesSignal.asReadonly();
+
+  private readonly municipalitiesSignal = signal<MunicipalityListItem[]>([]);
+  readonly municipalities = this.municipalitiesSignal.asReadonly();
+
+  constructor() {
+    this.listStates().subscribe((list) => this.statesSignal.set(list));
+    this.listMunicipalities().subscribe((list) => this.municipalitiesSignal.set(list));
+  }
+
   // Counts INEGI DENUE-registered businesses matching searchTerm within radiusMeters of
   // (lat, lng) — see GeomarketingController.BusinessDensity. Proxied through our own backend
   // (not called directly from here) so INEGI's token never reaches the browser.
@@ -84,13 +101,16 @@ export class GeomarketingService {
     });
   }
 
-  // Small, near-static list (217 rows for Puebla today) — callers fetch once and cache, not on
-  // every keystroke of a search box.
+  // Small, near-static list (217 rows for Puebla today). Prefer the `municipalities` signal
+  // above, which already holds this — this raw HTTP call exists for that signal's own initial
+  // fetch and isn't meant to be called a second time per component.
   listMunicipalities(): Observable<MunicipalityListItem[]> {
     return this.http.get<MunicipalityListItem[]>(`${this.apiUrl}/municipalities`);
   }
 
-  // All 32 Mexican states — static reference data, callers fetch once and cache.
+  // All 32 Mexican states — static reference data. Prefer the `states` signal above, which
+  // already holds this — this raw HTTP call exists for that signal's own initial fetch and isn't
+  // meant to be called a second time per component.
   listStates(): Observable<StateListItem[]> {
     return this.http.get<StateListItem[]>(`${this.apiUrl}/states`);
   }

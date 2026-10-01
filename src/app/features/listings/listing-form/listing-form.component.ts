@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, inject, signal } from '@angular/core';
+import { Component, ElementRef, effect, inject, signal } from '@angular/core';
 import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
@@ -156,8 +156,11 @@ export class ListingFormComponent {
   // municipalities only has real city data imported for Puebla so far, so citiesForState is
   // matched against whatever the visitor actually typed in State, not constrained to it — a
   // state with no city catalog yet still lets them type a city name freely.
-  readonly states = signal<StateListItem[]>([]);
-  readonly municipalities = signal<MunicipalityListItem[]>([]);
+  // Root-scoped GeomarketingService fetches these once for the whole app — read its cached
+  // signals directly instead of firing a second, redundant request here (same pattern as
+  // landUseCategories below).
+  readonly states = this.geomarketingService.states;
+  readonly municipalities = this.geomarketingService.municipalities;
   readonly citiesForState = signal<MunicipalityListItem[]>([]);
   // Root-scoped LandUseCategoryService fetches this once for the whole app — read its cached
   // signal directly instead of firing a second, redundant request here.
@@ -167,10 +170,12 @@ export class ListingFormComponent {
   private existingLng: number | null = null;
 
   constructor() {
-    this.geomarketingService.listStates().subscribe((list) => this.states.set(list));
-    this.geomarketingService.listMunicipalities().subscribe((list) => {
-      this.municipalities.set(list);
-      this.citiesForState.set(this.filterCitiesByState(list, this.form.controls.state.value));
+    // Recomputes whenever the shared municipalities signal (re)populates — covers both "data
+    // was still loading when this component was created" and the steady-state case where it's
+    // already cached from an earlier navigation. State-typed-by-hand is covered separately below
+    // since it isn't a signal.
+    effect(() => {
+      this.citiesForState.set(this.filterCitiesByState(this.municipalities(), this.form.controls.state.value));
     });
     this.form.controls.state.valueChanges.subscribe((state) => {
       this.citiesForState.set(this.filterCitiesByState(this.municipalities(), state));

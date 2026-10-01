@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, ViewChild, computed, effect, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, Signal, ViewChild, computed, effect, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 import { Router } from '@angular/router';
@@ -367,7 +367,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly propertyTypeOptions = PROPERTY_TYPE_FILTER_OPTIONS;
   readonly companyFilter = signal('');
   readonly brokerages = signal<string[]>([]);
-  readonly municipalities = signal<MunicipalityListItem[]>([]);
+  // Root-scoped GeomarketingService fetches this once for the whole app — assigned in the
+  // constructor body (not as a field initializer) because geomarketingService is itself a
+  // constructor-injected parameter property: a field initializer referencing it here would run
+  // before that assignment happens and read undefined.
+  readonly municipalities: Signal<MunicipalityListItem[]>;
   // Empty string = no municipality filter applied (the "todos" option) — not null, so it binds
   // directly to a <select>'s value like every other filter here.
   readonly municipalityFilter = signal('');
@@ -506,7 +510,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     });
 
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
-    this.geomarketingService.listMunicipalities().subscribe((list) => this.municipalities.set(list));
+    this.municipalities = this.geomarketingService.municipalities;
   }
 
   ngAfterViewInit(): void {
