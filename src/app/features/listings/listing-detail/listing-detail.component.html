@@ -289,32 +289,31 @@
           </button>
         </div>
 
-        @if (!isOwner() && auth.isAuthenticated()) {
-          <button type="button" class="primary-link" (click)="openContactModal()">
-            {{ 'listingDetail.contactAgent' | translate }}
-          </button>
-        }
-
         @if (isOwner()) {
           <div class="owner-actions">
             <a class="primary-link" [routerLink]="['/listings', listing.id, 'edit']">{{ 'listingDetail.edit' | translate }}</a>
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
         } @else {
-          <div class="contact">
-            <h2>{{ 'listingDetail.contactTitle' | translate }}</h2>
+          <div class="agent-card">
+            <div class="agent-photo">
+              @if (listing.ownerPhotoUrl) {
+                <img [src]="listing.ownerPhotoUrl" [alt]="listing.ownerName" />
+              } @else {
+                <span class="agent-avatar">{{ agentInitials }}</span>
+              }
+            </div>
+            <p class="agent-name">{{ listing.ownerName }}</p>
 
             @if (auth.isAuthenticated()) {
-              <textarea
-                rows="3"
-                [placeholder]="'listingDetail.messagePlaceholder' | translate"
-                [value]="messageBody()"
-                (input)="messageBody.set($any($event.target).value)"
-                maxlength="5000"
-              ></textarea>
-              <button type="button" class="primary" [disabled]="sendingMessage()" (click)="sendMessage()">{{ 'listingDetail.sendMessage' | translate }}</button>
+              <a class="agent-email" [href]="'mailto:' + listing.ownerEmail">{{ listing.ownerEmail }}</a>
+              <button type="button" class="primary-link" (click)="openContactModal()">
+                {{ 'listingDetail.contactAgent' | translate }}
+              </button>
             } @else {
-              <p><a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}</p>
+              <p class="agent-login-prompt">
+                <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
+              </p>
             }
           </div>
         }

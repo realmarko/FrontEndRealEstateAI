@@ -62,6 +62,8 @@ describe('ListingFormComponent', () => {
     hasHeatingCooling: false,
     imageUrls: ['existing.jpg'],
     ownerId: 'owner-1',
+    ownerName: 'Owner Name',
+    ownerEmail: 'owner@example.com',
     createdAt: '2026-01-01T00:00:00Z',
     lat: 19.05,
     lng: -98.2,

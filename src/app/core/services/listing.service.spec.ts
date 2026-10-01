@@ -65,7 +65,9 @@ describe('ListingService', () => {
     cadastralValue: null,
     ownerId: 'owner-1',
     ownerName: 'Marco Martinez',
+    ownerEmail: 'owner@example.com',
     ownerCompany: null,
+    ownerPhotoUrl: null,
     createdAt: '2026-01-01T00:00:00Z',
     imageUrls: [],
     ...overrides

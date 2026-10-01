@@ -84,8 +84,6 @@ export class ListingDetailComponent {
     if (!videoId) return null;
     return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
   });
-  readonly messageBody = signal('');
-  readonly sendingMessage = signal(false);
   readonly activePhotoIndex = signal(0);
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
@@ -132,6 +130,16 @@ export class ListingDetailComponent {
 
   get contactInitialEmail(): string {
     return this.auth.currentUser()?.email ?? '';
+  }
+
+  // Fallback avatar when the agent has no photo — same initials rule as AgentCardComponent.
+  get agentInitials(): string {
+    return (this.listing()?.ownerName ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('');
   }
 
   constructor() {
@@ -323,34 +331,6 @@ export class ListingDetailComponent {
     });
   }
 
-  sendMessage(): void {
-    const listing = this.listing();
-    const user = this.auth.currentUser();
-    const body = this.messageBody().trim();
-    if (!listing || !user || !body || this.sendingMessage()) {
-      return;
-    }
-
-    this.sendingMessage.set(true);
-
-    this.submitInquiry(
-      {
-        listingId: listing.id,
-        senderName: `${user.firstName} ${user.lastName}`,
-        senderEmail: user.email,
-        message: body
-      },
-      {
-        successKey: 'listingDetail.messageSent',
-        errorKey: 'listingDetail.messageError',
-        onDone: (ok) => {
-          this.sendingMessage.set(false);
-          if (ok) this.messageBody.set('');
-        }
-      }
-    );
-  }
-
   openContactModal(): void {
     this.showContactModal.set(true);
   }
@@ -384,9 +364,8 @@ export class ListingDetailComponent {
     );
   }
 
-  // Shared by sendMessage (the quick textarea) and sendContactAgentMessage (the modal) — both
-  // ultimately submit an Inquiry, just with different fields collected and different UI state
-  // to reset on completion, which the caller-supplied onDone(ok) handles.
+  // Wraps the Inquiry submission side effect (toast + onDone reset) so sendContactAgentMessage
+  // doesn't repeat it inline.
   private submitInquiry(
     input: Parameters<InquiryService['create']>[0],
     { successKey, errorKey, onDone }: { successKey: string; errorKey: string; onDone: (ok: boolean) => void }

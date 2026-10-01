@@ -50,6 +50,8 @@ describe('ListingDetailComponent', () => {
     hasHeatingCooling: false,
     imageUrls: ['a.jpg', 'b.jpg', 'c.jpg'],
     ownerId: 'owner-1',
+    ownerName: 'Owner Name',
+    ownerEmail: 'owner@example.com',
     createdAt: new Date().toISOString(),
     ...overrides
   });
@@ -224,50 +226,6 @@ describe('ListingDetailComponent', () => {
 
     expect(notificationSpy.error).toHaveBeenCalledWith('listingDetail.deleteError');
     expect(router.navigate).not.toHaveBeenCalled();
-  });
-
-  it('sendMessage() is a no-op with no logged-in user, or with a blank body', () => {
-    const component = createComponent();
-    component.messageBody.set('Hello');
-    component.sendMessage();
-    expect(inquiryServiceSpy.create).not.toHaveBeenCalled();
-
-    currentUser.set({ id: 'u1', firstName: 'A', lastName: 'B', email: 'a@b.com', roles: ['Buyer'] });
-    component.messageBody.set('   ');
-    component.sendMessage();
-    expect(inquiryServiceSpy.create).not.toHaveBeenCalled();
-  });
-
-  it('sendMessage() submits the inquiry and clears the body on success', () => {
-    const component = createComponent(makeListing({ id: 'l1' }));
-    inquiryServiceSpy.create.and.returnValue(of(undefined));
-    currentUser.set({ id: 'u1', firstName: 'Ana', lastName: 'Lopez', email: 'ana@example.com', roles: ['Buyer'] });
-    component.messageBody.set('Is this still available?');
-
-    component.sendMessage();
-
-    expect(inquiryServiceSpy.create).toHaveBeenCalledWith({
-      listingId: 'l1',
-      senderName: 'Ana Lopez',
-      senderEmail: 'ana@example.com',
-      message: 'Is this still available?'
-    });
-    expect(notificationSpy.success).toHaveBeenCalledWith('listingDetail.messageSent');
-    expect(component.messageBody()).toBe('');
-    expect(component.sendingMessage()).toBe(false);
-  });
-
-  it('sendMessage() keeps the typed body and shows an error notification on failure', () => {
-    const component = createComponent();
-    inquiryServiceSpy.create.and.returnValue(throwError(() => new Error('boom')));
-    currentUser.set({ id: 'u1', firstName: 'Ana', lastName: 'Lopez', email: 'ana@example.com', roles: ['Buyer'] });
-    component.messageBody.set('Is this still available?');
-
-    component.sendMessage();
-
-    expect(notificationSpy.error).toHaveBeenCalledWith('listingDetail.messageError');
-    expect(component.messageBody()).toBe('Is this still available?');
-    expect(component.sendingMessage()).toBe(false);
   });
 
   it('sendContactAgentMessage() rejects an incomplete form without opening a request', () => {

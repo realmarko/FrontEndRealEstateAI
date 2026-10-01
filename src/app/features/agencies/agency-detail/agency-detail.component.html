@@ -1,0 +1,79 @@
+@if (agency(); as a) {
+  <div class="page">
+    <div class="header-card">
+      <div class="logo">
+        @if (a.logoUrl) {
+          <img [src]="a.logoUrl" [alt]="a.name" />
+        } @else {
+          <div class="avatar">{{ a.name.charAt(0) }}</div>
+        }
+      </div>
+
+      <div class="info">
+        <h1>{{ a.name }}</h1>
+        @if (location()) {
+          <p class="location">{{ location() }}</p>
+        }
+        <div class="links">
+          @if (a.website) {
+            <a [href]="a.website" target="_blank" rel="noopener noreferrer">{{ 'agencyDetail.website' | translate }}</a>
+          }
+          @if (a.facebookUrl) {
+            <a [href]="a.facebookUrl" target="_blank" rel="noopener noreferrer">Facebook</a>
+          }
+          @if (a.instagramUrl) {
+            <a [href]="a.instagramUrl" target="_blank" rel="noopener noreferrer">Instagram</a>
+          }
+        </div>
+        @if (a.canEdit) {
+          <a class="edit-link" routerLink="/inmobiliarias/edit">{{ 'agencyDetail.editLink' | translate }}</a>
+        }
+      </div>
+
+      <div class="stats">
+        <p><strong>{{ a.listingsCount }}</strong> {{ 'agencies.listingsCount' | translate }}</p>
+        <p><strong>{{ a.agentsCount }}</strong> {{ 'agencies.agentsCount' | translate }}</p>
+      </div>
+    </div>
+
+    @if (a.description) {
+      <p class="description">{{ a.description }}</p>
+    }
+
+    <div class="filter-panel">
+      <div class="search-field">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="search"
+          [placeholder]="'listings.searchPlaceholder' | translate"
+          [value]="search()"
+          (input)="onSearchChange($any($event.target).value)"
+        />
+      </div>
+
+      <div class="type-toggle">
+        <button type="button" [class.active]="typeFilter() === 'all'" (click)="setTypeFilter('all')">
+          {{ 'listings.filterAll' | translate }}
+        </button>
+        <button type="button" [class.active]="typeFilter() === 'rent'" (click)="setTypeFilter('rent')">
+          {{ 'listings.filterRent' | translate }}
+        </button>
+        <button type="button" [class.active]="typeFilter() === 'sale'" (click)="setTypeFilter('sale')">
+          {{ 'listings.filterSale' | translate }}
+        </button>
+      </div>
+    </div>
+
+    @if (listings().length) {
+      <p class="results-count">{{ 'listings.resultsCount' | translate: { count: listings().length } }}</p>
+      <app-listing-grid [listings]="listings()" />
+    } @else {
+      <p class="empty">{{ 'listings.empty' | translate }}</p>
+    }
+  </div>
+} @else if (notFound()) {
+  <p class="empty page-empty">{{ 'agencyDetail.notFound' | translate }}</p>
+}

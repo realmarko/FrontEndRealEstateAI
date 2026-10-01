@@ -104,6 +104,28 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'inmobiliarias',
+    loadComponent: () =>
+      import('./features/agencies/agencies-list/agencies-list.component').then(
+        (m) => m.AgenciesListComponent
+      )
+  },
+  {
+    path: 'inmobiliarias/edit',
+    canActivate: [authGuard, roleGuard('Agent')],
+    loadComponent: () =>
+      import('./features/agencies/agency-edit/agency-edit.component').then(
+        (m) => m.AgencyEditComponent
+      )
+  },
+  {
+    path: 'inmobiliarias/:id',
+    loadComponent: () =>
+      import('./features/agencies/agency-detail/agency-detail.component').then(
+        (m) => m.AgencyDetailComponent
+      )
+  },
+  {
     path: 'favorites',
     canActivate: [authGuard],
     loadComponent: () =>

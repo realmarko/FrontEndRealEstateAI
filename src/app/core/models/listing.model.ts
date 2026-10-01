@@ -151,6 +151,9 @@ export interface Listing {
   ownerCompany?: string;
   imageUrls: string[];
   ownerId: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPhotoUrl?: string;
   createdAt: string;
   lat?: number;
   lng?: number;
@@ -159,7 +162,7 @@ export interface Listing {
 // The write model splits photos in two: URLs already hosted somewhere (pasted external links,
 // or S3 URLs kept from a previous edit) vs. raw File objects the browser just picked, which the
 // backend uploads to S3 itself — see ListingsController.BuildImageUrlsAsync.
-export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'createdAt' | 'imageUrls' | 'address'> & {
+export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'ownerName' | 'ownerEmail' | 'ownerPhotoUrl' | 'createdAt' | 'imageUrls' | 'address'> & {
   existingImageUrls: string[];
   photos: File[];
 };

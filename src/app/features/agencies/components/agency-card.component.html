@@ -1,0 +1,32 @@
+<a class="card" [routerLink]="['/inmobiliarias', agency.id]">
+  <div class="photo">
+    @if (agency.logoUrl) {
+      <img [src]="agency.logoUrl" [alt]="agency.name" />
+    } @else {
+      <div class="avatar">{{ initials }}</div>
+    }
+  </div>
+
+  <div class="body">
+    <h3 [attr.title]="agency.name">{{ agency.name }}</h3>
+
+    <div class="location-slot">
+      @if (location) {
+        <p class="location">{{ location }}</p>
+      }
+    </div>
+
+    <div class="website-slot">
+      @if (agency.website) {
+        <p class="website" [attr.title]="agency.website">{{ agency.website }}</p>
+      }
+    </div>
+
+    <p class="stat">
+      <strong>{{ agency.listingsCount }}</strong> {{ 'agencies.listingsCount' | translate }}
+    </p>
+    <p class="stat">
+      <strong>{{ agency.agentsCount }}</strong> {{ 'agencies.agentsCount' | translate }}
+    </p>
+  </div>
+</a>

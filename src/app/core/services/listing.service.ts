@@ -65,6 +65,15 @@ export class ListingService {
     return this.http.get<ListingDto[]>(`${this.apiUrl}/${id}/similar`).pipe(map((dtos) => dtos.map(fromDto)));
   }
 
+  // Listings owned by any agent belonging to this agency — for the /inmobiliarias/:id page.
+  // Deliberately bypasses the shared `listings` signal (that one holds the site-wide feed) and
+  // queries the backend's own BrokerageId filter directly instead of filtering it client-side.
+  fetchByAgency(agencyId: number): Observable<Listing[]> {
+    return this.http
+      .get<PagedResult<ListingDto>>(this.apiUrl, { params: { brokerageId: agencyId, pageSize: 100 } })
+      .pipe(map((res) => res.items.map(fromDto)));
+  }
+
   // Owner/Agent's remaining listing quota for the current calendar month — used by the
   // quota panel on the "new listing" form, not by the general listings feed.
   getMyQuota(): Observable<ListingQuota> {

@@ -142,7 +142,9 @@ export interface ListingDto {
   cadastralValue: number | null;
   ownerId: string;
   ownerName: string;
+  ownerEmail: string;
   ownerCompany: string | null;
+  ownerPhotoUrl: string | null;
   createdAt: string;
   imageUrls: string[];
 }
@@ -232,6 +234,9 @@ export function fromDto(dto: ListingDto): Listing {
     // for display only.
     imageUrls: dto.imageUrls,
     ownerId: dto.ownerId,
+    ownerName: dto.ownerName,
+    ownerEmail: dto.ownerEmail,
+    ownerPhotoUrl: dto.ownerPhotoUrl ?? undefined,
     createdAt: dto.createdAt,
     lat: hasLocation ? dto.latitude : undefined,
     lng: hasLocation ? dto.longitude : undefined

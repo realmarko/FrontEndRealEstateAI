@@ -1,0 +1,56 @@
+@if (loading()) {
+  <p class="status">{{ 'agencyEdit.loading' | translate }}</p>
+} @else if (notFound()) {
+  <p class="status">{{ 'agencyEdit.notFound' | translate }}</p>
+} @else {
+  <div class="page">
+    <h1>{{ 'agencyEdit.title' | translate }}</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label class="logo-field">
+        {{ 'agencyEdit.logo' | translate }}
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onLogoSelected($event)" />
+      </label>
+      @if (logoPreview()) {
+        <img class="logo-preview" [src]="logoPreview()" alt="" />
+      }
+      @if (logoError()) {
+        <p class="error">{{ logoError() }}</p>
+      }
+
+      <label>
+        {{ 'agencyEdit.state' | translate }}
+        <input type="text" formControlName="state" />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.city' | translate }}
+        <input type="text" formControlName="city" />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.website' | translate }}
+        <input type="url" formControlName="website" placeholder="https://..." />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.facebookUrl' | translate }}
+        <input type="url" formControlName="facebookUrl" placeholder="https://facebook.com/..." />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.instagramUrl' | translate }}
+        <input type="url" formControlName="instagramUrl" placeholder="https://instagram.com/..." />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.description' | translate }}
+        <textarea formControlName="description" rows="4"></textarea>
+      </label>
+
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? ('agencyEdit.saving' | translate) : ('agencyEdit.save' | translate) }}
+      </button>
+    </form>
+  </div>
+}
