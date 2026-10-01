@@ -69,8 +69,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Sync to S3
-        run: aws s3 sync dist/realestateapp-frontend/browser "s3://${S3_BUCKET}" --delete
+      # Split in two passes so hashed JS/CSS bundles (content-addressed by the Angular build —
+      # a change always gets a new filename) can be cached by the browser/CDN indefinitely,
+      # while index.html and any non-hashed file (favicon, future static assets) must always be
+      # revalidated — otherwise a stale index.html could keep pointing at bundle filenames that
+      # no longer exist after the next deploy. --exclude/--include with --delete also excludes
+      # the matching keys from deletion in that pass, so running both passes together is
+      # equivalent to one full sync, just with different Cache-Control per file type.
+      - name: Sync hashed JS/CSS to S3 (cache forever)
+        run: |
+          aws s3 sync dist/realestateapp-frontend/browser "s3://${S3_BUCKET}" --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*" --include "*.js" --include "*.css"
+
+      - name: Sync index.html and other static files to S3 (always revalidate)
+        run: |
+          aws s3 sync dist/realestateapp-frontend/browser "s3://${S3_BUCKET}" --delete \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --exclude "*.js" --exclude "*.css"
 
       - name: Invalidate CloudFront cache
         run: |
