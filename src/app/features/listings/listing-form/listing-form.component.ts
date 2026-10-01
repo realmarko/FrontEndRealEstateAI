@@ -30,6 +30,12 @@ import { FormErrorComponent } from '../../../shared/components/form-error/form-e
 import { ListingQuotaComponent } from '../../../shared/components/listing-quota/listing-quota.component';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 
+// Mirrors PhotoUploadService's server-side limits exactly, so a bad file is rejected the
+// moment it's picked instead of after a wasted upload round-trip.
+const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
+const MAX_PHOTOS_PER_LISTING = 20;
+
 // Blank/whitespace-only counts as "not entered" (matches the trim-and-clear treatment at
 // submit time) rather than a pattern mismatch — only an actually-typed value gets validated.
 function optionalUrlValidator(control: AbstractControl): ValidationErrors | null {
@@ -274,10 +280,39 @@ export class ListingFormComponent {
     const files = input.files;
     if (!files?.length) return;
 
+    const remainingSlots = MAX_PHOTOS_PER_LISTING - this.existingImageUrls().length - this.newPhotos().length;
+    if (remainingSlots <= 0) {
+      this.notification.error('listingForm.tooManyPhotosError');
+      input.value = '';
+      return;
+    }
+
+    // Validate type/size up front (matches PhotoUploadService's server-side checks) so a
+    // rejected file never reaches the FileReader/preview step, and only surface one toast per
+    // problem kind even if several files share the same issue.
+    const accepted: File[] = [];
+    let hasTypeError = false;
+    let hasSizeError = false;
+    for (const file of Array.from(files)) {
+      if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
+        hasTypeError = true;
+      } else if (file.size > MAX_PHOTO_BYTES) {
+        hasSizeError = true;
+      } else {
+        accepted.push(file);
+      }
+    }
+    if (hasTypeError) this.notification.error('listingForm.photoTypeError');
+    if (hasSizeError) this.notification.error('listingForm.photoSizeError');
+
+    const overflow = accepted.length > remainingSlots;
+    const toRead = accepted.slice(0, remainingSlots);
+    if (overflow) this.notification.error('listingForm.tooManyPhotosError');
+
     // Read every file in parallel but wait for all of them before appending, so selection
     // order is preserved regardless of which FileReader happens to finish first (readers
     // resolve independently and are not guaranteed to complete in the order they started).
-    const reads = Array.from(files).map(
+    const reads = toRead.map(
       (file) =>
         new Promise<{ file: File; previewUrl: string }>((resolve) => {
           const reader = new FileReader();
