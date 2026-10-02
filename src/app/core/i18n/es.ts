@@ -385,6 +385,7 @@ export const es: Record<string, string> = {
   'map.beds4': '4+ hab',
   'map.municipalityAll': 'Todos los municipios',
   'map.municipalityLoadError': 'No se pudo cargar el límite de ese municipio. Intenta de nuevo.',
+  'map.addressNotFoundError': 'No encontramos esa dirección. Intenta con otra búsqueda.',
   'map.agebLayer': 'Zonas censales (AGEB)',
   'map.agebLoadError': 'No se pudieron cargar las zonas censales de esta área.',
   'map.bathsAny': 'Baños (todos)',

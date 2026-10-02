@@ -1411,6 +1411,41 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  // Triggered on Enter (not on every keystroke, unlike onSearchChange/syncSearchMunicipality) —
+  // geocoding is a billed Google API call, so it only fires on a deliberate "search" action.
+  // Lets the main search box find a real address even when zero listings match it: typed text
+  // first filters existing listings client-side (via filteredListings, already live by the time
+  // this runs) and, independently, tries to resolve it as an address so the map still moves
+  // there. An exact municipality-name match is already handled by syncSearchMunicipality's own
+  // panTo, so this skips geocoding in that case rather than re-centering on the same spot twice.
+  searchAddress(): void {
+    const query = this.search().trim();
+    if (!query || this.searchMunicipalityCvegeo || !this.map) return;
+
+    new google.maps.Geocoder().geocode(
+      { address: query, componentRestrictions: { country: 'mx' } },
+      (results, status) => {
+        // The Maps JS SDK invokes this callback outside Angular's zone — wrapped in zone.run,
+        // same as every other Maps callback in this component, so the state changes below
+        // actually trigger change detection (the notification toast in particular).
+        this.zone.run(() => {
+          if (status !== google.maps.GeocoderStatus.OK || !results?.length) {
+            // Silent unless the text search also came up empty — a failed geocode for, say, a
+            // listing title that isn't a real address shouldn't contradict the results already
+            // showing on screen.
+            if (this.filteredListings().length === 0) {
+              this.notification.error('map.addressNotFoundError');
+            }
+            return;
+          }
+
+          this.map?.panTo(results[0].geometry.location);
+          this.map?.setZoom(16);
+        });
+      }
+    );
+  }
+
   setTypeFilter(type: ListingType | 'all'): void {
     this.typeFilter.set(type);
   }

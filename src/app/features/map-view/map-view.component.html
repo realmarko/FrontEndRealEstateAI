@@ -6,6 +6,7 @@
       [placeholder]="'listings.searchPlaceholder' | translate"
       [value]="search()"
       (input)="onSearchChange($any($event.target).value)"
+      (keyup.enter)="searchAddress()"
     />
 
     <select class="filter-select" [value]="typeFilter()" (change)="setTypeFilter($any($event.target).value)">
