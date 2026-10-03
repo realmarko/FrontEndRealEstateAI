@@ -12,6 +12,7 @@ export interface Agent {
   propertiesCount: number;
   averageRating?: number;
   reviewsCount: number;
+  viewCount: number;
 }
 
 export interface AgentReview {

@@ -11,6 +11,7 @@ import { RatingStarsComponent } from '../../../shared/components/rating-stars/ra
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
+import { shouldRecordView } from '../../../core/utils/view-dedup';
 
 @Component({
   selector: 'app-agent-detail',
@@ -58,6 +59,10 @@ export class AgentDetailComponent {
 
     this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
     this.agentService.getListings(this.agentId).subscribe((listings) => this.listings.set(listings));
+
+    if (shouldRecordView(`agent_${this.agentId}`)) {
+      this.agentService.recordView(this.agentId).subscribe({ error: () => {} });
+    }
   }
 
   get contactModalTitle(): string {

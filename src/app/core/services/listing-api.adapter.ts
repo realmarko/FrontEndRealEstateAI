@@ -147,6 +147,7 @@ export interface ListingDto {
   ownerPhotoUrl: string | null;
   createdAt: string;
   imageUrls: string[];
+  viewCount: number;
 }
 
 export interface ListingPriceHistoryDto {
@@ -239,7 +240,8 @@ export function fromDto(dto: ListingDto): Listing {
     ownerPhotoUrl: dto.ownerPhotoUrl ?? undefined,
     createdAt: dto.createdAt,
     lat: hasLocation ? dto.latitude : undefined,
-    lng: hasLocation ? dto.longitude : undefined
+    lng: hasLocation ? dto.longitude : undefined,
+    viewCount: dto.viewCount
   };
 }
 

@@ -46,6 +46,7 @@
           } @else {
             {{ 'listingDetail.daysOnMarket' | translate:{ count: daysOnMarket(listing) } }}
           }
+          · {{ 'listingDetail.viewsCount' | translate:{ count: listing.viewCount } }}
         </p>
         <p class="address">{{ listing.address }}</p>
         <p class="description">{{ listing.description }}</p>

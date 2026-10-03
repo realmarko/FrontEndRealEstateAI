@@ -63,6 +63,12 @@ export class AgentService {
     return this.http.get<AgentDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
   }
 
+  // Fire-and-forget from the detail page (see agent-detail.component.ts, which debounces repeat
+  // calls per browser) — no response body to act on.
+  recordView(id: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/view`, {});
+  }
+
   fetchMine(): Observable<Agent> {
     return this.http.get<AgentDto>(`${this.apiUrl}/me`).pipe(map(fromDto));
   }

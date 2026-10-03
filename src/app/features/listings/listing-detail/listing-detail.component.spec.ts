@@ -53,6 +53,7 @@ describe('ListingDetailComponent', () => {
     ownerName: 'Owner Name',
     ownerEmail: 'owner@example.com',
     createdAt: new Date().toISOString(),
+    viewCount: 0,
     ...overrides
   });
 

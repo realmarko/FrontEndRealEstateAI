@@ -67,6 +67,7 @@ describe('ListingFormComponent', () => {
     createdAt: '2026-01-01T00:00:00Z',
     lat: 19.05,
     lng: -98.2,
+    viewCount: 0,
     ...overrides
   });
 

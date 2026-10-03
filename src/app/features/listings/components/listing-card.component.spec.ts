@@ -35,7 +35,8 @@ describe('ListingCardComponent', () => {
     ownerId: 'owner-1',
     ownerName: 'Owner Name',
     ownerEmail: 'owner@example.com',
-    createdAt: '2026-01-01T00:00:00Z'
+    createdAt: '2026-01-01T00:00:00Z',
+    viewCount: 0
   };
 
   function createComponent(): ListingCardComponent {

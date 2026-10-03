@@ -16,6 +16,7 @@ import { RoiCalculatorComponent } from '../../../shared/components/roi-calculato
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
+import { shouldRecordView } from '../../../core/utils/view-dedup';
 
 export interface NearbySchool {
   name: string;
@@ -151,6 +152,10 @@ export class ListingDetailComponent {
         // array would otherwise read past the end and break the image.
         this.activePhotoIndex.set(0);
         this.loading.set(false);
+
+        if (shouldRecordView(`listing_${this.id}`)) {
+          this.listingService.recordView(this.id).subscribe({ error: () => {} });
+        }
 
         if (listing.lat != null && listing.lng != null) {
           const lat = listing.lat;

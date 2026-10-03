@@ -14,6 +14,7 @@ export interface AgentDto {
   propertiesCount: number;
   averageRating?: number | null;
   reviewsCount: number;
+  viewCount: number;
 }
 
 export function fromDto(dto: AgentDto): Agent {
@@ -30,7 +31,8 @@ export function fromDto(dto: AgentDto): Agent {
     specialties: dto.specialties ?? [],
     propertiesCount: dto.propertiesCount,
     averageRating: dto.averageRating ?? undefined,
-    reviewsCount: dto.reviewsCount
+    reviewsCount: dto.reviewsCount,
+    viewCount: dto.viewCount
   };
 }
 

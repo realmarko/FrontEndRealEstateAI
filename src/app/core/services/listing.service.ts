@@ -55,6 +55,12 @@ export class ListingService {
     return this.http.get<ListingDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
   }
 
+  // Fire-and-forget from the detail page (see listing-detail.component.ts, which debounces
+  // repeat calls per browser) — no response body to act on.
+  recordView(id: string): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/view`, {});
+  }
+
   getPriceHistory(id: string): Observable<PriceHistoryEntry[]> {
     return this.http
       .get<ListingPriceHistoryDto[]>(`${this.apiUrl}/${id}/price-history`)

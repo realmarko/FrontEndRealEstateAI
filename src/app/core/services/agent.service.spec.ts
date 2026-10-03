@@ -24,6 +24,7 @@ describe('AgentService', () => {
     propertiesCount: 0,
     averageRating: null,
     reviewsCount: 0,
+    viewCount: 0,
     ...overrides
   });
 
