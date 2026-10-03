@@ -162,14 +162,17 @@ export const routes: Routes = [
         (m) => m.FraccionamientosDetailComponent
       )
   },
-  {
-    path: 'pipeline',
-    canActivate: [authGuard, roleGuard('Agent')],
-    loadComponent: () =>
-      import('./features/pipeline/pipeline-board/pipeline-board.component').then(
-        (m) => m.PipelineBoardComponent
-      )
-  },
+  // Pipeline feature: built but held back from prod pending further review — route and navbar
+  // link both commented out (not deleted) so re-enabling is a one-line uncomment. The backend
+  // API stays live either way; this only hides the frontend entry point.
+  // {
+  //   path: 'pipeline',
+  //   canActivate: [authGuard, roleGuard('Agent')],
+  //   loadComponent: () =>
+  //     import('./features/pipeline/pipeline-board/pipeline-board.component').then(
+  //       (m) => m.PipelineBoardComponent
+  //     )
+  // },
   {
     path: 'admin/errors',
     canActivate: [authGuard, roleGuard('Admin')],
