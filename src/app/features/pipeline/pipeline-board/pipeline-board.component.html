@@ -1,0 +1,101 @@
+<div class="page">
+  <header class="page-head">
+    <div>
+      <h1>{{ 'pipeline.title' | translate }}</h1>
+      <p>{{ 'pipeline.subtitle' | translate }}</p>
+    </div>
+    <button type="button" class="primary" (click)="openNewDeal()">+ {{ 'pipeline.newDeal' | translate }}</button>
+  </header>
+
+  <section class="metrics">
+    <div class="metric">
+      <span class="label">{{ 'pipeline.metrics.active' | translate }}</span>
+      <span class="value">{{ pipeline.metrics().activeCount }}</span>
+    </div>
+    <div class="metric">
+      <span class="label">{{ 'pipeline.metrics.value' | translate }}</span>
+      <span class="value">{{ pipeline.metrics().totalValue | currency: 'MXN' : 'symbol' : '1.0-0' }}</span>
+    </div>
+    <div class="metric">
+      <span class="label">{{ 'pipeline.metrics.legal' | translate }}</span>
+      <span class="value">{{ pipeline.metrics().legalReviewCount }}</span>
+    </div>
+    <div class="metric">
+      <span class="label">{{ 'pipeline.metrics.closed' | translate }}</span>
+      <span class="value">{{ pipeline.metrics().closedCount }}</span>
+    </div>
+  </section>
+
+  @if (pipeline.processes().length > 0) {
+    <div class="board">
+      @for (column of columns(); track column.stage.id) {
+        <div
+          class="column"
+          [class.drag-over]="dragOverStageId() === column.stage.id"
+          (dragover)="onDragOver(column.stage.id, $event)"
+          (dragleave)="onDragLeave()"
+          (drop)="onDrop(column.stage.id, $event)"
+        >
+          <div class="column-head">
+            <div>
+              <h3>{{ column.stage.requiresLegalReview ? '⚖ ' : '' }}{{ column.stage.name }}</h3>
+              <span class="column-sub">{{ column.stage.description }}</span>
+            </div>
+            <span class="count">{{ column.deals.length }}</span>
+          </div>
+
+          <div class="column-list">
+            @for (deal of column.deals; track deal.id) {
+              <div
+                class="card"
+                [class.closed]="isFinalStage(deal)"
+                draggable="true"
+                (dragstart)="onDragStart(deal.id)"
+                (click)="openDeal(deal.id)"
+              >
+                <div class="card-row1">
+                  <span class="deal-code">#{{ deal.id.slice(0, 8) }}</span>
+                  <span class="price">{{ deal.estimatedPrice | currency: 'MXN' : 'symbol' : '1.0-0' }}</span>
+                </div>
+                <h4>{{ deal.propertyAddress }}</h4>
+                <p class="client">{{ deal.clientName }}</p>
+                <div class="card-foot">
+                  <span>📄 {{ 'pipeline.docs' | translate }}: {{ deal.documentsVerified }}/{{ deal.documentsTotal }}</span>
+                  <span>✅ {{ 'pipeline.tasks' | translate }}: {{ deal.tasksCompleted }}/{{ deal.tasksTotal }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (pipeline.loading()) {
+    <app-skeleton-loader variant="list" [count]="4" [lines]="2" />
+  } @else if (pipeline.loadError()) {
+    <app-state-panel kind="error" [retryLabel]="'pipeline.retry' | translate" (retry)="retry()">
+      {{ 'pipeline.error' | translate }}
+    </app-state-panel>
+  } @else {
+    <app-state-panel kind="empty">
+      {{ 'pipeline.empty' | translate }}
+    </app-state-panel>
+  }
+</div>
+
+@if (showNewDealModal()) {
+  <app-new-deal-modal [stages]="pipeline.stages()" [saving]="savingNewDeal()" (closed)="closeNewDeal()" (saved)="createDeal($event)" />
+}
+
+@if (selectedDeal()) {
+  <app-deal-detail-modal
+    [deal]="selectedDeal()!"
+    [stages]="pipeline.stages()"
+    (closed)="closeDeal()"
+    (stageChanged)="changeStage($event)"
+    (documentToggled)="toggleDocument($event)"
+    (taskAdded)="addTask($event)"
+    (taskToggled)="toggleTask($event)"
+    (taskDeleted)="deleteTask($event)"
+    (deleted)="deleteDeal()"
+  />
+}

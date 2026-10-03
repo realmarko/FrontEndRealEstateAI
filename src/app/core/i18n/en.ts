@@ -726,5 +726,47 @@ export const en: Record<string, string> = {
   'privacy.changesBody': "We may update this notice as the site evolves. We'll post any changes on this same page along with its updated date.",
 
   'privacy.contactTitle': 'Contact',
-  'privacy.contactBody': 'For any questions about this notice or your personal data, write to us at privacidad@espacial.com.mx.'
+  'privacy.contactBody': 'For any questions about this notice or your personal data, write to us at privacidad@espacial.com.mx.',
+
+  'nav.pipeline': 'Pipeline',
+
+  'pipeline.title': 'Sale pipeline',
+  'pipeline.subtitle': 'Track properties currently in process',
+  'pipeline.newDeal': 'New property',
+  'pipeline.metrics.active': 'In process',
+  'pipeline.metrics.value': 'Pipeline value',
+  'pipeline.metrics.legal': 'In contract review',
+  'pipeline.metrics.closed': 'Sold',
+  'pipeline.docs': 'Docs',
+  'pipeline.tasks': 'Tasks',
+  'pipeline.empty': "You don't have any properties in the pipeline yet.",
+  'pipeline.error': 'Could not load the pipeline.',
+  'pipeline.retry': 'Retry',
+
+  'pipeline.detail.price': 'Price',
+  'pipeline.detail.phone': 'Phone',
+  'pipeline.detail.created': 'Registered',
+  'pipeline.detail.close': 'Close',
+  'pipeline.detail.delete': 'Delete record',
+  'pipeline.detail.deleteConfirm': 'Permanently delete this record?',
+  'pipeline.detail.legalFlag': "Contract-review checkpoint: don't move forward without the lawyer's or notary's sign-off.",
+  'pipeline.detail.changeStage': 'Change stage',
+  'pipeline.detail.update': 'Update',
+  'pipeline.detail.checklistTitle': 'Document checklist',
+  'pipeline.detail.checklistSub': 'verified for this stage',
+  'pipeline.detail.verified': 'Verified',
+  'pipeline.detail.pending': 'Pending',
+  'pipeline.detail.tasksTitle': "Agent's tasks",
+  'pipeline.detail.newTaskPlaceholder': 'E.g. Schedule signing with the notary',
+  'pipeline.detail.addTask': 'Add',
+  'pipeline.detail.noTasks': 'No tasks yet.',
+
+  'pipeline.form.title': 'Register property',
+  'pipeline.form.client': 'Client (seller)',
+  'pipeline.form.phone': 'Phone',
+  'pipeline.form.price': 'Estimated price (MXN)',
+  'pipeline.form.address': 'Property address',
+  'pipeline.form.stage': 'Starting stage',
+  'pipeline.form.cancel': 'Cancel',
+  'pipeline.form.save': 'Save'
 };

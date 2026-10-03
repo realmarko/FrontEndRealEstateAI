@@ -726,5 +726,47 @@ export const es: Record<string, string> = {
   'privacy.changesBody': 'Podemos actualizar este aviso conforme el sitio evolucione. Publicaremos cualquier cambio en esta misma página con su fecha de actualización.',
 
   'privacy.contactTitle': 'Contacto',
-  'privacy.contactBody': 'Para cualquier duda sobre este aviso o tus datos personales, escríbenos a privacidad@espacial.com.mx.'
+  'privacy.contactBody': 'Para cualquier duda sobre este aviso o tus datos personales, escríbenos a privacidad@espacial.com.mx.',
+
+  'nav.pipeline': 'Pipeline',
+
+  'pipeline.title': 'Pipeline de venta',
+  'pipeline.subtitle': 'Seguimiento de propiedades en proceso',
+  'pipeline.newDeal': 'Nueva propiedad',
+  'pipeline.metrics.active': 'En proceso',
+  'pipeline.metrics.value': 'Valor en pipeline',
+  'pipeline.metrics.legal': 'En revisión de contrato',
+  'pipeline.metrics.closed': 'Vendidas',
+  'pipeline.docs': 'Docs',
+  'pipeline.tasks': 'Tareas',
+  'pipeline.empty': 'No tienes propiedades en el pipeline todavía.',
+  'pipeline.error': 'No se pudo cargar el pipeline.',
+  'pipeline.retry': 'Reintentar',
+
+  'pipeline.detail.price': 'Precio',
+  'pipeline.detail.phone': 'Teléfono',
+  'pipeline.detail.created': 'Registrado',
+  'pipeline.detail.close': 'Cerrar',
+  'pipeline.detail.delete': 'Eliminar registro',
+  'pipeline.detail.deleteConfirm': '¿Eliminar este registro de forma permanente?',
+  'pipeline.detail.legalFlag': 'Punto de revisión de contrato: no avances sin el visto bueno del abogado o notaría.',
+  'pipeline.detail.changeStage': 'Cambiar etapa',
+  'pipeline.detail.update': 'Actualizar',
+  'pipeline.detail.checklistTitle': 'Checklist documental',
+  'pipeline.detail.checklistSub': 'validados para esta etapa',
+  'pipeline.detail.verified': 'Validado',
+  'pipeline.detail.pending': 'Pendiente',
+  'pipeline.detail.tasksTitle': 'Tareas del agente',
+  'pipeline.detail.newTaskPlaceholder': 'Ej: Agendar firma con notaría',
+  'pipeline.detail.addTask': 'Agregar',
+  'pipeline.detail.noTasks': 'Sin tareas.',
+
+  'pipeline.form.title': 'Registrar propiedad',
+  'pipeline.form.client': 'Cliente (vendedor)',
+  'pipeline.form.phone': 'Teléfono',
+  'pipeline.form.price': 'Precio estimado (MXN)',
+  'pipeline.form.address': 'Dirección del inmueble',
+  'pipeline.form.stage': 'Etapa inicial',
+  'pipeline.form.cancel': 'Cancelar',
+  'pipeline.form.save': 'Guardar'
 };

@@ -1,0 +1,47 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button type="button" class="modal-close" [attr.aria-label]="'pipeline.detail.close' | translate" (click)="close()">✕</button>
+    <h2>{{ 'pipeline.form.title' | translate }}</h2>
+
+    <label>
+      {{ 'pipeline.form.client' | translate }}
+      <input type="text" [value]="clientName()" (input)="clientName.set($any($event.target).value)" maxlength="200" />
+    </label>
+    <div class="row">
+      <label>
+        {{ 'pipeline.form.phone' | translate }}
+        <input type="tel" [value]="clientPhone()" (input)="clientPhone.set($any($event.target).value)" maxlength="30" />
+      </label>
+      <label>
+        {{ 'pipeline.form.price' | translate }}
+        <input
+          type="number"
+          min="0"
+          [value]="estimatedPrice()"
+          (input)="estimatedPrice.set($any($event.target).value ? +$any($event.target).value : null)"
+        />
+      </label>
+    </div>
+    <label>
+      {{ 'pipeline.form.address' | translate }}
+      <input type="text" [value]="propertyAddress()" (input)="propertyAddress.set($any($event.target).value)" maxlength="300" />
+    </label>
+    <label>
+      {{ 'pipeline.form.stage' | translate }}
+      <select [value]="stageId() ?? stages[0]?.id" (change)="stageId.set(+$any($event.target).value)">
+        @for (stage of stages; track stage.id) {
+          <option [value]="stage.id">{{ stage.sortOrder }}. {{ stage.name }}</option>
+        }
+      </select>
+    </label>
+
+    <div class="actions">
+      <button type="button" class="secondary" [disabled]="saving" (click)="close()">
+        {{ 'pipeline.form.cancel' | translate }}
+      </button>
+      <button type="button" class="primary" [disabled]="saving" (click)="submit()">
+        {{ 'pipeline.form.save' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

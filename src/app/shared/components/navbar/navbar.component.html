@@ -24,6 +24,9 @@
       @if (auth.currentUser()?.roles?.includes('Owner')) {
         <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
       }
+      @if (auth.currentUser()?.roles?.includes('Agent')) {
+        <a routerLink="/pipeline" routerLinkActive="active">{{ 'nav.pipeline' | translate }}</a>
+      }
       @if (auth.currentUser()?.roles?.includes('Admin')) {
         <a routerLink="/admin/errors" routerLinkActive="active">{{ 'nav.adminErrors' | translate }}</a>
         <a routerLink="/admin/fraccionamientos" routerLinkActive="active">{{ 'nav.adminFraccionamientos' | translate }}</a>

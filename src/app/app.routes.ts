@@ -163,6 +163,14 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'pipeline',
+    canActivate: [authGuard, roleGuard('Agent')],
+    loadComponent: () =>
+      import('./features/pipeline/pipeline-board/pipeline-board.component').then(
+        (m) => m.PipelineBoardComponent
+      )
+  },
+  {
     path: 'admin/errors',
     canActivate: [authGuard, roleGuard('Admin')],
     loadComponent: () =>

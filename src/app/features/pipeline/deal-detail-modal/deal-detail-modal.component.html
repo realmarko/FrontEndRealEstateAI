@@ -1,0 +1,110 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <header class="modal-head">
+      <div>
+        <span class="stage-badge">{{ deal.currentStageName }}</span>
+        <span class="deal-code">#{{ deal.id.slice(0, 8) }}</span>
+        <h2>{{ deal.propertyAddress }}</h2>
+        <p class="client">{{ deal.clientName }}</p>
+      </div>
+      <button type="button" class="modal-close" [attr.aria-label]="'pipeline.detail.close' | translate" (click)="close()">✕</button>
+    </header>
+
+    <div class="modal-body">
+      <div class="summary">
+        <div>
+          <span class="k">{{ 'pipeline.detail.price' | translate }}</span>
+          <span class="v">{{ deal.estimatedPrice | currency: 'MXN' : 'symbol' : '1.0-0' }}</span>
+        </div>
+        <div>
+          <span class="k">{{ 'pipeline.detail.phone' | translate }}</span>
+          <span class="v">{{ deal.clientPhone }}</span>
+        </div>
+        <div>
+          <span class="k">{{ 'pipeline.detail.created' | translate }}</span>
+          <span class="v">{{ deal.createdAt | date: 'd MMM y' }}</span>
+        </div>
+      </div>
+
+      @if (deal.requiresLegalReview) {
+        <div class="legal-flag">⚖ {{ 'pipeline.detail.legalFlag' | translate }}</div>
+      }
+
+      <div class="two-col">
+        <section class="panel">
+          <div class="panel-head">
+            <h3>📋 {{ 'pipeline.detail.checklistTitle' | translate }}</h3>
+            <span class="pill">{{ deal.documentsVerified }}/{{ deal.documentsTotal }}</span>
+          </div>
+          <p class="sub">{{ 'pipeline.detail.checklistSub' | translate }}</p>
+
+          <div class="doc-list">
+            @for (doc of deal.documents; track doc.id) {
+              <label class="doc-row" [class.ok]="doc.isVerified">
+                <span class="doc-main">
+                  <input type="checkbox" [checked]="doc.isVerified" (change)="toggleDocument(doc.id, $any($event.target).checked)" />
+                  {{ doc.name }}
+                </span>
+                <span class="status-pill">
+                  {{ (doc.isVerified ? 'pipeline.detail.verified' : 'pipeline.detail.pending') | translate }}
+                </span>
+              </label>
+            }
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h3>✅ {{ 'pipeline.detail.tasksTitle' | translate }}</h3>
+            <span class="pill">{{ taskCompletedCount() }}/{{ deal.tasks.length }}</span>
+          </div>
+
+          <div class="add-task">
+            <input
+              type="text"
+              [value]="newTaskTitle()"
+              (input)="newTaskTitle.set($any($event.target).value)"
+              (keyup.enter)="addTask()"
+              [placeholder]="'pipeline.detail.newTaskPlaceholder' | translate"
+            />
+            <button type="button" (click)="addTask()">{{ 'pipeline.detail.addTask' | translate }}</button>
+          </div>
+
+          <div class="task-list">
+            @if (deal.tasks.length === 0) {
+              <p class="no-tasks">{{ 'pipeline.detail.noTasks' | translate }}</p>
+            }
+            @for (task of deal.tasks; track task.id) {
+              <div class="task-row">
+                <label class="task-main">
+                  <input type="checkbox" [checked]="task.isCompleted" (change)="toggleTask(task.id, $any($event.target).checked)" />
+                  <span [class.done]="task.isCompleted">{{ task.title }}</span>
+                </label>
+                <button type="button" class="task-delete" (click)="deleteTask(task.id)">✕</button>
+              </div>
+            }
+          </div>
+        </section>
+      </div>
+
+      <div class="stage-move">
+        <div>
+          <strong>{{ 'pipeline.detail.changeStage' | translate }}</strong>
+        </div>
+        <div class="stage-move-controls">
+          <select [value]="pendingStageId()" (change)="pendingStageId.set(+$any($event.target).value)">
+            @for (stage of stages; track stage.id) {
+              <option [value]="stage.id">{{ stage.sortOrder }}. {{ stage.name }}</option>
+            }
+          </select>
+          <button type="button" class="primary" (click)="updateStage()">{{ 'pipeline.detail.update' | translate }}</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="modal-foot">
+      <button type="button" class="danger" (click)="deleteDeal()">{{ 'pipeline.detail.delete' | translate }}</button>
+      <button type="button" class="secondary" (click)="close()">{{ 'pipeline.detail.close' | translate }}</button>
+    </footer>
+  </div>
+</div>
