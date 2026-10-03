@@ -11,6 +11,14 @@
             {{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}
           </span>
 
+          <span class="view-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            {{ 'listingDetail.viewsCount' | translate:{ count: listing.viewCount } }}
+          </span>
+
           @if (listing.imageUrls.length > 1) {
             <button type="button" class="nav-arrow prev" (click)="previousPhoto()" [attr.aria-label]="'listingDetail.previousPhoto' | translate">‹</button>
             <button type="button" class="nav-arrow next" (click)="nextPhoto()" [attr.aria-label]="'listingDetail.nextPhoto' | translate">›</button>
@@ -46,7 +54,6 @@
           } @else {
             {{ 'listingDetail.daysOnMarket' | translate:{ count: daysOnMarket(listing) } }}
           }
-          · {{ 'listingDetail.viewsCount' | translate:{ count: listing.viewCount } }}
         </p>
         <p class="address">{{ listing.address }}</p>
         <p class="description">{{ listing.description }}</p>
