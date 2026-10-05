@@ -303,6 +303,11 @@
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
         } @else {
+          @if (isAdmin()) {
+            <div class="owner-actions">
+              <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
+            </div>
+          }
           <div class="agent-card">
             <div class="agent-photo">
               @if (listing.ownerPhotoUrl) {

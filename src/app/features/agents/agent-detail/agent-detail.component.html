@@ -80,6 +80,12 @@
               {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
             </button>
           }
+
+          @if (isAdmin()) {
+            <button type="button" class="id-card-cta id-card-cta-danger" (click)="deleteAgent()">
+              {{ 'agentDetail.adminDelete' | translate }}
+            </button>
+          }
         </div>
       </div>
     </article>

@@ -185,6 +185,17 @@ a.contact-line:hover {
   background: var(--gold-hover);
 }
 
+.id-card-cta-danger {
+  margin-top: 0.5rem;
+  background: #fff;
+  color: #b91c1c;
+  border: 1px solid #b91c1c;
+}
+
+.id-card-cta-danger:hover {
+  background: #fee2e2;
+}
+
 .section {
   margin-top: 2.5rem;
 }

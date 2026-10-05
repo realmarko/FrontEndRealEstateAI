@@ -123,4 +123,9 @@ export class AgentService {
   contactAgent(agentId: number, input: { name: string; phone: string; email: string; message: string }): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/${agentId}/contact`, input);
   }
+
+  // Admin-only (backend enforces the role check) — soft delete, one agent at a time.
+  delete(agentId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${agentId}`);
+  }
 }

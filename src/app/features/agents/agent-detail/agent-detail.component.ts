@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -22,6 +22,7 @@ import { shouldRecordView } from '../../../core/utils/view-dedup';
 })
 export class AgentDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly agentService = inject(AgentService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
@@ -32,6 +33,7 @@ export class AgentDetailComponent {
   readonly agent = signal<Agent | undefined>(undefined);
   readonly loading = signal(true);
   readonly isOwnProfile = computed(() => this.agent()?.isOwnProfile ?? false);
+  readonly isAdmin = computed(() => this.auth.currentUser()?.roles.includes('Admin') ?? false);
 
   readonly listings = signal<Listing[]>([]);
 
@@ -163,6 +165,16 @@ export class AgentDetailComponent {
         this.agentService.refresh();
       },
       error: () => this.notification.error('agentDetail.reviewDeleteError')
+    });
+  }
+
+  deleteAgent(): void {
+    this.agentService.delete(this.agentId).subscribe({
+      next: () => {
+        this.notification.success('agentDetail.deleteSuccess');
+        this.router.navigate(['/agents']);
+      },
+      error: () => this.notification.error('agentDetail.deleteError')
     });
   }
 }

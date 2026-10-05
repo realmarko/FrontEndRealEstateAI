@@ -75,6 +75,7 @@ export class ListingDetailComponent {
   readonly loading = signal(true);
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
+  readonly isAdmin = computed(() => this.auth.currentUser()?.roles.includes('Admin') ?? false);
 
   // Only YouTube links get an inline player (see getYouTubeVideoId) — anything else falls
   // back to a plain "open in new tab" link in the template.
