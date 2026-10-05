@@ -313,7 +313,12 @@ function createClusterRenderer(color: string): Renderer {
   standalone: true,
   imports: [CommonModule, TranslatePipe, ListingCardComponent],
   templateUrl: './map-view.component.html',
-  styleUrl: './map-view.component.css'
+  // Split across two files so each stays under the production build's per-stylesheet budget
+  // (angular.json's "anyComponentStyle" — see map-view-mobile.component.css's own header
+  // comment): the mobile-only chrome (compact search bar, map/list tabs, full-screen filters
+  // page) is substantial enough on its own that combined with the desktop styles it pushed a
+  // single file over the 8kB error ceiling.
+  styleUrls: ['./map-view.component.css', './map-view-mobile.component.css']
 })
 export class MapViewComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) private readonly mapContainer!: ElementRef<HTMLDivElement>;

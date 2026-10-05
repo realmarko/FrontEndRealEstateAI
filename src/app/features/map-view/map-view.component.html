@@ -314,16 +314,10 @@
 
       <section class="filter-section">
         <h3>{{ 'map.priceRangeLabel' | translate }}</h3>
-        <div class="price-range-row">
-          <div class="price-field">
-            <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMin' | translate" (input)="setMinPrice($any($event.target))" />
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-          </div>
+        <div class="price-group">
+          <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMin' | translate" (input)="setMinPrice($any($event.target))" />
           <span class="price-sep">–</span>
-          <div class="price-field">
-            <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMax' | translate" (input)="setMaxPrice($any($event.target))" />
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg>
-          </div>
+          <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMax' | translate" (input)="setMaxPrice($any($event.target))" />
         </div>
       </section>
 
@@ -362,7 +356,7 @@
         <h3>{{ 'listings.companyPlaceholder' | translate }}</h3>
         <input
           type="text"
-          class="filter-input full"
+          class="filter-select full"
           list="mobile-company-options"
           [placeholder]="'listings.companyPlaceholder' | translate"
           [value]="companyFilter()"
