@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, Signal, ViewChild, computed, effect, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { timeout } from 'rxjs/operators';
 import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -36,14 +37,11 @@ const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 
 const DEFAULT_ZOOM = 16;
 const GOOGLE_LOAD_POLL_MS = 100;
 
-// How long the very first render waits on a geolocation answer before giving up and falling
-// back to DEFAULT_CENTER. Desktop browsers resolve location via Wi-Fi/IP positioning (no GPS),
-// which routinely takes several seconds — 2.5s was cutting that off before it could ever
-// finish, so nearly every desktop visitor saw Puebla first every time. 6s covers that case while
-// still bounding how long a first-time visitor who ignores/denies the permission prompt waits
-// before the map shows anything at all. If the real position still arrives after this timeout,
-// resolveInitialCenter's caller pans there instead of leaving the visitor stuck at Puebla.
-const INITIAL_LOCATE_TIMEOUT_MS = 6000;
+// Bounds how long the initial load waits on the "latest listing" fetch before giving up and
+// opening at DEFAULT_CENTER instead — without this, a slow/unresponsive backend would leave the
+// map stuck on its loading overlay indefinitely (the old geolocation-based approach this
+// replaced had the same kind of bound for the same reason).
+const INITIAL_CENTER_TIMEOUT_MS = 5000;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
 // Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
 // "featured/special" — fitting for a whole development rather than a single unit.
@@ -327,7 +325,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   addMode = false;
   locatingMe = false;
   // False until buildMap() runs once on initial load — drives the loading overlay so the visitor
-  // sees "locating…" instead of a blank container while resolveInitialCenter is still working.
+  // sees "loading map…" instead of a blank container while resolveInitialCenter is still working.
   mapReady = false;
   // The real browser Fullscreen API can be blocked by the embedding context's permissions policy
   // (confirmed: this page silently no-ops when viewed inside an embedded preview pane), which
@@ -555,10 +553,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (typeof google !== 'undefined' && google.maps) {
       // Deferred a tick even on this already-loaded path (e.g. navigating back to /map with the
       // script already cached): calling initMap synchronously here runs it inside the same
-      // change-detection pass as ngAfterViewInit itself, and initMap immediately sets
-      // `locatingMe` — a value that pass already rendered — which trips Angular's
-      // dev-mode ExpressionChangedAfterItHasBeenCheckedError (NG0100). setTimeout hands it a
-      // fresh macrotask/CD cycle instead, matching how the polling branch below already behaves.
+      // change-detection pass as ngAfterViewInit itself, and initMap eventually sets `mapReady`
+      // — a value that pass already rendered — which trips Angular's dev-mode
+      // ExpressionChangedAfterItHasBeenCheckedError (NG0100). setTimeout hands it a fresh
+      // macrotask/CD cycle instead, matching how the polling branch below already behaves.
       setTimeout(() => this.initMap());
       return;
     }
@@ -580,60 +578,28 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }, 10000);
   }
 
-  // Resolves the visitor's real coordinates before the map is created, so the first paint can
-  // already be centered there instead of opening at DEFAULT_CENTER and visibly jumping once
-  // geolocation resolves (previously done via a post-creation centerOnCurrentLocation() call).
-  // Resolves to null — falling back to DEFAULT_CENTER — when geolocation is unsupported, denied,
-  // or doesn't answer within INITIAL_LOCATE_TIMEOUT_MS. If the real fix arrives after that
-  // timeout, onLateResult still gets it, so the caller can pan there instead of leaving the map
-  // stuck at Puebla for the rest of the visit.
-  private resolveInitialCenter(
-    onLateResult: (location: google.maps.LatLngLiteral) => void
-  ): Promise<google.maps.LatLngLiteral | null> {
-    if (!navigator.geolocation) return Promise.resolve(null);
-
-    return new Promise((resolve) => {
-      let settled = false;
-      const settleOnce = (value: google.maps.LatLngLiteral | null) => {
-        if (settled) return;
-        settled = true;
-        resolve(value);
-      };
-
-      setTimeout(() => settleOnce(null), INITIAL_LOCATE_TIMEOUT_MS);
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const location = { lat: position.coords.latitude, lng: position.coords.longitude };
-          if (settled) {
-            this.zone.run(() => onLateResult(location));
-          } else {
-            settleOnce(location);
-          }
-        },
-        () => settleOnce(null),
-        // A position cached within the last minute resolves near-instantly instead of forcing a
-        // fresh Wi-Fi/IP fix every time — the dominant cause of desktop visitors seeing the
-        // DEFAULT_CENTER fallback despite an already-granted permission.
-        { maximumAge: 60000 }
-      );
-    });
+  // The most recently added listing is what a visitor almost always actually wants to see first
+  // (geolocation previously drove this instead, but that's "where the visitor happens to be,"
+  // not "what's new" — the two rarely match for this kind of browsing). Resolves to
+  // DEFAULT_CENTER when the fetch fails or there are no listings yet, so a slow/broken request
+  // here can never block the map from opening.
+  private async resolveInitialCenter(): Promise<google.maps.LatLngLiteral> {
+    try {
+      const latest = await firstValueFrom(this.listingService.fetchLatest().pipe(timeout(INITIAL_CENTER_TIMEOUT_MS)));
+      if (latest?.lat != null && latest?.lng != null) {
+        return { lat: latest.lat, lng: latest.lng };
+      }
+    } catch {
+      // Falls through to DEFAULT_CENTER below.
+    }
+    return DEFAULT_CENTER;
   }
 
   private initMap(): void {
-    this.locatingMe = true;
-    this.resolveInitialCenter((lateLocation) => {
-      if (!this.map) return;
-      this.map.panTo(lateLocation);
-      this.placeMyLocationMarker(lateLocation);
-    }).then((userLocation) => {
+    this.resolveInitialCenter().then((center) => {
       this.zone.run(() => {
-        this.locatingMe = false;
-        this.buildMap(userLocation ?? DEFAULT_CENTER);
+        this.buildMap(center);
         this.mapReady = true;
-
-        if (userLocation) {
-          this.placeMyLocationMarker(userLocation);
-        }
       });
     });
   }

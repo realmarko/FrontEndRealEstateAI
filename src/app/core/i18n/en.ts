@@ -379,6 +379,7 @@ export const en: Record<string, string> = {
   'map.collapse': 'Collapse map',
   'map.myLocation': 'My location',
   'map.locating': 'Locating…',
+  'map.loadingMap': 'Loading map…',
   'map.locationError': "Couldn't access your location. Check your browser's location permission for this site.",
   'map.analyzeOpportunity': 'Business opportunity tool',
   'map.clickToAnalyze': 'Click on the map to analyze that spot',

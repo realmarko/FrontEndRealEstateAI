@@ -51,6 +51,18 @@ export class ListingService {
     return this.listingsSignal().find((listing) => listing.id === id);
   }
 
+  // The single most-recently-created listing (no filters) — the backend's own default Search
+  // ordering is already newest-first, so pageSize=1 with no other params gives it directly,
+  // without pulling the first page of the general feed just to read its [0]. Used by the map's
+  // initial center (see map-view.component.ts) so a first-time visitor opens looking at the
+  // latest property instead of an arbitrary fixed point. Resolves to null when there are no
+  // listings at all yet.
+  fetchLatest(): Observable<Listing | null> {
+    return this.http
+      .get<PagedResult<ListingDto>>(this.apiUrl, { params: { pageSize: 1 } })
+      .pipe(map((res) => (res.items.length > 0 ? fromDto(res.items[0]) : null)));
+  }
+
   fetchById(id: string): Observable<Listing> {
     return this.http.get<ListingDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
   }
