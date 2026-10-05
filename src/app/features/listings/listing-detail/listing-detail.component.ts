@@ -11,6 +11,8 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, isLandOrCommercialPropertyType, isPureLandPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
+import { TransferListingModalComponent } from '../../../shared/components/transfer-listing-modal/transfer-listing-modal.component';
+import { Agent } from '../../../core/models/agent.model';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { RoiCalculatorComponent } from '../../../shared/components/roi-calculator/roi-calculator.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
@@ -48,7 +50,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -89,6 +91,8 @@ export class ListingDetailComponent {
   readonly activePhotoIndex = signal(0);
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
+  readonly showTransferModal = signal(false);
+  readonly transferring = signal(false);
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
   readonly similarListings = signal<Listing[]>([]);
   readonly nearbySchools = signal<NearbySchool[]>([]);
@@ -325,6 +329,31 @@ export class ListingDetailComponent {
     const count = this.listing()?.imageUrls.length ?? 0;
     if (count < 2) return;
     this.activePhotoIndex.update((i) => (i - 1 + count) % count);
+  }
+
+  openTransferModal(): void {
+    this.showTransferModal.set(true);
+  }
+
+  closeTransferModal(): void {
+    if (this.transferring()) return;
+    this.showTransferModal.set(false);
+  }
+
+  transferListing(agent: Agent): void {
+    this.transferring.set(true);
+    this.listingService.transfer(this.id, agent.id).subscribe({
+      next: (listing) => {
+        this.transferring.set(false);
+        this.showTransferModal.set(false);
+        this.listing.set(listing);
+        this.notification.success('listingDetail.transferSuccess', { name: agent.name });
+      },
+      error: () => {
+        this.transferring.set(false);
+        this.notification.error('listingDetail.transferError');
+      }
+    });
   }
 
   deleteListing(): void {

@@ -107,4 +107,12 @@ export class ListingService {
       tap(() => this.listingsSignal.update((list) => list.filter((l) => l.id !== id)))
     );
   }
+
+  // Admin-only (backend enforces the role check) — reassigns the listing to a different agent.
+  transfer(id: string, agentId: number): Observable<Listing> {
+    return this.http.patch<ListingDto>(`${this.apiUrl}/${id}/transfer`, { agentId }).pipe(
+      map(fromDto),
+      tap((listing) => this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l))))
+    );
+  }
 }

@@ -305,6 +305,7 @@
         } @else {
           @if (isAdmin()) {
             <div class="owner-actions">
+              <button type="button" class="primary-link" (click)="openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
               <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
             </div>
           }
@@ -343,6 +344,14 @@
       [showQualifyingQuestions]="true"
       (closed)="closeContactModal()"
       (sent)="sendContactAgentMessage($event)"
+    />
+  }
+
+  @if (showTransferModal()) {
+    <app-transfer-listing-modal
+      [sending]="transferring()"
+      (closed)="closeTransferModal()"
+      (transfer)="transferListing($event)"
     />
   }
 } @else if (!loading()) {

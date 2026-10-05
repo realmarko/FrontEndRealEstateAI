@@ -63,6 +63,17 @@ export class AgentService {
     return this.http.get<AgentDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
   }
 
+  // Lightweight name search for pickers (e.g. the admin "transfer listing" modal) — deliberately
+  // bypasses the shared `agents` signal/pagination state that refresh() drives for the /agents
+  // list page, since a picker open on another page shouldn't clobber that page's own state.
+  searchForPicker(name: string): Observable<Agent[]> {
+    const params: Record<string, string | number> = { pageSize: 10 };
+    if (name) params['name'] = name;
+    return this.http
+      .get<PagedResult<AgentDto>>(this.apiUrl, { params })
+      .pipe(map((res) => res.items.map(fromDto)));
+  }
+
   // Fire-and-forget from the detail page (see agent-detail.component.ts, which debounces repeat
   // calls per browser) — no response body to act on.
   recordView(id: number): Observable<void> {

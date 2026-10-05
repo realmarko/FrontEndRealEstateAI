@@ -1,0 +1,44 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button type="button" class="modal-close" [attr.aria-label]="'transferListingModal.close' | translate" (click)="close()">✕</button>
+    <h2>{{ 'transferListingModal.title' | translate }}</h2>
+    <p class="hint">{{ 'transferListingModal.hint' | translate }}</p>
+
+    <label>
+      {{ 'transferListingModal.search' | translate }}
+      <input
+        type="text"
+        [value]="query()"
+        (input)="onQueryChange($any($event.target).value)"
+        [placeholder]="'transferListingModal.searchPlaceholder' | translate"
+        maxlength="200"
+      />
+    </label>
+
+    <div class="results">
+      @if (loading()) {
+        <p class="status">{{ 'transferListingModal.searching' | translate }}</p>
+      } @else if (results().length === 0) {
+        <p class="status">{{ 'transferListingModal.noResults' | translate }}</p>
+      } @else {
+        @for (agent of results(); track agent.id) {
+          <button
+            type="button"
+            class="result-row"
+            [class.selected]="selectedAgent()?.id === agent.id"
+            (click)="selectAgent(agent)"
+          >
+            <span class="result-name">{{ agent.name }}</span>
+            @if (agent.company) {
+              <span class="result-company">{{ agent.company }}</span>
+            }
+          </button>
+        }
+      }
+    </div>
+
+    <button type="button" class="primary" [disabled]="!selectedAgent() || sending" (click)="confirm()">
+      {{ sending ? ('transferListingModal.sending' | translate) : ('transferListingModal.confirm' | translate) }}
+    </button>
+  </div>
+</div>
