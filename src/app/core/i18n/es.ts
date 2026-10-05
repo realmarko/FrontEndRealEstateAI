@@ -96,6 +96,7 @@ export const es: Record<string, string> = {
   'listing.bedroomsAbbr': 'hab',
   'listing.bathroomsAbbr': 'baños',
   'listing.photoNumber': 'Foto {{number}}',
+  'listing.viewProperty': 'Ver propiedad',
 
   'listingDetail.back': '← Volver a propiedades',
   'listingDetail.favorite': 'Favorito',
@@ -396,6 +397,17 @@ export const es: Record<string, string> = {
   'map.moreFilters': 'Más filtros',
   'map.fewerFilters': 'Menos filtros',
   'map.resultsCount': '{{count}} propiedades',
+  'map.filtersButton': 'Filtros',
+  'map.filtersTitle': 'Filtros',
+  'map.closeFilters': 'Cerrar filtros',
+  'map.priceRangeLabel': 'Rango de precio',
+  'map.bedsLabel': 'Recámaras',
+  'map.bathsLabel': 'Baños',
+  'map.reset': 'Reiniciar',
+  'map.applyFilters': 'Aplicar filtros',
+  'map.mapResultsTab': 'Mapa',
+  'map.listResultsTab': 'Lista',
+  'map.resultsInView': '{{count}} propiedades en esta zona',
   'map.loadError':
     'No se pudo cargar Google Maps. Verifica que la API key en index.html sea válida y que las APIs estén habilitadas.',
 

@@ -394,6 +394,29 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly showSaveSearchForm = signal(false);
   readonly saveSearchName = signal('');
 
+  // Mobile-only: which pane the map/list toggle currently shows (<=860px — see
+  // map-view.component.css's own breakpoint). Unused above that width, where map and list
+  // render side by side as before.
+  readonly mobileView = signal<'map' | 'results'>('map');
+  // Mobile-only: the full-screen filters page, reached from the compact search bar's "Filtros"
+  // button. Desktop keeps the always-visible inline filter row instead.
+  readonly mobileFiltersOpen = signal(false);
+
+  // Drives the badge on the mobile "Filtros" button, same idea as Zillow's filter-count chip —
+  // the main search text box doesn't count here, only the fields the filters page actually edits.
+  readonly activeFilterCount = computed(() => {
+    let count = 0;
+    if (this.typeFilter() !== 'all') count++;
+    if (this.propertyTypeFilter() !== 'all') count++;
+    if (this.minPrice() !== null) count++;
+    if (this.maxPrice() !== null) count++;
+    if (this.minBeds() !== 'any') count++;
+    if (this.minBaths() !== 'any') count++;
+    if (this.companyFilter().trim()) count++;
+    if (this.municipalityFilter()) count++;
+    return count;
+  });
+
   readonly filteredListings = computed(() => {
     const term = this.search().trim().toLowerCase();
     const type = this.typeFilter();
@@ -1668,6 +1691,55 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   toggleMoreFilters(): void {
     this.showMoreFilters.update((v) => !v);
+  }
+
+  setMobileView(view: 'map' | 'results'): void {
+    this.mobileView.set(view);
+
+    // The map pane is toggled with plain CSS display:none (not *ngIf) so the map instance and
+    // its markers survive switching tabs — but Google Maps reads its container's size once,
+    // when told to, not on every reflow. A container that was display:none (0×0) when the map
+    // was first built, or during the time it was hidden, leaves the map stuck at that stale
+    // size — visible as grey tiles or a map that doesn't fill its pane — until something tells
+    // it to re-measure. google.maps.event.trigger(..., 'resize') is exactly that, and panning
+    // back to the last known center after it keeps the viewport from drifting when the resize
+    // itself shifts what's visible.
+    if (view === 'map' && this.map) {
+      const center = this.map.getCenter();
+      google.maps.event.trigger(this.map, 'resize');
+      if (center) this.map.setCenter(center);
+    }
+  }
+
+  openMobileFilters(): void {
+    this.mobileFiltersOpen.set(true);
+  }
+
+  closeMobileFilters(): void {
+    this.mobileFiltersOpen.set(false);
+  }
+
+  // "Aplicar filtros" on the mobile filters page — the fields already apply live (same signals
+  // the desktop inline filters write to), so this just takes the visitor back to their results.
+  applyMobileFilters(): void {
+    this.mobileFiltersOpen.set(false);
+  }
+
+  resetFilters(): void {
+    this.typeFilter.set('all');
+    this.propertyTypeFilter.set('all');
+    this.minPrice.set(null);
+    this.maxPrice.set(null);
+    this.minBeds.set('any');
+    this.minBaths.set('any');
+    this.companyFilter.set('');
+    this.selectMunicipality('');
+
+    // The price inputs are deliberately uncontrolled (see applyCurrencyMask's own comment on
+    // caret handling), so clearing minPrice/maxPrice above doesn't touch their displayed text —
+    // done here directly instead. Both the desktop inline filters and the mobile filters page
+    // render their own copy of these fields, so this clears whichever is currently in the DOM.
+    document.querySelectorAll<HTMLInputElement>('.price-input').forEach((input) => (input.value = ''));
   }
 
   toggleFavorite(listingId: string): void {

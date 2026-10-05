@@ -1,4 +1,30 @@
 <div class="map-page">
+  <div class="mobile-search-bar">
+    <input
+      type="search"
+      class="search-input"
+      [placeholder]="'listings.searchPlaceholder' | translate"
+      [value]="search()"
+      (input)="onSearchChange($any($event.target).value)"
+      (keyup.enter)="searchAddress()"
+    />
+    <button type="button" class="mobile-filters-btn" (click)="openMobileFilters()">
+      {{ 'map.filtersButton' | translate }}
+      @if (activeFilterCount() > 0) {
+        <span class="mobile-filters-badge">{{ activeFilterCount() }}</span>
+      }
+    </button>
+  </div>
+
+  <div class="mobile-view-tabs">
+    <button type="button" [class.active]="mobileView() === 'map'" (click)="setMobileView('map')">
+      {{ 'map.mapResultsTab' | translate }}
+    </button>
+    <button type="button" [class.active]="mobileView() === 'results'" (click)="setMobileView('results')">
+      {{ 'map.listResultsTab' | translate }}
+    </button>
+  </div>
+
   <div class="search-bar">
     <input
       type="search"
@@ -104,7 +130,10 @@
   </div>
 
   <div class="map-content">
-    <div class="map-pane" [class.expanded]="mapExpanded()">
+    <div class="map-pane" [class.expanded]="mapExpanded()" [class.mobile-active]="mobileView() === 'map'">
+      <div class="mobile-results-badge" *ngIf="mobileView() === 'map'">
+        {{ 'map.resultsInView' | translate:{ count: visibleListings().length } }}
+      </div>
       @if (!streetViewActive()) {
       <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
@@ -244,7 +273,7 @@
       </div>
     </div>
 
-    <div class="listings-pane">
+    <div class="listings-pane" [class.mobile-active]="mobileView() === 'results'">
       <p class="results-count">{{ 'map.resultsCount' | translate:{ count: visibleListings().length } }}</p>
 
       @if (visibleListings().length) {
@@ -262,6 +291,120 @@
       } @else {
         <p class="empty">{{ 'listings.empty' | translate }}</p>
       }
+    </div>
+  </div>
+
+  <div class="mobile-filters-page" *ngIf="mobileFiltersOpen()">
+    <div class="mobile-filters-header">
+      <button type="button" class="mobile-filters-back" [attr.aria-label]="'map.closeFilters' | translate" (click)="closeMobileFilters()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+      </button>
+      <h2>{{ 'map.filtersTitle' | translate }}</h2>
+    </div>
+
+    <div class="mobile-filters-body">
+      <section class="filter-section">
+        <h3>{{ 'listingForm.operation' | translate }}</h3>
+        <div class="pill-row">
+          <button type="button" class="pill" [class.active]="typeFilter() === 'all'" (click)="setTypeFilter('all')">{{ 'listings.filterAll' | translate }}</button>
+          <button type="button" class="pill" [class.active]="typeFilter() === 'rent'" (click)="setTypeFilter('rent')">{{ 'listingForm.forRent' | translate }}</button>
+          <button type="button" class="pill" [class.active]="typeFilter() === 'sale'" (click)="setTypeFilter('sale')">{{ 'listingForm.forSale' | translate }}</button>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <h3>{{ 'map.priceRangeLabel' | translate }}</h3>
+        <div class="price-range-row">
+          <div class="price-field">
+            <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMin' | translate" (input)="setMinPrice($any($event.target))" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          </div>
+          <span class="price-sep">–</span>
+          <div class="price-field">
+            <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMax' | translate" (input)="setMaxPrice($any($event.target))" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+          </div>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <h3>{{ 'map.bedsLabel' | translate }}</h3>
+        <div class="pill-row">
+          <button type="button" class="pill" [class.active]="minBeds() === 'any'" (click)="setMinBeds('any')">{{ 'map.bedsAny' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBeds() === 1" (click)="setMinBeds('1')">{{ 'map.beds1' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBeds() === 2" (click)="setMinBeds('2')">{{ 'map.beds2' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBeds() === 3" (click)="setMinBeds('3')">{{ 'map.beds3' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBeds() === 4" (click)="setMinBeds('4')">{{ 'map.beds4' | translate }}</button>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <h3>{{ 'map.bathsLabel' | translate }}</h3>
+        <div class="pill-row">
+          <button type="button" class="pill" [class.active]="minBaths() === 'any'" (click)="setMinBaths('any')">{{ 'map.bathsAny' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBaths() === 1" (click)="setMinBaths('1')">{{ 'map.baths1' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBaths() === 2" (click)="setMinBaths('2')">{{ 'map.baths2' | translate }}</button>
+          <button type="button" class="pill" [class.active]="minBaths() === 3" (click)="setMinBaths('3')">{{ 'map.baths3' | translate }}</button>
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <h3>{{ 'listingForm.propertyType' | translate }}</h3>
+        <div class="pill-row wrap">
+          <button type="button" class="pill" [class.active]="propertyTypeFilter() === 'all'" (click)="setPropertyTypeFilter('all')">{{ 'listings.filterAll' | translate }}</button>
+          @for (type of propertyTypeOptions; track type) {
+            <button type="button" class="pill" [class.active]="propertyTypeFilter() === type" (click)="setPropertyTypeFilter(type)">{{ ('listingForm.' + type) | translate }}</button>
+          }
+        </div>
+      </section>
+
+      <section class="filter-section">
+        <h3>{{ 'listings.companyPlaceholder' | translate }}</h3>
+        <input
+          type="text"
+          class="filter-input full"
+          list="mobile-company-options"
+          [placeholder]="'listings.companyPlaceholder' | translate"
+          [value]="companyFilter()"
+          (input)="setCompanyFilter($any($event.target).value)"
+        />
+        <datalist id="mobile-company-options">
+          @for (name of brokerages(); track name) {
+            <option [value]="name"></option>
+          }
+        </datalist>
+      </section>
+
+      <section class="filter-section">
+        <h3>{{ 'map.municipalityAll' | translate }}</h3>
+        <select class="filter-select full" [value]="municipalityFilter()" (change)="selectMunicipality($any($event.target).value)">
+          <option value="">{{ 'map.municipalityAll' | translate }}</option>
+          @for (municipality of municipalities(); track municipality.cvegeo) {
+            <option [value]="municipality.cvegeo">{{ municipality.name }}</option>
+          }
+        </select>
+      </section>
+    </div>
+
+    <div class="mobile-filters-footer">
+      <button type="button" class="filters-reset-btn" (click)="resetFilters()">{{ 'map.reset' | translate }}</button>
+      <ng-container *ngIf="auth.isAuthenticated()">
+        <button type="button" class="filters-secondary-btn" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
+      </ng-container>
+      <button type="button" class="filters-apply-btn" (click)="applyMobileFilters()">{{ 'map.applyFilters' | translate }}</button>
+    </div>
+
+    <div class="save-search-form mobile" *ngIf="showSaveSearchForm()">
+      <input
+        type="text"
+        class="filter-input"
+        [placeholder]="'savedSearches.namePlaceholder' | translate"
+        [value]="saveSearchName()"
+        (input)="setSaveSearchName($any($event.target).value)"
+        (keyup.enter)="saveCurrentSearch()"
+        maxlength="200"
+      />
+      <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
     </div>
   </div>
 </div>

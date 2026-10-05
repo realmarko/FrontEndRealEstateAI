@@ -60,11 +60,18 @@
     }
 
     <p class="stats">
-      <span><strong>{{ listing.bedrooms }}</strong> {{ 'listing.bedroomsAbbr' | translate }}</span>
-      <span class="sep">|</span>
-      <span><strong>{{ listing.bathrooms }}</strong> {{ 'listing.bathroomsAbbr' | translate }}</span>
-      <span class="sep">|</span>
-      <span><strong>{{ listing.areaSqm }}</strong> m²</span>
+      <span class="stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6" /><path d="M3 18v2" /><path d="M21 18v2" /><path d="M3 12V9a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3" /></svg>
+        <strong>{{ listing.bedrooms }}</strong> {{ 'listing.bedroomsAbbr' | translate }}
+      </span>
+      <span class="stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 7 4" /><path d="M4 11V8a2 2 0 0 1 2-2c1 0 2 .5 2 2" /><path d="M3 11h18v2a7 7 0 0 1-7 7H10a7 7 0 0 1-7-7v-2Z" /><path d="M7 20v1" /><path d="M17 20v1" /></svg>
+        <strong>{{ listing.bathrooms }}</strong> {{ 'listing.bathroomsAbbr' | translate }}
+      </span>
+      <span class="stat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z" /><path d="M14 14h7v7h-7z" /><path d="M10 6h4" /><path d="M6 10v4" /></svg>
+        <strong>{{ listing.areaSqm }}</strong> m²
+      </span>
     </p>
 
     <h3><a [routerLink]="['/listings', listing.id]">{{ listing.title }}</a></h3>
@@ -72,5 +79,7 @@
     @if (landUseCategoryName; as categoryName) {
       <p class="land-use">{{ 'listingDetail.landUseAbbr' | translate:{ category: categoryName } }}</p>
     }
+
+    <a class="view-cta" [routerLink]="['/listings', listing.id]">{{ 'listing.viewProperty' | translate }}</a>
   </div>
 </article>
