@@ -75,10 +75,6 @@
     color: var(--ink-soft);
   }
 
-  .mobile-view-tabs button.active {
-    color: #fff;
-  }
-
   .map-content {
     flex-direction: column;
   }
@@ -141,6 +137,7 @@
 .pill.active {
   background: var(--navy);
   border-color: var(--navy);
+  color: #fff;
 }
 
 /* Full-screen filters page (mobile only — the component is *ngIf'd out when closed). Sits above
