@@ -65,6 +65,7 @@ export const es: Record<string, string> = {
   'auth.errors.invalidResetLink': 'Este link ya no es válido o expiró. Solicita uno nuevo.',
   'auth.errors.tooManyRequests': 'Demasiados intentos. Espera unos minutos y vuelve a intentarlo.',
   'auth.errors.emailNotVerified': 'Primero confirma tu correo electrónico para poder iniciar sesión.',
+  'auth.errors.sessionExpired': 'Tu sesión expiró. Inicia sesión de nuevo.',
 
   'verifyEmail.title': 'Confirma tu correo',
   'verifyEmail.intro': 'Te enviamos un código de 6 dígitos a {{email}}. Ingrésalo para activar tu cuenta.',
@@ -323,7 +324,6 @@ export const es: Record<string, string> = {
   'listingForm.saveSubmit': 'Guardar cambios',
   'listingForm.cancel': 'Cancelar',
   'listingForm.submitError': 'No se pudo guardar la propiedad por un error inesperado. Intenta de nuevo; si el problema sigue, contáctanos.',
-  'listingForm.sessionExpiredError': 'Tu sesión expiró. Inicia sesión de nuevo e intenta guardar la propiedad otra vez.',
   'listingForm.forbiddenError': 'No se pudo guardar la propiedad. Verifica que tu cuenta sea de tipo Propietario.',
   'listingForm.photoTypeError': 'Una de tus fotos no es una imagen JPEG, PNG o WEBP.',
   'listingForm.photoSizeError': 'Una de tus fotos pesa más de 5 MB.',

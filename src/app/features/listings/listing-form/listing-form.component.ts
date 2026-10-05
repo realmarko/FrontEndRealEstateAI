@@ -425,27 +425,26 @@ export class ListingFormComponent {
         this.router.navigate(['/listings', listing.id]);
       },
       error: (err: HttpErrorResponse) => {
-        // Photo-specific and 401/403 cases each have a message that tells the owner exactly
-        // what to do — nothing more to investigate, so only the remaining "we don't actually
-        // know why" fallback gets reported to the in-app error log (see ErrorReportingService).
-        // Without this, a case like this one was completely invisible after the fact: the toast
-        // is shown and gone, with no trace for an admin to look up later.
+        // A 401 is handled globally by the auth interceptor (logout + redirect to /login), so
+        // it never reaches here. Photo-specific and 403 cases each have a message that tells the
+        // owner exactly what to do — nothing more to investigate, so only the remaining "we
+        // don't actually know why" fallback gets reported to the in-app error log (see
+        // ErrorReportingService). Without this, a case like this one was completely invisible
+        // after the fact: the toast is shown and gone, with no trace for an admin to look up later.
         const key =
-          err.status === 401
-            ? 'listingForm.sessionExpiredError'
-            : err.status === 403
-              ? 'listingForm.forbiddenError'
-              : err.status === 502
-                ? 'listingForm.photoUploadError'
-                : err.status === 400 && err.error?.message === 'Photos must be JPEG, PNG, or WEBP images.'
-                  ? 'listingForm.photoTypeError'
-                  : err.status === 400 && err.error?.message === 'Each photo must be 5 MB or smaller.'
-                    ? 'listingForm.photoSizeError'
-                    : err.status === 400 && typeof err.error?.message === 'string' && err.error.message.includes('per month')
-                      ? 'listingForm.quotaExceededError'
-                      : err.status === 400 && typeof err.error?.message === 'string' && err.error.message.includes('at most')
-                        ? 'listingForm.tooManyPhotosError'
-                        : 'listingForm.submitError';
+          err.status === 403
+            ? 'listingForm.forbiddenError'
+            : err.status === 502
+              ? 'listingForm.photoUploadError'
+              : err.status === 400 && err.error?.message === 'Photos must be JPEG, PNG, or WEBP images.'
+                ? 'listingForm.photoTypeError'
+                : err.status === 400 && err.error?.message === 'Each photo must be 5 MB or smaller.'
+                  ? 'listingForm.photoSizeError'
+                  : err.status === 400 && typeof err.error?.message === 'string' && err.error.message.includes('per month')
+                    ? 'listingForm.quotaExceededError'
+                    : err.status === 400 && typeof err.error?.message === 'string' && err.error.message.includes('at most')
+                      ? 'listingForm.tooManyPhotosError'
+                      : 'listingForm.submitError';
         this.notification.error(key);
         if (key === 'listingForm.submitError') {
           const action = this.isEditMode ? 'update' : 'create';
