@@ -65,6 +65,7 @@ export const en: Record<string, string> = {
   'auth.errors.invalidResetLink': 'This link is no longer valid or has expired. Request a new one.',
   'auth.errors.tooManyRequests': 'Too many attempts. Wait a few minutes and try again.',
   'auth.errors.emailNotVerified': 'Please verify your email before logging in.',
+  'auth.errors.sessionExpired': 'Your session expired. Please log in again.',
 
   'verifyEmail.title': 'Confirm your email',
   'verifyEmail.intro': "We sent a 6-digit code to {{email}}. Enter it to activate your account.",
@@ -336,7 +337,6 @@ export const en: Record<string, string> = {
   'listingForm.saveSubmit': 'Save changes',
   'listingForm.cancel': 'Cancel',
   'listingForm.submitError': 'Could not save this listing due to an unexpected error. Please try again — if it keeps happening, contact us.',
-  'listingForm.sessionExpiredError': 'Your session expired. Please log in again and try saving the listing once more.',
   'listingForm.forbiddenError': 'Could not save this listing. Make sure your account is registered as an Owner.',
   'listingForm.photoTypeError': 'One of your photos is not a JPEG, PNG, or WEBP image.',
   'listingForm.photoSizeError': 'One of your photos is larger than 5 MB.',

@@ -343,15 +343,15 @@ describe('ListingFormComponent', () => {
       expect(listingServiceSpy.create).toHaveBeenCalledTimes(1);
     });
 
-    it('maps a 401 to the session-expired message, without reporting it', () => {
+    it('maps a 401 to the generic submit error, since the auth interceptor already handles session expiry', () => {
       const component = createComponent();
       listingServiceSpy.create.and.returnValue(throwError(() => ({ status: 401 })));
       fillMinimumValidForm(component);
 
       component.submit();
 
-      expect(notificationSpy.error).toHaveBeenCalledWith('listingForm.sessionExpiredError');
-      expect(errorReportingSpy.report).not.toHaveBeenCalled();
+      expect(notificationSpy.error).toHaveBeenCalledWith('listingForm.submitError');
+      expect(errorReportingSpy.report).toHaveBeenCalled();
     });
 
     it('maps a 403 to the forbidden/not-an-Owner message, without reporting it', () => {
