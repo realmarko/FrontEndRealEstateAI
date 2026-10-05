@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -7,6 +7,8 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { passwordStrengthValidator } from '../../../shared/utils/password-strength';
 import { UserRole } from '../../../core/models/user.model';
+import { loadGoogleIdentity, setGoogleCredentialHandler } from '../../../core/utils/load-google-identity';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +17,9 @@ import { UserRole } from '../../../core/models/user.model';
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent {
+export class RegisterComponent implements AfterViewInit {
+  @ViewChild('googleButton') private googleButtonEl?: ElementRef<HTMLDivElement>;
+
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -32,6 +36,34 @@ export class RegisterComponent {
     password: ['', [Validators.required, Validators.minLength(8), passwordStrengthValidator]],
     role: ['Owner' as UserRole, Validators.required]
   });
+
+  async ngAfterViewInit(): Promise<void> {
+    if (!this.googleButtonEl) return;
+
+    try {
+      await loadGoogleIdentity();
+      // Reads the role dropdown fresh inside the callback (not captured here) — the visitor can
+      // change it any time before actually clicking the Google button.
+      setGoogleCredentialHandler(environment.googleClientId, (idToken) => this.onGoogleCredential(idToken));
+      google.accounts.id.renderButton(this.googleButtonEl.nativeElement, {
+        theme: 'outline',
+        size: 'large',
+        text: 'signup_with',
+        width: 320
+      });
+    } catch {
+      // Same reasoning as LoginComponent — a blocked GIS script shouldn't alarm a visitor who's
+      // just going to use the form below anyway.
+    }
+  }
+
+  private onGoogleCredential(idToken: string): void {
+    const role = this.form.controls.role.value;
+    this.auth.loginWithGoogle(idToken, role).subscribe({
+      next: () => this.router.navigate(['/listings']),
+      error: () => this.notification.error('auth.errors.googleSignInFailed')
+    });
+  }
 
   submit(): void {
     if (this.form.invalid) {

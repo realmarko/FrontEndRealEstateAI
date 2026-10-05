@@ -13,49 +13,74 @@
   </button>
 
   <div class="nav-collapse" id="navbar-collapse">
+    <!-- Public discovery surfaces only — anything requiring a session lives in the account menu
+         below, so an anonymous visitor and a logged-in one see the same primary nav. -->
     <div class="links">
       <a routerLink="/listings" routerLinkActive="active">{{ 'nav.listings' | translate }}</a>
       <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
       <a routerLink="/agents" routerLinkActive="active">{{ 'nav.agents' | translate }}</a>
       <a routerLink="/inmobiliarias" routerLinkActive="active">{{ 'nav.agencies' | translate }}</a>
       <a routerLink="/fraccionamientos" routerLinkActive="active">{{ 'nav.fraccionamientos' | translate }}</a>
-      <a routerLink="/favorites" routerLinkActive="active">{{ 'nav.favorites' | translate }}</a>
-      <a routerLink="/saved-searches" routerLinkActive="active">{{ 'nav.savedSearches' | translate }}</a>
-      @if (auth.currentUser()?.roles?.includes('Owner')) {
-        <a routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
-      }
-      <!-- Pipeline link hidden pending further review — see app.routes.ts's own comment on the
-           commented-out route. -->
-      <!-- @if (auth.currentUser()?.roles?.includes('Agent')) {
-        <a routerLink="/pipeline" routerLinkActive="active">{{ 'nav.pipeline' | translate }}</a>
-      } -->
-      @if (auth.currentUser()?.roles?.includes('Admin')) {
-        <a routerLink="/admin/errors" routerLinkActive="active">{{ 'nav.adminErrors' | translate }}</a>
-        <a routerLink="/admin/fraccionamientos" routerLinkActive="active">{{ 'nav.adminFraccionamientos' | translate }}</a>
-      }
     </div>
 
     <div class="session">
-      <div class="lang-switch">
-        <button
-          type="button"
-          [class.active]="translation.lang() === 'en'"
-          (click)="setLang('en')"
-        >
-          EN
-        </button>
-        <button
-          type="button"
-          [class.active]="translation.lang() === 'es'"
-          (click)="setLang('es')"
-        >
-          ES
-        </button>
-      </div>
+      <!-- Always visible, logged in or not — language is a site-wide setting, not a personal
+           one, so it stays outside the account menu instead of being hidden from anonymous
+           visitors. -->
+      <button type="button" class="lang-toggle" (click)="setLang(otherLang())">
+        {{ (otherLang() === 'en' ? 'nav.switchToEnglish' : 'nav.switchToSpanish') | translate }}
+      </button>
 
       @if (auth.isAuthenticated()) {
-        <span class="user">{{ auth.currentUser()?.firstName }}</span>
-        <button type="button" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
+        <div class="account">
+          <button
+            type="button"
+            class="account-trigger"
+            (click)="toggleAccountMenu()"
+            [attr.aria-expanded]="isAccountMenuOpen()"
+          >
+            <span class="account-name">{{ auth.currentUser()?.firstName }}</span>
+            <span class="account-role">{{ currentRoleLabel() | translate }}</span>
+            <svg class="chevron" [class.open]="isAccountMenuOpen()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          @if (isAccountMenuOpen()) {
+            <div class="account-panel">
+              @if (addableRoles().length > 0) {
+                <div class="panel-section">
+                  <span class="panel-label">{{ 'nav.upgradeLabel' | translate }}</span>
+                  @for (role of addableRoles(); track role) {
+                    <button type="button" class="panel-item" [disabled]="addingRole()" (click)="addRole(role)">
+                      {{ (role === 'Owner' ? 'nav.becomeOwner' : 'nav.becomeAgent') | translate }}
+                    </button>
+                  }
+                </div>
+              }
+
+              <div class="panel-section">
+                <a class="panel-item" routerLink="/favorites" routerLinkActive="active">{{ 'nav.favorites' | translate }}</a>
+                <a class="panel-item" routerLink="/saved-searches" routerLinkActive="active">{{ 'nav.savedSearches' | translate }}</a>
+                @if (auth.currentUser()?.roles?.includes('Owner')) {
+                  <a class="panel-item" routerLink="/messages" routerLinkActive="active">{{ 'nav.messages' | translate }}</a>
+                }
+              </div>
+
+              @if (auth.currentUser()?.roles?.includes('Admin')) {
+                <div class="panel-section">
+                  <span class="panel-label">{{ 'nav.adminLabel' | translate }}</span>
+                  <a class="panel-item" routerLink="/admin/errors" routerLinkActive="active">{{ 'nav.adminErrors' | translate }}</a>
+                  <a class="panel-item" routerLink="/admin/fraccionamientos" routerLinkActive="active">{{ 'nav.adminFraccionamientos' | translate }}</a>
+                </div>
+              }
+
+              <div class="panel-section">
+                <button type="button" class="panel-item danger" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
+              </div>
+            </div>
+          }
+        </div>
       } @else {
         <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>
         <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>

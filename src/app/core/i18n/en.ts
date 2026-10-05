@@ -12,6 +12,15 @@ export const en: Record<string, string> = {
   'nav.fraccionamientos': 'New Developments',
   'nav.logIn': 'Log in',
   'nav.logOut': 'Log out',
+  'nav.becomeOwner': 'Property Owner - Seller',
+  'nav.becomeAgent': 'Real Estate Agent',
+  'nav.roleBuyer': 'Buyer',
+  'nav.upgradeLabel': 'Become a',
+  'nav.adminLabel': 'Admin',
+  'nav.roleAddedSuccess': "You're all set — that account type is now active.",
+  'nav.roleAddedError': 'Could not update your account. Please try again.',
+  'nav.switchToEnglish': 'English',
+  'nav.switchToSpanish': 'Español',
   'nav.register': 'Register',
   'nav.menu': 'Menu',
 
@@ -22,6 +31,7 @@ export const en: Record<string, string> = {
   'login.noAccount': 'No account?',
   'login.registerLink': 'Register',
   'login.forgotPassword': 'Forgot your password?',
+  'login.orDivider': 'or',
 
   'register.title': 'Create an account',
   'register.firstName': 'First name',
@@ -36,6 +46,7 @@ export const en: Record<string, string> = {
   'register.submit': 'Register',
   'register.haveAccount': 'Already have an account?',
   'register.loginLink': 'Log in',
+  'register.orDivider': 'or',
 
   'forgotPassword.title': 'Reset your password',
   'forgotPassword.intro': "Enter your account's email and we'll send you a link to reset your password.",
@@ -66,6 +77,7 @@ export const en: Record<string, string> = {
   'auth.errors.tooManyRequests': 'Too many attempts. Wait a few minutes and try again.',
   'auth.errors.emailNotVerified': 'Please verify your email before logging in.',
   'auth.errors.sessionExpired': 'Your session expired. Please log in again.',
+  'auth.errors.googleSignInFailed': 'Could not sign in with Google. Please try again.',
 
   'verifyEmail.title': 'Confirm your email',
   'verifyEmail.intro': "We sent a 6-digit code to {{email}}. Enter it to activate your account.",

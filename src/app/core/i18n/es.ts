@@ -12,6 +12,15 @@ export const es: Record<string, string> = {
   'nav.fraccionamientos': 'Nuevos fraccionamientos',
   'nav.logIn': 'Iniciar sesión',
   'nav.logOut': 'Cerrar sesión',
+  'nav.becomeOwner': 'Propietario - Vendedor',
+  'nav.becomeAgent': 'Agente Inmobiliario',
+  'nav.roleBuyer': 'Comprador',
+  'nav.upgradeLabel': 'Convertirme en',
+  'nav.adminLabel': 'Administración',
+  'nav.roleAddedSuccess': 'Listo, ya tienes acceso de ese tipo de cuenta.',
+  'nav.roleAddedError': 'No se pudo actualizar tu cuenta. Intenta de nuevo.',
+  'nav.switchToEnglish': 'English',
+  'nav.switchToSpanish': 'Español',
   'nav.register': 'Registrarse',
   'nav.menu': 'Menú',
 
@@ -22,6 +31,7 @@ export const es: Record<string, string> = {
   'login.noAccount': '¿No tienes cuenta?',
   'login.registerLink': 'Regístrate',
   'login.forgotPassword': '¿Olvidaste tu contraseña?',
+  'login.orDivider': 'o',
 
   'register.title': 'Crear una cuenta',
   'register.firstName': 'Nombre',
@@ -36,6 +46,7 @@ export const es: Record<string, string> = {
   'register.submit': 'Registrarse',
   'register.haveAccount': '¿Ya tienes cuenta?',
   'register.loginLink': 'Inicia sesión',
+  'register.orDivider': 'o',
 
   'forgotPassword.title': 'Recupera tu contraseña',
   'forgotPassword.intro': 'Escribe el correo de tu cuenta y te mandaremos un link para restablecer tu contraseña.',
@@ -66,6 +77,7 @@ export const es: Record<string, string> = {
   'auth.errors.tooManyRequests': 'Demasiados intentos. Espera unos minutos y vuelve a intentarlo.',
   'auth.errors.emailNotVerified': 'Primero confirma tu correo electrónico para poder iniciar sesión.',
   'auth.errors.sessionExpired': 'Tu sesión expiró. Inicia sesión de nuevo.',
+  'auth.errors.googleSignInFailed': 'No se pudo iniciar sesión con Google. Intenta de nuevo.',
 
   'verifyEmail.title': 'Confirma tu correo',
   'verifyEmail.intro': 'Te enviamos un código de 6 dígitos a {{email}}. Ingrésalo para activar tu cuenta.',

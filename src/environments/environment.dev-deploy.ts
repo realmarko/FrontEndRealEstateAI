@@ -1,4 +1,4 @@
-import { GOOGLE_MAPS_API_KEY } from './env-keys';
+import { GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY } from './env-keys';
 
 // Used only for the deployed dev site (dev.espacial.com.mx) — distinct from environment.ts
 // (production build config, apiUrl '/api', assumes a same-origin reverse proxy) because the
@@ -8,5 +8,6 @@ export const environment = {
   production: true,
   apiUrl: 'https://api-dev.espacial.com.mx/api',
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
+  googleClientId: GOOGLE_CLIENT_ID,
   sentryDsn: ''
 };

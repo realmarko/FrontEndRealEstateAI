@@ -61,7 +61,7 @@
 
 .links {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
   flex: 1;
 }
 
@@ -70,6 +70,7 @@
   color: #9aa0a6;
   text-decoration: none;
   font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 .links a:hover,
@@ -89,39 +90,128 @@
   gap: 1rem;
 }
 
-.session .user {
-  font-size: 0.9rem;
+.lang-toggle {
+  background: transparent;
+  border: 1px solid #9aa0a6;
   color: #f6f5f3;
+  padding: 0.3rem 0.65rem;
+  border-radius: 2px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
-.session button {
+.lang-toggle:hover {
+  border-color: #c6a15b;
+  color: #c6a15b;
+}
+
+/* --- Account menu (logged-in state) --- */
+
+.account {
+  position: relative;
+}
+
+.account-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   background: transparent;
   border: 1px solid #9aa0a6;
   color: #f6f5f3;
   padding: 0.3rem 0.75rem;
   border-radius: 2px;
   cursor: pointer;
+  font-size: 0.85rem;
+  white-space: nowrap;
 }
 
-.session button:hover {
+.account-trigger:hover {
   border-color: #c6a15b;
+}
+
+.account-role {
+  color: #9aa0a6;
+}
+
+.account-trigger:hover .account-role {
   color: #c6a15b;
 }
 
-.lang-switch {
+.chevron {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  transition: transform 0.15s ease;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.account-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 220px;
+  background: #171717;
+  border: 1px solid rgba(198, 161, 91, 0.3);
+  border-radius: 6px;
+  padding: 0.5rem 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+}
+
+.panel-section {
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.lang-switch button {
-  padding: 0.25rem 0.55rem;
-  font-size: 0.8rem;
+.panel-section:last-child {
+  border-bottom: none;
 }
 
-.lang-switch button.active {
-  background: #c6a15b;
-  color: #0d0d0d;
-  font-weight: 600;
+.panel-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  padding: 0.3rem 1rem;
+}
+
+.panel-item {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: #f6f5f3;
+  text-decoration: none;
+  text-align: left;
+  font-size: 0.9rem;
+  font-family: inherit;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.panel-item:hover {
+  background: rgba(198, 161, 91, 0.12);
+  color: #c6a15b;
+}
+
+.panel-item:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.panel-item.danger {
+  color: #f87171;
+}
+
+.panel-item.danger:hover {
+  background: rgba(248, 113, 113, 0.12);
+  color: #f87171;
 }
 
 @media (max-width: 768px) {
@@ -151,29 +241,40 @@
 
   .links a,
   .session a,
-  .session button {
+  .lang-toggle,
+  .account-trigger {
     padding: 0.75rem 0;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 0;
     text-align: left;
   }
 
+  .lang-toggle,
+  .account-trigger {
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    justify-content: flex-start;
+  }
+
   .session {
     margin-top: 0.25rem;
   }
 
-  .session .user {
-    padding: 0.75rem 0 0.25rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  /* The flyout doesn't make sense once everything is already a full-width vertical list — it
+     just becomes the next section in that same list, pushed open/closed by the same trigger. */
+  .account-panel {
+    position: static;
+    width: 100%;
+    min-width: 0;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+    background: transparent;
   }
 
-  .lang-switch {
-    padding-top: 0.5rem;
-  }
-
-  .lang-switch button {
-    flex: 1;
-    text-align: center;
-    border-top: none;
+  .panel-item {
+    padding-left: 1rem;
   }
 }

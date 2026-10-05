@@ -68,6 +68,28 @@ export class AuthService {
     );
   }
 
+  // role is only used the first time this Google email signs in (a brand-new account) — ignored
+  // by the backend if the email already has one. Omitted entirely from the Login page's button
+  // (a new account from there falls back to Buyer, same as a plain Register with no role picked).
+  loginWithGoogle(idToken: string, role?: UserRole): Observable<User> {
+    return this.http.post<AuthResponseDto>(`${this.apiUrl}/google`, { idToken, role }).pipe(
+      tap((res) => this.startSession(res)),
+      map((res) => this.toUser(res.user))
+    );
+  }
+
+  // Self-service role upgrade (add-only — never removes a role). Returns a fresh token/session
+  // the same way login does, because the token this visitor is already holding has the OLD
+  // roles baked in: nothing re-reads roles from the backend afterward, so without replacing the
+  // session here, role-gated routes/UI would keep acting on stale permissions until the next
+  // manual login.
+  addRole(role: UserRole): Observable<User> {
+    return this.http.post<AuthResponseDto>(`${this.apiUrl}/role`, { role }).pipe(
+      tap((res) => this.startSession(res)),
+      map((res) => this.toUser(res.user))
+    );
+  }
+
   // Always resolves — the backend returns 204 whether or not the email is registered, so this
   // can't be used to enumerate accounts. Callers should always show the same generic message.
   forgotPassword(email: string): Observable<void> {
