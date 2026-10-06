@@ -435,6 +435,10 @@ export const en: Record<string, string> = {
   'map.mapResultsTab': 'Map',
   'map.listResultsTab': 'List',
   'map.resultsInView': '{{count}} listings in this area',
+  'map.freehandDraw': 'Draw a search area',
+  'map.freehandHint': 'Draw a shape on the map (press and drag) to see the listings inside it',
+  'map.freehandResultCount': '{{count}} listings inside the shape',
+  'map.freehandClear': 'Clear shape',
   'map.loadError':
     'Could not load Google Maps. Check that the API key in index.html is valid and that the required APIs are enabled.',
 

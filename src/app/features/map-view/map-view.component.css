@@ -320,6 +320,67 @@
   cursor: default;
 }
 
+/* Same icon-button shape as .locate-btn/.opportunity-btn — active state reuses the navy accent
+   already used for listing markers/clusters, since this tool filters listings too. */
+.freehand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  color: #1e3a5f;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.freehand-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.freehand-btn.active {
+  background: #1e3a5f;
+  color: #fff;
+}
+
+.freehand-hint {
+  align-self: center;
+  margin: 0;
+  font-size: 0.8rem;
+  color: #1e3a5f;
+}
+
+.freehand-result-badge {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(17, 24, 39, 0.85);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+}
+
+.freehand-result-badge button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  background: #fff;
+  color: #1e3a5f;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 /* Same icon-button shape as .poi-toggle-btn, kept in its own rule (rather than merged via a
    shared selector) since its active-state color is purple — the opportunity tool's established
    accent — instead of navy. */

@@ -11,8 +11,11 @@ export function loadGoogleMaps(): Promise<void> {
   loadPromise = new Promise((resolve, reject) => {
     const script = document.createElement('script');
     // 'geometry' adds google.maps.geometry.poly.containsLocation, used to filter listings by
-    // municipality polygon client-side (see map-view.component.ts) — same in-memory filtering
-    // approach already used for every other listing filter, so no new backend search endpoint.
+    // municipality polygon — and by the freehand-drawn search shape — client-side (see
+    // map-view.component.ts): same in-memory filtering approach already used for every other
+    // listing filter, so no new backend search endpoint. No 'drawing' library: its DrawingManager
+    // was removed from the Maps JS API as of v3.65, so the freehand tool is hand-rolled from the
+    // map's own mouse events instead (see map-view.component.ts).
     script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places,geometry`;
     script.async = true;
     script.defer = true;

@@ -435,6 +435,10 @@ export const es: Record<string, string> = {
   'map.mapResultsTab': 'Mapa',
   'map.listResultsTab': 'Lista',
   'map.resultsInView': '{{count}} propiedades en esta zona',
+  'map.freehandDraw': 'Dibujar una zona de búsqueda',
+  'map.freehandHint': 'Dibuja una figura en el mapa (mantén presionado y arrastra) para ver las propiedades dentro de ella',
+  'map.freehandResultCount': '{{count}} propiedades dentro de la zona',
+  'map.freehandClear': 'Borrar zona',
   'map.loadError':
     'No se pudo cargar Google Maps. Verifica que la API key en index.html sea válida y que las APIs estén habilitadas.',
 

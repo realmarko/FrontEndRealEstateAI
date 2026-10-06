@@ -345,6 +345,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   selectedLat: number | null = null;
   selectedLng: number | null = null;
 
+  // True only while the drawing tool is armed and waiting for the visitor to trace a shape —
+  // mirrors addMode/opportunityMode's own plain-boolean convention (template-bound via
+  // [class.active], always flipped from inside a zone-run click handler).
+  freehandMode = false;
+  // The completed freehand shape, once drawn — read by visibleListings to scope results to its
+  // interior instead of the map's rectangular viewport. Null whenever no shape is active.
+  readonly freehandShape = signal<google.maps.Polygon | null>(null);
+
   opportunityMode = false;
   readonly loadingOpportunity = signal(false);
   readonly opportunityResult = signal<OpportunityAnalysisResult | null>(null);
@@ -470,12 +478,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private readonly mapBounds = signal<google.maps.LatLngBounds | null>(null);
 
   // Only listings whose marker is currently visible in the map's viewport — mirrors the
-  // filtered set further by pan/zoom, the same way Zillow's results list follows the map.
+  // filtered set further by pan/zoom, the same way Zillow's results list follows the map. When a
+  // freehand shape has been drawn, it takes over entirely in place of the rectangular viewport —
+  // the visitor drew that shape specifically to define "the area I care about," so a listing just
+  // outside it shouldn't reappear just because it's still inside the map's bounding box.
   readonly visibleListings = computed(() => {
     const bounds = this.mapBounds();
+    const shape = this.freehandShape();
 
     return this.filteredListings().filter((listing) => {
       if (listing.lat == null || listing.lng == null) return false;
+      if (shape) return google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), shape);
       if (!bounds) return true; // map hasn't reported its viewport yet
       return bounds.contains({ lat: listing.lat, lng: listing.lng });
     });
@@ -487,6 +500,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private opportunityCircle?: google.maps.Circle;
   private opportunityMarker?: google.maps.Marker;
   private agebDataLayer?: google.maps.Data;
+  // Freehand drawing is hand-rolled from the map's own mousedown/mousemove/mouseup events rather
+  // than the Maps JS API's old Drawing library — that library (google.maps.drawing.DrawingManager)
+  // was removed from the API as of version 3.65 (its type is still shipped, but empty/deprecated;
+  // confirmed via node_modules/@types/google.maps — there is no functioning replacement to swap
+  // in, so this page implements the same "trace a shape, see what falls inside it" idea directly).
+  private readonly freehandListeners: google.maps.MapsEventListener[] = [];
+  private freehandDrawing = false;
+  private freehandPath: google.maps.LatLng[] = [];
+  private freehandPolyline?: google.maps.Polyline;
   // Guards against a slow response overwriting fresher AGEBs after another pan/zoom or an
   // uncheck — same shape as poiRequestIds, one counter since only one AGEB fetch is ever in
   // flight (unlike POI's one-counter-per-category).
@@ -547,6 +569,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (this.pollHandle) {
       clearInterval(this.pollHandle);
     }
+    this.detachFreehandListeners();
   }
 
   private waitForGoogleMaps(): void {
@@ -663,7 +686,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       // so clicking anywhere else on the map is the only way left to dismiss it.
       this.infoWindow?.close();
 
-      if (!event.latLng) return;
+      if (!event.latLng || this.freehandMode) return;
       if (this.addMode) {
         this.zone.run(() => this.placeMarker(event.latLng!));
       } else if (this.opportunityMode) {
@@ -1289,12 +1312,121 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.opportunityMode = false;
       this.clearOpportunityOverlay();
     }
+    if (this.addMode && this.freehandMode) {
+      this.setFreehandMode(false);
+    }
     // Turning add-mode off while a pin is already placed should drop it too — otherwise a
     // dangling marker (and the confirmation card, which is keyed off selectedLat/Lng) would
     // stick around after the visitor toggled the tool off.
     if (!this.addMode) {
       this.clearPendingLocation();
     }
+  }
+
+  // Arms/disarms freehand-draw mode — mutually exclusive with every other click-driven tool on
+  // this page, same reasoning as toggleAddMode's own opportunity-mode check.
+  toggleFreehandMode(): void {
+    if (this.freehandMode) {
+      this.setFreehandMode(false);
+      return;
+    }
+    this.addMode = false;
+    this.clearPendingLocation();
+    this.closeOpportunityPicker();
+    this.showPoiChecklist.set(false);
+    this.setFreehandMode(true);
+  }
+
+  private setFreehandMode(active: boolean): void {
+    this.freehandMode = active;
+    if (!this.map) return;
+
+    if (active) {
+      this.clearFreehandShape();
+      // Panning would otherwise fight with tracing a shape — the map stays fixed while a shape
+      // is being drawn, same as how a drawing tool in any other mapping app locks the canvas.
+      this.map.setOptions({ draggable: false });
+      this.attachFreehandListeners();
+    } else {
+      this.detachFreehandListeners();
+      this.map.setOptions({ draggable: true });
+      this.freehandPolyline?.setMap(null);
+      this.freehandPolyline = undefined;
+      this.freehandPath = [];
+    }
+  }
+
+  // mousedown/mousemove/mouseup (not drag/dragstart/dragend, which don't fire while the map
+  // itself is non-draggable) trace the path for as long as the button/finger stays down — the
+  // Maps JS API maps touch gestures onto these same mouse events, so this works on mobile too.
+  // Left outside zone.run: these fire continuously while drawing and only touch plain fields plus
+  // the overlay's own path, none of which are template-bound, so there's nothing for Angular's
+  // change detection to do here on every point — only the final shape (finishFreehandShape) needs
+  // zone.run, since that's what flips freehandMode/freehandShape back to a bound state.
+  private attachFreehandListeners(): void {
+    if (!this.map) return;
+    const map = this.map;
+
+    this.freehandListeners.push(
+      map.addListener('mousedown', (event: google.maps.MapMouseEvent) => {
+        if (!event.latLng) return;
+        this.freehandDrawing = true;
+        this.freehandPath = [event.latLng];
+        this.freehandPolyline?.setMap(null);
+        this.freehandPolyline = new google.maps.Polyline({
+          map,
+          path: this.freehandPath,
+          strokeColor: '#1e3a5f',
+          strokeWeight: 2,
+          clickable: false
+        });
+      }),
+      map.addListener('mousemove', (event: google.maps.MapMouseEvent) => {
+        if (!this.freehandDrawing || !event.latLng) return;
+        this.freehandPath.push(event.latLng);
+        this.freehandPolyline?.setPath(this.freehandPath);
+      }),
+      map.addListener('mouseup', () => {
+        if (!this.freehandDrawing) return;
+        this.zone.run(() => this.finishFreehandShape());
+      })
+    );
+  }
+
+  private detachFreehandListeners(): void {
+    this.freehandListeners.forEach((listener) => listener.remove());
+    this.freehandListeners.length = 0;
+    this.freehandDrawing = false;
+  }
+
+  private finishFreehandShape(): void {
+    const path = this.freehandPath;
+    this.freehandDrawing = false;
+    this.freehandPolyline?.setMap(null);
+    this.freehandPolyline = undefined;
+    this.freehandPath = [];
+
+    // A stray click (mousedown immediately followed by mouseup, no drag in between) isn't a
+    // shape — stay armed so the visitor can just try again instead of silently doing nothing.
+    if (path.length < 3) return;
+
+    const polygon = new google.maps.Polygon({
+      map: this.map,
+      paths: path,
+      fillColor: '#1e3a5f',
+      fillOpacity: 0.12,
+      strokeColor: '#1e3a5f',
+      strokeWeight: 2,
+      clickable: false
+    });
+    this.freehandShape.set(polygon);
+    this.setFreehandMode(false);
+  }
+
+  // Backs the result badge's "clear" button, shown while a shape is active (see the template).
+  clearFreehandShape(): void {
+    this.freehandShape()?.setMap(null);
+    this.freehandShape.set(null);
   }
 
   // Backs the floating confirmation card's "Cancelar" button — same cleanup as toggling
@@ -1328,9 +1460,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   selectOpportunityCategory(key: OpportunityCategoryKey): void {
     this.selectedOpportunityCategory.set(key);
     this.opportunityMode = true;
-    // Mutually exclusive with add-property mode — both interpret a map click differently, so
-    // leaving both on at once would make a click's effect ambiguous.
+    // Mutually exclusive with add-property mode and freehand drawing — all three interpret a map
+    // click differently, so leaving more than one on at once would make a click's effect ambiguous.
     this.addMode = false;
+    if (this.freehandMode) {
+      this.setFreehandMode(false);
+    }
   }
 
   toggleMapExpanded(): void {
@@ -1705,6 +1840,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.minBaths.set('any');
     this.companyFilter.set('');
     this.selectMunicipality('');
+    this.clearFreehandShape();
 
     // The price inputs are deliberately uncontrolled (see applyCurrencyMask's own comment on
     // caret handling), so clearing minPrice/maxPrice above doesn't touch their displayed text —

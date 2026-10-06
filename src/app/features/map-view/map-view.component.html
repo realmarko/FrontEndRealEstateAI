@@ -131,9 +131,15 @@
 
   <div class="map-content">
     <div class="map-pane" [class.expanded]="mapExpanded()" [class.mobile-active]="mobileView() === 'map'">
-      <div class="mobile-results-badge" *ngIf="mobileView() === 'map'">
+      <div class="mobile-results-badge" *ngIf="mobileView() === 'map' && !freehandShape()">
         {{ 'map.resultsInView' | translate:{ count: visibleListings().length } }}
       </div>
+      @if (freehandShape() && !streetViewActive()) {
+        <div class="freehand-result-badge">
+          {{ 'map.freehandResultCount' | translate:{ count: visibleListings().length } }}
+          <button type="button" (click)="clearFreehandShape()">{{ 'map.freehandClear' | translate }}</button>
+        </div>
+      }
       @if (!streetViewActive()) {
       <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
@@ -181,6 +187,21 @@
                 </div>
               }
             </div>
+            <button
+              type="button"
+              class="freehand-btn"
+              [class.active]="freehandMode"
+              [attr.aria-label]="'map.freehandDraw' | translate"
+              [attr.aria-pressed]="freehandMode"
+              (click)="toggleFreehandMode()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" />
+              </svg>
+            </button>
+            @if (freehandMode) {
+              <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
+            }
             <button
               type="button"
               class="locate-btn"
