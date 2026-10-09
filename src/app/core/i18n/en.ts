@@ -32,6 +32,7 @@ export const en: Record<string, string> = {
   'login.registerLink': 'Register',
   'login.forgotPassword': 'Forgot your password?',
   'login.orDivider': 'or',
+  'login.continueWithFacebook': 'Continue with Facebook',
 
   'register.title': 'Create an account',
   'register.firstName': 'First name',
@@ -47,6 +48,10 @@ export const en: Record<string, string> = {
   'register.haveAccount': 'Already have an account?',
   'register.loginLink': 'Log in',
   'register.orDivider': 'or',
+  'register.acceptTermsPrefix': 'I accept the',
+  'register.termsLink': 'Terms and Conditions',
+  'register.acceptTermsAnd': 'and the',
+  'register.privacyLink': 'Privacy Notice',
 
   'forgotPassword.title': 'Reset your password',
   'forgotPassword.intro': "Enter your account's email and we'll send you a link to reset your password.",
@@ -78,6 +83,8 @@ export const en: Record<string, string> = {
   'auth.errors.emailNotVerified': 'Please verify your email before logging in.',
   'auth.errors.sessionExpired': 'Your session expired. Please log in again.',
   'auth.errors.googleSignInFailed': 'Could not sign in with Google. Please try again.',
+  'auth.errors.facebookSignInFailed': 'Could not sign in with Facebook. Please try again.',
+  'auth.errors.mustAcceptTerms': 'You must accept the Terms and Conditions and the Privacy Notice to continue.',
 
   'verifyEmail.title': 'Confirm your email',
   'verifyEmail.intro': "We sent a 6-digit code to {{email}}. Enter it to activate your account.",
@@ -464,6 +471,7 @@ export const en: Record<string, string> = {
   'agentDetail.aboutTitle': 'About {{name}}',
   'agentDetail.specialtiesTitle': 'Specialties',
   'agentDetail.contactTitle': 'Contact information',
+  'agentDetail.loginToSeeContact': 'to see this agent\'s phone and email.',
   'agentDetail.notFound': 'Agent not found.',
   'agentDetail.listingsTitle': 'Listings ({{count}})',
   'agentDetail.reviewsTitle': 'Reviews ({{count}})',
@@ -614,6 +622,7 @@ export const en: Record<string, string> = {
   'landing.footerLogin': 'Log in',
   'landing.footerLegal': 'Legal',
   'landing.footerPrivacy': 'Privacy notice',
+  'landing.footerTerms': 'Terms and conditions',
 
   'adminErrors.title': 'System errors',
   'adminErrors.filterUnresolved': 'Unresolved',
@@ -721,7 +730,7 @@ export const en: Record<string, string> = {
   'fraccionamientoDetail.contactError': "Couldn't send your message. Please try again.",
 
   'privacy.title': 'Privacy Notice',
-  'privacy.lastUpdated': 'Last updated: September 24, 2026',
+  'privacy.lastUpdated': 'Last updated: October 9, 2026',
   'privacy.intro': 'This notice explains what personal data Espacial.com.mx collects, what we use it for, who we share it with, and how you can exercise your rights over it, in accordance with Mexico\'s Federal Law on Protection of Personal Data Held by Private Parties.',
 
   'privacy.controllerTitle': 'Who is responsible for your data',
@@ -751,6 +760,8 @@ export const en: Record<string, string> = {
   'privacy.sharingTitle': 'Who we share your data with',
   'privacy.sharingIntro': "We do not sell your data. We share it only with the service providers we use to operate the site:",
   'privacy.sharingGoogle': 'Google Maps: we use their map to display locations. When the map loads, your browser communicates directly with Google under its own privacy policies.',
+  'privacy.sharingGoogleSignIn': 'Google Sign-In: if you choose to register or log in with Google, Google confirms your identity to us and shares your name and email address so we can create or access your account.',
+  'privacy.sharingFacebook': 'Facebook Login: if you choose to register or log in with Facebook, Facebook confirms your identity to us and shares your name and email address so we can create or access your account.',
   'privacy.sharingAws': 'Amazon Web Services (AWS): we store the photos you upload (agent profile or listing photos) on their servers.',
   'privacy.sharingSentry': 'Sentry: we use this service to detect technical errors on the site (code failures), not to track your personal activity.',
   'privacy.sharingDenue': "INEGI (DENUE): when you use the map's area-analysis tool, we send only geographic coordinates (never your data) to query INEGI's public business directory.",
@@ -775,6 +786,65 @@ export const en: Record<string, string> = {
 
   'privacy.contactTitle': 'Contact',
   'privacy.contactBody': 'For any questions about this notice or your personal data, write to us at privacidad@espacial.com.mx.',
+
+  'terms.title': 'Terms and Conditions',
+  'terms.lastUpdated': 'Last updated: October 9, 2026',
+  'terms.intro': 'These Terms and Conditions govern the use of Espacial.com.mx (the "Site"), a platform for listing, searching, and contacting properties for sale or rent, as well as agent and agency profiles. By creating an account or using the Site, you accept these terms.',
+  'terms.draftNotice': 'Notice: this is a draft written from the Site\'s current features. It does not constitute legal advice — it must be reviewed and validated by a lawyer before being treated as binding.',
+
+  'terms.acceptanceTitle': 'Acceptance of terms',
+  'terms.acceptanceBody': 'By registering (with email and password, with Google, or with Facebook) or by using the Site without an account (browsing listings as a visitor), you accept these Terms and our Privacy Notice. If you do not agree, you must not use the Site.',
+
+  'terms.accountsTitle': 'User accounts',
+  'terms.accountsBody': 'To publish listings, save favorites, save searches, or receive contact messages you need an account. You can create one with email and password (confirming your email with a code before you can log in) or through Google or Facebook, in which case we verify your identity directly with that provider and treat the email they share as already confirmed.',
+  'terms.accountsSecurityBody': 'You are responsible for keeping your password secure and for all activity that happens on your account. Let us know immediately if you believe someone else has accessed it without your authorization.',
+
+  'terms.rolesTitle': 'Account types',
+  'terms.rolesBody': 'Buyer: can browse listings, save favorites and searches, and send contact messages. Owner: can additionally publish their own listings. Agent: in addition to the above, gets a public profile in the agent directory. You can request the Owner or Agent role at any time from your account; this only adds permissions, never removes the ones you already had.',
+
+  'terms.contentTitle': 'Content you publish',
+  'terms.contentIntro': 'As an Owner or Agent, you can publish listings (address, location, photos, and features) and, as an Agent, a profile with your name, phone number, photo, and bio.',
+
+  'terms.contentAccuracyTitle': 'Accuracy of content',
+  'terms.contentAccuracyBody': 'You are solely responsible for making sure the information you publish is truthful, accurate, and up to date, and for having a legitimate right to publish it (for example, being the property owner or being authorized to represent it). Espacial.com.mx does not verify property ownership or the accuracy of data published by users.',
+
+  'terms.contentLicenseTitle': 'License to your content',
+  'terms.contentLicenseBody': 'You retain ownership of the photos and text you publish. By publishing them, you grant us a non-exclusive license to display them publicly on the Site (and process them technically, such as resizing images) for as long as your listing or profile stays active.',
+
+  'terms.conductTitle': 'Prohibited conduct',
+  'terms.conductIntro': 'By using the Site, you agree not to:',
+  'terms.conductFakeListings': 'Publish fake, duplicate, nonexistent listings, or ones you have no right to offer.',
+  'terms.conductScraping': 'Mass-scrape the Site\'s content or use unauthorized automated tools to access it.',
+  'terms.conductSpam': 'Use the contact or messaging forms to send spam, unsolicited advertising, or fraudulent content.',
+  'terms.conductImpersonation': 'Impersonate another person, agent, or agency.',
+  'terms.conductUnlawful': 'Use the Site for any unlawful purpose or in a way that infringes on third-party rights.',
+
+  'terms.noBrokerageTitle': 'Espacial.com.mx is not a party to any transaction',
+  'terms.noBrokerageBody': 'The Site is a directory and point of contact between buyers, renters, owners, and agents — it is not a real estate brokerage or a party to any sale, rental, or negotiation. We do not participate in, guarantee, or take responsibility for any transaction, agreement, or payment made between users on or through the Site. Any deal should be independently verified (including property ownership and the other party\'s identity) before proceeding.',
+
+  'terms.thirdPartyTitle': 'Third-party services',
+  'terms.thirdPartyBody': 'The Site uses Google Maps to display locations, Google and Facebook as sign-in options, AWS to store photos, Sentry to detect technical errors, and INEGI (DENUE) for business-density analysis on the map. Use of these services is also subject to each provider\'s own terms and privacy policies.',
+
+  'terms.ipTitle': 'Site intellectual property',
+  'terms.ipBody': 'The Site\'s design, code, branding, and other elements (not including user-published content) are the property of Espacial.com.mx. You may not copy, modify, or distribute these elements without prior authorization.',
+
+  'terms.disclaimerTitle': 'The Site is provided "as is"',
+  'terms.disclaimerBody': 'The Site is provided without warranties of any kind, express or implied, including uninterrupted availability or error-free operation. We do not guarantee the accuracy, currency, or truthfulness of content published by other users (listings, agent profiles, messages).',
+
+  'terms.liabilityTitle': 'Limitation of liability',
+  'terms.liabilityBody': 'To the extent permitted by law, Espacial.com.mx will not be liable for indirect, incidental, or consequential damages arising from use of the Site, from information published by other users, or from any transaction between users.',
+
+  'terms.terminationTitle': 'Account suspension and termination',
+  'terms.terminationBody': 'We may suspend or terminate accounts that violate these Terms, including publishing false content or misusing the contact forms, without prior notice when the situation warrants it.',
+
+  'terms.changesTitle': 'Changes to these terms',
+  'terms.changesBody': 'We may update these Terms as the Site evolves. We will post any changes on this same page along with its update date; continued use of the Site after a change means you accept it.',
+
+  'terms.lawTitle': 'Governing law',
+  'terms.lawBody': 'These Terms are governed by the laws of Mexico. Any dispute related to them will be submitted to the competent courts in Mexico, unless applicable law provides otherwise.',
+
+  'terms.contactTitle': 'Contact',
+  'terms.contactBody': 'For any questions about these Terms, write to us at legal@espacial.com.mx.',
 
   'nav.pipeline': 'Pipeline',
 

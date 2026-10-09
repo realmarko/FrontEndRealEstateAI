@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { loadGoogleIdentity, setGoogleCredentialHandler } from '../../../core/utils/load-google-identity';
+import { loadFacebookSdk, loginWithFacebookSdk } from '../../../core/utils/load-facebook-sdk';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -55,6 +56,24 @@ export class LoginComponent implements AfterViewInit {
       next: () => this.router.navigate(['/listings']),
       error: () => this.notification.error('auth.errors.googleSignInFailed')
     });
+  }
+
+  // Loads the SDK lazily, on click, rather than in ngAfterViewInit like Google's — Facebook has
+  // no equivalent to Google's pre-rendered button (renderButton), so there's nothing to show
+  // until the visitor actually clicks our own button.
+  async onFacebookClick(): Promise<void> {
+    try {
+      await loadFacebookSdk(environment.facebookAppId);
+      const accessToken = await loginWithFacebookSdk();
+      // No role sent here — same reasoning as the Google button above.
+      this.auth.loginWithFacebook(accessToken).subscribe({
+        next: () => this.router.navigate(['/listings']),
+        error: () => this.notification.error('auth.errors.facebookSignInFailed')
+      });
+    } catch {
+      // Cancelled/denied login or a blocked connect.facebook.net script — same silent-fail
+      // reasoning as the Google button's ngAfterViewInit catch.
+    }
   }
 
   submit(): void {

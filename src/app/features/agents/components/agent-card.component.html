@@ -37,7 +37,7 @@
     <p class="stat">
       <strong>{{ agent.propertiesCount }}</strong> {{ 'agents.propertiesCount' | translate }}
     </p>
-    <p class="contact" [attr.title]="agent.email">{{ agent.email }}</p>
-    <p class="contact">{{ agent.phone }}</p>
+    <p class="contact" [class.blurred]="!auth.isAuthenticated()" [attr.title]="agent.email">{{ agent.email }}</p>
+    <p class="contact" [class.blurred]="!auth.isAuthenticated()">{{ agent.phone }}</p>
   </div>
 </a>

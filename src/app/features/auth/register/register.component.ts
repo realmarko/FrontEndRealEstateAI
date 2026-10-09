@@ -8,6 +8,7 @@ import { FormErrorComponent } from '../../../shared/components/form-error/form-e
 import { passwordStrengthValidator } from '../../../shared/utils/password-strength';
 import { UserRole } from '../../../core/models/user.model';
 import { loadGoogleIdentity, setGoogleCredentialHandler } from '../../../core/utils/load-google-identity';
+import { loadFacebookSdk, loginWithFacebookSdk } from '../../../core/utils/load-facebook-sdk';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -34,7 +35,8 @@ export class RegisterComponent implements AfterViewInit {
     // Identity keeps since Program.cs doesn't override them — catching a weak password here means
     // the visitor sees exactly what's missing instead of AuthController.Register's generic failure.
     password: ['', [Validators.required, Validators.minLength(8), passwordStrengthValidator]],
-    role: ['Owner' as UserRole, Validators.required]
+    role: ['Owner' as UserRole, Validators.required],
+    acceptTerms: [false, Validators.requiredTrue]
   });
 
   async ngAfterViewInit(): Promise<void> {
@@ -58,11 +60,42 @@ export class RegisterComponent implements AfterViewInit {
   }
 
   private onGoogleCredential(idToken: string): void {
+    if (!this.requireAcceptedTerms()) return;
+
     const role = this.form.controls.role.value;
     this.auth.loginWithGoogle(idToken, role).subscribe({
       next: () => this.router.navigate(['/listings']),
       error: () => this.notification.error('auth.errors.googleSignInFailed')
     });
+  }
+
+  // Loads the SDK lazily, on click — see LoginComponent.onFacebookClick for why (no pre-rendered
+  // button like Google's).
+  async onFacebookClick(): Promise<void> {
+    if (!this.requireAcceptedTerms()) return;
+
+    try {
+      await loadFacebookSdk(environment.facebookAppId);
+      const accessToken = await loginWithFacebookSdk();
+      const role = this.form.controls.role.value;
+      this.auth.loginWithFacebook(accessToken, role).subscribe({
+        next: () => this.router.navigate(['/listings']),
+        error: () => this.notification.error('auth.errors.facebookSignInFailed')
+      });
+    } catch {
+      // Same silent-fail reasoning as LoginComponent.onFacebookClick.
+    }
+  }
+
+  // The checkbox's own Validators.requiredTrue already blocks the regular submit() button below,
+  // but the Google/Facebook buttons sit outside the <form> (so markAllAsTouched() there wouldn't
+  // show their error) and fire their own network call directly — this is the one guard both
+  // share, surfacing the same validation error the form would show if submitted unchecked.
+  private requireAcceptedTerms(): boolean {
+    if (this.form.controls.acceptTerms.value) return true;
+    this.form.controls.acceptTerms.markAsTouched();
+    this.notification.error('auth.errors.mustAcceptTerms');
+    return false;
   }
 
   submit(): void {

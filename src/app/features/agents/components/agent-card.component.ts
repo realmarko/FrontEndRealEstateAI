@@ -1,9 +1,10 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Agent } from '../../../core/models/agent.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-agent-card',
@@ -14,6 +15,8 @@ import { RatingStarsComponent } from '../../../shared/components/rating-stars/ra
 })
 export class AgentCardComponent {
   @Input({ required: true }) agent!: Agent;
+
+  protected readonly auth = inject(AuthService);
 
   get initials(): string {
     return this.agent.name

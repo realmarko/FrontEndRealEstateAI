@@ -166,6 +166,21 @@ a.contact-line:hover {
   color: #fff;
 }
 
+.contact-line .blurred {
+  filter: blur(4px);
+  user-select: none;
+}
+
+.contact-blur-hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.8rem;
+  color: #d7d3cb;
+}
+
+.contact-blur-hint a {
+  color: var(--gold-soft);
+}
+
 .id-card-cta {
   display: inline-block;
   background: var(--gold);

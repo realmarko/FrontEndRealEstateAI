@@ -468,6 +468,12 @@
   text-decoration: underline;
 }
 
+.agent-email.blurred {
+  filter: blur(3px);
+  pointer-events: none;
+  user-select: none;
+}
+
 .agent-card .primary-link {
   align-self: stretch;
   text-align: center;

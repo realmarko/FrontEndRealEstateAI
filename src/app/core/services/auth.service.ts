@@ -78,6 +78,15 @@ export class AuthService {
     );
   }
 
+  // Same role semantics as loginWithGoogle — only used the first time this Facebook email signs
+  // in, ignored otherwise.
+  loginWithFacebook(accessToken: string, role?: UserRole): Observable<User> {
+    return this.http.post<AuthResponseDto>(`${this.apiUrl}/facebook`, { accessToken, role }).pipe(
+      tap((res) => this.startSession(res)),
+      map((res) => this.toUser(res.user))
+    );
+  }
+
   // Self-service role upgrade (add-only — never removes a role). Returns a fresh token/session
   // the same way login does, because the token this visitor is already holding has the OLD
   // roles baked in: nothing re-reads roles from the backend afterward, so without replacing the

@@ -49,15 +49,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # env-keys.ts is gitignored (holds the real Google Maps key + OAuth Client ID) — write both
-      # real values from repo secrets so the deployed build actually works, unlike the test job's
-      # placeholder copy which is fine for build/test only. Same GOOGLE_CLIENT_ID secret as
-      # deploy-dev.yml — one Google Cloud OAuth Client ID covers every environment (it's keyed by
-      # authorized origin, not by secret value).
-      - name: Write Google keys
+      # env-keys.ts is gitignored (holds the real Google Maps key, Google OAuth Client ID, and
+      # Facebook App ID) — write the real values from repo secrets so the deployed build actually
+      # works, unlike the test job's placeholder copy which is fine for build/test only. Same
+      # secrets as deploy-dev.yml — each ID covers every environment (keyed by authorized
+      # origin/domain, not by value).
+      - name: Write Google/Facebook keys
         run: |
           echo "export const GOOGLE_MAPS_API_KEY = '${{ secrets.GOOGLE_MAPS_API_KEY }}';" > src/environments/env-keys.ts
           echo "export const GOOGLE_CLIENT_ID = '${{ secrets.GOOGLE_CLIENT_ID }}';" >> src/environments/env-keys.ts
+          echo "export const FACEBOOK_APP_ID = '${{ secrets.FACEBOOK_APP_ID }}';" >> src/environments/env-keys.ts
 
       - name: Build (prod-deploy config)
         run: npx ng build --configuration=production,prod-deploy

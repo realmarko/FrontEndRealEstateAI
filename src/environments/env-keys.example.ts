@@ -9,3 +9,9 @@ export const GOOGLE_MAPS_API_KEY = 'YOUR_GOOGLE_MAPS_API_KEY';
 // Maps key for consistency with this file's pattern. Authorized JavaScript origins must include
 // your domain(s) + http://localhost:4200; no redirect URI is needed (token-based GIS flow).
 export const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+
+// App ID from https://developers.facebook.com/apps — used for "Continue with Facebook". Not a
+// secret (public, embedded in the frontend bundle like GOOGLE_CLIENT_ID above); the matching App
+// Secret lives only in the backend's user-secrets. Add http://localhost:4200 and your domain(s)
+// under that app's Facebook Login > Settings > "Valid OAuth Redirect URIs" / allowed domains.
+export const FACEBOOK_APP_ID = 'YOUR_FACEBOOK_APP_ID';

@@ -1,4 +1,4 @@
-import { GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY } from './env-keys';
+import { FACEBOOK_APP_ID, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY } from './env-keys';
 
 // Used only for the deployed production site (espacial.com.mx) — same reasoning as
 // environment.dev-deploy.ts: the frontend and backend live on separate subdomains behind
@@ -8,5 +8,6 @@ export const environment = {
   apiUrl: 'https://api.espacial.com.mx/api',
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   googleClientId: GOOGLE_CLIENT_ID,
+  facebookAppId: FACEBOOK_APP_ID,
   sentryDsn: ''
 };

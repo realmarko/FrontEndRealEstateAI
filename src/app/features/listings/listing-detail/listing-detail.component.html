@@ -319,8 +319,9 @@
             </div>
             <p class="agent-name">{{ listing.ownerName }}</p>
 
+            <a class="agent-email" [class.blurred]="!auth.isAuthenticated()" [href]="'mailto:' + listing.ownerEmail">{{ listing.ownerEmail }}</a>
+
             @if (auth.isAuthenticated()) {
-              <a class="agent-email" [href]="'mailto:' + listing.ownerEmail">{{ listing.ownerEmail }}</a>
               <button type="button" class="primary-link" (click)="openContactModal()">
                 {{ 'listingDetail.contactAgent' | translate }}
               </button>
