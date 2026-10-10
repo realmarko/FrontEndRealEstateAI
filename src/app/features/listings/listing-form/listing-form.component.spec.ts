@@ -60,6 +60,7 @@ describe('ListingFormComponent', () => {
     bathrooms: 1,
     areaSqm: 100,
     hasHeatingCooling: false,
+    hasRoofGarden: false,
     imageUrls: ['existing.jpg'],
     ownerId: 'owner-1',
     ownerName: 'Owner Name',

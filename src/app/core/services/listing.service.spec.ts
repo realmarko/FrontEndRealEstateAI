@@ -36,6 +36,7 @@ describe('ListingService', () => {
     lotSizeSqm: null,
     gardenSizeSqm: null,
     hasHeatingCooling: false,
+    hasRoofGarden: false,
     hoaFee: null,
     videoTourUrl: null,
     landUseZoning: null,
@@ -93,6 +94,7 @@ describe('ListingService', () => {
     bathrooms: 2,
     areaSqm: 140,
     hasHeatingCooling: false,
+    hasRoofGarden: false,
     existingImageUrls: [],
     photos: []
   };

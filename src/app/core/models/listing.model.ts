@@ -121,6 +121,7 @@ export interface Listing {
   lotSizeSqm?: number;
   gardenSizeSqm?: number;
   hasHeatingCooling: boolean;
+  hasRoofGarden: boolean;
   hoaFee?: number;
   videoTourUrl?: string;
   landUseZoning?: string;

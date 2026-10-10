@@ -35,6 +35,7 @@ describe('ListingListComponent', () => {
     bathrooms: 1,
     areaSqm: 100,
     hasHeatingCooling: false,
+    hasRoofGarden: false,
     imageUrls: [],
     ownerId: 'owner-1',
     ownerName: 'Owner Name',

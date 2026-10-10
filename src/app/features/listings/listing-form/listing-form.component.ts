@@ -109,6 +109,7 @@ export class ListingFormComponent {
     lotSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
     gardenSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
     hasHeatingCooling: [false],
+    hasRoofGarden: [false],
     hoaFee: this.fb.control<number | null>(null, Validators.min(0)),
     videoTourUrl: ['', optionalUrlValidator],
     landUseZoning: this.fb.control<string | null>(null),
@@ -378,6 +379,7 @@ export class ListingFormComponent {
       parkingSpaces: pureLand ? undefined : (raw.parkingSpaces ?? undefined),
       floors: pureLand ? undefined : (raw.floors ?? undefined),
       hasHeatingCooling: pureLand ? false : raw.hasHeatingCooling,
+      hasRoofGarden: pureLand ? false : raw.hasRoofGarden,
       lotSizeSqm: raw.lotSizeSqm ?? undefined,
       // Nullish-guarded even though the control is typed as a plain (non-nullable) string:
       // patchValue() (edit mode, see constructor) sets it straight from a Listing whose

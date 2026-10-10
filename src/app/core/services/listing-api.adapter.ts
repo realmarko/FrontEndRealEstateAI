@@ -113,6 +113,7 @@ export interface ListingDto {
   lotSizeSqm: number | null;
   gardenSizeSqm: number | null;
   hasHeatingCooling: boolean;
+  hasRoofGarden: boolean;
   hoaFee: number | null;
   videoTourUrl: string | null;
   landUseZoning: string | null;
@@ -200,6 +201,7 @@ export function fromDto(dto: ListingDto): Listing {
     lotSizeSqm: dto.lotSizeSqm ?? undefined,
     gardenSizeSqm: dto.gardenSizeSqm ?? undefined,
     hasHeatingCooling: dto.hasHeatingCooling,
+    hasRoofGarden: dto.hasRoofGarden,
     hoaFee: dto.hoaFee ?? undefined,
     videoTourUrl: dto.videoTourUrl ?? undefined,
     landUseZoning: dto.landUseZoning ?? undefined,
@@ -274,6 +276,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.lotSizeSqm != null) form.append('lotSizeSqm', String(input.lotSizeSqm));
   if (input.gardenSizeSqm != null) form.append('gardenSizeSqm', String(input.gardenSizeSqm));
   form.append('hasHeatingCooling', String(input.hasHeatingCooling));
+  form.append('hasRoofGarden', String(input.hasRoofGarden));
   if (input.hoaFee != null) form.append('hoaFee', String(input.hoaFee));
   if (input.videoTourUrl) form.append('videoTourUrl', input.videoTourUrl);
   if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
