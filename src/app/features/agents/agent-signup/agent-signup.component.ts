@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AgentService } from '../../../core/services/agent.service';
+import { toSlug } from '../../../core/services/agent-api.adapter';
 import { AuthService } from '../../../core/services/auth.service';
 import { BrokerageService } from '../../../core/services/brokerage.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -149,7 +150,7 @@ export class AgentSignupComponent {
     request.subscribe({
       next: (agent) => {
         this.notification.success(this.isEditMode ? 'agentSignup.updateSuccess' : 'agentSignup.success');
-        this.router.navigate(['/agents', agent.id]);
+        this.router.navigate(['/agents', toSlug(agent.name)]);
       },
       error: () => {
         this.submitting.set(false);

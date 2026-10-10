@@ -146,10 +146,19 @@
           <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
             {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
           </button>
+          <button
+            type="button"
+            class="add-property-btn"
+            *ngIf="auth.currentUser()?.roles?.includes('Admin')"
+            [class.active]="addBrokerageMode"
+            (click)="toggleAddBrokerageMode()"
+          >
+            {{ (addBrokerageMode ? 'map.clickToPlace' : 'map.addBrokerage') | translate }}
+          </button>
           <!-- Everything else in the toolbar competes for attention with placing/confirming a
                pin, so it hides as soon as add-mode turns on (not just once a pin is placed) —
                matching how the confirm card itself only appears once a pin is placed. -->
-          <ng-container *ngIf="!addMode">
+          <ng-container *ngIf="!addMode && !addBrokerageMode">
             <div class="picker-anchor">
               <button
                 type="button"

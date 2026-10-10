@@ -123,6 +123,16 @@ export const routes: Routes = [
       )
   },
   {
+    // Reached from the map's "Agregar inmobiliaria" tool — same ?lat&lng contract as
+    // 'listings/new', must stay above 'inmobiliarias/:id' or ':id' would greedily match "new".
+    path: 'inmobiliarias/new',
+    canActivate: [authGuard, roleGuard('Admin'), hasCoordinatesGuard],
+    loadComponent: () =>
+      import('./features/agencies/agency-create/agency-create.component').then(
+        (m) => m.AgencyCreateComponent
+      )
+  },
+  {
     path: 'inmobiliarias/:id',
     loadComponent: () =>
       import('./features/agencies/agency-detail/agency-detail.component').then(
@@ -191,6 +201,24 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/admin-fraccionamientos/admin-fraccionamientos.component').then(
         (m) => m.AdminFraccionamientosComponent
+      )
+  },
+  {
+    path: 'admin/inmobiliarias',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-agencies/admin-agencies.component').then(
+        (m) => m.AdminAgenciesComponent
+      )
+  },
+  {
+    // Admin-only edit for any brokerage by id — distinct from 'inmobiliarias/edit' above, which
+    // only a member agent can use on their own brokerage.
+    path: 'admin/inmobiliarias/:id/edit',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-agency-edit/admin-agency-edit.component').then(
+        (m) => m.AdminAgencyEditComponent
       )
   },
   { path: '**', redirectTo: 'listings' }

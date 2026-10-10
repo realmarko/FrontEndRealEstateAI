@@ -1,0 +1,36 @@
+<div class="page">
+  <h1>{{ 'adminAgencies.title' | translate }}</h1>
+  <p class="hint">{{ 'adminAgencies.hint' | translate }}</p>
+  <code class="csv-format">nombre,lat,lng,direccion,telefono,email,horario</code>
+
+  <div class="upload-row">
+    <label class="file-field">
+      {{ 'adminAgencies.chooseFile' | translate }}
+      <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" />
+    </label>
+    @if (fileName()) {
+      <span class="file-name">{{ fileName() }}</span>
+    }
+  </div>
+  @if (fileError(); as err) {
+    <p class="error">{{ err | translate }}</p>
+  }
+
+  <button type="button" [disabled]="!fileName() || uploading()" (click)="submit()">
+    {{ uploading() ? ('adminAgencies.uploading' | translate) : ('adminAgencies.upload' | translate) }}
+  </button>
+
+  @if (result(); as r) {
+    <div class="result">
+      <p class="created">{{ 'adminAgencies.created' | translate: { count: r.createdCount } }}</p>
+      @if (r.errors.length) {
+        <p class="errors-title">{{ 'adminAgencies.rowErrors' | translate: { count: r.errors.length } }}</p>
+        <ul class="row-errors">
+          @for (e of r.errors; track e.rowNumber) {
+            <li>{{ 'adminAgencies.rowError' | translate: { row: e.rowNumber, message: e.message } }}</li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</div>

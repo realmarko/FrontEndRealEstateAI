@@ -1,4 +1,4 @@
-<a class="card" [routerLink]="['/agents', agent.id]">
+<a class="card" [routerLink]="['/agents', slug]">
   <div class="photo">
     @if (agent.photoUrl) {
       <img [src]="agent.photoUrl" [alt]="agent.name" />

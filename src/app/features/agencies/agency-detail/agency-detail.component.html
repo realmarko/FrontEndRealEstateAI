@@ -1,40 +1,81 @@
 @if (agency(); as a) {
   <div class="page">
-    <div class="header-card">
-      <div class="logo">
+    <!-- A letterhead, not a credential card: AgentDetailComponent's dark "id-card" suits a
+         person's professional credential, but this is an office, not a person — same brand
+         marks (gold rule, navy), read instead as printed stationery: a mark, a name, an
+         address, then the practical particulars beneath a rule. -->
+    <header class="masthead">
+      <div class="masthead-mark">
         @if (a.logoUrl) {
           <img [src]="a.logoUrl" [alt]="a.name" />
         } @else {
-          <div class="avatar">{{ a.name.charAt(0) }}</div>
+          <span class="masthead-mark-fallback">{{ a.name.charAt(0) }}</span>
         }
       </div>
 
-      <div class="info">
+      <div class="masthead-body">
         <h1>{{ a.name }}</h1>
-        @if (location()) {
-          <p class="location">{{ location() }}</p>
+        @if (a.address || location()) {
+          <p class="masthead-address">{{ a.address || location() }}</p>
         }
-        <div class="links">
-          @if (a.website) {
-            <a [href]="a.website" target="_blank" rel="noopener noreferrer">{{ 'agencyDetail.website' | translate }}</a>
+
+        <div class="masthead-rule"></div>
+
+        <div class="masthead-contact">
+          @if (a.workingHours) {
+            <span class="contact-line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              {{ a.workingHours }}
+            </span>
           }
-          @if (a.facebookUrl) {
-            <a [href]="a.facebookUrl" target="_blank" rel="noopener noreferrer">Facebook</a>
+          @if (a.phone) {
+            <a class="contact-line" [href]="'tel:' + a.phone">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              {{ a.phone }}
+            </a>
           }
-          @if (a.instagramUrl) {
-            <a [href]="a.instagramUrl" target="_blank" rel="noopener noreferrer">Instagram</a>
+          @if (a.email) {
+            <a class="contact-line" [href]="'mailto:' + a.email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 7l9 6 9-6" />
+              </svg>
+              {{ a.email }}
+            </a>
           }
         </div>
+
+        @if (a.website || a.facebookUrl || a.instagramUrl) {
+          <div class="masthead-elsewhere">
+            @if (a.website) {
+              <a [href]="a.website" target="_blank" rel="noopener noreferrer">{{ 'agencyDetail.website' | translate }}</a>
+            }
+            @if (a.facebookUrl) {
+              <a [href]="a.facebookUrl" target="_blank" rel="noopener noreferrer">Facebook</a>
+            }
+            @if (a.instagramUrl) {
+              <a [href]="a.instagramUrl" target="_blank" rel="noopener noreferrer">Instagram</a>
+            }
+          </div>
+        }
+
         @if (a.canEdit) {
           <a class="edit-link" routerLink="/inmobiliarias/edit">{{ 'agencyDetail.editLink' | translate }}</a>
+        } @else if (auth.currentUser()?.roles?.includes('Admin')) {
+          <a class="edit-link" [routerLink]="['/admin/inmobiliarias', a.id, 'edit']">{{ 'agencyDetail.adminEditLink' | translate }}</a>
         }
       </div>
 
-      <div class="stats">
-        <p><strong>{{ a.listingsCount }}</strong> {{ 'agencies.listingsCount' | translate }}</p>
-        <p><strong>{{ a.agentsCount }}</strong> {{ 'agencies.agentsCount' | translate }}</p>
+      <div class="masthead-stats">
+        <p><strong>{{ a.listingsCount }}</strong><span>{{ 'agencies.listingsCount' | translate }}</span></p>
+        <p><strong>{{ a.agentsCount }}</strong><span>{{ 'agencies.agentsCount' | translate }}</span></p>
       </div>
-    </div>
+    </header>
 
     @if (a.description) {
       <p class="description">{{ a.description }}</p>

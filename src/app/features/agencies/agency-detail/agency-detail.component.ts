@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 import { BrokerageService } from '../../../core/services/brokerage.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { Agency } from '../../../core/models/agency.model';
@@ -18,6 +19,7 @@ export class AgencyDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly brokerageService = inject(BrokerageService);
   private readonly listingService = inject(ListingService);
+  protected readonly auth = inject(AuthService);
 
   readonly agency = signal<Agency | null>(null);
   readonly notFound = signal(false);
@@ -48,12 +50,22 @@ export class AgencyDetailComponent {
   });
 
   constructor() {
-    const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.brokerageService.fetchById(id).subscribe({
-      next: (agency) => this.agency.set(agency),
+    // Every link built elsewhere in the app now points here with toSlug(name) (spaces replaced
+    // with underscores — see brokerage-api.adapter.ts), not the numeric id, so the id is never
+    // shown in the URL. A bare numeric param — an old bookmark/link, or a direct id someone
+    // types — still resolves too, via fetchById; nothing currently generates that form on
+    // purpose, but there's no reason to break it.
+    const param = this.route.snapshot.paramMap.get('id') ?? '';
+    const numericId = /^\d+$/.test(param) ? Number(param) : null;
+    const lookup = numericId !== null ? this.brokerageService.fetchById(numericId) : this.brokerageService.fetchBySlug(param);
+
+    lookup.subscribe({
+      next: (agency) => {
+        this.agency.set(agency);
+        this.listingService.fetchByAgency(agency.id).subscribe((listings) => this.agencyListings.set(listings));
+      },
       error: () => this.notFound.set(true)
     });
-    this.listingService.fetchByAgency(id).subscribe((listings) => this.agencyListings.set(listings));
   }
 
   setTypeFilter(type: ListingType | 'all'): void {

@@ -63,6 +63,13 @@ export class AgentService {
     return this.http.get<AgentDto>(`${this.apiUrl}/${id}`).pipe(map(fromDto));
   }
 
+  // GET /api/agents/by-slug/JuanPerez — what AgentDetailComponent actually calls for
+  // '/agents/:id' now that every generated link uses toSlug(name) instead of the numeric id (see
+  // agent-api.adapter.ts's toSlug and AgentsController.GetBySlug).
+  fetchBySlug(slug: string): Observable<Agent> {
+    return this.http.get<AgentDto>(`${this.apiUrl}/by-slug/${encodeURIComponent(slug)}`).pipe(map(fromDto));
+  }
+
   // Lightweight name search for pickers (e.g. the admin "transfer listing" modal) — deliberately
   // bypasses the shared `agents` signal/pagination state that refresh() drives for the /agents
   // list page, since a picker open on another page shouldn't clobber that page's own state.

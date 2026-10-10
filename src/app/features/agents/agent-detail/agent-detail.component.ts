@@ -28,7 +28,11 @@ export class AgentDetailComponent {
   private readonly translation = inject(TranslationService);
   protected readonly auth = inject(AuthService);
 
-  private readonly agentId = Number(this.route.snapshot.paramMap.get('id'));
+  // Resolved in the constructor below, before any other agentService call that needs it — every
+  // link built elsewhere in the app now points here with toSlug(name) (spaces stripped — see
+  // agent-api.adapter.ts), not the numeric id, so the id is never shown in the URL. A bare
+  // numeric param (an old bookmark/link) still resolves too, via fetchById.
+  private agentId!: number;
 
   readonly agent = signal<Agent | undefined>(undefined);
   readonly loading = signal(true);
@@ -48,23 +52,28 @@ export class AgentDetailComponent {
   readonly sendingContact = signal(false);
 
   constructor() {
-    this.agentService.fetchById(this.agentId).subscribe({
+    const param = this.route.snapshot.paramMap.get('id') ?? '';
+    const numericId = /^\d+$/.test(param) ? Number(param) : null;
+    const lookup = numericId !== null ? this.agentService.fetchById(numericId) : this.agentService.fetchBySlug(param);
+
+    lookup.subscribe({
       next: (agent) => {
+        this.agentId = agent.id;
         this.agent.set(agent);
         this.loading.set(false);
+
+        this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
+        this.agentService.getListings(this.agentId).subscribe((listings) => this.listings.set(listings));
+
+        if (shouldRecordView(`agent_${this.agentId}`)) {
+          this.agentService.recordView(this.agentId).subscribe({ error: () => {} });
+        }
       },
       error: () => {
         this.agent.set(undefined);
         this.loading.set(false);
       }
     });
-
-    this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
-    this.agentService.getListings(this.agentId).subscribe((listings) => this.listings.set(listings));
-
-    if (shouldRecordView(`agent_${this.agentId}`)) {
-      this.agentService.recordView(this.agentId).subscribe({ error: () => {} });
-    }
   }
 
   get contactModalTitle(): string {

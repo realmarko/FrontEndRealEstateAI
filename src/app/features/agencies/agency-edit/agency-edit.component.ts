@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { BrokerageService } from '../../../core/services/brokerage.service';
+import { toSlug } from '../../../core/services/brokerage-api.adapter';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
@@ -110,7 +111,7 @@ export class AgencyEditComponent {
         next: (agency) => {
           this.submitting.set(false);
           this.notification.success('agencyEdit.success');
-          this.router.navigate(['/inmobiliarias', agency.id]);
+          this.router.navigate(['/inmobiliarias', toSlug(agency.name)]);
         },
         error: () => {
           this.submitting.set(false);

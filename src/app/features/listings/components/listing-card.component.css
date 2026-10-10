@@ -1,9 +1,21 @@
+/* Without an explicit display, a custom element defaults to inline, which stops it (and the
+   .card div inside it) from actually filling the height the grid stretches its row items to —
+   cards with a 1-line title sat shorter than cards with a 2-line one in the same row. flex here,
+   plus .card/.body below forming an unbroken flex column down to the CTA, makes every card in a
+   row the same height regardless of how much text variable fields like land-use produce. */
+:host {
+  display: flex;
+}
+
 .card {
   background: #fff;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
   transition: box-shadow 0.15s ease, transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .card:hover {
@@ -102,6 +114,9 @@
 
 .body {
   padding: 0.85rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .price {
@@ -185,8 +200,9 @@
 
 .view-cta {
   display: block;
-  margin-top: 0.85rem;
+  margin-top: auto;
   padding: 0.6rem;
+  padding-top: calc(0.6rem + 0.25rem);
   border-radius: 6px;
   background: var(--gold, #c6a15b);
   color: var(--on-gold, #14263f);

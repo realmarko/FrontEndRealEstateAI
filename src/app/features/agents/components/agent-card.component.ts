@@ -2,6 +2,7 @@ import { DecimalPipe } from '@angular/common';
 import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Agent } from '../../../core/models/agent.model';
+import { toSlug } from '../../../core/services/agent-api.adapter';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
 import { AuthService } from '../../../core/services/auth.service';
@@ -17,6 +18,10 @@ export class AgentCardComponent {
   @Input({ required: true }) agent!: Agent;
 
   protected readonly auth = inject(AuthService);
+
+  get slug(): string {
+    return toSlug(this.agent.name);
+  }
 
   get initials(): string {
     return this.agent.name

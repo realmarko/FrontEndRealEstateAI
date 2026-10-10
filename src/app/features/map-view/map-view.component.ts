@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
+import { toSlug } from '../../core/services/brokerage-api.adapter';
+import { AgencyMapItem } from '../../core/models/agency.model';
 import { SavedSearchService } from '../../core/services/saved-search.service';
 import {
   AgebBoundary,
@@ -47,6 +49,10 @@ const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
 // "featured/special" — fitting for a whole development rather than a single unit.
 const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
 const FRACCIONAMIENTO_CLUSTER_COLOR = '#c6a15b';
+// Purple is otherwise unused — a brokerage office is a different kind of pin from both a listing
+// and a fraccionamiento, so it gets its own unmistakable color.
+const BROKERAGE_ICON = 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png';
+const BROKERAGE_CLUSTER_COLOR = '#7c3aed';
 // Published developments are still few in number at this stage — one fetch covers the realistic
 // total without needing map-bounds-driven pagination like listings use. Capped at 100, matching
 // GET /api/fraccionamientos/published's own Math.Clamp(pageSize, 1, 100) ceiling — asking for
@@ -323,6 +329,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   hasError = false;
   addMode = false;
+  // Admin-only counterpart to addMode — see toggleAddBrokerageMode. Mutually exclusive with
+  // every other click-driven tool on this page, same reasoning as addMode/opportunityMode.
+  addBrokerageMode = false;
   locatingMe = false;
   // False until buildMap() runs once on initial load — drives the loading overlay so the visitor
   // sees "loading map…" instead of a blank container while resolveInitialCenter is still working.
@@ -524,11 +533,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private infoWindowShowsOpportunity = false;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
   private readonly fraccionamientoMarkers = new Map<string, google.maps.Marker>();
-  // One clusterer per marker type (listings + fraccionamientos + one per POI category) so a
-  // cluster icon never mixes categories together, keeping each type's color meaningful when
-  // markers group up.
+  private readonly brokerageMarkers = new Map<number, google.maps.Marker>();
+  // One clusterer per marker type (listings + fraccionamientos + brokerages + one per POI
+  // category) so a cluster icon never mixes categories together, keeping each type's color
+  // meaningful when markers group up.
   private listingClusterer?: MarkerClusterer;
   private fraccionamientoClusterer?: MarkerClusterer;
+  private brokerageClusterer?: MarkerClusterer;
   private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
   private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
@@ -687,7 +698,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.infoWindow?.close();
 
       if (!event.latLng || this.freehandMode) return;
-      if (this.addMode) {
+      if (this.addMode || this.addBrokerageMode) {
         this.zone.run(() => this.placeMarker(event.latLng!));
       } else if (this.opportunityMode) {
         this.zone.run(() => this.analyzeOpportunity(event.latLng!));
@@ -708,6 +719,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     this.renderListingMarkers();
     this.loadFraccionamientos();
+    this.loadBrokerages();
   }
 
   // Fetched once per map load (not bounds-driven like listings) and rendered as their own
@@ -749,6 +761,90 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       });
     }
     this.fraccionamientoClusterer.addMarkers(markers);
+  }
+
+  // Fetched once per map load, same reasoning as loadFraccionamientos — every admin-pinned
+  // brokerage should show regardless of viewport, and the row count is small (admin-curated, not
+  // every brokerage in the directory).
+  private loadBrokerages(): void {
+    this.brokerageService.listForMap().subscribe({
+      next: (items) => this.zone.run(() => this.renderBrokerageMarkers(items)),
+      // Silent failure, same reasoning as loadFraccionamientos — this is an extra layer on top
+      // of the map's core purpose, not something that should surface a toast over the whole page.
+      error: () => {}
+    });
+  }
+
+  private renderBrokerageMarkers(items: AgencyMapItem[]): void {
+    this.brokerageClusterer?.clearMarkers();
+    this.brokerageMarkers.clear();
+
+    const markers = items.map((agency) => {
+      const marker = new google.maps.Marker({
+        position: { lat: agency.latitude, lng: agency.longitude },
+        title: agency.name,
+        icon: BROKERAGE_ICON
+      });
+
+      marker.addListener('click', () => {
+        this.zone.run(() => this.openBrokerageInfo(agency, marker));
+      });
+
+      this.brokerageMarkers.set(agency.id, marker);
+      return marker;
+    });
+
+    if (!this.brokerageClusterer) {
+      this.brokerageClusterer = new MarkerClusterer({
+        map: this.map,
+        algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
+        renderer: createClusterRenderer(BROKERAGE_CLUSTER_COLOR)
+      });
+    }
+    this.brokerageClusterer.addMarkers(markers);
+  }
+
+  private openBrokerageInfo(agency: AgencyMapItem, marker: google.maps.Marker): void {
+    if (!this.infoWindow) return;
+    this.infoWindowGeneration++;
+    this.infoWindowShowsOpportunity = false;
+
+    const navigate = (event: Event) => {
+      event.preventDefault();
+      this.zone.run(() => this.router.navigate(['/inmobiliarias', toSlug(agency.name)]));
+    };
+
+    const container = document.createElement('div');
+    container.className = 'map-info-card';
+
+    if (agency.logoUrl) {
+      const media = document.createElement('div');
+      media.className = 'map-info-media';
+      media.style.cursor = 'pointer';
+      media.addEventListener('click', navigate);
+
+      const img = document.createElement('img');
+      img.src = agency.logoUrl;
+      img.alt = agency.name;
+      media.appendChild(img);
+
+      container.appendChild(media);
+    }
+
+    const body = document.createElement('div');
+    body.className = 'map-info-body';
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'map-info-title';
+    titleEl.textContent = agency.name;
+    titleEl.style.cursor = 'pointer';
+    titleEl.addEventListener('click', navigate);
+    body.appendChild(titleEl);
+
+    container.appendChild(body);
+
+    this.infoWindow.setContent(container);
+    this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
   private openFraccionamientoInfo(frac: FraccionamientoPublicListItem, marker: google.maps.Marker): void {
@@ -1306,8 +1402,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   toggleAddMode(): void {
     this.addMode = !this.addMode;
-    // Mutually exclusive with opportunity mode — both interpret a map click differently, so
-    // leaving both on at once would make a click's effect ambiguous.
+    // Mutually exclusive with every other click-driven tool — all interpret a map click
+    // differently, so leaving more than one on at once would make a click's effect ambiguous.
     if (this.addMode && this.opportunityMode) {
       this.opportunityMode = false;
       this.clearOpportunityOverlay();
@@ -1315,10 +1411,33 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (this.addMode && this.freehandMode) {
       this.setFreehandMode(false);
     }
+    if (this.addMode && this.addBrokerageMode) {
+      this.addBrokerageMode = false;
+    }
     // Turning add-mode off while a pin is already placed should drop it too — otherwise a
     // dangling marker (and the confirmation card, which is keyed off selectedLat/Lng) would
     // stick around after the visitor toggled the tool off.
     if (!this.addMode) {
+      this.clearPendingLocation();
+    }
+  }
+
+  // Admin-only counterpart to toggleAddMode — the resulting pin feeds confirmLocation's
+  // 'inmobiliarias/new' branch instead of 'listings/new'. Same mutual-exclusivity rules as
+  // toggleAddMode, mirrored onto this mode too.
+  toggleAddBrokerageMode(): void {
+    this.addBrokerageMode = !this.addBrokerageMode;
+    if (this.addBrokerageMode && this.opportunityMode) {
+      this.opportunityMode = false;
+      this.clearOpportunityOverlay();
+    }
+    if (this.addBrokerageMode && this.freehandMode) {
+      this.setFreehandMode(false);
+    }
+    if (this.addBrokerageMode && this.addMode) {
+      this.addMode = false;
+    }
+    if (!this.addBrokerageMode) {
       this.clearPendingLocation();
     }
   }
@@ -1331,6 +1450,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       return;
     }
     this.addMode = false;
+    this.addBrokerageMode = false;
     this.clearPendingLocation();
     this.closeOpportunityPicker();
     this.showPoiChecklist.set(false);
@@ -1430,9 +1550,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   }
 
   // Backs the floating confirmation card's "Cancelar" button — same cleanup as toggling
-  // add-mode off, exposed separately so the card doesn't have to know about that toggle.
+  // add-mode off, exposed separately so the card doesn't have to know about that toggle. Covers
+  // both addMode and addBrokerageMode since the same confirmation card serves either one.
   cancelAddMode(): void {
     this.addMode = false;
+    this.addBrokerageMode = false;
     this.clearPendingLocation();
   }
 
@@ -1460,9 +1582,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   selectOpportunityCategory(key: OpportunityCategoryKey): void {
     this.selectedOpportunityCategory.set(key);
     this.opportunityMode = true;
-    // Mutually exclusive with add-property mode and freehand drawing — all three interpret a map
-    // click differently, so leaving more than one on at once would make a click's effect ambiguous.
+    // Mutually exclusive with add-property mode, add-brokerage mode, and freehand drawing — all
+    // interpret a map click differently, so leaving more than one on at once would make a
+    // click's effect ambiguous.
     this.addMode = false;
+    this.addBrokerageMode = false;
     if (this.freehandMode) {
       this.setFreehandMode(false);
     }
@@ -1485,7 +1609,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   confirmLocation(): void {
     if (this.selectedLat === null || this.selectedLng === null) return;
 
-    this.router.navigate(['/listings/new'], {
+    const destination = this.addBrokerageMode ? '/inmobiliarias/new' : '/listings/new';
+    this.router.navigate([destination], {
       queryParams: { lat: this.selectedLat, lng: this.selectedLng }
     });
   }

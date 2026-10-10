@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Agency } from '../../../core/models/agency.model';
+import { toSlug } from '../../../core/services/brokerage-api.adapter';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
@@ -12,6 +13,10 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 })
 export class AgencyCardComponent {
   @Input({ required: true }) agency!: Agency;
+
+  get slug(): string {
+    return toSlug(this.agency.name);
+  }
 
   get initials(): string {
     return this.agency.name

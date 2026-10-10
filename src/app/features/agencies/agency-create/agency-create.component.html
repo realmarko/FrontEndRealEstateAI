@@ -1,0 +1,54 @@
+<div class="page">
+  <h1>{{ 'agencyCreate.title' | translate }}</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label class="logo-field">
+      {{ 'agencyCreate.photo' | translate }}
+      <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
+    </label>
+    @if (photoPreview()) {
+      <img class="logo-preview" [src]="photoPreview()" alt="" />
+    }
+    @if (photoError()) {
+      <p class="error">{{ photoError() }}</p>
+    }
+
+    <label>
+      {{ 'agencyCreate.name' | translate }}
+      <input type="text" formControlName="name" maxlength="200" />
+      <app-form-error [control]="form.controls.name" />
+    </label>
+
+    <label>
+      {{ 'agencyCreate.address' | translate }}
+      <input type="text" formControlName="address" maxlength="300" />
+    </label>
+
+    <label>
+      {{ 'agencyCreate.phone' | translate }}
+      <input type="tel" formControlName="phone" maxlength="30" />
+      <app-form-error [control]="form.controls.phone" />
+    </label>
+
+    <label>
+      {{ 'agencyCreate.email' | translate }}
+      <input type="email" formControlName="email" maxlength="320" />
+      <app-form-error [control]="form.controls.email" />
+    </label>
+
+    <label>
+      {{ 'agencyCreate.workingHours' | translate }}
+      <input type="text" formControlName="workingHours" maxlength="200" [placeholder]="'agencyCreate.workingHoursPlaceholder' | translate" />
+    </label>
+
+    <label>
+      {{ 'agencyCreate.website' | translate }}
+      <input type="url" formControlName="website" maxlength="2048" placeholder="https://..." />
+      <app-form-error [control]="form.controls.website" />
+    </label>
+
+    <button type="submit" [disabled]="submitting()">
+      {{ submitting() ? ('agencyCreate.saving' | translate) : ('agencyCreate.save' | translate) }}
+    </button>
+  </form>
+</div>

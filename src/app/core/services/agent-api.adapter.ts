@@ -17,6 +17,16 @@ export interface AgentDto {
   viewCount: number;
 }
 
+// Every link to an agent's detail page is built with this instead of the numeric id (see
+// AgentDetailComponent, which resolves '/agents/:id' via GET /api/agents/by-slug/... —
+// AgentsController.GetBySlug does the same space-stripping server-side so the two stay in
+// lockstep without sharing code across the frontend/backend boundary). Deliberately strips
+// spaces entirely rather than replacing them with an underscore — BrokerageService's toSlug
+// uses the underscore form; the two were asked for separately and intentionally differ.
+export function toSlug(name: string): string {
+  return name.replace(/ /g, '');
+}
+
 export function fromDto(dto: AgentDto): Agent {
   return {
     id: dto.id,

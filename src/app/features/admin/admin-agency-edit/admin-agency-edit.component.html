@@ -1,0 +1,89 @@
+@if (loading()) {
+  <p class="status">{{ 'adminAgencyEdit.loading' | translate }}</p>
+} @else if (notFound()) {
+  <p class="status">{{ 'adminAgencyEdit.notFound' | translate }}</p>
+} @else {
+  <div class="page">
+    <h1>{{ 'adminAgencyEdit.title' | translate }}</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label class="logo-field">
+        {{ 'agencyCreate.photo' | translate }}
+        <input type="file" accept="image/jpeg,image/png,image/webp" (change)="onPhotoSelected($event)" />
+      </label>
+      @if (photoPreview()) {
+        <img class="logo-preview" [src]="photoPreview()" alt="" />
+      }
+      @if (photoError()) {
+        <p class="error">{{ photoError() }}</p>
+      }
+
+      <label>
+        {{ 'agencyCreate.name' | translate }}
+        <input type="text" formControlName="name" maxlength="200" />
+        <app-form-error [control]="form.controls.name" />
+      </label>
+
+      <label>
+        {{ 'adminAgencyEdit.coordinates' | translate }}
+        <input type="text" formControlName="coordinates" [placeholder]="'adminAgencyEdit.coordinatesPlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'agencyCreate.address' | translate }}
+        <input type="text" formControlName="address" maxlength="300" />
+      </label>
+
+      <label>
+        {{ 'agencyCreate.phone' | translate }}
+        <input type="tel" formControlName="phone" maxlength="30" />
+        <app-form-error [control]="form.controls.phone" />
+      </label>
+
+      <label>
+        {{ 'agencyCreate.email' | translate }}
+        <input type="email" formControlName="email" maxlength="320" />
+        <app-form-error [control]="form.controls.email" />
+      </label>
+
+      <label>
+        {{ 'agencyCreate.workingHours' | translate }}
+        <input type="text" formControlName="workingHours" maxlength="200" [placeholder]="'agencyCreate.workingHoursPlaceholder' | translate" />
+      </label>
+
+      <label>
+        {{ 'agencyCreate.website' | translate }}
+        <input type="url" formControlName="website" maxlength="2048" placeholder="https://..." />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.state' | translate }}
+        <input type="text" formControlName="state" maxlength="150" />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.city' | translate }}
+        <input type="text" formControlName="city" maxlength="150" />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.facebookUrl' | translate }}
+        <input type="url" formControlName="facebookUrl" maxlength="2048" placeholder="https://facebook.com/..." />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.instagramUrl' | translate }}
+        <input type="url" formControlName="instagramUrl" maxlength="2048" placeholder="https://instagram.com/..." />
+      </label>
+
+      <label>
+        {{ 'agencyEdit.description' | translate }}
+        <textarea formControlName="description" maxlength="3000" rows="4"></textarea>
+      </label>
+
+      <button type="submit" [disabled]="submitting()">
+        {{ submitting() ? ('adminAgencyEdit.saving' | translate) : ('adminAgencyEdit.save' | translate) }}
+      </button>
+    </form>
+  </div>
+}
