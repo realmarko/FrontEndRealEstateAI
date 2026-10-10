@@ -65,14 +65,32 @@
 
 .terms-checkbox {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: 0.6rem;
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.87rem;
   font-weight: normal;
-  margin: 0.75rem 0;
+  line-height: 1.5;
+  color: var(--ink, #374151);
+  cursor: pointer;
 }
 
 .terms-checkbox input {
-  margin-top: 0.2rem;
-  width: auto;
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--navy, #1e3a5f);
+  cursor: pointer;
+}
+
+.terms-checkbox a {
+  color: var(--navy, #1e3a5f);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.terms-checkbox a:hover {
+  text-decoration: underline;
 }
