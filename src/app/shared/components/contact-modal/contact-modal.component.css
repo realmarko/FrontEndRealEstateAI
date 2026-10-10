@@ -29,6 +29,12 @@
   padding-right: 1.5rem;
 }
 
+.modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
 .modal label {
   display: flex;
   flex-direction: column;
@@ -63,6 +69,14 @@
 .modal .primary:disabled {
   opacity: 0.6;
   cursor: default;
+}
+
+/* Same convention as listing-form.component.css: red border once a control has been visited
+   and is still invalid, matching FormErrorComponent's inline message below it. */
+.modal input.ng-invalid.ng-touched,
+.modal textarea.ng-invalid.ng-touched,
+.modal select.ng-invalid.ng-touched {
+  border-color: #dc2626;
 }
 
 .modal-close {
