@@ -295,7 +295,14 @@ describe('ListingFormComponent', () => {
       const component = createComponent();
       listingServiceSpy.create.and.returnValue(of(makeListing()));
       fillMinimumValidForm(component);
-      component.form.patchValue({ propertyType: 'land', yearBuilt: 2020, parkingSpaces: 2, floors: 1, hasHeatingCooling: true });
+      component.form.patchValue({
+        propertyType: 'land',
+        yearBuilt: 2020,
+        parkingSpaces: 2,
+        floors: 1,
+        hasHeatingCooling: true,
+        hasRoofGarden: true
+      });
 
       component.submit();
 
@@ -304,6 +311,7 @@ describe('ListingFormComponent', () => {
       expect(sentValue.parkingSpaces).toBeUndefined();
       expect(sentValue.floors).toBeUndefined();
       expect(sentValue.hasHeatingCooling).toBe(false);
+      expect(sentValue.hasRoofGarden).toBe(false);
     });
 
     it('create mode: calls create(), notifies, and navigates to the new listing', () => {
