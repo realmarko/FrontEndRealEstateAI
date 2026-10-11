@@ -414,14 +414,6 @@
   color: #6b7280;
 }
 
-.opportunity-hint {
-  margin: 0.2rem 0 0;
-  padding-top: 0.5rem;
-  border-top: 1px solid #e5e7eb;
-  font-size: 0.8rem;
-  color: #7c3aed;
-}
-
 .poi-toggle-btn {
   display: flex;
   align-items: center;
@@ -473,14 +465,6 @@
   font-size: 0.85rem;
   color: #1f2937;
   white-space: nowrap;
-}
-
-/* The opportunity button sits furthest right in the toolbar — anchoring its panel from the
-   left (like .poi-checklist, closer to the toolbar's left edge) pushed it past the right edge
-   of the viewport on narrow screens. Anchoring from the right instead keeps it on-screen. */
-.opportunity-checklist {
-  left: auto;
-  right: 0;
 }
 
 .poi-checklist-item,

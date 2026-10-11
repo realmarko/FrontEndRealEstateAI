@@ -143,13 +143,16 @@
       @if (!streetViewActive()) {
       <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
-          <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
+          <!-- Also hidden during opportunityMode, same reasoning as everything inside the
+               ng-container below: a click means something different to each of these tools, so
+               only the active one should be reachable at a time. -->
+          <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated() && !opportunityMode" [class.active]="addMode" (click)="toggleAddMode()">
             {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
           </button>
           <button
             type="button"
             class="add-property-btn"
-            *ngIf="auth.currentUser()?.roles?.includes('Admin')"
+            *ngIf="auth.currentUser()?.roles?.includes('Admin') && !opportunityMode"
             [class.active]="addBrokerageMode"
             (click)="toggleAddBrokerageMode()"
           >
@@ -159,73 +162,82 @@
                pin, so it hides as soon as add-mode turns on (not just once a pin is placed) —
                matching how the confirm card itself only appears once a pin is placed. -->
           <ng-container *ngIf="!addMode && !addBrokerageMode">
-            <div class="picker-anchor">
+            <!-- Same "armed" banner treatment as the add-property/add-brokerage buttons above
+                 (same class, same orange active look) once a category is picked and the map is
+                 waiting for a click — and same reasoning as this block's own *ngIf below for
+                 hiding the other tools: they'd all interpret that click differently. -->
+            @if (opportunityMode) {
+              <span class="add-property-btn active">{{ 'map.clickToAnalyze' | translate }}</span>
+            }
+            <ng-container *ngIf="!opportunityMode">
+              <div class="picker-anchor">
+                <button
+                  type="button"
+                  class="poi-toggle-btn"
+                  [class.active]="showPoiChecklist()"
+                  [attr.aria-label]="'map.togglePoi' | translate"
+                  [attr.aria-expanded]="showPoiChecklist()"
+                  (click)="togglePoiChecklist()"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3 2 8l10 5 10-5-10-5z" />
+                    <path d="M2 12l10 5 10-5" />
+                    <path d="M2 16l10 5 10-5" />
+                  </svg>
+                </button>
+                @if (showPoiChecklist()) {
+                  <div class="poi-checklist">
+                    @for (category of poiCategories; track category.key) {
+                      <label class="poi-checklist-item">
+                        <input
+                          type="checkbox"
+                          [checked]="checkedPoiCategories().has(category.key)"
+                          (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                        />
+                        {{ category.labelKey | translate }}
+                        @if (loadingPoiCategories().has(category.key)) {
+                          <span class="poi-loading">…</span>
+                        }
+                      </label>
+                    }
+                    <label class="poi-checklist-item ageb-checklist-item">
+                      <input type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
+                      {{ 'map.agebLayer' | translate }}
+                    </label>
+                  </div>
+                }
+              </div>
               <button
                 type="button"
-                class="poi-toggle-btn"
-                [class.active]="showPoiChecklist()"
-                [attr.aria-label]="'map.togglePoi' | translate"
-                [attr.aria-expanded]="showPoiChecklist()"
-                (click)="togglePoiChecklist()"
+                class="freehand-btn"
+                [class.active]="freehandMode"
+                [attr.aria-label]="'map.freehandDraw' | translate"
+                [attr.aria-pressed]="freehandMode"
+                (click)="toggleFreehandMode()"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 3 2 8l10 5 10-5-10-5z" />
-                  <path d="M2 12l10 5 10-5" />
-                  <path d="M2 16l10 5 10-5" />
+                  <path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" />
                 </svg>
               </button>
-              @if (showPoiChecklist()) {
-                <div class="poi-checklist">
-                  @for (category of poiCategories; track category.key) {
-                    <label class="poi-checklist-item">
-                      <input
-                        type="checkbox"
-                        [checked]="checkedPoiCategories().has(category.key)"
-                        (change)="togglePoiCategory(category.key, $any($event.target).checked)"
-                      />
-                      {{ category.labelKey | translate }}
-                      @if (loadingPoiCategories().has(category.key)) {
-                        <span class="poi-loading">…</span>
-                      }
-                    </label>
-                  }
-                  <label class="poi-checklist-item ageb-checklist-item">
-                    <input type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
-                    {{ 'map.agebLayer' | translate }}
-                  </label>
-                </div>
+              @if (freehandMode) {
+                <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
               }
-            </div>
-            <button
-              type="button"
-              class="freehand-btn"
-              [class.active]="freehandMode"
-              [attr.aria-label]="'map.freehandDraw' | translate"
-              [attr.aria-pressed]="freehandMode"
-              (click)="toggleFreehandMode()"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" />
-              </svg>
-            </button>
-            @if (freehandMode) {
-              <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
-            }
-            <button
-              type="button"
-              class="locate-btn"
-              [disabled]="locatingMe"
-              [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"
-              (click)="centerOnCurrentLocation(true)"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="7" />
-                <line x1="12" y1="1" x2="12" y2="4" />
-                <line x1="12" y1="20" x2="12" y2="23" />
-                <line x1="1" y1="12" x2="4" y2="12" />
-                <line x1="20" y1="12" x2="23" y2="12" />
-              </svg>
-            </button>
+              <button
+                type="button"
+                class="locate-btn"
+                [disabled]="locatingMe"
+                [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"
+                (click)="centerOnCurrentLocation(true)"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="7" />
+                  <line x1="12" y1="1" x2="12" y2="4" />
+                  <line x1="12" y1="20" x2="12" y2="23" />
+                  <line x1="1" y1="12" x2="4" y2="12" />
+                  <line x1="20" y1="12" x2="23" y2="12" />
+                </svg>
+              </button>
+            </ng-container>
             <div class="picker-anchor">
               <button
                 type="button"
@@ -252,16 +264,13 @@
                       {{ category.labelKey | translate }}
                     </label>
                   }
-                  @if (opportunityMode) {
-                    <p class="opportunity-hint">{{ 'map.clickToAnalyze' | translate }}</p>
-                  }
                 </div>
               }
             </div>
             @if (loadingOpportunity()) {
               <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
             }
-            <div class="map-legend" *ngIf="auth.isAuthenticated()">
+            <div class="map-legend" *ngIf="auth.isAuthenticated() && !opportunityMode">
               <span class="dot mine"></span>{{ 'map.myListings' | translate }}
               <span class="dot other"></span>{{ 'map.otherListings' | translate }}
             </div>
