@@ -127,6 +127,7 @@ export interface Listing {
   landUseZoning?: string;
   landUseCategoryId?: number;
   landTenure?: LandTenureType;
+  hasEjidalCertificate?: boolean;
   cosCoefficient?: number;
   cusCoefficient?: number;
   maxHeightMeters?: number;

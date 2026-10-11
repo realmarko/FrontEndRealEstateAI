@@ -341,6 +341,7 @@ export const es: Record<string, string> = {
   'listingForm.isFreeOfLiens': 'Libre de gravámenes',
   'listingForm.hasPropertyTaxDebt': 'Tiene adeudo de predial',
   'listingForm.hasWaterDebt': 'Tiene adeudo de agua',
+  'listingForm.hasEjidalCertificate': 'Constancia ejidal',
   'listingForm.hasPotableWater': 'Agua potable',
   'listingForm.hasDrainage': 'Drenaje',
   'listingForm.hasElectricity': 'Energía eléctrica',
@@ -836,7 +837,6 @@ export const es: Record<string, string> = {
   'terms.title': 'Términos y Condiciones',
   'terms.lastUpdated': 'Última actualización: 9 de octubre de 2026',
   'terms.intro': 'Estos Términos y Condiciones rigen el uso de Espacial.com.mx (el "Sitio"), una plataforma para publicar, buscar y contactar propiedades en venta o renta, así como perfiles de agentes e inmobiliarias. Al crear una cuenta o usar el Sitio, aceptas estos términos.',
-  'terms.draftNotice': 'Aviso: este es un borrador redactado a partir de las funciones actuales del Sitio. No constituye asesoría legal — debe ser revisado y validado por un abogado antes de considerarse vinculante.',
 
   'terms.acceptanceTitle': 'Aceptación de los términos',
   'terms.acceptanceBody': 'Al registrarte (con correo y contraseña, con Google o con Facebook) o al usar el Sitio sin una cuenta (como visitante que navega propiedades), aceptas estos Términos y nuestro Aviso de Privacidad. Si no estás de acuerdo, no debes usar el Sitio.',

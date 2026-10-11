@@ -119,6 +119,7 @@ export interface ListingDto {
   landUseZoning: string | null;
   landUseCategoryId: number | null;
   landTenure: string | null;
+  hasEjidalCertificate: boolean | null;
   cosCoefficient: number | null;
   cusCoefficient: number | null;
   maxHeightMeters: number | null;
@@ -207,6 +208,7 @@ export function fromDto(dto: ListingDto): Listing {
     landUseZoning: dto.landUseZoning ?? undefined,
     landUseCategoryId: dto.landUseCategoryId ?? undefined,
     landTenure: dto.landTenure ? LAND_TENURE_FROM_STRING[dto.landTenure] : undefined,
+    hasEjidalCertificate: dto.hasEjidalCertificate ?? undefined,
     cosCoefficient: dto.cosCoefficient ?? undefined,
     cusCoefficient: dto.cusCoefficient ?? undefined,
     maxHeightMeters: dto.maxHeightMeters ?? undefined,
@@ -282,6 +284,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
   if (input.landUseCategoryId != null) form.append('landUseCategoryId', String(input.landUseCategoryId));
   if (input.landTenure != null) form.append('landTenure', String(LAND_TENURE_TO_NUMBER[input.landTenure]));
+  if (input.hasEjidalCertificate != null) form.append('hasEjidalCertificate', String(input.hasEjidalCertificate));
   if (input.cosCoefficient != null) form.append('cosCoefficient', String(input.cosCoefficient));
   if (input.cusCoefficient != null) form.append('cusCoefficient', String(input.cusCoefficient));
   if (input.maxHeightMeters != null) form.append('maxHeightMeters', String(input.maxHeightMeters));

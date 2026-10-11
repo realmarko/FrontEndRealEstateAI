@@ -26,17 +26,6 @@
   margin: 0 0 1.25rem;
 }
 
-.draft-notice {
-  font-size: 0.88rem;
-  line-height: 1.5;
-  color: var(--ink);
-  background: #fff8e1;
-  border: 1px solid #f3d675;
-  border-radius: 6px;
-  padding: 0.85rem 1rem;
-  margin: 0 0 2rem;
-}
-
 section {
   border-top: 1px solid var(--hairline);
   padding-top: 1.5rem;
