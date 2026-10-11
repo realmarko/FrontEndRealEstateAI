@@ -42,6 +42,7 @@ describe('ListingService', () => {
     landUseZoning: null,
     landUseCategoryId: null,
     landTenure: null,
+    hasEjidalCertificate: null,
     cosCoefficient: null,
     cusCoefficient: null,
     maxHeightMeters: null,
