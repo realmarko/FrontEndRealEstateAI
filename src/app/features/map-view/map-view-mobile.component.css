@@ -11,7 +11,12 @@
   display: none;
 }
 
-@media (max-width: 860px) {
+/* Second branch catches a phone in landscape: a real phone's screen stays under ~930px even
+   sideways, but its height drops to ~360-430px — well short of a tablet/laptop window of the
+   same width, which is what the 500px ceiling is there to rule out (an iPad's landscape height,
+   for example, is 768px). Width-only would never fire for landscape, since 860px is tuned for
+   portrait phones. */
+@media (max-width: 860px), (max-width: 1024px) and (max-height: 500px) {
   .search-bar {
     display: none;
   }
@@ -119,6 +124,20 @@
     padding: 0.4rem 0.9rem;
     border-radius: 999px;
     white-space: nowrap;
+  }
+}
+
+/* A phone in landscape has very little height to spare: the navbar, search bar, map/list tabs,
+   and toolbar above already use up most of a ~360-430px-tall viewport. .map-pane's base
+   min-height: 320px (map-view.component.css) assumes there's always at least that much room —
+   on a short landscape viewport there usually isn't, and since :host/.map-page clip overflow
+   instead of scrolling, the excess silently got cut off the bottom instead of the map just being
+   shorter. Dropping the floor here lets it flex to fill whatever space is actually left. Same
+   max-height: 500px landscape-phone signal as the media query above — the max-width: 1024px
+   here is a superset of its max-width: 860px branch, so this alone covers both. */
+@media (max-width: 1024px) and (max-height: 500px) {
+  .map-pane {
+    min-height: 0;
   }
 }
 

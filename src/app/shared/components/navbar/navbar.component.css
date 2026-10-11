@@ -213,7 +213,12 @@
   color: #f87171;
 }
 
-@media (max-width: 768px) {
+/* Second branch catches a phone in landscape — same reasoning as map-view-mobile.component.css's
+   identical media query: a phone stays under ~930px wide even sideways, but its height drops to
+   ~360-430px, well short of a tablet/laptop window of similar width (the 500px ceiling rules
+   those out — an iPad's landscape height, for example, is 768px). Width-only would never fire
+   for landscape, since 768px is tuned for portrait phones. */
+@media (max-width: 768px), (max-width: 1024px) and (max-height: 500px) {
   .hamburger {
     display: flex;
   }
