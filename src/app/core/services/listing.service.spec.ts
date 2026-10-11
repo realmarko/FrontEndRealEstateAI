@@ -57,6 +57,7 @@ describe('ListingService', () => {
     hasThreePhaseElectricity: null,
     hasTelecomService: null,
     hasVehicleAccess: null,
+    hasPavedStreet: null,
     hasNearbyUTurn: null,
     isCornerLot: null,
     streetFrontageCount: null,

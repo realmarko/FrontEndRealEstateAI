@@ -134,6 +134,7 @@ export interface ListingDto {
   hasThreePhaseElectricity: boolean | null;
   hasTelecomService: boolean | null;
   hasVehicleAccess: boolean | null;
+  hasPavedStreet: boolean | null;
   hasNearbyUTurn: boolean | null;
   isCornerLot: boolean | null;
   streetFrontageCount: number | null;
@@ -223,6 +224,7 @@ export function fromDto(dto: ListingDto): Listing {
     hasThreePhaseElectricity: dto.hasThreePhaseElectricity ?? undefined,
     hasTelecomService: dto.hasTelecomService ?? undefined,
     hasVehicleAccess: dto.hasVehicleAccess ?? undefined,
+    hasPavedStreet: dto.hasPavedStreet ?? undefined,
     hasNearbyUTurn: dto.hasNearbyUTurn ?? undefined,
     isCornerLot: dto.isCornerLot ?? undefined,
     streetFrontageCount: dto.streetFrontageCount ?? undefined,
@@ -299,6 +301,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.hasThreePhaseElectricity != null) form.append('hasThreePhaseElectricity', String(input.hasThreePhaseElectricity));
   if (input.hasTelecomService != null) form.append('hasTelecomService', String(input.hasTelecomService));
   if (input.hasVehicleAccess != null) form.append('hasVehicleAccess', String(input.hasVehicleAccess));
+  if (input.hasPavedStreet != null) form.append('hasPavedStreet', String(input.hasPavedStreet));
   if (input.hasNearbyUTurn != null) form.append('hasNearbyUTurn', String(input.hasNearbyUTurn));
   if (input.isCornerLot != null) form.append('isCornerLot', String(input.isCornerLot));
   if (input.streetFrontageCount != null) form.append('streetFrontageCount', String(input.streetFrontageCount));

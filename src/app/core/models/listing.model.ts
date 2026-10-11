@@ -142,6 +142,7 @@ export interface Listing {
   hasThreePhaseElectricity?: boolean;
   hasTelecomService?: boolean;
   hasVehicleAccess?: boolean;
+  hasPavedStreet?: boolean;
   hasNearbyUTurn?: boolean;
   isCornerLot?: boolean;
   streetFrontageCount?: number;

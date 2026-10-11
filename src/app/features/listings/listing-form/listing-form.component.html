@@ -215,11 +215,17 @@
       </label>
     </div>
 
-    <!-- Not gated by isLandOrCommercial() like the rest of that section — a corner lot is just
-         as relevant for a house or apartment building as for raw land or a commercial parcel. -->
+    <!-- Not gated by isLandOrCommercial() like the rest of that section — a corner lot and a
+         paved street are just as relevant for a house or apartment building as for raw land or a
+         commercial parcel. -->
     <label class="checkbox-label">
       <input type="checkbox" formControlName="isCornerLot" />
       {{ 'listingForm.isCornerLot' | translate }}
+    </label>
+
+    <label class="checkbox-label">
+      <input type="checkbox" formControlName="hasPavedStreet" />
+      {{ 'listingForm.hasPavedStreet' | translate }}
     </label>
 
     @if (!isLandOrCommercial()) {

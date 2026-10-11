@@ -350,6 +350,7 @@ export const es: Record<string, string> = {
   'listingForm.hasVehicleAccess': 'Acceso vehicular',
   'listingForm.hasNearbyUTurn': 'Retorno cercano',
   'listingForm.isCornerLot': 'La propiedad está en una esquina',
+  'listingForm.hasPavedStreet': 'Calle pavimentada',
   'listingForm.isFloodRiskZone': 'Zona de riesgo de inundación',
   'listingForm.photos': 'Subir fotos',
   'listingForm.removePhoto': 'Eliminar foto',
