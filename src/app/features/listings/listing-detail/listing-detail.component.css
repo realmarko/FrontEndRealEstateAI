@@ -349,6 +349,21 @@
   color: #dc2626;
 }
 
+.view-on-map {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  margin-top: 0.6rem;
+  cursor: pointer;
+}
+
 .price {
   font-size: 1.55rem;
   font-weight: 700;

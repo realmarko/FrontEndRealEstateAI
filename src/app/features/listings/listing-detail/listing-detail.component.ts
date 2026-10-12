@@ -271,6 +271,14 @@ export class ListingDetailComponent {
     this.favorites.toggle(this.id);
   }
 
+  viewOnMap(): void {
+    const listing = this.listing();
+    if (!listing || listing.lat == null || listing.lng == null) return;
+    this.router.navigate(['/map'], {
+      queryParams: { listingId: listing.id, lat: listing.lat, lng: listing.lng }
+    });
+  }
+
   // A short, display-friendly stand-in for the listing's real GUID — matches the compact
   // numeric-looking property ID shown on Vivanuncios/Inmuebles24-style fact grids.
   shortId(id: string): string {

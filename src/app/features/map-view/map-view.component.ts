@@ -3,7 +3,7 @@ import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, Signal, ViewCh
 import { firstValueFrom } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { ListingService } from '../../core/services/listing.service';
 import { BrokerageService } from '../../core/services/brokerage.service';
@@ -531,6 +531,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // read by clearOpportunityOverlay so toggling the mode off doesn't close a listing/POI popup
   // that has since taken the window over.
   private infoWindowShowsOpportunity = false;
+  // Set from a /listings/{id} "view on map" link's listingId query param — opened the first time
+  // its marker exists in listingMarkers (renderListingMarkers runs async relative to the map's
+  // own init), then cleared so a later marker re-render doesn't keep stealing focus back to it.
+  private pendingFocusListingId: string | null = null;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
   private readonly fraccionamientoMarkers = new Map<string, google.maps.Marker>();
   private readonly brokerageMarkers = new Map<number, google.maps.Marker>();
@@ -547,6 +551,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   constructor(
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
     private readonly zone: NgZone,
     private readonly listingService: ListingService,
     private readonly translation: TranslationService,
@@ -612,12 +617,37 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }, 10000);
   }
 
+  // A /listings/{id} "view on map" link takes priority over the "most recent listing" default
+  // below — the visitor came here to see THIS property, not whatever's newest. lat/lng travel as
+  // their own query params (not just listingId) so centering never has to wait on this.listings()
+  // having loaded that listing yet; listingId alone is used afterward, once markers render, to
+  // open its info window (see renderListingMarkers).
+  private resolveQueryParamCenter(): google.maps.LatLngLiteral | null {
+    const params = this.route.snapshot.queryParamMap;
+    const latParam = params.get('lat');
+    const lngParam = params.get('lng');
+    // Number(null) is 0, not NaN — without the null checks below, plain /map (no query params
+    // at all) would silently resolve to {lat:0, lng:0} instead of falling through to the
+    // "most recent listing" default.
+    if (latParam == null || lngParam == null) return null;
+
+    const lat = Number(latParam);
+    const lng = Number(lngParam);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+    this.pendingFocusListingId = params.get('listingId');
+    return { lat, lng };
+  }
+
   // The most recently added listing is what a visitor almost always actually wants to see first
   // (geolocation previously drove this instead, but that's "where the visitor happens to be,"
   // not "what's new" — the two rarely match for this kind of browsing). Resolves to
   // DEFAULT_CENTER when the fetch fails or there are no listings yet, so a slow/broken request
   // here can never block the map from opening.
   private async resolveInitialCenter(): Promise<google.maps.LatLngLiteral> {
+    const queryParamCenter = this.resolveQueryParamCenter();
+    if (queryParamCenter) return queryParamCenter;
+
     try {
       const latest = await firstValueFrom(this.listingService.fetchLatest().pipe(timeout(INITIAL_CENTER_TIMEOUT_MS)));
       if (latest?.lat != null && latest?.lng != null) {
@@ -933,6 +963,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
 
     this.listingClusterer?.addMarkers(markers);
+
+    if (this.pendingFocusListingId) {
+      const focusMarker = this.listingMarkers.get(this.pendingFocusListingId);
+      const focusListing = listings.find((listing) => listing.id === this.pendingFocusListingId);
+      if (focusMarker && focusListing) {
+        this.openListingInfo(focusListing, focusMarker);
+        this.pendingFocusListingId = null;
+      }
+    }
   }
 
   private openListingInfo(listing: Listing, marker: google.maps.Marker): void {

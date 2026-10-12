@@ -160,6 +160,7 @@ export const es: Record<string, string> = {
   'listingDetail.priceHistoryListed': 'Publicado',
   'listingDetail.priceHistoryChanged': 'Cambio de precio',
   'listingDetail.share': 'Compartir',
+  'listingDetail.viewOnMap': 'Ver en el mapa',
   'listingDetail.linkCopied': '¡Enlace copiado al portapapeles!',
   'listingDetail.shareError': 'No se pudo copiar el enlace. Intenta de nuevo.',
 

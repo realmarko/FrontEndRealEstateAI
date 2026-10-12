@@ -160,6 +160,7 @@ export const en: Record<string, string> = {
   'listingDetail.priceHistoryListed': 'Listed',
   'listingDetail.priceHistoryChanged': 'Price change',
   'listingDetail.share': 'Share',
+  'listingDetail.viewOnMap': 'View on map',
   'listingDetail.linkCopied': 'Link copied to clipboard!',
   'listingDetail.shareError': 'Could not copy the link. Please try again.',
 
