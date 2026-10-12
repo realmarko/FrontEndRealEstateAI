@@ -189,3 +189,18 @@ export interface ListingQuota {
   remaining: number;
   resetsAt: string;
 }
+
+export interface CmaStats {
+  count: number;
+  minPrice?: number;
+  maxPrice?: number;
+  avgPricePerSqFt?: number;
+  medianPricePerSqFt?: number;
+  avgDaysOnMarket?: number;
+}
+
+export interface CmaResult {
+  sale: CmaStats;
+  rent: CmaStats;
+  comparables: Listing[];
+}

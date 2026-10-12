@@ -381,6 +381,117 @@
   cursor: pointer;
 }
 
+.freehand-result-badge button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.cma-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(17, 24, 39, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.cma-panel {
+  background: #fff;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.cma-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #1e3a5f;
+  color: #fff;
+}
+
+.cma-header h2 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.cma-close {
+  border: none;
+  background: none;
+  color: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cma-body {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.cma-empty {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.cma-stats-block h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  color: #1e3a5f;
+}
+
+.cma-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+}
+
+.cma-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  background: #f9fafb;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+}
+
+.cma-stat-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.cma-stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.cma-comparables-title {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #1e3a5f;
+}
+
+.cma-comparables {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+  gap: 0.9rem;
+}
+
 /* Same icon-button shape as .poi-toggle-btn, kept in its own rule (rather than merged via a
    shared selector) since its active-state color is purple — the opportunity tool's established
    accent — instead of navy. */

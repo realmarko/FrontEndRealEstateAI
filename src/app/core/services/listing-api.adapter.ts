@@ -1,4 +1,6 @@
 import {
+  CmaResult,
+  CmaStats,
   Listing,
   ListingInput,
   ListingType,
@@ -165,6 +167,40 @@ export interface ListingQuotaDto {
   used: number;
   remaining: number;
   resetsAt: string;
+}
+
+export interface CmaStatsDto {
+  count: number;
+  minPrice: number | null;
+  maxPrice: number | null;
+  avgPricePerSqFt: number | null;
+  medianPricePerSqFt: number | null;
+  avgDaysOnMarket: number | null;
+}
+
+export interface CmaResultDto {
+  sale: CmaStatsDto;
+  rent: CmaStatsDto;
+  comparables: ListingDto[];
+}
+
+function cmaStatsFromDto(dto: CmaStatsDto): CmaStats {
+  return {
+    count: dto.count,
+    minPrice: dto.minPrice ?? undefined,
+    maxPrice: dto.maxPrice ?? undefined,
+    avgPricePerSqFt: dto.avgPricePerSqFt ?? undefined,
+    medianPricePerSqFt: dto.medianPricePerSqFt ?? undefined,
+    avgDaysOnMarket: dto.avgDaysOnMarket ?? undefined
+  };
+}
+
+export function cmaResultFromDto(dto: CmaResultDto): CmaResult {
+  return {
+    sale: cmaStatsFromDto(dto.sale),
+    rent: cmaStatsFromDto(dto.rent),
+    comparables: dto.comparables.map(fromDto)
+  };
 }
 
 export function priceHistoryFromDto(dto: ListingPriceHistoryDto): PriceHistoryEntry {

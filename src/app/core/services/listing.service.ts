@@ -3,9 +3,19 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { Listing, ListingInput, ListingQuota, PriceHistoryEntry } from '../models/listing.model';
+import { CmaResult, Listing, ListingInput, ListingQuota, PriceHistoryEntry, PropertyType } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
-import { ListingDto, ListingPriceHistoryDto, ListingQuotaDto, fromDto, priceHistoryFromDto, toFormData } from './listing-api.adapter';
+import {
+  CmaResultDto,
+  ListingDto,
+  ListingPriceHistoryDto,
+  ListingQuotaDto,
+  PROPERTY_TYPE_TO_NUMBER,
+  cmaResultFromDto,
+  fromDto,
+  priceHistoryFromDto,
+  toFormData
+} from './listing-api.adapter';
 
 @Injectable({ providedIn: 'root' })
 export class ListingService {
@@ -81,6 +91,20 @@ export class ListingService {
 
   getSimilar(id: string): Observable<Listing[]> {
     return this.http.get<ListingDto[]>(`${this.apiUrl}/${id}/similar`).pipe(map((dtos) => dtos.map(fromDto)));
+  }
+
+  // Comparative-market-analysis for an agent-drawn area (map-view.component.ts's freehand-draw
+  // shape) — price-per-sqft/days-on-market stats for active, priced listings inside it, split
+  // sale vs. rent, plus a capped comparables list. points must have at least 3 entries (the
+  // backend rejects fewer); not deduplicated against the main `listings` signal above, since
+  // this needs every matching listing in the area, not just the ~100 most recent site-wide.
+  getCma(points: { lat: number; lng: number }[], propertyType?: PropertyType): Observable<CmaResult> {
+    return this.http
+      .post<CmaResultDto>(`${this.apiUrl}/cma`, {
+        points,
+        propertyType: propertyType != null ? PROPERTY_TYPE_TO_NUMBER[propertyType] : null
+      })
+      .pipe(map(cmaResultFromDto));
   }
 
   // Listings owned by any agent belonging to this agency — for the /inmobiliarias/:id page.

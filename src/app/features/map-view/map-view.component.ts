@@ -23,7 +23,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
-import { DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
+import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
@@ -365,6 +365,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   opportunityMode = false;
   readonly loadingOpportunity = signal(false);
   readonly opportunityResult = signal<OpportunityAnalysisResult | null>(null);
+
+  // CMA (comparative market analysis) over the active freehand shape — see openCma below. Null
+  // whenever the results panel isn't open.
+  readonly loadingCma = signal(false);
+  readonly cmaResult = signal<CmaResult | null>(null);
   readonly opportunityCategories = OPPORTUNITY_CATEGORIES;
   readonly showOpportunityChecklist = signal(false);
   // null until the user picks one from the radio buttons — there's no sensible default business
@@ -1587,6 +1592,40 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   clearFreehandShape(): void {
     this.freehandShape()?.setMap(null);
     this.freehandShape.set(null);
+    // A CMA panel open against a shape that's being discarded would otherwise be left pointing
+    // at an area that's no longer drawn on the map.
+    this.cmaResult.set(null);
+  }
+
+  // Backs the freehand result badge's "Market analysis" button — reuses the same drawn shape
+  // visibleListings already scopes the card results to, sent to the backend instead of filtered
+  // client-side: this.listingService.listings() only holds the ~100 most recently created
+  // listings site-wide (see its own refresh() comment), nowhere near reliable for "every active
+  // listing in this specific area."
+  openCma(): void {
+    const shape = this.freehandShape();
+    if (!shape) return;
+
+    const points = shape
+      .getPath()
+      .getArray()
+      .map((latLng) => ({ lat: latLng.lat(), lng: latLng.lng() }));
+
+    this.loadingCma.set(true);
+    this.listingService.getCma(points).subscribe({
+      next: (result) => {
+        this.loadingCma.set(false);
+        this.cmaResult.set(result);
+      },
+      error: () => {
+        this.loadingCma.set(false);
+        this.notification.error('map.cmaError');
+      }
+    });
+  }
+
+  closeCma(): void {
+    this.cmaResult.set(null);
   }
 
   // Backs the floating confirmation card's "Cancelar" button — same cleanup as toggling

@@ -137,6 +137,9 @@
       @if (freehandShape() && !streetViewActive()) {
         <div class="freehand-result-badge">
           {{ 'map.freehandResultCount' | translate:{ count: visibleListings().length } }}
+          <button type="button" [disabled]="loadingCma()" (click)="openCma()">
+            {{ (loadingCma() ? 'map.cmaLoading' : 'map.cmaButton') | translate }}
+          </button>
           <button type="button" (click)="clearFreehandShape()">{{ 'map.freehandClear' | translate }}</button>
         </div>
       }
@@ -289,6 +292,76 @@
         </div>
       </div>
       <div class="map-error" *ngIf="hasError">{{ 'map.loadError' | translate }}</div>
+
+      @if (cmaResult(); as cma) {
+        <div class="cma-backdrop" (click)="closeCma()">
+          <div class="cma-panel" (click)="$event.stopPropagation()">
+            <div class="cma-header">
+              <h2>{{ 'map.cmaTitle' | translate }}</h2>
+              <button type="button" class="cma-close" (click)="closeCma()" [attr.aria-label]="'map.close' | translate">×</button>
+            </div>
+            <div class="cma-body">
+              @if (cma.sale.count === 0 && cma.rent.count === 0) {
+                <p class="cma-empty">{{ 'map.cmaNoData' | translate }}</p>
+              }
+              @if (cma.sale.count > 0) {
+                <div class="cma-stats-block">
+                  <h3>{{ 'map.cmaSale' | translate }}</h3>
+                  <div class="cma-stats-grid">
+                    <div class="cma-stat"><span class="cma-stat-value">{{ cma.sale.count }}</span><span class="cma-stat-label">{{ 'map.cmaCount' | translate }}</span></div>
+                    @if (cma.sale.avgPricePerSqFt) {
+                      <div class="cma-stat"><span class="cma-stat-value">{{ cma.sale.avgPricePerSqFt | currency:'MXN':'symbol':'1.0-0' }}</span><span class="cma-stat-label">{{ 'map.cmaAvgPerSqFt' | translate }}</span></div>
+                    }
+                    @if (cma.sale.medianPricePerSqFt) {
+                      <div class="cma-stat"><span class="cma-stat-value">{{ cma.sale.medianPricePerSqFt | currency:'MXN':'symbol':'1.0-0' }}</span><span class="cma-stat-label">{{ 'map.cmaMedianPerSqFt' | translate }}</span></div>
+                    }
+                    @if (cma.sale.minPrice && cma.sale.maxPrice) {
+                      <div class="cma-stat">
+                        <span class="cma-stat-value">{{ cma.sale.minPrice | currency:'MXN':'symbol':'1.0-0' }} – {{ cma.sale.maxPrice | currency:'MXN':'symbol':'1.0-0' }}</span>
+                        <span class="cma-stat-label">{{ 'map.cmaRange' | translate }}</span>
+                      </div>
+                    }
+                    @if (cma.sale.avgDaysOnMarket != null) {
+                      <div class="cma-stat"><span class="cma-stat-value">{{ cma.sale.avgDaysOnMarket | number:'1.0-0' }}</span><span class="cma-stat-label">{{ 'map.cmaAvgDaysOnMarket' | translate }}</span></div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (cma.rent.count > 0) {
+                <div class="cma-stats-block">
+                  <h3>{{ 'map.cmaRent' | translate }}</h3>
+                  <div class="cma-stats-grid">
+                    <div class="cma-stat"><span class="cma-stat-value">{{ cma.rent.count }}</span><span class="cma-stat-label">{{ 'map.cmaCount' | translate }}</span></div>
+                    @if (cma.rent.avgPricePerSqFt) {
+                      <div class="cma-stat"><span class="cma-stat-value">{{ cma.rent.avgPricePerSqFt | currency:'MXN':'symbol':'1.0-0' }}</span><span class="cma-stat-label">{{ 'map.cmaAvgPerSqFt' | translate }}</span></div>
+                    }
+                    @if (cma.rent.medianPricePerSqFt) {
+                      <div class="cma-stat"><span class="cma-stat-value">{{ cma.rent.medianPricePerSqFt | currency:'MXN':'symbol':'1.0-0' }}</span><span class="cma-stat-label">{{ 'map.cmaMedianPerSqFt' | translate }}</span></div>
+                    }
+                    @if (cma.rent.minPrice && cma.rent.maxPrice) {
+                      <div class="cma-stat">
+                        <span class="cma-stat-value">{{ cma.rent.minPrice | currency:'MXN':'symbol':'1.0-0' }} – {{ cma.rent.maxPrice | currency:'MXN':'symbol':'1.0-0' }}</span>
+                        <span class="cma-stat-label">{{ 'map.cmaRange' | translate }}</span>
+                      </div>
+                    }
+                    @if (cma.rent.avgDaysOnMarket != null) {
+                      <div class="cma-stat"><span class="cma-stat-value">{{ cma.rent.avgDaysOnMarket | number:'1.0-0' }}</span><span class="cma-stat-label">{{ 'map.cmaAvgDaysOnMarket' | translate }}</span></div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (cma.comparables.length > 0) {
+                <h3 class="cma-comparables-title">{{ 'map.cmaComparables' | translate }}</h3>
+                <div class="cma-comparables">
+                  @for (comp of cma.comparables; track comp.id) {
+                    <app-listing-card [listing]="comp" />
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
       <button
         type="button"
         class="expand-btn"
