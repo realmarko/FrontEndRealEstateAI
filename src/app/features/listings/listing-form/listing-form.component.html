@@ -42,7 +42,14 @@
       </label>
     </div>
 
-    <p class="price-words">{{ 'listingForm.priceInWords' | translate:{ words: priceInWords } }}</p>
+    <label class="checkbox-label">
+      <input type="checkbox" formControlName="priceOnRequest" />
+      {{ 'listingForm.priceOnRequest' | translate }}
+    </label>
+
+    @if (!form.value.priceOnRequest) {
+      <p class="price-words">{{ 'listingForm.priceInWords' | translate:{ words: priceInWords } }}</p>
+    }
 
     @if (form.value.type === 'sale' && (form.value.price ?? 0) > 0) {
       <div class="mortgage-preview">

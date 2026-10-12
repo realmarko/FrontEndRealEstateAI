@@ -98,6 +98,7 @@ export interface Listing {
   title: string;
   description: string;
   price: number;
+  priceOnRequest?: boolean;
   currency: Currency;
   type: ListingType;
   propertyType?: PropertyType;

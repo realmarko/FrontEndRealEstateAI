@@ -75,6 +75,7 @@ export class ListingFormComponent {
     title: ['', Validators.required],
     description: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0)]],
+    priceOnRequest: [false],
     currency: ['MXN' as Currency, Validators.required],
     type: ['sale' as 'rent' | 'sale', Validators.required],
     propertyType: ['house' as PropertyType, Validators.required],
@@ -362,6 +363,15 @@ export class ListingFormComponent {
     }
 
     const raw = this.form.getRawValue();
+
+    // price's own validator only enforces >= 0 (not > 0) because 0 is the legitimate value while
+    // "price on request" is checked — so a genuinely missing price has to be caught here instead,
+    // once we know which case this is.
+    if (!raw.priceOnRequest && raw.price <= 0) {
+      this.notification.error('listingForm.priceRequired');
+      return;
+    }
+
     // Fields hidden by isLandOrCommercial()/isPureLand() keep whatever value was last typed
     // into them (Angular doesn't clear a control just because its template @if stops
     // rendering it) — without this, switching property type right before submitting would

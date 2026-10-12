@@ -42,10 +42,14 @@
 
   <div class="body">
     <p class="price">
-      {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
+      @if (listing.priceOnRequest || listing.price <= 0) {
+        {{ 'listing.priceOnRequest' | translate }}
+      } @else {
+        {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
+      }
     </p>
 
-    @if (listing.type === 'sale') {
+    @if (listing.type === 'sale' && !listing.priceOnRequest && listing.price > 0) {
       <p class="mortgage-estimate">
         {{ 'listing.estMonthlyPayment' | translate }}
         {{ estimatedMonthlyPayment | currency:listing.currency:'symbol':'1.0-0' }}{{ 'listing.perMonthSuffix' | translate }}

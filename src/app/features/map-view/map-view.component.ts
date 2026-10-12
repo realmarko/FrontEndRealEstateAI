@@ -981,11 +981,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     // Matches ListingCardComponent's formatting exactly (Angular's CurrencyPipe with no
     // digitsInfo override defaults to 2 decimal places) so the same listing never shows a
-    // different price on its card vs. its map marker popup.
-    const price = new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency: listing.currency
-    }).format(listing.price);
+    // different price on its card vs. its map marker popup. Same priceOnRequest/price<=0 check
+    // as the card too — otherwise this would show a misleading "$0".
+    const price = listing.priceOnRequest || listing.price <= 0
+      ? this.translation.t('listing.priceOnRequest')
+      : new Intl.NumberFormat(undefined, { style: 'currency', currency: listing.currency }).format(listing.price);
 
     const navigate = (event: Event) => {
       event.preventDefault();
@@ -1046,12 +1046,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const body = document.createElement('div');
     body.className = 'map-info-body';
 
+    const hasRealPrice = !listing.priceOnRequest && listing.price > 0;
     const priceEl = document.createElement('p');
     priceEl.className = 'map-info-price';
-    priceEl.textContent = price + (listing.type === 'rent' ? this.translation.t('listing.perMonthSuffix') : '');
+    priceEl.textContent = price + (hasRealPrice && listing.type === 'rent' ? this.translation.t('listing.perMonthSuffix') : '');
     body.appendChild(priceEl);
 
-    if (listing.type === 'sale') {
+    if (listing.type === 'sale' && hasRealPrice) {
       const monthlyPayment = calculateMonthlyPayment(
         listing.price,
         DEFAULT_DOWN_PAYMENT_PERCENT,

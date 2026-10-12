@@ -43,10 +43,14 @@
 
         <h1>{{ listing.title }}</h1>
         <p class="price">
-          {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
+          @if (listing.priceOnRequest || listing.price <= 0) {
+            {{ 'listing.priceOnRequest' | translate }}
+          } @else {
+            {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
+          }
         </p>
         <p class="price-meta">
-          @if (listing.areaSqm > 0) {
+          @if (!listing.priceOnRequest && listing.price > 0 && listing.areaSqm > 0) {
             {{ pricePerSqm(listing) | currency:listing.currency }}/m² ·
           }
           @if (daysOnMarket(listing) === 0) {
@@ -238,12 +242,12 @@
           }
         }
 
-        @if (listing.type === 'sale') {
+        @if (listing.type === 'sale' && listing.price > 0) {
           <h2 class="section-title">{{ 'listingDetail.mortgageTitle' | translate }}</h2>
           <app-mortgage-calculator [price]="listing.price" [currency]="listing.currency" />
         }
 
-        @if (isLandOrCommercial()) {
+        @if (isLandOrCommercial() && listing.price > 0) {
           <h2 class="section-title">{{ 'listingDetail.roiTitle' | translate }}</h2>
           <app-roi-calculator [landPrice]="listing.price" [currency]="listing.currency" />
         }

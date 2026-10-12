@@ -112,6 +112,7 @@ export const es: Record<string, string> = {
   'listings.resultsCount': '{{count}} propiedades',
 
   'listing.perMonthSuffix': ' / mes',
+  'listing.priceOnRequest': 'Precio a consultar',
   'listing.estMonthlyPayment': 'Aprox.',
   'listing.mortgageTooltip': 'Hipoteca',
   'listing.bedroomsAbbr': 'hab',
@@ -268,6 +269,8 @@ export const es: Record<string, string> = {
   'listingForm.titleLabel': 'Título',
   'listingForm.description': 'Descripción',
   'listingForm.price': 'Precio',
+  'listingForm.priceOnRequest': 'Precio a consultar (sin monto fijo)',
+  'listingForm.priceRequired': 'Ingresa un precio mayor a 0, o marca "Precio a consultar".',
   'listingForm.priceInWords': 'Cantidad en letra: {{words}}',
   'listingForm.mortgagePreviewTitle': 'Pago mensual estimado',
   'listingForm.currency': 'Moneda',

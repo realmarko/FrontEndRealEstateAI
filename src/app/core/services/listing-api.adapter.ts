@@ -95,6 +95,7 @@ export interface ListingDto {
   propertyType: string;
   status: string;
   price: number;
+  priceOnRequest: boolean;
   currency: string;
   street: string;
   colonia: string;
@@ -182,6 +183,7 @@ export function fromDto(dto: ListingDto): Listing {
     title: dto.title,
     description: dto.description,
     price: dto.price,
+    priceOnRequest: dto.priceOnRequest,
     currency: dto.currency as Listing['currency'],
     type: LISTING_TYPE_FROM_STRING[dto.listingType] ?? 'rent',
     propertyType: PROPERTY_TYPE_FROM_STRING[dto.propertyType] ?? 'house',
@@ -262,6 +264,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('listingType', String(LISTING_TYPE_TO_NUMBER[input.type]));
   form.append('propertyType', String(PROPERTY_TYPE_TO_NUMBER[input.propertyType ?? 'house']));
   form.append('price', String(input.price));
+  form.append('priceOnRequest', String(input.priceOnRequest ?? false));
   form.append('currency', input.currency);
   form.append('street', input.street);
   form.append('colonia', input.colonia);

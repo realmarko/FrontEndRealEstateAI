@@ -18,6 +18,7 @@ describe('ListingService', () => {
     propertyType: 'House',
     status: 'Active',
     price: 1500000,
+    priceOnRequest: false,
     currency: 'MXN',
     street: 'Calle Reforma 123',
     colonia: 'Centro',

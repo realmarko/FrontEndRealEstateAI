@@ -112,6 +112,7 @@ export const en: Record<string, string> = {
   'listings.resultsCount': '{{count}} listings',
 
   'listing.perMonthSuffix': ' / mo',
+  'listing.priceOnRequest': 'Price on request',
   'listing.estMonthlyPayment': 'Est.',
   'listing.mortgageTooltip': 'Mortgage',
   'listing.bedroomsAbbr': 'bd',
@@ -268,6 +269,8 @@ export const en: Record<string, string> = {
   'listingForm.titleLabel': 'Title',
   'listingForm.description': 'Description',
   'listingForm.price': 'Price',
+  'listingForm.priceOnRequest': 'Price on request (no fixed amount)',
+  'listingForm.priceRequired': 'Enter a price greater than 0, or check "Price on request."',
   'listingForm.priceInWords': 'Amount in words: {{words}}',
   'listingForm.mortgagePreviewTitle': 'Estimated monthly payment',
   'listingForm.currency': 'Currency',
