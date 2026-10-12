@@ -1,0 +1,44 @@
+<div class="page">
+  <div class="search-card">
+    <h1>{{ 'owners.title' | translate }}</h1>
+
+    <div class="search-row">
+      <span class="icon">📍</span>
+      <input
+        type="search"
+        [placeholder]="'owners.searchPlaceholder' | translate"
+        [value]="search()"
+        (input)="onSearchChange($any($event.target).value)"
+      />
+      <span class="icon search-icon">🔍</span>
+    </div>
+  </div>
+
+  <p class="results-count">
+    {{ 'owners.resultsCount' | translate: { count: totalCount() } }}
+  </p>
+
+  @if (owners().length) {
+    <div class="grid">
+      @for (owner of owners(); track owner.id) {
+        <app-owner-card [owner]="owner" />
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination">
+        <button type="button" [disabled]="page() === 1" (click)="goToPage(page() - 1)">
+          {{ 'owners.previousPage' | translate }}
+        </button>
+        <span class="pagination-status">
+          {{ 'owners.pageStatus' | translate: { page: page(), totalPages: totalPages() } }}
+        </span>
+        <button type="button" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">
+          {{ 'owners.nextPage' | translate }}
+        </button>
+      </div>
+    }
+  } @else {
+    <p class="empty">{{ 'owners.empty' | translate }}</p>
+  }
+</div>

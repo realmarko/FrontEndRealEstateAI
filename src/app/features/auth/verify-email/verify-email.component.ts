@@ -48,7 +48,15 @@ export class VerifyEmailComponent {
       next: (user) => {
         this.verifying.set(false);
         this.notification.success('verifyEmail.success');
-        this.router.navigate([user.roles.includes('Agent') ? '/agents/new' : '/listings']);
+        // Agent implies Owner (see AuthController.RolesFor), so an Agent registrant takes the
+        // agent-profile path — a plain Owner registrant (and only that) goes to the Propietarios
+        // profile form instead, same reasoning as navbar.component.ts's self-service upgrade.
+        const destination = user.roles.includes('Agent')
+          ? '/agents/new'
+          : user.roles.includes('Owner')
+            ? '/owners/new'
+            : '/listings';
+        this.router.navigate([destination]);
       },
       error: (err: HttpErrorResponse) => {
         this.verifying.set(false);

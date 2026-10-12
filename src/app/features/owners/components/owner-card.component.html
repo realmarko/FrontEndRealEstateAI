@@ -1,0 +1,19 @@
+<a class="card" [routerLink]="['/owners', slug]">
+  <div class="photo">
+    @if (owner.photoUrl) {
+      <img [src]="owner.photoUrl" [alt]="owner.name" />
+    } @else {
+      <div class="avatar">{{ initials }}</div>
+    }
+  </div>
+
+  <div class="body">
+    <h3 [attr.title]="owner.name">{{ owner.name }}</h3>
+
+    <p class="stat">
+      <strong>{{ owner.propertiesCount }}</strong> {{ 'owners.propertiesCount' | translate }}
+    </p>
+    <p class="contact" [class.blurred]="!auth.isAuthenticated()" [attr.title]="owner.email">{{ owner.email }}</p>
+    <p class="contact" [class.blurred]="!auth.isAuthenticated()">{{ owner.phone }}</p>
+  </div>
+</a>

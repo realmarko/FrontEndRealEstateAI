@@ -108,6 +108,37 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'owners',
+    loadComponent: () =>
+      import('./features/owners/owners-list/owners-list.component').then(
+        (m) => m.OwnersListComponent
+      )
+  },
+  {
+    path: 'owners/new',
+    canActivate: [authGuard, roleGuard('Owner')],
+    loadComponent: () =>
+      import('./features/owners/owner-signup/owner-signup.component').then(
+        (m) => m.OwnerSignupComponent
+      )
+  },
+  {
+    path: 'owners/edit',
+    canActivate: [authGuard, roleGuard('Owner')],
+    data: { editMode: true },
+    loadComponent: () =>
+      import('./features/owners/owner-signup/owner-signup.component').then(
+        (m) => m.OwnerSignupComponent
+      )
+  },
+  {
+    path: 'owners/:id',
+    loadComponent: () =>
+      import('./features/owners/owner-detail/owner-detail.component').then(
+        (m) => m.OwnerDetailComponent
+      )
+  },
+  {
     path: 'inmobiliarias',
     loadComponent: () =>
       import('./features/agencies/agencies-list/agencies-list.component').then(

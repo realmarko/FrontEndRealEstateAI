@@ -1,0 +1,50 @@
+<div class="auth-card">
+  <h1>{{ (isEditMode ? 'ownerSignup.editTitle' : 'ownerSignup.title') | translate }}</h1>
+  <p class="subtitle">{{ (isEditMode ? 'ownerSignup.editSubtitle' : 'ownerSignup.subtitle') | translate }}</p>
+
+  @if (loading()) {
+    <p>{{ 'ownerSignup.loading' | translate }}</p>
+  } @else if (loadError()) {
+    <p class="error">{{ 'ownerSignup.loadError' | translate }}</p>
+    <button type="button" (click)="retryLoad()">{{ 'ownerSignup.retry' | translate }}</button>
+  } @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      {{ 'register.firstName' | translate }} / {{ 'register.lastName' | translate }}
+      <input type="text" [value]="auth.currentUser()?.firstName + ' ' + auth.currentUser()?.lastName" disabled />
+    </label>
+
+    <label>
+      {{ 'register.email' | translate }}
+      <input type="email" [value]="auth.currentUser()?.email" disabled />
+    </label>
+
+    <label>
+      {{ 'ownerSignup.phone' | translate }}
+      <input type="tel" formControlName="phone" autocomplete="tel" maxlength="30" />
+    </label>
+
+    <label>
+      {{ 'ownerSignup.bio' | translate }}
+      <textarea rows="4" formControlName="bio" [placeholder]="'ownerSignup.bioPlaceholder' | translate" maxlength="2000"></textarea>
+    </label>
+
+    <label>
+      {{ 'ownerSignup.photo' | translate }}
+      <!-- See listing-form's photo input for why capture="environment" is here. -->
+      <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" (change)="onPhotoSelected($event)" />
+    </label>
+
+    @if (photoPreview()) {
+      <img class="photo-preview" [src]="photoPreview()" [alt]="'ownerSignup.photo' | translate" />
+    }
+    @if (photoError()) {
+      <p class="error">{{ photoError() }}</p>
+    }
+
+    <button type="submit" [disabled]="submitting()">
+      {{ (isEditMode ? 'ownerSignup.saveChanges' : 'ownerSignup.submit') | translate }}
+    </button>
+  </form>
+  }
+</div>

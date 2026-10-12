@@ -1,0 +1,116 @@
+@if (owner(); as owner) {
+  <div class="page detail">
+    <a class="back" routerLink="/owners">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+      {{ 'ownerDetail.back' | translate }}
+    </a>
+
+    <article class="id-card">
+      <div class="id-card-photo">
+        @if (owner.photoUrl) {
+          <img [src]="owner.photoUrl" [alt]="owner.name" />
+        } @else {
+          <div class="id-card-photo-fallback">{{ initials }}</div>
+        }
+      </div>
+
+      <div class="id-card-body">
+        <div class="id-card-identity">
+          <h1>{{ owner.name }}</h1>
+
+          <div class="id-card-credentials">
+            <span class="credential">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+              <b>{{ owner.propertiesCount }}</b>
+              <span class="credential-note">{{ 'owners.propertiesCount' | translate }}</span>
+            </span>
+            <span class="credential">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <b>{{ owner.viewCount }}</b>
+              <span class="credential-note">{{ 'ownerDetail.viewsCount' | translate }}</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="id-card-divider"></div>
+
+        <div class="id-card-footer">
+          <div class="id-card-contact">
+            <h2 class="sr-only">{{ 'ownerDetail.contactTitle' | translate }}</h2>
+            <a class="contact-line" [href]="'mailto:' + owner.email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18" height="14" rx="2" />
+                <path d="M3 7l9 6 9-6" />
+              </svg>
+              <span [class.blurred]="!auth.isAuthenticated()">{{ owner.email }}</span>
+            </a>
+            <span class="contact-line">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              <span [class.blurred]="!auth.isAuthenticated()">{{ owner.phone }}</span>
+            </span>
+            @if (!auth.isAuthenticated()) {
+              <p class="contact-blur-hint">
+                <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'ownerDetail.loginToSeeContact' | translate }}
+              </p>
+            }
+          </div>
+
+          @if (isOwnProfile()) {
+            <a class="id-card-cta" routerLink="/owners/edit">{{ 'ownerDetail.editProfile' | translate }}</a>
+          } @else {
+            <button type="button" class="id-card-cta" (click)="openContactModal()">
+              {{ 'ownerDetail.contact' | translate:{ name: owner.name } }}
+            </button>
+          }
+
+          @if (isAdmin()) {
+            <button type="button" class="id-card-cta id-card-cta-danger" (click)="deleteOwner()">
+              {{ 'ownerDetail.adminDelete' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+    </article>
+
+    @if (owner.bio) {
+      <section class="section">
+        <h2>{{ 'ownerDetail.aboutTitle' | translate:{ name: owner.name } }}</h2>
+        <p class="bio">{{ owner.bio }}</p>
+      </section>
+    }
+
+    @if (listings().length) {
+      <section class="section">
+        <h2>{{ 'ownerDetail.listingsTitle' | translate:{ count: listings().length } }}</h2>
+        <app-listing-grid [listings]="listings()" />
+      </section>
+    }
+  </div>
+
+  @if (showContactModal()) {
+    <app-contact-modal
+      [title]="contactModalTitle"
+      [initialName]="contactInitialName"
+      [initialEmail]="contactInitialEmail"
+      [sending]="sendingContact()"
+      (closed)="closeContactModal()"
+      (sent)="sendContactMessage($event)"
+    />
+  }
+} @else if (!loading()) {
+  <div class="page">
+    <p>{{ 'ownerDetail.notFound' | translate }}</p>
+    <a routerLink="/owners">{{ 'ownerDetail.back' | translate }}</a>
+  </div>
+}

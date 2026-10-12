@@ -110,8 +110,13 @@ export class NavbarComponent {
         this.notification.success('nav.roleAddedSuccess');
         this.isMenuOpen.set(false);
         this.isAccountMenuOpen.set(false);
+        // Agent implies Owner (see AuthController.RolesFor), so upgrading straight to Agent
+        // takes the agent-profile path — a plain Owner upgrade (and only that) goes to the
+        // Propietarios profile form instead.
         if (role === 'Agent') {
           this.router.navigate(['/agents/new']);
+        } else if (role === 'Owner') {
+          this.router.navigate(['/owners/new']);
         }
       },
       error: () => {
