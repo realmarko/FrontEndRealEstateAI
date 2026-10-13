@@ -91,6 +91,9 @@ export class ListingDetailComponent {
   readonly activePhotoIndex = signal(0);
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
+  // Which flow the open contact modal feeds into — set by whichever card's button opened it
+  // (see openContactModal below), read by the template to route (sent) to the right handler.
+  readonly contactingOwner = signal(false);
   readonly showTransferModal = signal(false);
   readonly transferring = signal(false);
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
@@ -141,6 +144,16 @@ export class ListingDetailComponent {
   // Fallback avatar when the agent has no photo — same initials rule as AgentCardComponent.
   get agentInitials(): string {
     return (this.listing()?.ownerName ?? '')
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('');
+  }
+
+  // Same initials rule as agentInitials above, for the admin-set owner-contact card.
+  get ownerContactInitials(): string {
+    return (this.listing()?.ownerContactName ?? '')
       .split(' ')
       .filter(Boolean)
       .slice(0, 2)
@@ -374,8 +387,20 @@ export class ListingDetailComponent {
     });
   }
 
-  openContactModal(): void {
+  openContactModal(contactOwner = false): void {
+    this.contactingOwner.set(contactOwner);
     this.showContactModal.set(true);
+  }
+
+  // Routes the shared contact-modal's single (sent) output to whichever flow opened it —
+  // contactingOwner is set by openContactModal above when the owner-contact card's button
+  // (rather than the agent card's) triggered it.
+  sendContactMessage(value: ContactFormValue): void {
+    if (this.contactingOwner()) {
+      this.sendContactOwnerMessage(value);
+    } else {
+      this.sendContactAgentMessage(value);
+    }
   }
 
   closeContactModal(): void {
@@ -405,6 +430,32 @@ export class ListingDetailComponent {
         }
       }
     );
+  }
+
+  // Direct email to the real property owner (listingService.contactOwner), not an Inquiry row —
+  // only reachable when the admin has set listing.hideAgentContact (see the template), since the
+  // owner typically has no account/dashboard here to read an Inquiry from.
+  sendContactOwnerMessage(value: ContactFormValue): void {
+    const listing = this.listing();
+    const { name, phone, email, message } = value;
+
+    if (!listing || !name || !phone || !email || !message || this.sendingContact()) {
+      this.notification.error('contactModal.formIncomplete');
+      return;
+    }
+
+    this.sendingContact.set(true);
+    this.listingService.contactOwner(listing.id, { name, phone, email, message }).subscribe({
+      next: () => {
+        this.sendingContact.set(false);
+        this.showContactModal.set(false);
+        this.notification.success('listingDetail.contactOwnerSuccess');
+      },
+      error: () => {
+        this.sendingContact.set(false);
+        this.notification.error('listingDetail.contactOwnerError');
+      }
+    });
   }
 
   // Wraps the Inquiry submission side effect (toast + onDone reset) so sendContactAgentMessage

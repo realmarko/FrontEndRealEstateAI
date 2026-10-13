@@ -41,6 +41,10 @@ export interface InquiryDto {
   hasAgent: boolean | null;
   isRead: boolean;
   createdAt: string;
+  isOwnerContactNotification: boolean;
+  ownerContactName: string | null;
+  ownerContactPhone: string | null;
+  ownerContactEmail: string | null;
 }
 
 export function fromDto(dto: InquiryDto): Inquiry {
@@ -56,7 +60,11 @@ export function fromDto(dto: InquiryDto): Inquiry {
     timeline: dto.timeline ? TIMELINE_FROM_STRING[dto.timeline] : undefined,
     hasAgent: dto.hasAgent ?? undefined,
     isRead: dto.isRead,
-    createdAt: dto.createdAt
+    createdAt: dto.createdAt,
+    isOwnerContactNotification: dto.isOwnerContactNotification,
+    ownerContactName: dto.ownerContactName ?? undefined,
+    ownerContactPhone: dto.ownerContactPhone ?? undefined,
+    ownerContactEmail: dto.ownerContactEmail ?? undefined
   };
 }
 

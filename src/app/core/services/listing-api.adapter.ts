@@ -105,6 +105,10 @@ export interface ListingDto {
   state: string;
   zipCode: string;
   country: string;
+  hideAgentContact: boolean;
+  ownerContactName: string | null;
+  ownerContactPhone: string | null;
+  ownerContactEmail: string | null;
   latitude: number;
   longitude: number;
   bedrooms: number;
@@ -229,6 +233,10 @@ export function fromDto(dto: ListingDto): Listing {
     state: dto.state,
     zipCode: dto.zipCode,
     country: dto.country,
+    hideAgentContact: dto.hideAgentContact,
+    ownerContactName: dto.ownerContactName ?? undefined,
+    ownerContactPhone: dto.ownerContactPhone ?? undefined,
+    ownerContactEmail: dto.ownerContactEmail ?? undefined,
     // Short display line: street + colonia + city + state, skipping empty parts (colonia is
     // blank for listings migrated before this field existed) — zip/country aren't shown inline.
     address: [dto.street, dto.colonia, dto.city, dto.state].filter((part) => part.trim().length > 0).join(', '),

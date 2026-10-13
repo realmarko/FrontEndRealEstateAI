@@ -120,13 +120,34 @@ export class OwnerSignupComponent {
         this.router.navigate(['/owners', toSlug(owner.name)]);
       },
       error: (err) => {
-        this.submitting.set(false);
         // Create specifically rejects an Agent-role user with its own 400 — a distinct message
         // so that case doesn't read as a generic "something went wrong" submitError.
         if (!this.isEditMode && err.status === 400) {
+          this.submitting.set(false);
           this.notification.error('ownerSignup.alreadyAgent');
           return;
         }
+        // A row for this account can already exist here without the user ever having submitted
+        // this form — an admin's free-text owner-contact on one of their listings auto-creates an
+        // inactive Owner row by email, which this account's UserId gets linked to the moment its
+        // email is verified (AuthController.ClaimOwnerProfileIfMatchingAsync). Create() then 409s
+        // since that row (and its UserId) already exist — finish with updateMine instead of
+        // showing an error, so the flow still completes like a normal first-time submit.
+        if (!this.isEditMode && err.status === 409) {
+          this.ownerService.updateMine(input).subscribe({
+            next: (owner) => {
+              this.submitting.set(false);
+              this.notification.success('ownerSignup.success');
+              this.router.navigate(['/owners', toSlug(owner.name)]);
+            },
+            error: () => {
+              this.submitting.set(false);
+              this.notification.error('ownerSignup.submitError');
+            }
+          });
+          return;
+        }
+        this.submitting.set(false);
         this.notification.error(this.isEditMode ? 'ownerSignup.updateError' : 'ownerSignup.submitError');
       }
     });

@@ -1,9 +1,10 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, ElementRef, effect, inject, signal } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, signal } from '@angular/core';
 import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ListingService } from '../../../core/services/listing.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { GeomarketingService, MunicipalityListItem, StateListItem } from '../../../core/services/geomarketing.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import {
@@ -56,6 +57,7 @@ export class ListingFormComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly listingService = inject(ListingService);
+  private readonly auth = inject(AuthService);
   private readonly geomarketingService = inject(GeomarketingService);
   private readonly landUseCategoryService = inject(LandUseCategoryService);
   private readonly translation = inject(TranslationService);
@@ -142,6 +144,35 @@ export class ListingFormComponent {
     cadastralValue: this.fb.control<number | null>(null, Validators.min(0))
   });
 
+  // Admin-only section (ListingsController.UpdateOwnerContact) for swapping the listing-detail
+  // contact card from the agent who posted it to the real property owner's own free-text info —
+  // only an Admin ever sees this, and only once editing an existing listing (there's nothing to
+  // hide/replace on a listing that doesn't exist yet).
+  readonly isAdmin = computed(() => this.auth.currentUser()?.roles.includes('Admin') ?? false);
+  // Defaults to true so a non-admin editing their own listing (the common case) never has to wait
+  // on the fetchById() below before the regular form fields are usable; only matters once isAdmin
+  // is also true (see template), to tell an admin editing someone else's listing apart from an
+  // admin-who-is-also-the-owner.
+  readonly isOwnListing = signal(true);
+
+  // An admin who opened a listing they don't themselves own (the only way to reach this form
+  // without being its owner — see listing-detail's edit link, shown only to admins) gets just the
+  // owner-contact section below; everyone else gets the regular form, with that section appended
+  // for an admin who also happens to own the listing.
+  readonly showMainForm = computed(() => !this.isEditMode || this.isOwnListing());
+  readonly showOwnerContactSection = computed(() => this.isEditMode && this.isAdmin());
+
+  readonly ownerContactForm = this.fb.nonNullable.group({
+    hideAgentContact: [false],
+    ownerContactName: [''],
+    ownerContactPhone: [''],
+    ownerContactEmail: ['', [Validators.email]]
+  });
+
+  // True from the moment the owner-contact section's own save button fires until it resolves —
+  // separate from isSubmitting below since an admin-but-not-owner only ever submits this one.
+  readonly isSavingOwnerContact = signal(false);
+
   // Already-hosted photos (pasted URLs, or S3 URLs kept from a previous edit) vs. newly
   // picked files that still need uploading — kept separate so submit() can send the raw
   // File objects to the backend instead of a base64 string. previewUrl is a local
@@ -194,6 +225,13 @@ export class ListingFormComponent {
         this.existingImageUrls.set(listing.imageUrls);
         this.existingLat = listing.lat ?? null;
         this.existingLng = listing.lng ?? null;
+        this.isOwnListing.set(listing.ownerId === this.auth.currentUser()?.id);
+        this.ownerContactForm.patchValue({
+          hideAgentContact: listing.hideAgentContact,
+          ownerContactName: listing.ownerContactName ?? '',
+          ownerContactPhone: listing.ownerContactPhone ?? '',
+          ownerContactEmail: listing.ownerContactEmail ?? ''
+        });
       });
     } else if (this.lat !== null && this.lng !== null) {
       // Arriving here from the map's "Continue with this location" — best-effort autofill so
@@ -347,7 +385,44 @@ export class ListingFormComponent {
     }
   }
 
+  // The owner-contact section's own save action — kept separate from submit() below because it
+  // hits a different endpoint (ListingsController.UpdateOwnerContact) with no photo/field
+  // validation of its own, and is the ONLY action available to an admin editing a listing they
+  // don't own (see showMainForm above).
+  submitOwnerContact(): void {
+    if (!this.editingId || this.isSavingOwnerContact()) return;
+
+    const raw = this.ownerContactForm.getRawValue();
+    const ownerContactEmail = raw.ownerContactEmail.trim() || undefined;
+
+    // Mirrors ListingsController.UpdateOwnerContact's own check — catching it here avoids a
+    // round-trip just to get back the same validation error, and gives a more specific toast
+    // than the generic ownerContactSaveError below.
+    if (raw.hideAgentContact && !ownerContactEmail) {
+      this.notification.error('listingForm.ownerContactEmailRequired');
+      return;
+    }
+
+    this.isSavingOwnerContact.set(true);
+    this.listingService
+      .updateOwnerContact(this.editingId, {
+        hideAgentContact: raw.hideAgentContact,
+        ownerContactName: raw.ownerContactName.trim() || undefined,
+        ownerContactPhone: raw.ownerContactPhone.trim() || undefined,
+        ownerContactEmail
+      })
+      .pipe(finalize(() => this.isSavingOwnerContact.set(false)))
+      .subscribe({
+        next: () => {
+          this.notification.success('listingForm.ownerContactSaveSuccess');
+          if (!this.showMainForm()) this.router.navigate(['/listings', this.editingId]);
+        },
+        error: () => this.notification.error('listingForm.ownerContactSaveError')
+      });
+  }
+
   submit(): void {
+    if (!this.showMainForm()) return; // admin-but-not-owner: nothing here to submit
     if (this.isSubmitting()) return; // already in flight — ignore a double click/Enter
 
     if (this.form.invalid) {

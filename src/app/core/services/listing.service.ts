@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CmaResult, Listing, ListingInput, ListingQuota, PriceHistoryEntry, PropertyType } from '../models/listing.model';
+import { CmaResult, Listing, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
@@ -105,6 +105,20 @@ export class ListingService {
         propertyType: propertyType != null ? PROPERTY_TYPE_TO_NUMBER[propertyType] : null
       })
       .pipe(map(cmaResultFromDto));
+  }
+
+  // Admin-only — ListingsController.UpdateOwnerContact, a separate endpoint from the regular
+  // update() below since it doesn't require the caller to be the listing's own owner (see its
+  // own comment). Used by listing-form.component.ts's admin-only owner-contact section.
+  updateOwnerContact(id: string, input: ListingOwnerContactInput): Observable<Listing> {
+    return this.http.put<ListingDto>(`${this.apiUrl}/${id}/owner-contact`, input).pipe(map(fromDto));
+  }
+
+  // Emails the real property owner directly (set via updateOwnerContact above) instead of
+  // creating an Inquiry — see ListingsController.ContactOwner for why. Only meaningful once
+  // hideAgentContact is set; the backend 404s otherwise.
+  contactOwner(id: string, input: { name: string; phone: string; email: string; message: string }): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/${id}/contact-owner`, input);
   }
 
   // Listings owned by any agent belonging to this agency — for the /inmobiliarias/:id page.

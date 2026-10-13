@@ -14,6 +14,12 @@ export interface Inquiry {
   hasAgent?: boolean;
   isRead: boolean;
   createdAt: string;
+  // True only for the admin-visible notification ListingsController.ContactOwner creates when a
+  // visitor messages a listing's owner-contact card — never set by the regular inquiry flow.
+  isOwnerContactNotification: boolean;
+  ownerContactName?: string;
+  ownerContactPhone?: string;
+  ownerContactEmail?: string;
 }
 
 export interface InquiryInput {

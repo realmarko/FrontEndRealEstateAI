@@ -489,9 +489,39 @@
   user-select: none;
 }
 
+.agent-email.contact-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.contact-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+
 .agent-card .primary-link {
   align-self: stretch;
   text-align: center;
+}
+
+.admin-owner-contact-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  background: none;
+  color: var(--navy);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: underline;
+  padding: 0;
+  border-radius: 0;
+}
+
+.admin-owner-contact-link:hover {
+  background: none;
+  color: var(--gold-hover);
 }
 
 .agent-login-prompt {

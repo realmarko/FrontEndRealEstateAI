@@ -30,6 +30,7 @@ describe('ListingListComponent', () => {
     state: 'Puebla',
     zipCode: '72000',
     country: 'México',
+    hideAgentContact: false,
     address: 'Calle 1, Centro, Puebla',
     bedrooms: 2,
     bathrooms: 1,

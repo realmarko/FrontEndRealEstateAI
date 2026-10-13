@@ -178,10 +178,12 @@ export const routes: Routes = [
   },
   {
     path: 'messages',
-    // Only Owner-role accounts (which Agent accounts also get) can receive inquiries — matches
-    // InquiriesController.Received's [Authorize(Roles = "Owner")], so a Buyer-only account
-    // never hits a 403 here instead of a real page.
-    canActivate: [authGuard, roleGuard('Owner')],
+    // Owner-role accounts (which Agent accounts also get) receive inquiries on their own
+    // listings; Admin accounts additionally see every owner-contact notification regardless of
+    // which listing it's on — matches InquiriesController.Received's
+    // [Authorize(Roles = "Owner,Admin")], so neither a Buyer-only nor an Admin-only account ever
+    // hits a 403 here instead of a real page.
+    canActivate: [authGuard, roleGuard(['Owner', 'Admin'])],
     loadComponent: () =>
       import('./features/messages/messages.component').then((m) => m.MessagesComponent)
   },

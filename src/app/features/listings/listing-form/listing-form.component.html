@@ -5,6 +5,7 @@
     <app-listing-quota />
   }
 
+  @if (showMainForm()) {
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
       {{ 'listingForm.titleLabel' | translate }}
@@ -351,4 +352,43 @@
       <a [routerLink]="isEditMode ? '/listings' : '/map'">{{ 'listingForm.cancel' | translate }}</a>
     </div>
   </form>
+  }
+
+  @if (showOwnerContactSection()) {
+    <form class="owner-contact-section" [formGroup]="ownerContactForm" (ngSubmit)="submitOwnerContact()">
+      <h2 class="section-title">{{ 'listingForm.ownerContactTitle' | translate }}</h2>
+      <p class="owner-contact-hint">{{ 'listingForm.ownerContactHint' | translate }}</p>
+
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="hideAgentContact" />
+        {{ 'listingForm.hideAgentContact' | translate }}
+      </label>
+
+      <label>
+        {{ 'listingForm.ownerContactName' | translate }}
+        <input type="text" formControlName="ownerContactName" maxlength="200" />
+      </label>
+
+      <div class="grid-2">
+        <label>
+          {{ 'listingForm.ownerContactPhone' | translate }}
+          <input type="tel" formControlName="ownerContactPhone" maxlength="30" />
+        </label>
+        <label>
+          {{ 'listingForm.ownerContactEmail' | translate }}
+          <input type="email" formControlName="ownerContactEmail" maxlength="320" />
+          <app-form-error [control]="ownerContactForm.controls.ownerContactEmail" />
+        </label>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="primary" [disabled]="isSavingOwnerContact() || ownerContactForm.invalid" [class.loading]="isSavingOwnerContact()">
+          {{ (isSavingOwnerContact() ? 'listingForm.saving' : 'listingForm.ownerContactSave') | translate }}
+        </button>
+        @if (!showMainForm()) {
+          <a routerLink="/listings">{{ 'listingForm.cancel' | translate }}</a>
+        }
+      </div>
+    </form>
+  }
 </div>

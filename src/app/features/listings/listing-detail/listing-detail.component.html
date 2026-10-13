@@ -331,28 +331,76 @@
               <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
             </div>
           }
-          <div class="agent-card">
-            <div class="agent-photo">
-              @if (listing.ownerPhotoUrl) {
-                <img [src]="listing.ownerPhotoUrl" [alt]="listing.ownerName" />
+          @if (!listing.hideAgentContact) {
+            <div class="agent-card">
+              <div class="agent-photo">
+                @if (listing.ownerPhotoUrl) {
+                  <img [src]="listing.ownerPhotoUrl" [alt]="listing.ownerName" />
+                } @else {
+                  <span class="agent-avatar">{{ agentInitials }}</span>
+                }
+              </div>
+              <p class="agent-name">{{ listing.ownerName }}</p>
+
+              <a class="agent-email" [class.blurred]="!auth.isAuthenticated()" [href]="'mailto:' + listing.ownerEmail">{{ listing.ownerEmail }}</a>
+
+              @if (auth.isAuthenticated()) {
+                <button type="button" class="primary-link" (click)="openContactModal()">
+                  {{ 'listingDetail.contactAgent' | translate }}
+                </button>
               } @else {
-                <span class="agent-avatar">{{ agentInitials }}</span>
+                <p class="agent-login-prompt">
+                  <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
+                </p>
               }
             </div>
-            <p class="agent-name">{{ listing.ownerName }}</p>
+          } @else {
+            <!-- Admin-set replacement (ListingsController.UpdateOwnerContact) for when the
+                 account that owns this listing row is an agent — shows the real property
+                 owner's own, free-text contact info instead. -->
+            <div class="agent-card">
+              <div class="agent-photo">
+                <span class="agent-avatar">{{ ownerContactInitials }}</span>
+              </div>
+              <p class="agent-name">{{ listing.ownerContactName }}</p>
 
-            <a class="agent-email" [class.blurred]="!auth.isAuthenticated()" [href]="'mailto:' + listing.ownerEmail">{{ listing.ownerEmail }}</a>
+              @if (listing.ownerContactEmail) {
+                <a class="agent-email contact-line" [class.blurred]="!auth.isAuthenticated()" [href]="'mailto:' + listing.ownerContactEmail">
+                  <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="5" width="18" height="14" rx="2" />
+                    <path d="M3 7l9 6 9-6" />
+                  </svg>
+                  {{ listing.ownerContactEmail }}
+                </a>
+              }
+              @if (listing.ownerContactPhone) {
+                <p class="agent-email contact-line" [class.blurred]="!auth.isAuthenticated()">
+                  <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                  </svg>
+                  {{ listing.ownerContactPhone }}
+                </p>
+              }
 
-            @if (auth.isAuthenticated()) {
-              <button type="button" class="primary-link" (click)="openContactModal()">
-                {{ 'listingDetail.contactAgent' | translate }}
-              </button>
-            } @else {
-              <p class="agent-login-prompt">
-                <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
-              </p>
-            }
-          </div>
+              @if (listing.ownerContactEmail) {
+                @if (auth.isAuthenticated()) {
+                  <button type="button" class="primary-link" (click)="openContactModal(true)">
+                    {{ 'listingDetail.contactOwner' | translate }}
+                  </button>
+                } @else {
+                  <p class="agent-login-prompt">
+                    <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
+                  </p>
+                }
+              }
+            </div>
+          }
+        }
+
+        @if (isAdmin() && !isOwner()) {
+          <a class="primary-link admin-owner-contact-link" [routerLink]="['/listings', listing.id, 'edit']">
+            {{ 'listingDetail.editOwnerContact' | translate }}
+          </a>
         }
       </div>
     </div>
@@ -364,9 +412,9 @@
       [initialName]="contactInitialName"
       [initialEmail]="contactInitialEmail"
       [sending]="sendingContact()"
-      [showQualifyingQuestions]="true"
+      [showQualifyingQuestions]="!contactingOwner()"
       (closed)="closeContactModal()"
-      (sent)="sendContactAgentMessage($event)"
+      (sent)="sendContactMessage($event)"
     />
   }
 

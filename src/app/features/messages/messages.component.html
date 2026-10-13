@@ -34,6 +34,16 @@
             <span class="date">{{ inquiry.createdAt | date:'short' }}</span>
           </div>
 
+          @if (inquiry.isOwnerContactNotification) {
+            <!-- ListingsController.ContactOwner's admin-visible record — the property's own
+                 title/link above already identifies it, but the id is shown too since it's the
+                 stable reference an admin would actually search/support by. -->
+            <div class="owner-contact-flag">
+              <span class="chip owner-chip">{{ 'messages.ownerContactBadge' | translate }}</span>
+              <span class="listing-id">{{ 'messages.listingId' | translate }}: {{ inquiry.listingId }}</span>
+            </div>
+          }
+
           <div class="sender">
             <strong>{{ inquiry.senderName }}</strong>
             <span>{{ inquiry.senderEmail }}</span>
@@ -43,6 +53,19 @@
           </div>
 
           <p class="message">{{ inquiry.message }}</p>
+
+          @if (inquiry.isOwnerContactNotification) {
+            <div class="owner-contact-details">
+              <strong>{{ 'messages.ownerContactInfoTitle' | translate }}</strong>
+              <span>{{ inquiry.ownerContactName || ('messages.ownerContactNameUnset' | translate) }}</span>
+              @if (inquiry.ownerContactEmail) {
+                <span>{{ inquiry.ownerContactEmail }}</span>
+              }
+              @if (inquiry.ownerContactPhone) {
+                <span>{{ inquiry.ownerContactPhone }}</span>
+              }
+            </div>
+          }
 
           @if (inquiry.fundingMethod || inquiry.timeline || inquiry.hasAgent != null) {
             <div class="qualifying">

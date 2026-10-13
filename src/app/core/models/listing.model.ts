@@ -162,15 +162,47 @@ export interface Listing {
   lat?: number;
   lng?: number;
   viewCount: number;
+  // Admin-only override (ListingsController.UpdateOwnerContact) — when true, listing-detail shows
+  // ownerContact*'s free-text info instead of the agent card built from ownerName/ownerEmail
+  // above. Edited through its own endpoint, not the regular create/update form (see ListingInput's
+  // Omit below), since it needs admin authorization regardless of who owns the listing.
+  hideAgentContact: boolean;
+  ownerContactName?: string;
+  ownerContactPhone?: string;
+  ownerContactEmail?: string;
 }
 
 // The write model splits photos in two: URLs already hosted somewhere (pasted external links,
 // or S3 URLs kept from a previous edit) vs. raw File objects the browser just picked, which the
 // backend uploads to S3 itself — see ListingsController.BuildImageUrlsAsync.
-export type ListingInput = Omit<Listing, 'id' | 'ownerId' | 'ownerName' | 'ownerEmail' | 'ownerPhotoUrl' | 'createdAt' | 'imageUrls' | 'address' | 'viewCount'> & {
+export type ListingInput = Omit<
+  Listing,
+  | 'id'
+  | 'ownerId'
+  | 'ownerName'
+  | 'ownerEmail'
+  | 'ownerPhotoUrl'
+  | 'createdAt'
+  | 'imageUrls'
+  | 'address'
+  | 'viewCount'
+  | 'hideAgentContact'
+  | 'ownerContactName'
+  | 'ownerContactPhone'
+  | 'ownerContactEmail'
+> & {
   existingImageUrls: string[];
   photos: File[];
 };
+
+// ListingsController.UpdateOwnerContact's own payload shape — admin-only, submitted separately
+// from the regular ListingInput update (see listing-form.component.ts).
+export interface ListingOwnerContactInput {
+  hideAgentContact: boolean;
+  ownerContactName?: string;
+  ownerContactPhone?: string;
+  ownerContactEmail?: string;
+}
 
 // Display-only fallback for a listing with zero real photos — never write this into a
 // Listing's own imageUrls, or a fake stock photo could round-trip back to the server as if

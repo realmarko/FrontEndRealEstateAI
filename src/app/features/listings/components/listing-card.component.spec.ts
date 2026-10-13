@@ -26,6 +26,7 @@ describe('ListingCardComponent', () => {
     state: 'Puebla',
     zipCode: '72000',
     country: 'México',
+    hideAgentContact: false,
     address: 'Calle 1, Centro, Puebla',
     bedrooms: 3,
     bathrooms: 2,

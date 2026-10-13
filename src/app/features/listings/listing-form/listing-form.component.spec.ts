@@ -9,6 +9,7 @@ import { LandUseCategoryService } from '../../../core/services/land-use-category
 import { TranslationService } from '../../../core/services/translation.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorReportingService } from '../../../core/services/error-reporting.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { Listing } from '../../../core/models/listing.model';
 
 // Resolves on a microtask, like loadGoogleMaps()'s own already-loaded fast path — never
@@ -55,6 +56,7 @@ describe('ListingFormComponent', () => {
     state: 'Puebla',
     zipCode: '72000',
     country: 'México',
+    hideAgentContact: false,
     address: 'Calle vieja 1, Centro, Puebla',
     bedrooms: 2,
     bathrooms: 1,
@@ -72,7 +74,9 @@ describe('ListingFormComponent', () => {
     ...overrides
   });
 
-  function createComponent(options: { editingId?: string; lat?: string; lng?: string } = {}): ListingFormComponent {
+  function createComponent(
+    options: { editingId?: string; lat?: string; lng?: string; currentUser?: { id: string; roles: string[] } | null } = {}
+  ): ListingFormComponent {
     listingServiceSpy = jasmine.createSpyObj('ListingService', ['fetchById', 'create', 'update']);
     listingServiceSpy.fetchById.and.returnValue(of(makeListing()));
     geomarketingServiceSpy = jasmine.createSpyObj('GeomarketingService', ['listStates', 'listMunicipalities']);
@@ -83,6 +87,13 @@ describe('ListingFormComponent', () => {
     });
     notificationSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
     errorReportingSpy = jasmine.createSpyObj('ErrorReportingService', ['report']);
+    // Defaults to the same user as makeListing()'s ownerId, so showMainForm/isOwnListing behave
+    // like a regular owner editing their own listing unless a test opts into something else.
+    const authServiceSpy = jasmine.createSpyObj('AuthService', [], {
+      currentUser: signal(
+        options.currentUser !== undefined ? options.currentUser : { id: 'owner-1', roles: [] }
+      )
+    });
 
     const queryParams: Record<string, string> = {};
     if (options.lat) queryParams['lat'] = options.lat;
@@ -97,6 +108,7 @@ describe('ListingFormComponent', () => {
         { provide: LandUseCategoryService, useValue: landUseCategoryServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },
         { provide: ErrorReportingService, useValue: errorReportingSpy },
+        { provide: AuthService, useValue: authServiceSpy },
         {
           provide: TranslationService,
           useValue: jasmine.createSpyObj('TranslationService', [], { lang: () => 'es' })
