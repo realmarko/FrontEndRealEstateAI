@@ -1,0 +1,106 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.modal {
+  position: relative;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  text-align: center;
+}
+
+.modal h2 {
+  margin: 0 0.5rem 0 0;
+  font-size: 1.15rem;
+  padding-right: 1.5rem;
+}
+
+.hint {
+  margin: -0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.qr-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 240px;
+  height: 240px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.qr-frame img {
+  display: block;
+}
+
+.status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.status.error {
+  color: #dc2626;
+}
+
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.modal .primary,
+.modal .secondary {
+  flex: 1;
+  border-radius: 4px;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.modal .primary {
+  background: #1e3a5f;
+  color: #fff;
+  border: none;
+}
+
+.modal .primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.modal .secondary {
+  background: none;
+  color: #1e3a5f;
+  border: 1px solid #1e3a5f;
+}
+
+.modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0.25rem;
+}

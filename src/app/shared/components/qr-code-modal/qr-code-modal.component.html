@@ -1,0 +1,26 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button type="button" class="modal-close" [attr.aria-label]="'qrCodeModal.close' | translate" (click)="close()">✕</button>
+    <h2>{{ title }}</h2>
+    <p class="hint">{{ 'qrCodeModal.hint' | translate }}</p>
+
+    <div class="qr-frame">
+      @if (qrDataUrl()) {
+        <img [src]="qrDataUrl()" alt="" width="240" height="240" />
+      } @else if (generationFailed()) {
+        <p class="status error">{{ 'qrCodeModal.generationError' | translate }}</p>
+      } @else {
+        <p class="status">{{ 'qrCodeModal.generating' | translate }}</p>
+      }
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" [disabled]="!qrDataUrl()" (click)="downloadQr()">
+        {{ 'qrCodeModal.download' | translate }}
+      </button>
+      <button type="button" class="secondary" (click)="copyLink()">
+        {{ 'qrCodeModal.copyLink' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

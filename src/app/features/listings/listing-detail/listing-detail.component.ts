@@ -16,9 +16,11 @@ import { Agent } from '../../../core/models/agent.model';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { RoiCalculatorComponent } from '../../../shared/components/roi-calculator/roi-calculator.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
+import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
+import { environment } from '../../../../environments/environment';
 
 export interface NearbySchool {
   name: string;
@@ -50,7 +52,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -96,6 +98,7 @@ export class ListingDetailComponent {
   readonly contactingOwner = signal(false);
   readonly showTransferModal = signal(false);
   readonly transferring = signal(false);
+  readonly showQrModal = signal(false);
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
   readonly similarListings = signal<Listing[]>([]);
   readonly nearbySchools = signal<NearbySchool[]>([]);
@@ -105,6 +108,13 @@ export class ListingDetailComponent {
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
   readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
+
+  // Points straight at the backend's anonymous PDF endpoint (not the listing-detail page) —
+  // scanning the printed QR should hand over the fact sheet immediately, with no detour
+  // through the site. Absolute by construction: environment.apiUrl is always a full origin
+  // in every deployed environment (only the local default is relative, and this QR is never
+  // printed from there).
+  readonly qrCodeUrl = computed(() => `${environment.apiUrl}/listings/${this.id}/fact-sheet.pdf`);
 
   // Root-scoped LandUseCategoryService fetches this once for the whole app — read its cached
   // signal directly instead of firing a second, redundant request here.
@@ -324,6 +334,14 @@ export class ListingDetailComponent {
     } catch {
       this.notification.error('listingDetail.shareError');
     }
+  }
+
+  openQrModal(): void {
+    this.showQrModal.set(true);
+  }
+
+  closeQrModal(): void {
+    this.showQrModal.set(false);
   }
 
   pricePerSqm(listing: Listing): number {
