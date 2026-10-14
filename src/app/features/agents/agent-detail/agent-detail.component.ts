@@ -10,13 +10,15 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
+import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
+import { toSlug } from '../../../core/services/agent-api.adapter';
 
 @Component({
   selector: 'app-agent-detail',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent, ListingGridComponent],
+  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent, ListingGridComponent, QrCodeModalComponent],
   templateUrl: './agent-detail.component.html',
   styleUrl: './agent-detail.component.css'
 })
@@ -50,6 +52,16 @@ export class AgentDetailComponent {
 
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
+  readonly showQrModal = signal(false);
+
+  // The same slug every generated link to this agent already uses (see the class comment
+  // above) — the QR has to encode that public URL, not an internal numeric-id one, since it's
+  // meant to be scanned by a stranger with no session.
+  readonly agentSlug = computed(() => toSlug(this.agent()?.name ?? ''));
+  // window.location.origin rather than a hardcoded domain: always matches whatever origin the
+  // page is actually served from (localhost, dev.espacial.com.mx, espacial.com.mx), so the same
+  // code produces a correct, scannable QR in every environment without an environment.ts lookup.
+  readonly qrCodeUrl = computed(() => `${window.location.origin}/agents/${this.agentSlug()}`);
 
   constructor() {
     const param = this.route.snapshot.paramMap.get('id') ?? '';
@@ -118,6 +130,14 @@ export class AgentDetailComponent {
         this.notification.error('agentDetail.contactError');
       }
     });
+  }
+
+  openQrModal(): void {
+    this.showQrModal.set(true);
+  }
+
+  closeQrModal(): void {
+    this.showQrModal.set(false);
   }
 
   get initials(): string {

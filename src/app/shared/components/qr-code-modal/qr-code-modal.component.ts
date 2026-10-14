@@ -16,6 +16,7 @@ import { NotificationService } from '../../../core/services/notification.service
 })
 export class QrCodeModalComponent implements OnChanges {
   @Input({ required: true }) title!: string;
+  @Input({ required: true }) hint!: string;
   @Input({ required: true }) url!: string;
   @Input() fileName = 'qr-code.png';
 

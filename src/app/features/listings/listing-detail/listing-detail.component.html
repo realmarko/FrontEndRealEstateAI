@@ -440,6 +440,7 @@
   @if (showQrModal()) {
     <app-qr-code-modal
       [title]="'qrCodeModal.factSheetTitle' | translate"
+      [hint]="'qrCodeModal.factSheetHint' | translate"
       [url]="qrCodeUrl()"
       [fileName]="'ficha-tecnica-' + listing.id + '.png'"
       (closed)="closeQrModal()"

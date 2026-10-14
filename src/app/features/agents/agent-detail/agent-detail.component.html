@@ -78,19 +78,25 @@
             }
           </div>
 
-          @if (isOwnProfile()) {
-            <a class="id-card-cta" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
-          } @else {
-            <button type="button" class="id-card-cta" (click)="openContactModal()">
-              {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
-            </button>
-          }
+          <div class="id-card-actions">
+            @if (isOwnProfile()) {
+              <a class="id-card-cta" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
+            } @else {
+              <button type="button" class="id-card-cta" (click)="openContactModal()">
+                {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
+              </button>
+            }
 
-          @if (isAdmin()) {
-            <button type="button" class="id-card-cta id-card-cta-danger" (click)="deleteAgent()">
-              {{ 'agentDetail.adminDelete' | translate }}
+            <button type="button" class="id-card-cta id-card-cta-secondary" (click)="openQrModal()">
+              {{ 'agentDetail.qrCode' | translate }}
             </button>
-          }
+
+            @if (isAdmin()) {
+              <button type="button" class="id-card-cta id-card-cta-danger" (click)="deleteAgent()">
+                {{ 'agentDetail.adminDelete' | translate }}
+              </button>
+            }
+          </div>
         </div>
       </div>
     </article>
@@ -187,6 +193,16 @@
       [sending]="sendingContact()"
       (closed)="closeContactModal()"
       (sent)="sendContactMessage($event)"
+    />
+  }
+
+  @if (showQrModal()) {
+    <app-qr-code-modal
+      [title]="'qrCodeModal.agentTitle' | translate"
+      [hint]="'qrCodeModal.agentHint' | translate"
+      [url]="qrCodeUrl()"
+      [fileName]="'agente-' + agentSlug() + '.png'"
+      (closed)="closeQrModal()"
     />
   }
 } @else if (!loading()) {

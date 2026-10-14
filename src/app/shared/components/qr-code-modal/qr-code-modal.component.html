@@ -2,7 +2,7 @@
   <div class="modal" (click)="$event.stopPropagation()">
     <button type="button" class="modal-close" [attr.aria-label]="'qrCodeModal.close' | translate" (click)="close()">✕</button>
     <h2>{{ title }}</h2>
-    <p class="hint">{{ 'qrCodeModal.hint' | translate }}</p>
+    <p class="hint">{{ hint }}</p>
 
     <div class="qr-frame">
       @if (qrDataUrl()) {

@@ -213,7 +213,9 @@ export const en: Record<string, string> = {
   'transferListingModal.close': 'Close',
 
   'qrCodeModal.factSheetTitle': 'Fact sheet',
-  'qrCodeModal.hint': 'Scan it to download the fact sheet as a PDF.',
+  'qrCodeModal.agentTitle': "Agent's properties",
+  'qrCodeModal.factSheetHint': 'Scan it to download the fact sheet as a PDF.',
+  'qrCodeModal.agentHint': "Scan it to view the agent's profile and listings.",
   'qrCodeModal.generating': 'Generating QR code...',
   'qrCodeModal.generationError': 'Could not generate the QR code.',
   'qrCodeModal.download': 'Download PNG',
@@ -522,6 +524,7 @@ export const en: Record<string, string> = {
 
   'agentDetail.back': 'Back to agents',
   'agentDetail.contact': 'Contact {{name}}',
+  'agentDetail.qrCode': 'QR code',
   'agentDetail.aboutTitle': 'About {{name}}',
   'agentDetail.specialtiesTitle': 'Specialties',
   'agentDetail.contactTitle': 'Contact information',

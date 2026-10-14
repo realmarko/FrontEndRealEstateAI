@@ -213,7 +213,9 @@ export const es: Record<string, string> = {
   'transferListingModal.close': 'Cerrar',
 
   'qrCodeModal.factSheetTitle': 'Ficha técnica',
-  'qrCodeModal.hint': 'Escanéalo para descargar la ficha técnica en PDF.',
+  'qrCodeModal.agentTitle': 'Propiedades del agente',
+  'qrCodeModal.factSheetHint': 'Escanéalo para descargar la ficha técnica en PDF.',
+  'qrCodeModal.agentHint': 'Escanéalo para ver el perfil del agente y sus propiedades.',
   'qrCodeModal.generating': 'Generando código QR...',
   'qrCodeModal.generationError': 'No se pudo generar el código QR.',
   'qrCodeModal.download': 'Descargar PNG',
@@ -522,6 +524,7 @@ export const es: Record<string, string> = {
 
   'agentDetail.back': 'Volver a agentes',
   'agentDetail.contact': 'Contactar a {{name}}',
+  'agentDetail.qrCode': 'Código QR',
   'agentDetail.aboutTitle': 'Sobre {{name}}',
   'agentDetail.specialtiesTitle': 'Especialidades',
   'agentDetail.contactTitle': 'Información de contacto',
