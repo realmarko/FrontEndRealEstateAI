@@ -64,11 +64,17 @@
           </div>
         }
 
-        @if (a.canEdit) {
-          <a class="edit-link" routerLink="/inmobiliarias/edit">{{ 'agencyDetail.editLink' | translate }}</a>
-        } @else if (auth.currentUser()?.roles?.includes('Admin')) {
-          <a class="edit-link" [routerLink]="['/admin/inmobiliarias', a.id, 'edit']">{{ 'agencyDetail.adminEditLink' | translate }}</a>
-        }
+        <div class="masthead-actions">
+          @if (a.canEdit) {
+            <a class="edit-link" routerLink="/inmobiliarias/edit">{{ 'agencyDetail.editLink' | translate }}</a>
+          } @else if (auth.currentUser()?.roles?.includes('Admin')) {
+            <a class="edit-link" [routerLink]="['/admin/inmobiliarias', a.id, 'edit']">{{ 'agencyDetail.adminEditLink' | translate }}</a>
+          }
+
+          <button type="button" class="edit-link qr-link" (click)="openQrModal()">
+            {{ 'agencyDetail.qrCode' | translate }}
+          </button>
+        </div>
       </div>
 
       <div class="masthead-stats">
@@ -115,6 +121,16 @@
       <p class="empty">{{ 'listings.empty' | translate }}</p>
     }
   </div>
+
+  @if (showQrModal()) {
+    <app-qr-code-modal
+      [title]="'qrCodeModal.agencyTitle' | translate"
+      [hint]="'qrCodeModal.agencyHint' | translate"
+      [url]="qrCodeUrl()"
+      [fileName]="'inmobiliaria-' + agencySlug() + '.png'"
+      (closed)="closeQrModal()"
+    />
+  }
 } @else if (notFound()) {
   <p class="empty page-empty">{{ 'agencyDetail.notFound' | translate }}</p>
 }

@@ -121,10 +121,32 @@ a.contact-line:hover {
 
 .edit-link {
   display: inline-block;
-  margin-top: 0.75rem;
   color: var(--gold);
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.masthead-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+/* Combined with .edit-link in the template (same look, different element) — only resets the
+   <button>-specific defaults that .edit-link's <a> never had. */
+.qr-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.edit-link:hover,
+.qr-link:hover {
+  text-decoration: underline;
 }
 
 /* A quiet ledger, not stat tiles — two numbers an owner/visitor would skim, not a thing to
@@ -248,6 +270,10 @@ a.contact-line:hover {
   }
 
   .masthead-elsewhere {
+    justify-content: center;
+  }
+
+  .masthead-actions {
     justify-content: center;
   }
 

@@ -214,8 +214,10 @@ export const es: Record<string, string> = {
 
   'qrCodeModal.factSheetTitle': 'Ficha técnica',
   'qrCodeModal.agentTitle': 'Propiedades del agente',
+  'qrCodeModal.agencyTitle': 'Propiedades de la inmobiliaria',
   'qrCodeModal.factSheetHint': 'Escanéalo para descargar la ficha técnica en PDF.',
   'qrCodeModal.agentHint': 'Escanéalo para ver el perfil del agente y sus propiedades.',
+  'qrCodeModal.agencyHint': 'Escanéalo para ver las propiedades de esta inmobiliaria.',
   'qrCodeModal.generating': 'Generando código QR...',
   'qrCodeModal.generationError': 'No se pudo generar el código QR.',
   'qrCodeModal.download': 'Descargar PNG',
@@ -658,6 +660,7 @@ export const es: Record<string, string> = {
 
   'agencyDetail.website': 'Sitio web',
   'agencyDetail.editLink': 'Editar mi inmobiliaria',
+  'agencyDetail.qrCode': 'Código QR',
   'agencyDetail.adminEditLink': 'Editar (admin)',
   'agencyDetail.notFound': 'No se encontró esta inmobiliaria.',
 

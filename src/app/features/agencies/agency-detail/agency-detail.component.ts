@@ -6,12 +6,14 @@ import { ListingService } from '../../../core/services/listing.service';
 import { Agency } from '../../../core/models/agency.model';
 import { Listing, ListingType } from '../../../core/models/listing.model';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
+import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { toSlug } from '../../../core/services/brokerage-api.adapter';
 
 @Component({
   selector: 'app-agency-detail',
   standalone: true,
-  imports: [RouterLink, ListingGridComponent, TranslatePipe],
+  imports: [RouterLink, ListingGridComponent, TranslatePipe, QrCodeModalComponent],
   templateUrl: './agency-detail.component.html',
   styleUrl: './agency-detail.component.css'
 })
@@ -24,6 +26,15 @@ export class AgencyDetailComponent {
   readonly agency = signal<Agency | null>(null);
   readonly notFound = signal(false);
   private readonly agencyListings = signal<Listing[]>([]);
+
+  readonly showQrModal = signal(false);
+  // Same slug every generated link to this brokerage already uses (see the constructor comment
+  // below) — the QR has to encode that public URL, not an internal numeric-id one, since it's
+  // meant to be scanned by a stranger with no session.
+  readonly agencySlug = computed(() => toSlug(this.agency()?.name ?? ''));
+  // window.location.origin rather than a hardcoded domain: always matches whatever origin the
+  // page is actually served from (localhost, dev.espacial.com.mx, espacial.com.mx).
+  readonly qrCodeUrl = computed(() => `${window.location.origin}/inmobiliarias/${this.agencySlug()}`);
 
   // Same filter shape as /listings (ListingListComponent) minus the company filter, which would
   // be redundant here — every listing on this page already belongs to this one agency.
@@ -74,5 +85,13 @@ export class AgencyDetailComponent {
 
   onSearchChange(term: string): void {
     this.search.set(term);
+  }
+
+  openQrModal(): void {
+    this.showQrModal.set(true);
+  }
+
+  closeQrModal(): void {
+    this.showQrModal.set(false);
   }
 }

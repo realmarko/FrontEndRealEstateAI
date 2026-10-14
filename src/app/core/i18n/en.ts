@@ -214,8 +214,10 @@ export const en: Record<string, string> = {
 
   'qrCodeModal.factSheetTitle': 'Fact sheet',
   'qrCodeModal.agentTitle': "Agent's properties",
+  'qrCodeModal.agencyTitle': "Agency's properties",
   'qrCodeModal.factSheetHint': 'Scan it to download the fact sheet as a PDF.',
   'qrCodeModal.agentHint': "Scan it to view the agent's profile and listings.",
+  'qrCodeModal.agencyHint': "Scan it to view this agency's listings.",
   'qrCodeModal.generating': 'Generating QR code...',
   'qrCodeModal.generationError': 'Could not generate the QR code.',
   'qrCodeModal.download': 'Download PNG',
@@ -658,6 +660,7 @@ export const en: Record<string, string> = {
 
   'agencyDetail.website': 'Website',
   'agencyDetail.editLink': 'Edit my agency',
+  'agencyDetail.qrCode': 'QR code',
   'agencyDetail.adminEditLink': 'Edit (admin)',
   'agencyDetail.notFound': 'This agency could not be found.',
 
