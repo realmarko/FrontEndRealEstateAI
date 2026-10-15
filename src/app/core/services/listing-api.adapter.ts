@@ -1,6 +1,8 @@
 import {
+  CardinalOrientationType,
   CmaResult,
   CmaStats,
+  ConstructionConditionType,
   Listing,
   ListingInput,
   ListingType,
@@ -87,6 +89,40 @@ export const LOT_SHAPE_FROM_STRING: Record<string, LotShapeType> = { Regular: 'r
 export const TOPOGRAPHY_TO_NUMBER: Record<TopographyType, number> = { plana: 0, inclinada: 1 };
 export const TOPOGRAPHY_FROM_STRING: Record<string, TopographyType> = { Plana: 'plana', Inclinada: 'inclinada' };
 
+export const CONSTRUCTION_CONDITION_TO_NUMBER: Record<ConstructionConditionType, number> = {
+  nueva: 0,
+  usada: 1,
+  remodelada: 2,
+  enObra: 3
+};
+export const CONSTRUCTION_CONDITION_FROM_STRING: Record<string, ConstructionConditionType> = {
+  Nueva: 'nueva',
+  Usada: 'usada',
+  Remodelada: 'remodelada',
+  EnObra: 'enObra'
+};
+
+export const CARDINAL_ORIENTATION_TO_NUMBER: Record<CardinalOrientationType, number> = {
+  norte: 0,
+  sur: 1,
+  este: 2,
+  oeste: 3,
+  noreste: 4,
+  noroeste: 5,
+  sureste: 6,
+  suroeste: 7
+};
+export const CARDINAL_ORIENTATION_FROM_STRING: Record<string, CardinalOrientationType> = {
+  Norte: 'norte',
+  Sur: 'sur',
+  Este: 'este',
+  Oeste: 'oeste',
+  Noreste: 'noreste',
+  Noroeste: 'noroeste',
+  Sureste: 'sureste',
+  Suroeste: 'suroeste'
+};
+
 const SQM_PER_SQFT = 0.09290304;
 
 export interface ListingDto {
@@ -116,6 +152,7 @@ export interface ListingDto {
   areaSqFt: number;
   yearBuilt: number | null;
   parkingSpaces: number | null;
+  parkingIsCovered: boolean | null;
   floors: number | null;
   lotSizeSqm: number | null;
   gardenSizeSqm: number | null;
@@ -123,6 +160,10 @@ export interface ListingDto {
   hasRoofGarden: boolean;
   hoaFee: number | null;
   videoTourUrl: string | null;
+  constructionCondition: string | null;
+  facadeOrientation: string | null;
+  hasNaturalGas: boolean | null;
+  hasLpGas: boolean | null;
   landUseZoning: string | null;
   landUseCategoryId: number | null;
   landTenure: string | null;
@@ -245,6 +286,7 @@ export function fromDto(dto: ListingDto): Listing {
     areaSqm: Math.round(dto.areaSqFt * SQM_PER_SQFT),
     yearBuilt: dto.yearBuilt ?? undefined,
     parkingSpaces: dto.parkingSpaces ?? undefined,
+    parkingIsCovered: dto.parkingIsCovered ?? undefined,
     floors: dto.floors ?? undefined,
     lotSizeSqm: dto.lotSizeSqm ?? undefined,
     gardenSizeSqm: dto.gardenSizeSqm ?? undefined,
@@ -252,6 +294,10 @@ export function fromDto(dto: ListingDto): Listing {
     hasRoofGarden: dto.hasRoofGarden,
     hoaFee: dto.hoaFee ?? undefined,
     videoTourUrl: dto.videoTourUrl ?? undefined,
+    constructionCondition: dto.constructionCondition ? CONSTRUCTION_CONDITION_FROM_STRING[dto.constructionCondition] : undefined,
+    facadeOrientation: dto.facadeOrientation ? CARDINAL_ORIENTATION_FROM_STRING[dto.facadeOrientation] : undefined,
+    hasNaturalGas: dto.hasNaturalGas ?? undefined,
+    hasLpGas: dto.hasLpGas ?? undefined,
     landUseZoning: dto.landUseZoning ?? undefined,
     landUseCategoryId: dto.landUseCategoryId ?? undefined,
     landTenure: dto.landTenure ? LAND_TENURE_FROM_STRING[dto.landTenure] : undefined,
@@ -323,6 +369,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('areaSqFt', String(Math.round(input.areaSqm / SQM_PER_SQFT)));
   if (input.yearBuilt != null) form.append('yearBuilt', String(input.yearBuilt));
   if (input.parkingSpaces != null) form.append('parkingSpaces', String(input.parkingSpaces));
+  if (input.parkingIsCovered != null) form.append('parkingIsCovered', String(input.parkingIsCovered));
   if (input.floors != null) form.append('floors', String(input.floors));
   if (input.lotSizeSqm != null) form.append('lotSizeSqm', String(input.lotSizeSqm));
   if (input.gardenSizeSqm != null) form.append('gardenSizeSqm', String(input.gardenSizeSqm));
@@ -330,6 +377,10 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('hasRoofGarden', String(input.hasRoofGarden));
   if (input.hoaFee != null) form.append('hoaFee', String(input.hoaFee));
   if (input.videoTourUrl) form.append('videoTourUrl', input.videoTourUrl);
+  if (input.constructionCondition != null) form.append('constructionCondition', String(CONSTRUCTION_CONDITION_TO_NUMBER[input.constructionCondition]));
+  if (input.facadeOrientation != null) form.append('facadeOrientation', String(CARDINAL_ORIENTATION_TO_NUMBER[input.facadeOrientation]));
+  if (input.hasNaturalGas != null) form.append('hasNaturalGas', String(input.hasNaturalGas));
+  if (input.hasLpGas != null) form.append('hasLpGas', String(input.hasLpGas));
   if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
   if (input.landUseCategoryId != null) form.append('landUseCategoryId', String(input.landUseCategoryId));
   if (input.landTenure != null) form.append('landTenure', String(LAND_TENURE_TO_NUMBER[input.landTenure]));

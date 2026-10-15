@@ -92,6 +92,16 @@ export type LandTenureType = 'privado' | 'ejidal' | 'comunal' | 'enRegularizacio
 export type VialidadType = 'avenidaPrincipal' | 'calleSecundaria' | 'privada';
 export type LotShapeType = 'regular' | 'irregular';
 export type TopographyType = 'plana' | 'inclinada';
+export type ConstructionConditionType = 'nueva' | 'usada' | 'remodelada' | 'enObra';
+export type CardinalOrientationType =
+  | 'norte'
+  | 'sur'
+  | 'este'
+  | 'oeste'
+  | 'noreste'
+  | 'noroeste'
+  | 'sureste'
+  | 'suroeste';
 
 export interface Listing {
   id: string;
@@ -118,6 +128,7 @@ export interface Listing {
   areaSqm: number;
   yearBuilt?: number;
   parkingSpaces?: number;
+  parkingIsCovered?: boolean;
   floors?: number;
   lotSizeSqm?: number;
   gardenSizeSqm?: number;
@@ -125,6 +136,10 @@ export interface Listing {
   hasRoofGarden: boolean;
   hoaFee?: number;
   videoTourUrl?: string;
+  constructionCondition?: ConstructionConditionType;
+  facadeOrientation?: CardinalOrientationType;
+  hasNaturalGas?: boolean;
+  hasLpGas?: boolean;
   landUseZoning?: string;
   landUseCategoryId?: number;
   landTenure?: LandTenureType;

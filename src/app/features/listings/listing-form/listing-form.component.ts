@@ -8,7 +8,9 @@ import { AuthService } from '../../../core/services/auth.service';
 import { GeomarketingService, MunicipalityListItem, StateListItem } from '../../../core/services/geomarketing.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import {
+  CardinalOrientationType,
   Currency,
+  ConstructionConditionType,
   LandTenureType,
   ListingInput,
   LotShapeType,
@@ -110,6 +112,7 @@ export class ListingFormComponent {
     areaSqm: [0, [Validators.required, Validators.min(0)]],
     yearBuilt: this.fb.control<number | null>(null, [Validators.min(1800), Validators.max(this.currentYear)]),
     parkingSpaces: this.fb.control<number | null>(null, Validators.min(0)),
+    parkingIsCovered: this.fb.control<boolean | null>(null),
     floors: this.fb.control<number | null>(null, Validators.min(0)),
     lotSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
     gardenSizeSqm: this.fb.control<number | null>(null, Validators.min(0)),
@@ -117,6 +120,10 @@ export class ListingFormComponent {
     hasRoofGarden: [false],
     hoaFee: this.fb.control<number | null>(null, Validators.min(0)),
     videoTourUrl: ['', optionalUrlValidator],
+    constructionCondition: this.fb.control<ConstructionConditionType | null>(null),
+    facadeOrientation: this.fb.control<CardinalOrientationType | null>(null),
+    hasNaturalGas: this.fb.control<boolean | null>(null),
+    hasLpGas: this.fb.control<boolean | null>(null),
     landUseZoning: this.fb.control<string | null>(null),
     landUseCategoryId: this.fb.control<number | null>(null),
     landTenure: this.fb.control<LandTenureType | null>(null),
@@ -475,10 +482,15 @@ export class ListingFormComponent {
       gardenSizeSqm: landOrCommercial ? undefined : (raw.gardenSizeSqm ?? undefined),
       hoaFee: landOrCommercial ? undefined : (raw.hoaFee ?? undefined),
       yearBuilt: pureLand ? undefined : (raw.yearBuilt ?? undefined),
+      constructionCondition: pureLand ? undefined : (raw.constructionCondition ?? undefined),
       parkingSpaces: pureLand ? undefined : (raw.parkingSpaces ?? undefined),
+      parkingIsCovered: pureLand ? undefined : (raw.parkingIsCovered ?? undefined),
       floors: pureLand ? undefined : (raw.floors ?? undefined),
       hasHeatingCooling: pureLand ? false : raw.hasHeatingCooling,
       hasRoofGarden: pureLand ? false : raw.hasRoofGarden,
+      facadeOrientation: raw.facadeOrientation ?? undefined,
+      hasNaturalGas: raw.hasNaturalGas ?? undefined,
+      hasLpGas: raw.hasLpGas ?? undefined,
       lotSizeSqm: raw.lotSizeSqm ?? undefined,
       // Nullish-guarded even though the control is typed as a plain (non-nullable) string:
       // patchValue() (edit mode, see constructor) sets it straight from a Listing whose

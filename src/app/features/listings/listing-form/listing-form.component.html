@@ -237,6 +237,27 @@
       {{ 'listingForm.hasPavedStreet' | translate }}
     </label>
 
+    <!-- Not gated by isLandOrCommercial()/isPureLand() either — the facade faces some direction
+         and a gas hookup is just as relevant question for a house as for a commercial unit. -->
+    <div class="grid-3">
+      <label>
+        {{ 'listingForm.facadeOrientation' | translate }}
+        <select formControlName="facadeOrientation">
+          <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+          <option value="norte">{{ 'listingForm.orientationNorte' | translate }}</option>
+          <option value="sur">{{ 'listingForm.orientationSur' | translate }}</option>
+          <option value="este">{{ 'listingForm.orientationEste' | translate }}</option>
+          <option value="oeste">{{ 'listingForm.orientationOeste' | translate }}</option>
+          <option value="noreste">{{ 'listingForm.orientationNoreste' | translate }}</option>
+          <option value="noroeste">{{ 'listingForm.orientationNoroeste' | translate }}</option>
+          <option value="sureste">{{ 'listingForm.orientationSureste' | translate }}</option>
+          <option value="suroeste">{{ 'listingForm.orientationSuroeste' | translate }}</option>
+        </select>
+      </label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="hasNaturalGas" />{{ 'listingForm.hasNaturalGas' | translate }}</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="hasLpGas" />{{ 'listingForm.hasLpGas' | translate }}</label>
+    </div>
+
     @if (!isLandOrCommercial()) {
       <div class="grid-2">
         <label>
@@ -258,7 +279,7 @@
     </label>
 
     @if (!isPureLand()) {
-      <div class="grid-2">
+      <div class="grid-3">
         <label>
           {{ 'listingForm.parkingSpaces' | translate }}
           <input type="number" formControlName="parkingSpaces" min="0" />
@@ -267,6 +288,11 @@
         <label>
           {{ 'listingForm.floors' | translate }}
           <input type="number" formControlName="floors" min="0" />
+        </label>
+
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="parkingIsCovered" />
+          {{ 'listingForm.parkingIsCovered' | translate }}
         </label>
       </div>
     }
@@ -290,10 +316,22 @@
     }
 
     @if (!isPureLand()) {
-      <label>
-        {{ 'listingForm.yearBuilt' | translate }}
-        <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
-      </label>
+      <div class="grid-2">
+        <label>
+          {{ 'listingForm.yearBuilt' | translate }}
+          <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
+        </label>
+        <label>
+          {{ 'listingForm.constructionCondition' | translate }}
+          <select formControlName="constructionCondition">
+            <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
+            <option value="nueva">{{ 'listingForm.conditionNueva' | translate }}</option>
+            <option value="usada">{{ 'listingForm.conditionUsada' | translate }}</option>
+            <option value="remodelada">{{ 'listingForm.conditionRemodelada' | translate }}</option>
+            <option value="enObra">{{ 'listingForm.conditionEnObra' | translate }}</option>
+          </select>
+        </label>
+      </div>
     }
 
     @if (!isLandOrCommercial()) {
