@@ -149,6 +149,7 @@ export const es: Record<string, string> = {
   'listingDetail.contactOwner': 'Contactar al propietario',
   'listingDetail.contactOwnerSuccess': '¡Tu mensaje fue enviado!',
   'listingDetail.contactOwnerError': 'No se pudo enviar tu mensaje. Intenta de nuevo.',
+  'listingDetail.whatsappMessage': 'Hola, me interesa esta propiedad: {{title}}',
   'listingDetail.editOwnerContact': 'Editar información de contacto',
   'listingDetail.listedToday': 'Publicado hoy',
   'listingDetail.daysOnMarket': '{{count}} días en el mercado',

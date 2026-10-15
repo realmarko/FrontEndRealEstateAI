@@ -17,6 +17,7 @@ import { MortgageCalculatorComponent } from '../../../shared/components/mortgage
 import { RoiCalculatorComponent } from '../../../shared/components/roi-calculator/roi-calculator.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
+import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
@@ -52,7 +53,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -342,6 +343,10 @@ export class ListingDetailComponent {
 
   closeQrModal(): void {
     this.showQrModal.set(false);
+  }
+
+  whatsappMessage(): string {
+    return this.translation.t('listingDetail.whatsappMessage', { title: this.listing()?.title ?? '' });
   }
 
   pricePerSqm(listing: Listing): number {

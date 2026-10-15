@@ -149,6 +149,7 @@ export const en: Record<string, string> = {
   'listingDetail.contactOwner': 'Contact owner',
   'listingDetail.contactOwnerSuccess': 'Your message was sent!',
   'listingDetail.contactOwnerError': 'Could not send your message. Please try again.',
+  'listingDetail.whatsappMessage': "Hi, I'm interested in this property: {{title}}",
   'listingDetail.editOwnerContact': 'Edit contact info',
   'listingDetail.listedToday': 'Listed today',
   'listingDetail.daysOnMarket': '{{count}} days on market',

@@ -404,6 +404,13 @@
                   </p>
                 }
               }
+
+              @if (listing.ownerContactPhone && auth.isAuthenticated()) {
+                <!-- Only when signed in: ownerContactPhone is the redacted "••• ••• ••••"
+                     placeholder otherwise (see ListingExtensions.ToDto), which would build a
+                     broken wa.me link — same reasoning as AgentDetailComponent's button. -->
+                <app-whatsapp-button [phone]="listing.ownerContactPhone" [message]="whatsappMessage()" />
+              }
             </div>
           }
         }
