@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 
 // Mirrors AgencyEditComponent's identical client-side check for the logo picker.
@@ -22,7 +23,7 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-agency-create',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, FormErrorComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, FormErrorComponent, PhoneInputDirective],
   templateUrl: './agency-create.component.html',
   styleUrl: '../agency-edit/agency-edit.component.css'
 })
@@ -46,7 +47,7 @@ export class AgencyCreateComponent {
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
     address: [''],
-    phone: ['', [Validators.minLength(7), Validators.maxLength(30)]],
+    phone: ['', [Validators.minLength(10), Validators.maxLength(10)]],
     email: ['', [Validators.email, Validators.maxLength(320)]],
     workingHours: ['', [Validators.maxLength(200)]],
     website: ['', [Validators.maxLength(2048)]]

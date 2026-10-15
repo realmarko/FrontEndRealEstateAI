@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, inject } from '@angular
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { FormErrorComponent } from '../form-error/form-error.component';
+import { PhoneInputDirective } from '../../directives/phone-input.directive';
 import { FundingMethod, PurchaseTimeline } from '../../../core/models/inquiry.model';
 
 export interface ContactFormValue {
@@ -25,7 +26,7 @@ export interface ContactFormValue {
 @Component({
   selector: 'app-contact-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, FormErrorComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, FormErrorComponent, PhoneInputDirective],
   templateUrl: './contact-modal.component.html',
   styleUrl: './contact-modal.component.css'
 })
@@ -49,7 +50,7 @@ export class ContactModalComponent implements OnInit {
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
-    phone: ['', [Validators.minLength(7), Validators.maxLength(30)]],
+    phone: ['', [Validators.minLength(10), Validators.maxLength(10)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(320)]],
     message: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(5000)]],
     fundingMethod: ['' as FundingMethod | ''],

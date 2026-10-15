@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
 
 // Mirrors AgencyCreateComponent's identical client-side check for the logo picker.
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -33,7 +34,7 @@ function parseCoordinates(text: string): { latitude: number; longitude: number }
 @Component({
   selector: 'app-admin-agency-edit',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, FormErrorComponent],
+  imports: [ReactiveFormsModule, TranslatePipe, FormErrorComponent, PhoneInputDirective],
   templateUrl: './admin-agency-edit.component.html',
   styleUrl: '../../agencies/agency-edit/agency-edit.component.css'
 })
@@ -58,7 +59,7 @@ export class AdminAgencyEditComponent {
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(200)]],
     coordinates: [''],
     address: ['', [Validators.maxLength(300)]],
-    phone: ['', [Validators.minLength(7), Validators.maxLength(30)]],
+    phone: ['', [Validators.minLength(10), Validators.maxLength(10)]],
     email: ['', [Validators.email, Validators.maxLength(320)]],
     workingHours: ['', [Validators.maxLength(200)]],
     website: ['', [Validators.maxLength(2048)]],

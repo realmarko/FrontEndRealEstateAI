@@ -26,7 +26,7 @@
 
     <label>
       {{ 'agencyCreate.phone' | translate }}
-      <input type="tel" formControlName="phone" maxlength="30" />
+      <input type="tel" inputmode="numeric" formControlName="phone" appPhoneInput maxlength="12" />
       <app-form-error [control]="form.controls.phone" />
     </label>
 

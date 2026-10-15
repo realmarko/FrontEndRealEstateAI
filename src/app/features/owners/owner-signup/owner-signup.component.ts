@@ -7,6 +7,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
 
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -15,7 +16,7 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-owner-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, PhoneInputDirective],
   templateUrl: './owner-signup.component.html',
   styleUrl: './owner-signup.component.css'
 })
@@ -39,7 +40,7 @@ export class OwnerSignupComponent {
   private selectedPhoto: File | null = null;
 
   readonly form = this.fb.nonNullable.group({
-    phone: ['', [Validators.required, Validators.minLength(7)]],
+    phone: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
     bio: ['']
   });
 

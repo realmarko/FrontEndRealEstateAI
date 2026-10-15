@@ -9,6 +9,7 @@ import { BrokerageService } from '../../../core/services/brokerage.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
 
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -16,7 +17,7 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-agent-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, PhoneInputDirective],
   templateUrl: './agent-signup.component.html',
   styleUrl: './agent-signup.component.css'
 })
@@ -43,7 +44,7 @@ export class AgentSignupComponent {
   private selectedPhoto: File | null = null;
 
   readonly form = this.fb.nonNullable.group({
-    phone: ['', [Validators.required, Validators.minLength(7)]],
+    phone: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
     company: [''],
     isIndependent: [false],
     bio: [''],

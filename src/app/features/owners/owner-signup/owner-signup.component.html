@@ -21,7 +21,7 @@
 
     <label>
       {{ 'ownerSignup.phone' | translate }}
-      <input type="tel" formControlName="phone" autocomplete="tel" maxlength="30" />
+      <input type="tel" inputmode="numeric" formControlName="phone" appPhoneInput autocomplete="tel" maxlength="12" />
     </label>
 
     <label>
