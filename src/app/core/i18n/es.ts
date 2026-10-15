@@ -664,6 +664,7 @@ export const es: Record<string, string> = {
   'agencyDetail.website': 'Sitio web',
   'agencyDetail.editLink': 'Editar mi inmobiliaria',
   'agencyDetail.qrCode': 'Código QR',
+  'agencyDetail.whatsappMessage': 'Hola, vi el perfil de {{name}} en Espacial.com.mx y me gustaría contactarlos.',
   'agencyDetail.adminEditLink': 'Editar (admin)',
   'agencyDetail.notFound': 'No se encontró esta inmobiliaria.',
 

@@ -71,6 +71,13 @@
             <a class="edit-link" [routerLink]="['/admin/inmobiliarias', a.id, 'edit']">{{ 'agencyDetail.adminEditLink' | translate }}</a>
           }
 
+          @if (a.phone) {
+            <!-- No auth gate needed here, unlike the agent page's WhatsApp button — a brokerage's
+                 phone is public contact info (shown plainly above, never redacted for anon
+                 visitors; see BrokeragesController), not a per-person detail. -->
+            <app-whatsapp-button [phone]="a.phone" [message]="whatsappMessage(a.name)" />
+          }
+
           <button type="button" class="edit-link qr-link" (click)="openQrModal()">
             {{ 'agencyDetail.qrCode' | translate }}
           </button>

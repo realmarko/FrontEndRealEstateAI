@@ -664,6 +664,7 @@ export const en: Record<string, string> = {
   'agencyDetail.website': 'Website',
   'agencyDetail.editLink': 'Edit my agency',
   'agencyDetail.qrCode': 'QR code',
+  'agencyDetail.whatsappMessage': "Hi, I saw {{name}}'s profile on Espacial.com.mx and would like to get in touch.",
   'agencyDetail.adminEditLink': 'Edit (admin)',
   'agencyDetail.notFound': 'This agency could not be found.',
 

@@ -7,13 +7,15 @@ import { Agency } from '../../../core/models/agency.model';
 import { Listing, ListingType } from '../../../core/models/listing.model';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
+import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../../core/services/translation.service';
 import { toSlug } from '../../../core/services/brokerage-api.adapter';
 
 @Component({
   selector: 'app-agency-detail',
   standalone: true,
-  imports: [RouterLink, ListingGridComponent, TranslatePipe, QrCodeModalComponent],
+  imports: [RouterLink, ListingGridComponent, TranslatePipe, QrCodeModalComponent, WhatsAppButtonComponent],
   templateUrl: './agency-detail.component.html',
   styleUrl: './agency-detail.component.css'
 })
@@ -21,6 +23,7 @@ export class AgencyDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly brokerageService = inject(BrokerageService);
   private readonly listingService = inject(ListingService);
+  private readonly translation = inject(TranslationService);
   protected readonly auth = inject(AuthService);
 
   readonly agency = signal<Agency | null>(null);
@@ -93,5 +96,9 @@ export class AgencyDetailComponent {
 
   closeQrModal(): void {
     this.showQrModal.set(false);
+  }
+
+  whatsappMessage(name: string): string {
+    return this.translation.t('agencyDetail.whatsappMessage', { name });
   }
 }
