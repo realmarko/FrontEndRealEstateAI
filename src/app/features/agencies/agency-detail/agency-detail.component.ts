@@ -10,6 +10,7 @@ import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/q
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { toSlug } from '../../../core/services/brokerage-api.adapter';
 
 @Component({
@@ -24,6 +25,7 @@ export class AgencyDetailComponent {
   private readonly brokerageService = inject(BrokerageService);
   private readonly listingService = inject(ListingService);
   private readonly translation = inject(TranslationService);
+  private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
   readonly agency = signal<Agency | null>(null);
@@ -77,6 +79,15 @@ export class AgencyDetailComponent {
       next: (agency) => {
         this.agency.set(agency);
         this.listingService.fetchByAgency(agency.id).subscribe((listings) => this.agencyListings.set(listings));
+
+        this.seo.set({
+          title: agency.name,
+          description: agency.description
+            ? agency.description
+            : `Propiedades en venta y renta de ${agency.name} en Espacial.com.mx.`,
+          path: `/inmobiliarias/${toSlug(agency.name)}`,
+          image: agency.logoUrl
+        });
       },
       error: () => this.notFound.set(true)
     });

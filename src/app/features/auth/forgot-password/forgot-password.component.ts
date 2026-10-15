@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -27,6 +28,14 @@ export class ForgotPasswordComponent {
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]]
   });
+
+  constructor() {
+    inject(SeoService).set({
+      title: 'Recuperar contraseña',
+      description: 'Restablece la contraseña de tu cuenta en Espacial.com.mx.',
+      path: '/forgot-password'
+    });
+  }
 
   submit(): void {
     if (this.form.invalid) {

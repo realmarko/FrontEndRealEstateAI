@@ -4,6 +4,7 @@ import { BrokerageService } from '../../../core/services/brokerage.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { AgencyImportResult } from '../../../core/models/agency.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 const MAX_CSV_BYTES = 2 * 1024 * 1024;
 
@@ -21,6 +22,10 @@ const MAX_CSV_BYTES = 2 * 1024 * 1024;
 export class AdminAgenciesComponent {
   private readonly brokerageService = inject(BrokerageService);
   private readonly notification = inject(NotificationService);
+
+  constructor() {
+    inject(SeoService).set({ title: 'Inmobiliarias (admin)', description: 'Importación masiva de inmobiliarias.', path: '/admin/inmobiliarias' });
+  }
 
   readonly fileName = signal<string | null>(null);
   // Holds an i18n key (e.g. 'adminAgencies.invalidType'), translated in the template — not

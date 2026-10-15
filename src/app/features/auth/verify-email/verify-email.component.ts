@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-verify-email',
@@ -31,6 +32,14 @@ export class VerifyEmailComponent {
   readonly form = this.fb.nonNullable.group({
     code: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(6)]]
   });
+
+  constructor() {
+    inject(SeoService).set({
+      title: 'Verificar correo',
+      description: 'Verifica tu correo electrónico para activar tu cuenta en Espacial.com.mx.',
+      path: '/verify-email'
+    });
+  }
 
   submit(): void {
     if (this.verifying()) return;

@@ -8,6 +8,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
+import { SeoService } from '../../../core/services/seo.service';
 
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -45,6 +46,12 @@ export class OwnerSignupComponent {
   });
 
   constructor() {
+    inject(SeoService).set({
+      title: this.isEditMode ? 'Editar perfil de propietario' : 'Registrarse como propietario',
+      description: 'Crea o edita tu perfil de propietario en Espacial.com.mx.',
+      path: this.isEditMode ? '/owners/edit' : '/owners/new'
+    });
+
     if (this.isEditMode) {
       this.loadMine();
     }

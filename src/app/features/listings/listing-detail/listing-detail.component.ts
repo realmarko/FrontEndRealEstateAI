@@ -18,6 +18,7 @@ import { RoiCalculatorComponent } from '../../../shared/components/roi-calculato
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
+import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
@@ -72,6 +73,7 @@ export class ListingDetailComponent {
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly seo = inject(SeoService);
   private readonly landUseCategoryService = inject(LandUseCategoryService);
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
@@ -176,6 +178,17 @@ export class ListingDetailComponent {
     this.listingService.fetchById(this.id).subscribe({
       next: (listing) => {
         this.listing.set(listing);
+
+        this.seo.set({
+          title: `${listing.title} - ${listing.address}`,
+          description: listing.description
+            ? listing.description
+            : `${listing.title} en ${listing.type === 'rent' ? 'renta' : 'venta'} en ${listing.address}.`,
+          path: `/listings/${listing.id}`,
+          image: listing.imageUrls[0],
+          type: 'article'
+        });
+
         // Reset in case this component instance is ever reused for a different listing
         // (e.g. a future "similar listings" link) — a stale index into a shorter photo
         // array would otherwise read past the end and break the image.

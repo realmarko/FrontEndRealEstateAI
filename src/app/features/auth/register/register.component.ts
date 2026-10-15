@@ -10,6 +10,7 @@ import { UserRole } from '../../../core/models/user.model';
 import { loadGoogleIdentity, setGoogleCredentialHandler } from '../../../core/utils/load-google-identity';
 import { loadFacebookSdk, loginWithFacebookSdk } from '../../../core/utils/load-facebook-sdk';
 import { environment } from '../../../../environments/environment';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-register',
@@ -38,6 +39,14 @@ export class RegisterComponent implements AfterViewInit {
     role: ['Owner' as UserRole, Validators.required],
     acceptTerms: [false, Validators.requiredTrue]
   });
+
+  constructor() {
+    inject(SeoService).set({
+      title: 'Crear cuenta',
+      description: 'Crea tu cuenta gratis en Espacial.com.mx para publicar propiedades, contactar agentes y guardar búsquedas.',
+      path: '/register'
+    });
+  }
 
   async ngAfterViewInit(): Promise<void> {
     if (!this.googleButtonEl) return;

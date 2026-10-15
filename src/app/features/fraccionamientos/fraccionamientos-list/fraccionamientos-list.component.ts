@@ -5,6 +5,7 @@ import { FraccionamientoPublicListItem } from '../../../core/models/fraccionamie
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { StatePanelComponent } from '../../../shared/components/state-panel/state-panel.component';
+import { SeoService } from '../../../core/services/seo.service';
 
 const PAGE_SIZE = 12;
 
@@ -27,7 +28,16 @@ export class FraccionamientosListComponent implements OnInit {
   // must not overwrite items()/totalCount() with data for a page the visitor already left.
   private loadSequence = 0;
 
-  constructor(private readonly fraccionamientoService: FraccionamientoService) {}
+  constructor(
+    private readonly fraccionamientoService: FraccionamientoService,
+    seo: SeoService
+  ) {
+    seo.set({
+      title: 'Fraccionamientos',
+      description: 'Explora fraccionamientos y desarrollos residenciales en México.',
+      path: '/fraccionamientos'
+    });
+  }
 
   ngOnInit(): void {
     this.load();

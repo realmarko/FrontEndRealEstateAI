@@ -29,6 +29,7 @@ import { CurrencyInputDirective } from '../../../shared/directives/currency-inpu
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { ListingQuotaComponent } from '../../../shared/components/listing-quota/listing-quota.component';
+import { SeoService } from '../../../core/services/seo.service';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 
 // Mirrors PhotoUploadService's server-side limits exactly, so a bad file is rejected the
@@ -205,6 +206,12 @@ export class ListingFormComponent {
   private existingLng: number | null = null;
 
   constructor() {
+    inject(SeoService).set({
+      title: this.isEditMode ? 'Editar propiedad' : 'Publicar propiedad',
+      description: 'Publica o edita una propiedad en Espacial.com.mx.',
+      path: this.isEditMode ? `/listings/${this.editingId}/edit` : '/listings/new'
+    });
+
     // Recomputes whenever the shared municipalities signal (re)populates — covers both "data
     // was still loading when this component was created" and the steady-state case where it's
     // already cached from an earlier navigation. State-typed-by-hand is covered separately below

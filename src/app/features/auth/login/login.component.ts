@@ -9,6 +9,7 @@ import { FormErrorComponent } from '../../../shared/components/form-error/form-e
 import { loadGoogleIdentity, setGoogleCredentialHandler } from '../../../core/utils/load-google-identity';
 import { loadFacebookSdk, loginWithFacebookSdk } from '../../../core/utils/load-facebook-sdk';
 import { environment } from '../../../../environments/environment';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-login',
@@ -29,6 +30,14 @@ export class LoginComponent implements AfterViewInit {
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+
+  constructor() {
+    inject(SeoService).set({
+      title: 'Iniciar sesión',
+      description: 'Inicia sesión en Espacial.com.mx para contactar agentes, guardar búsquedas y publicar propiedades.',
+      path: '/login'
+    });
+  }
 
   async ngAfterViewInit(): Promise<void> {
     if (!this.googleButtonEl) return;

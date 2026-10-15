@@ -5,6 +5,7 @@ import { SavedSearch } from '../../core/models/saved-search.model';
 import { NotificationService } from '../../core/services/notification.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { CurrencyPipe } from '@angular/common';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-saved-searches',
@@ -16,8 +17,11 @@ import { CurrencyPipe } from '@angular/common';
 export class SavedSearchesComponent implements OnInit {
   constructor(
     readonly savedSearchService: SavedSearchService,
-    private readonly notification: NotificationService
-  ) {}
+    private readonly notification: NotificationService,
+    seo: SeoService
+  ) {
+    seo.set({ title: 'Búsquedas guardadas', description: 'Tus búsquedas guardadas en Espacial.com.mx.', path: '/saved-searches' });
+  }
 
   ngOnInit(): void {
     this.savedSearchService.refresh();

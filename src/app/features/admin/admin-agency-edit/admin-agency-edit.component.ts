@@ -8,6 +8,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
+import { SeoService } from '../../../core/services/seo.service';
 
 // Mirrors AgencyCreateComponent's identical client-side check for the logo picker.
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -71,6 +72,12 @@ export class AdminAgencyEditComponent {
   });
 
   constructor() {
+    inject(SeoService).set({
+      title: 'Editar inmobiliaria (admin)',
+      description: 'Edición administrativa de una inmobiliaria en Espacial.com.mx.',
+      path: `/admin/inmobiliarias/${this.id}/edit`
+    });
+
     if (!this.id) {
       this.notFound.set(true);
       this.loading.set(false);

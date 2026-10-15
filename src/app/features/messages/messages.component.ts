@@ -8,6 +8,7 @@ import { FundingMethod, Inquiry, PurchaseTimeline } from '../../core/models/inqu
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
 import { StatePanelComponent } from '../../shared/components/state-panel/state-panel.component';
+import { SeoService } from '../../core/services/seo.service';
 
 // Exact i18n key per value — a string-transform (e.g. camelCase -> "funding" + Titlecase)
 // would silently miss keys like fundingInfonavitFovissste or timelineOneToThreeMonths.
@@ -39,8 +40,11 @@ export class MessagesComponent implements OnInit {
 
   constructor(
     readonly inquiryService: InquiryService,
-    private readonly notification: NotificationService
-  ) {}
+    private readonly notification: NotificationService,
+    seo: SeoService
+  ) {
+    seo.set({ title: 'Mensajes', description: 'Tus mensajes en Espacial.com.mx.', path: '/messages' });
+  }
 
   ngOnInit(): void {
     this.inquiryService.refresh();

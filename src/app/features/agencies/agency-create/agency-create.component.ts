@@ -8,6 +8,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
+import { SeoService } from '../../../core/services/seo.service';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 
 // Mirrors AgencyEditComponent's identical client-side check for the logo picker.
@@ -54,6 +55,12 @@ export class AgencyCreateComponent {
   });
 
   constructor() {
+    inject(SeoService).set({
+      title: 'Agregar inmobiliaria',
+      description: 'Agrega una nueva inmobiliaria a Espacial.com.mx.',
+      path: '/inmobiliarias/new'
+    });
+
     this.reverseGeocodeAddress(this.lat, this.lng);
   }
 

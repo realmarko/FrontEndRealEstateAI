@@ -6,6 +6,7 @@ import { toSlug } from '../../../core/services/brokerage-api.adapter';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 // Mirrors PhotoUploadService's server-side limits exactly — see AgentSignupComponent's identical
 // client-side check for the agent photo picker.
@@ -44,6 +45,12 @@ export class AgencyEditComponent {
   });
 
   constructor() {
+    inject(SeoService).set({
+      title: 'Editar mi inmobiliaria',
+      description: 'Edita el perfil de tu inmobiliaria en Espacial.com.mx.',
+      path: '/inmobiliarias/edit'
+    });
+
     // No id route param on purpose: /brokerages/mine resolves it from the caller's own agent
     // profile, so an agent without a brokerage (or whose own profile doesn't exist yet) gets a
     // clean 404 here instead of needing to already know an id to visit this page.

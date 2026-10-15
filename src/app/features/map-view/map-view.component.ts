@@ -23,6 +23,7 @@ import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
 import { ComparisonService } from '../../core/services/comparison.service';
+import { SeoService } from '../../core/services/seo.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
@@ -568,8 +569,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly brokerageService: BrokerageService,
     private readonly savedSearchService: SavedSearchService,
     private readonly geomarketingService: GeomarketingService,
-    private readonly fraccionamientoService: FraccionamientoService
+    private readonly fraccionamientoService: FraccionamientoService,
+    seo: SeoService
   ) {
+    seo.set({
+      title: 'Mapa de propiedades',
+      description: 'Explora propiedades en venta y renta en un mapa interactivo, filtra por zona, precio y tipo.',
+      path: '/map'
+    });
+
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
     // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
     effect(() => {

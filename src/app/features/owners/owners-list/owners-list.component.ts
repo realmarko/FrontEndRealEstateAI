@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { OwnerService } from '../../../core/services/owner.service';
 import { OwnerCardComponent } from '../components/owner-card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -28,6 +29,12 @@ export class OwnersListComponent {
     // Re-fetch on every visit to this page — OwnerService's cache is a shared singleton that
     // can go stale after actions elsewhere, same reasoning as AgentsListComponent.
     this.refreshNow();
+
+    inject(SeoService).set({
+      title: 'Directorio de propietarios',
+      description: 'Directorio de propietarios con propiedades en venta y renta en México.',
+      path: '/owners'
+    });
   }
 
   onSearchChange(term: string): void {

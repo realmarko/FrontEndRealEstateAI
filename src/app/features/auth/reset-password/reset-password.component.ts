@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { passwordStrengthValidator } from '../../../shared/utils/password-strength';
+import { SeoService } from '../../../core/services/seo.service';
 
 function passwordsMatch(control: AbstractControl): ValidationErrors | null {
   const password = control.get('newPassword')?.value;
@@ -42,6 +43,14 @@ export class ResetPasswordComponent {
     },
     { validators: passwordsMatch }
   );
+
+  constructor() {
+    inject(SeoService).set({
+      title: 'Restablecer contraseña',
+      description: 'Elige una nueva contraseña para tu cuenta en Espacial.com.mx.',
+      path: '/reset-password'
+    });
+  }
 
   submit(): void {
     if (this.form.invalid || !this.email || !this.token) {

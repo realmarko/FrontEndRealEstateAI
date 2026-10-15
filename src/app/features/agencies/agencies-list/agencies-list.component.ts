@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { BrokerageService } from '../../../core/services/brokerage.service';
 import { AgencyCardComponent } from '../components/agency-card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -30,6 +31,12 @@ export class AgenciesListComponent {
     // Re-fetch on every visit (BrokerageService's directory signal is a shared singleton that
     // can go stale after actions elsewhere, e.g. an agent editing their agency profile).
     this.refreshNow();
+
+    inject(SeoService).set({
+      title: 'Inmobiliarias',
+      description: 'Directorio de inmobiliarias en México con propiedades en venta y renta.',
+      path: '/inmobiliarias'
+    });
   }
 
   onSearchChange(term: string): void {

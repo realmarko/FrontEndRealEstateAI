@@ -10,6 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
+import { SeoService } from '../../../core/services/seo.service';
 
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
@@ -52,6 +53,12 @@ export class AgentSignupComponent {
   });
 
   constructor() {
+    inject(SeoService).set({
+      title: this.isEditMode ? 'Editar perfil de agente' : 'Registrarse como agente',
+      description: 'Crea o edita tu perfil de agente inmobiliario en Espacial.com.mx.',
+      path: this.isEditMode ? '/agents/edit' : '/agents/new'
+    });
+
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
 
     this.form.controls.isIndependent.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isIndependent) => {

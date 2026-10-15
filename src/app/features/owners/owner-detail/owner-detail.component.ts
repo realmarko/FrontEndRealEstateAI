@@ -10,7 +10,9 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { TranslationService } from '../../../core/services/translation.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
+import { toSlug } from '../../../core/services/owner-api.adapter';
 
 // Mirrors AgentDetailComponent's shape throughout, trimmed: no reviews/specialties/company.
 @Component({
@@ -26,6 +28,7 @@ export class OwnerDetailComponent {
   private readonly ownerService = inject(OwnerService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
+  private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
   // Resolved in the constructor below — every link built elsewhere now points here with
@@ -53,6 +56,13 @@ export class OwnerDetailComponent {
         this.ownerId = owner.id;
         this.owner.set(owner);
         this.loading.set(false);
+
+        this.seo.set({
+          title: `${owner.name} - Propiedades`,
+          description: `Propiedades en venta y renta publicadas por ${owner.name} en Espacial.com.mx.`,
+          path: `/owners/${toSlug(owner.name)}`,
+          image: owner.photoUrl
+        });
 
         this.ownerService.getListings(this.ownerId).subscribe((listings) => this.listings.set(listings));
 

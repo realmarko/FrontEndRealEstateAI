@@ -6,6 +6,7 @@ import { ComparisonService } from '../../../core/services/comparison.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-listing-comparison',
@@ -24,6 +25,11 @@ export class ListingComparisonComponent {
   readonly loadedIds = computed(() => this.listings().map((l) => l.id));
 
   constructor() {
+    inject(SeoService).set({
+      title: 'Comparar propiedades',
+      description: 'Compara propiedades lado a lado en Espacial.com.mx.',
+      path: '/comparar'
+    });
     this.fetchListings();
   }
 

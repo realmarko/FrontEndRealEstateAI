@@ -10,6 +10,7 @@ import {
   FraccionamientoListItem
 } from '../../../core/models/fraccionamiento.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 type StatusFilter = 'Candidate' | 'Published' | 'Rejected' | 'all';
 
@@ -176,8 +177,11 @@ export class AdminFraccionamientosComponent implements OnInit {
 
   constructor(
     private readonly fraccionamientoService: FraccionamientoService,
-    private readonly notification: NotificationService
-  ) {}
+    private readonly notification: NotificationService,
+    seo: SeoService
+  ) {
+    seo.set({ title: 'Fraccionamientos (admin)', description: 'Administración de fraccionamientos.', path: '/admin/fraccionamientos' });
+  }
 
   ngOnInit(): void {
     this.load();

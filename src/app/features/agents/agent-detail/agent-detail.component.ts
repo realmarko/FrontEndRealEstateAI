@@ -12,6 +12,7 @@ import { ContactFormValue, ContactModalComponent } from '../../../shared/compone
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
+import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
 import { toSlug } from '../../../core/services/agent-api.adapter';
@@ -29,6 +30,7 @@ export class AgentDetailComponent {
   private readonly agentService = inject(AgentService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
+  private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
   // Resolved in the constructor below, before any other agentService call that needs it — every
@@ -74,6 +76,15 @@ export class AgentDetailComponent {
         this.agentId = agent.id;
         this.agent.set(agent);
         this.loading.set(false);
+
+        this.seo.set({
+          title: `${agent.name}${agent.company ? ' - ' + agent.company : ''}`,
+          description: agent.bio
+            ? agent.bio
+            : `Perfil de ${agent.name}, agente inmobiliario en Espacial.com.mx. Consulta sus propiedades y reseñas.`,
+          path: `/agents/${toSlug(agent.name)}`,
+          image: agent.photoUrl
+        });
 
         this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
         this.agentService.getListings(this.agentId).subscribe((listings) => this.listings.set(listings));

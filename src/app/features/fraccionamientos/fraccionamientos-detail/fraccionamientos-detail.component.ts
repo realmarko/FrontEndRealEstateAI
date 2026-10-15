@@ -10,6 +10,7 @@ import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loa
 import { StatePanelComponent } from '../../../shared/components/state-panel/state-panel.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
+import { SeoService } from '../../../core/services/seo.service';
 
 function parseAmenities(json: string | null): string[] {
   if (!json) return [];
@@ -33,6 +34,7 @@ export class FraccionamientosDetailComponent {
   private readonly fraccionamientoService = inject(FraccionamientoService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
+  private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
@@ -110,6 +112,15 @@ export class FraccionamientosDetailComponent {
       next: (detail) => {
         this.frac.set(detail);
         this.loading.set(false);
+
+        this.seo.set({
+          title: detail.name,
+          description: detail.description
+            ? detail.description
+            : `${detail.name}, fraccionamiento en ${detail.city}, ${detail.state}. Consulta propiedades disponibles.`,
+          path: `/fraccionamientos/${detail.id}`,
+          image: detail.masterPlanImageUrl ?? undefined
+        });
       },
       error: (err) => {
         this.loading.set(false);

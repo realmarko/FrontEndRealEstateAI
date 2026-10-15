@@ -9,6 +9,7 @@ import { StatePanelComponent } from '../../../shared/components/state-panel/stat
 import { TranslationService } from '../../../core/services/translation.service';
 import { DealDetailModalComponent } from '../deal-detail-modal/deal-detail-modal.component';
 import { NewDealModalComponent } from '../new-deal-modal/new-deal-modal.component';
+import { SeoService } from '../../../core/services/seo.service';
 
 // Post-venta's stage id (seeded by the backend's AddSalePipeline migration) — excluded from
 // "active" and counted as "closed", same convention as SaleProcessesController.FinalStageId.
@@ -25,6 +26,10 @@ export class PipelineBoardComponent implements OnInit {
   protected readonly pipeline = inject(PipelineService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
+
+  constructor() {
+    inject(SeoService).set({ title: 'Pipeline de ventas', description: 'Pipeline de ventas en Espacial.com.mx.', path: '/pipeline' });
+  }
 
   readonly columns = computed(() =>
     this.pipeline.stages().map((stage) => ({

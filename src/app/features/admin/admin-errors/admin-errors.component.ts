@@ -5,6 +5,7 @@ import { ErrorLogService } from '../../../core/services/error-log.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ErrorLogGroup } from '../../../core/models/error-log.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 type StatusFilter = 'unresolved' | 'resolved' | 'all';
 
@@ -49,8 +50,11 @@ export class AdminErrorsComponent implements OnInit {
 
   constructor(
     private readonly errorLogService: ErrorLogService,
-    private readonly notification: NotificationService
-  ) {}
+    private readonly notification: NotificationService,
+    seo: SeoService
+  ) {
+    seo.set({ title: 'Errores (admin)', description: 'Registro de errores del sistema.', path: '/admin/errors' });
+  }
 
   ngOnInit(): void {
     this.load();

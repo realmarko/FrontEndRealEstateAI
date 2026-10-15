@@ -3,6 +3,7 @@ import { AgentService } from '../../../core/services/agent.service';
 import { BrokerageService } from '../../../core/services/brokerage.service';
 import { AgentCardComponent } from '../components/agent-card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { SeoService } from '../../../core/services/seo.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -35,6 +36,12 @@ export class AgentsListComponent {
     // Re-fetch on every visit to this page (AgentService's cache is a shared singleton that
     // can go stale after actions elsewhere, e.g. submitting or deleting a review).
     this.refreshNow();
+
+    inject(SeoService).set({
+      title: 'Agentes inmobiliarios',
+      description: 'Encuentra agentes inmobiliarios verificados en México, con reseñas y propiedades disponibles.',
+      path: '/agents'
+    });
   }
 
   onSearchChange(term: string): void {

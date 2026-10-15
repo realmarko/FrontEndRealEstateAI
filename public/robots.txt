@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /pipeline
+Disallow: /messages
+Disallow: /favorites
+Disallow: /comparar
+Disallow: /saved-searches
+Disallow: /*/edit
+Disallow: /*/new
+
+Sitemap: https://espacial.com.mx/sitemap.xml
