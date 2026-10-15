@@ -85,6 +85,13 @@
               <button type="button" class="id-card-cta" (click)="openContactModal()">
                 {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
               </button>
+
+              @if (auth.isAuthenticated()) {
+                <!-- Only when signed in: agent.phone is the real redacted-for-anon value
+                     ("••• ••• ••••") otherwise (see AgentsController), which would build a
+                     broken wa.me link. -->
+                <app-whatsapp-button [phone]="agent.phone" [message]="whatsappMessage(agent.name)" />
+              }
             }
 
             <button type="button" class="id-card-cta id-card-cta-secondary" (click)="openQrModal()">

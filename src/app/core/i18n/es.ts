@@ -212,6 +212,8 @@ export const es: Record<string, string> = {
   'transferListingModal.sending': 'Transfiriendo...',
   'transferListingModal.close': 'Cerrar',
 
+  'whatsappButton.label': 'Enviar WhatsApp',
+
   'qrCodeModal.factSheetTitle': 'Ficha técnica',
   'qrCodeModal.agentTitle': 'Propiedades del agente',
   'qrCodeModal.agencyTitle': 'Propiedades de la inmobiliaria',
@@ -527,6 +529,7 @@ export const es: Record<string, string> = {
   'agentDetail.back': 'Volver a agentes',
   'agentDetail.contact': 'Contactar a {{name}}',
   'agentDetail.qrCode': 'Código QR',
+  'agentDetail.whatsappMessage': 'Hola {{name}}, vi tu perfil en Espacial.com.mx y me gustaría contactarte.',
   'agentDetail.aboutTitle': 'Sobre {{name}}',
   'agentDetail.specialtiesTitle': 'Especialidades',
   'agentDetail.contactTitle': 'Información de contacto',

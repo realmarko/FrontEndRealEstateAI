@@ -1,0 +1,28 @@
+/* WhatsApp's own brand green, not a site design token — this button is meant to be
+   instantly recognizable as "the WhatsApp button," the same way a Facebook/Instagram
+   mark wouldn't borrow the site's navy/gold either. */
+.whatsapp-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(37, 211, 102, 0.35);
+}
+
+.whatsapp-button:hover {
+  background: #20bd5a;
+}
+
+.whatsapp-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

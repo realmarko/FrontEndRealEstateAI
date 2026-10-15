@@ -11,6 +11,7 @@ import { RatingStarsComponent } from '../../../shared/components/rating-stars/ra
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
+import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
 import { TranslationService } from '../../../core/services/translation.service';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
 import { toSlug } from '../../../core/services/agent-api.adapter';
@@ -18,7 +19,7 @@ import { toSlug } from '../../../core/services/agent-api.adapter';
 @Component({
   selector: 'app-agent-detail',
   standalone: true,
-  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent, ListingGridComponent, QrCodeModalComponent],
+  imports: [RouterLink, TranslatePipe, RatingStarsComponent, DecimalPipe, DatePipe, ContactModalComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent],
   templateUrl: './agent-detail.component.html',
   styleUrl: './agent-detail.component.css'
 })
@@ -130,6 +131,10 @@ export class AgentDetailComponent {
         this.notification.error('agentDetail.contactError');
       }
     });
+  }
+
+  whatsappMessage(name: string): string {
+    return this.translation.t('agentDetail.whatsappMessage', { name });
   }
 
   openQrModal(): void {
