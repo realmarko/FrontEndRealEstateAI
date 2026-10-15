@@ -61,10 +61,9 @@ export class AgentDetailComponent {
   // above) — the QR has to encode that public URL, not an internal numeric-id one, since it's
   // meant to be scanned by a stranger with no session.
   readonly agentSlug = computed(() => toSlug(this.agent()?.name ?? ''));
-  // window.location.origin rather than a hardcoded domain: always matches whatever origin the
-  // page is actually served from (localhost, dev.espacial.com.mx, espacial.com.mx), so the same
-  // code produces a correct, scannable QR in every environment without an environment.ts lookup.
-  readonly qrCodeUrl = computed(() => `${window.location.origin}/agents/${this.agentSlug()}`);
+  // seo.origin, not document.location.origin directly — the latter doesn't exist during SSR/
+  // prerendering and is meaningless there anyway (no real request host at build time).
+  readonly qrCodeUrl = computed(() => `${this.seo.origin}/agents/${this.agentSlug()}`);
 
   constructor() {
     const param = this.route.snapshot.paramMap.get('id') ?? '';
@@ -233,7 +232,7 @@ export class AgentDetailComponent {
       '@type': 'RealEstateAgent',
       name: agent.name,
       image: agent.photoUrl || undefined,
-      url: `${window.location.origin}/agents/${toSlug(agent.name)}`,
+      url: `${this.seo.origin}/agents/${toSlug(agent.name)}`,
       worksFor: agent.company ? { '@type': 'Organization', name: agent.company } : undefined,
       aggregateRating:
         agent.reviewsCount > 0 && agent.averageRating != null

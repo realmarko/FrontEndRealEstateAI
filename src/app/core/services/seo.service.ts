@@ -1,6 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
+import { environment } from '../../../environments/environment';
+import { isBrowser } from '../utils/platform';
 
 export interface PageSeo {
   title: string;
@@ -34,23 +36,24 @@ const MAX_DESCRIPTION_LENGTH = 160;
 // makes one call instead of repeating this boilerplate — see feedback_seo_every_new_page memory:
 // every new route is expected to call this, not just the pages covered in the initial pass.
 //
-// Caveat worth knowing, not fixable from here: this app is pure client-side rendering (no SSR/
-// prerendering), so these tags only exist in the DOM after Angular runs. Google's own crawler
-// executes JS and picks them up, but WhatsApp/Facebook/Twitter's link-preview bots fetch raw
-// HTML only and never see them — og:image previews on a shared chat link won't work until SSR
-// or prerendering is added separately.
+// The 5 dynamic entity-detail routes are prerendered at build time (app.routes.server.ts), so
+// WhatsApp/Facebook/Twitter's link-preview bots now see these tags in the raw static HTML too,
+// not just Google's own JS-executing crawler.
 @Injectable({ providedIn: 'root' })
 export class SeoService {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
+  private readonly isBrowser = isBrowser();
 
-  // environment.apiUrl is the backend's origin, not the frontend's — the frontend has no
-  // equivalent constant today, so this derives it from wherever the app is actually running,
-  // which is correct in every environment (localhost, dev, prod) without adding a new one.
-  private get origin(): string {
-    return this.document.location.origin;
-  }
+  // In the browser, the real request origin is always correct (and more precise than a
+  // hardcoded value — e.g. `ng serve` on a non-default port). During prerendering there's no
+  // real request host to read at all (Angular's build-time renderer uses a meaningless internal
+  // placeholder), so og:url/canonical/structured-data URLs baked into the static HTML fall back
+  // to the environment's own known public origin instead. Public so every other call site that
+  // needs an absolute site URL (QR codes, a detail page's own structured-data url) shares this
+  // one definition instead of re-deriving it.
+  readonly origin: string = this.isBrowser ? this.document.location.origin : environment.siteUrl;
 
   set(page: Partial<PageSeo> & Pick<PageSeo, 'title' | 'description' | 'path'>): void {
     const fullTitle = `${page.title} | ${SITE_NAME}`;

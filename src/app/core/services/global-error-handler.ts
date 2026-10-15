@@ -4,6 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import * as Sentry from '@sentry/angular';
 import { ErrorReportingService } from './error-reporting.service';
+import { isBrowser } from '../utils/platform';
 
 // Many of this app's services subscribe to an HTTP call with no error callback (e.g.
 // InquiryService.refresh) — a failed request then throws uncaught and lands here as the raw
@@ -60,8 +61,12 @@ function describeError(error: unknown): string {
 @Injectable()
 export class GlobalErrorHandler implements ErrorHandler {
   private readonly errorReporting = inject(ErrorReportingService);
+  // No sessionStorage/window exists during SSR/prerendering — the chunk-reload recovery below is
+  // meaningless at build time anyway (there's no stale chunk to recover from), so it's skipped.
+  private readonly isBrowser = isBrowser();
 
   constructor() {
+    if (!this.isBrowser) return;
     // A route that activates successfully means the current chunk manifest is good again — clear
     // the guard so a chunk failure from a *later* deploy (while this tab stays open) can still
     // trigger one reload of its own, instead of the very first reload silently disarming it for
@@ -78,7 +83,7 @@ export class GlobalErrorHandler implements ErrorHandler {
     const stack = error instanceof Error ? error.stack : undefined;
     this.errorReporting.report(message, stack);
 
-    if (isChunkLoadError(error)) {
+    if (this.isBrowser && isChunkLoadError(error)) {
       this.reloadForStaleChunk();
       return;
     }

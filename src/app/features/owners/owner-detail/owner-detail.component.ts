@@ -68,7 +68,7 @@ export class OwnerDetailComponent {
             '@type': 'Person',
             name: owner.name,
             image: owner.photoUrl || undefined,
-            url: `${window.location.origin}/owners/${toSlug(owner.name)}`
+            url: `${this.seo.origin}/owners/${toSlug(owner.name)}`
           }
         });
 

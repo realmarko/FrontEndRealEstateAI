@@ -37,9 +37,9 @@ export class AgencyDetailComponent {
   // below) — the QR has to encode that public URL, not an internal numeric-id one, since it's
   // meant to be scanned by a stranger with no session.
   readonly agencySlug = computed(() => toSlug(this.agency()?.name ?? ''));
-  // window.location.origin rather than a hardcoded domain: always matches whatever origin the
-  // page is actually served from (localhost, dev.espacial.com.mx, espacial.com.mx).
-  readonly qrCodeUrl = computed(() => `${window.location.origin}/inmobiliarias/${this.agencySlug()}`);
+  // seo.origin, not document.location.origin directly — the latter doesn't exist during SSR/
+  // prerendering and is meaningless there anyway (no real request host at build time).
+  readonly qrCodeUrl = computed(() => `${this.seo.origin}/inmobiliarias/${this.agencySlug()}`);
 
   // Same filter shape as /listings (ListingListComponent) minus the company filter, which would
   // be redundant here — every listing on this page already belongs to this one agency.
@@ -123,7 +123,7 @@ export class AgencyDetailComponent {
       '@type': 'RealEstateAgent',
       name: agency.name,
       image: agency.logoUrl || undefined,
-      url: `${window.location.origin}/inmobiliarias/${toSlug(agency.name)}`,
+      url: `${this.seo.origin}/inmobiliarias/${toSlug(agency.name)}`,
       telephone: agency.phone || undefined,
       address:
         agency.city || agency.state

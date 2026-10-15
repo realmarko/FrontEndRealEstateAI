@@ -1,5 +1,6 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 
@@ -82,5 +83,31 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
     expect(localStorage.getItem('reapp_token')).toBeNull();
     expect(localStorage.getItem('reapp_user')).toBeNull();
+  });
+
+  // Regression guard: this service used to touch `localStorage` unconditionally, which threw
+  // ReferenceError and broke the build during SSR/prerendering (no localStorage exists there,
+  // simulated here via PLATFORM_ID: 'server').
+  describe('on the server platform', () => {
+    let serverService: AuthService;
+
+    beforeEach(() => {
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          provideHttpClient(),
+          provideHttpClientTesting(),
+          { provide: PLATFORM_ID, useValue: 'server' }
+        ]
+      });
+      serverService = TestBed.inject(AuthService);
+    });
+
+    it('starts logged out without touching localStorage, and logout()/token stay safe', () => {
+      expect(serverService.isAuthenticated()).toBe(false);
+      expect(serverService.currentUser()).toBeNull();
+      expect(serverService.token).toBeNull();
+      expect(() => serverService.logout()).not.toThrow();
+    });
   });
 });

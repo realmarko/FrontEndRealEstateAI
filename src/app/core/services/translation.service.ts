@@ -1,6 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Injectable, inject, signal } from '@angular/core';
 import { en } from '../i18n/en';
 import { es } from '../i18n/es';
+import { isBrowser } from '../utils/platform';
 
 export type Lang = 'en' | 'es';
 
@@ -9,16 +11,21 @@ const DICTIONARIES: Record<Lang, Record<string, string>> = { en, es };
 
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
+  // No localStorage/navigator exists during SSR/prerendering — defaults to 'en' at build time;
+  // the real lang is restored client-side on hydration, same as AuthService's session.
+  private readonly isBrowser = isBrowser();
+  private readonly document = inject(DOCUMENT);
+
   readonly lang = signal<Lang>(this.readInitialLang());
 
   constructor() {
-    document.documentElement.lang = this.lang();
+    this.document.documentElement.lang = this.lang();
   }
 
   setLang(lang: Lang): void {
     this.lang.set(lang);
-    localStorage.setItem(LANG_KEY, lang);
-    document.documentElement.lang = lang;
+    if (this.isBrowser) localStorage.setItem(LANG_KEY, lang);
+    this.document.documentElement.lang = lang;
   }
 
   t(key: string, params?: Record<string, string | number>): string {
@@ -35,6 +42,7 @@ export class TranslationService {
   }
 
   private readInitialLang(): Lang {
+    if (!this.isBrowser) return 'en';
     const stored = localStorage.getItem(LANG_KEY);
     if (stored === 'en' || stored === 'es') return stored;
     return navigator.language?.toLowerCase().startsWith('es') ? 'es' : 'en';

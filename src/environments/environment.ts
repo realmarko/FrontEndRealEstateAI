@@ -3,6 +3,7 @@ import { FACEBOOK_APP_ID, GOOGLE_CLIENT_ID, GOOGLE_MAPS_API_KEY } from './env-ke
 export const environment = {
   production: true,
   apiUrl: '/api',
+  siteUrl: 'https://espacial.com.mx',
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   googleClientId: GOOGLE_CLIENT_ID,
   facebookAppId: FACEBOOK_APP_ID,

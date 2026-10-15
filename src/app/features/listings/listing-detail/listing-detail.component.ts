@@ -376,7 +376,7 @@ export class ListingDetailComponent {
       '@type': 'RealEstateListing',
       name: listing.title,
       description: listing.description || undefined,
-      url: `${window.location.origin}/listings/${listing.id}`,
+      url: `${this.seo.origin}/listings/${listing.id}`,
       image: listing.imageUrls.length ? listing.imageUrls : undefined,
       datePosted: listing.createdAt,
       address: {

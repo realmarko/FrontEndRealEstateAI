@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthCredentials, RegisterDetails, User, UserRole } from '../models/user.model';
+import { isBrowser } from '../utils/platform';
 
 const TOKEN_KEY = 'reapp_token';
 const USER_KEY = 'reapp_user';
@@ -26,6 +27,9 @@ interface AuthResponseDto {
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/auth`;
+  // No localStorage/session exists during SSR/prerendering — every page is rendered as a
+  // logged-out visitor at build time, same as a real anonymous visitor would see pre-hydration.
+  private readonly isBrowser = isBrowser();
 
   private readonly currentUserSignal = signal<User | null>(this.restoreUser());
 
@@ -33,7 +37,7 @@ export class AuthService {
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
 
   get token(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+    return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
   }
 
   // No session starts here anymore — the account isn't usable until verifyEmail() succeeds, so
@@ -110,15 +114,19 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    if (this.isBrowser) {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+    }
     this.currentUserSignal.set(null);
   }
 
   private startSession(res: AuthResponseDto): void {
     const user = this.toUser(res.user);
-    localStorage.setItem(TOKEN_KEY, res.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
+    if (this.isBrowser) {
+      localStorage.setItem(TOKEN_KEY, res.token);
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+    }
     this.currentUserSignal.set(user);
   }
 
@@ -133,6 +141,7 @@ export class AuthService {
   }
 
   private restoreUser(): User | null {
+    if (!this.isBrowser) return null;
     const raw = localStorage.getItem(USER_KEY);
     if (!raw || !localStorage.getItem(TOKEN_KEY)) return null;
     try {

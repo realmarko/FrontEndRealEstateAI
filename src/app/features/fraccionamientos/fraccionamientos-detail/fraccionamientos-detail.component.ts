@@ -123,7 +123,7 @@ export class FraccionamientosDetailComponent {
           structuredData: {
             '@type': 'Place',
             name: detail.name,
-            url: `${window.location.origin}/fraccionamientos/${detail.id}`,
+            url: `${this.seo.origin}/fraccionamientos/${detail.id}`,
             address: { '@type': 'PostalAddress', addressLocality: detail.city, addressRegion: detail.state },
             geo: { '@type': 'GeoCoordinates', latitude: detail.latitude, longitude: detail.longitude }
           }

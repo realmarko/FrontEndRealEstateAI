@@ -6,6 +6,7 @@ import { Listing } from '../models/listing.model';
 import { ListingDto, fromDto } from './listing-api.adapter';
 import { AuthService } from './auth.service';
 import { NotificationService } from './notification.service';
+import { isBrowser } from '../utils/platform';
 
 interface FavoriteDto {
   id: string;
@@ -23,6 +24,7 @@ export class FavoritesService {
   private readonly auth = inject(AuthService);
   private readonly notification = inject(NotificationService);
   private readonly apiUrl = `${environment.apiUrl}/favorites`;
+  private readonly isBrowser = isBrowser();
 
   private readonly favoriteIdsSignal = signal<ReadonlySet<string>>(new Set());
   private readonly favoriteListingsSignal = signal<Listing[]>([]);
@@ -161,6 +163,7 @@ export class FavoritesService {
   }
 
   private clearLegacyLocalStorage(): void {
+    if (!this.isBrowser) return;
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const key = localStorage.key(i);
       if (key?.startsWith(LEGACY_FAVORITES_KEY_PREFIX)) localStorage.removeItem(key);
