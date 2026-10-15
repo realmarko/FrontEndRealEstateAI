@@ -61,7 +61,15 @@ export class OwnerDetailComponent {
           title: `${owner.name} - Propiedades`,
           description: `Propiedades en venta y renta publicadas por ${owner.name} en Espacial.com.mx.`,
           path: `/owners/${toSlug(owner.name)}`,
-          image: owner.photoUrl
+          image: owner.photoUrl,
+          structuredData: {
+            // Phone/email left out: both are redacted to "•••" server-side for an anonymous
+            // visitor (OwnersController), same reasoning as AgentDetailComponent's.
+            '@type': 'Person',
+            name: owner.name,
+            image: owner.photoUrl || undefined,
+            url: `${window.location.origin}/owners/${toSlug(owner.name)}`
+          }
         });
 
         this.ownerService.getListings(this.ownerId).subscribe((listings) => this.listings.set(listings));

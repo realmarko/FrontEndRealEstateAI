@@ -13,6 +13,11 @@ export interface PageSeo {
   // 'website' for list/static pages, 'article' for a single entity's own detail page — the two
   // values Open Graph itself defines as meaningful for this kind of site.
   type?: 'website' | 'article';
+  // A schema.org JSON-LD object (RealEstateListing, RealEstateAgent, Place, ...) — omitted for
+  // every page except the dynamic entity-detail ones, which build and pass their own. Cleared
+  // automatically on any set() call that doesn't pass one, so navigating away from a detail page
+  // never leaves a stale listing's structured data describing the next page the visitor lands on.
+  structuredData?: Record<string, unknown>;
 }
 
 const SITE_NAME = 'Espacial.com.mx';
@@ -73,6 +78,7 @@ export class SeoService {
     this.meta.updateTag({ name: 'twitter:image', content: image });
 
     this.setCanonical(url);
+    this.setStructuredData(page.structuredData ?? null);
   }
 
   private absoluteUrl(src: string): string {
@@ -89,5 +95,22 @@ export class SeoService {
       this.document.head.appendChild(link);
     }
     link.setAttribute('href', url);
+  }
+
+  // One <script type="application/ld+json"> per page, same find-or-create-then-update approach
+  // as setCanonical. Google reads this even though it only exists in the DOM after Angular runs
+  // (its crawler executes JS, unlike WhatsApp/Facebook's) — see the class comment above.
+  private setStructuredData(data: Record<string, unknown> | null): void {
+    const existing = this.document.querySelector<HTMLScriptElement>('script[data-seo-jsonld]');
+    if (!data) {
+      existing?.remove();
+      return;
+    }
+
+    const script = existing ?? this.document.createElement('script');
+    script.setAttribute('type', 'application/ld+json');
+    script.setAttribute('data-seo-jsonld', '');
+    script.textContent = JSON.stringify({ '@context': 'https://schema.org', ...data });
+    if (!existing) this.document.head.appendChild(script);
   }
 }

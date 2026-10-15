@@ -86,7 +86,8 @@ export class AgencyDetailComponent {
             ? agency.description
             : `Propiedades en venta y renta de ${agency.name} en Espacial.com.mx.`,
           path: `/inmobiliarias/${toSlug(agency.name)}`,
-          image: agency.logoUrl
+          image: agency.logoUrl,
+          structuredData: this.buildStructuredData(agency)
         });
       },
       error: () => this.notFound.set(true)
@@ -111,5 +112,27 @@ export class AgencyDetailComponent {
 
   whatsappMessage(name: string): string {
     return this.translation.t('agencyDetail.whatsappMessage', { name });
+  }
+
+  // schema.org RealEstateAgent (a brokerage, not an individual person, but the closest
+  // schema.org vocabulary fit for a real estate business) — telephone is safe to include here,
+  // unlike AgentDetailComponent's: a brokerage's phone is shown plainly to every visitor, never
+  // redacted for anonymous ones (see BrokeragesController).
+  private buildStructuredData(agency: Agency): Record<string, unknown> {
+    return {
+      '@type': 'RealEstateAgent',
+      name: agency.name,
+      image: agency.logoUrl || undefined,
+      url: `${window.location.origin}/inmobiliarias/${toSlug(agency.name)}`,
+      telephone: agency.phone || undefined,
+      address:
+        agency.city || agency.state
+          ? { '@type': 'PostalAddress', addressLocality: agency.city || undefined, addressRegion: agency.state || undefined }
+          : undefined,
+      geo:
+        agency.latitude != null && agency.longitude != null
+          ? { '@type': 'GeoCoordinates', latitude: agency.latitude, longitude: agency.longitude }
+          : undefined
+    };
   }
 }

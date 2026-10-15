@@ -83,7 +83,8 @@ export class AgentDetailComponent {
             ? agent.bio
             : `Perfil de ${agent.name}, agente inmobiliario en Espacial.com.mx. Consulta sus propiedades y reseñas.`,
           path: `/agents/${toSlug(agent.name)}`,
-          image: agent.photoUrl
+          image: agent.photoUrl,
+          structuredData: this.buildStructuredData(agent)
         });
 
         this.agentService.getReviews(this.agentId).subscribe((reviews) => this.reviews.set(reviews));
@@ -221,5 +222,23 @@ export class AgentDetailComponent {
       },
       error: () => this.notification.error('agentDetail.deleteError')
     });
+  }
+
+  // schema.org RealEstateAgent — telephone/email are deliberately left out: both are redacted
+  // to "•••" server-side for an anonymous visitor (AgentsController), and structured data has
+  // no concept of "log in to see this," so emitting either here risks publishing the literal
+  // redacted placeholder as if it were real contact info.
+  private buildStructuredData(agent: Agent): Record<string, unknown> {
+    return {
+      '@type': 'RealEstateAgent',
+      name: agent.name,
+      image: agent.photoUrl || undefined,
+      url: `${window.location.origin}/agents/${toSlug(agent.name)}`,
+      worksFor: agent.company ? { '@type': 'Organization', name: agent.company } : undefined,
+      aggregateRating:
+        agent.reviewsCount > 0 && agent.averageRating != null
+          ? { '@type': 'AggregateRating', ratingValue: agent.averageRating, reviewCount: agent.reviewsCount }
+          : undefined
+    };
   }
 }

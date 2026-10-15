@@ -119,7 +119,14 @@ export class FraccionamientosDetailComponent {
             ? detail.description
             : `${detail.name}, fraccionamiento en ${detail.city}, ${detail.state}. Consulta propiedades disponibles.`,
           path: `/fraccionamientos/${detail.id}`,
-          image: detail.masterPlanImageUrl ?? undefined
+          image: detail.masterPlanImageUrl ?? undefined,
+          structuredData: {
+            '@type': 'Place',
+            name: detail.name,
+            url: `${window.location.origin}/fraccionamientos/${detail.id}`,
+            address: { '@type': 'PostalAddress', addressLocality: detail.city, addressRegion: detail.state },
+            geo: { '@type': 'GeoCoordinates', latitude: detail.latitude, longitude: detail.longitude }
+          }
         });
       },
       error: (err) => {

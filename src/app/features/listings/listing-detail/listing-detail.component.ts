@@ -186,7 +186,8 @@ export class ListingDetailComponent {
             : `${listing.title} en ${listing.type === 'rent' ? 'renta' : 'venta'} en ${listing.address}.`,
           path: `/listings/${listing.id}`,
           image: listing.imageUrls[0],
-          type: 'article'
+          type: 'article',
+          structuredData: this.buildStructuredData(listing)
         });
 
         // Reset in case this component instance is ever reused for a different listing
@@ -364,6 +365,45 @@ export class ListingDetailComponent {
 
   pricePerSqm(listing: Listing): number {
     return listing.areaSqm > 0 ? listing.price / listing.areaSqm : 0;
+  }
+
+  // schema.org RealEstateListing — the structured-data equivalent of the fact grid already
+  // rendered on this page, so a search result can show price/beds/baths as a rich snippet.
+  // offers is omitted entirely for a price-on-request listing rather than sent as 0/null, since
+  // neither represents a real price and either could render as "Free" in a rich result.
+  private buildStructuredData(listing: Listing): Record<string, unknown> {
+    return {
+      '@type': 'RealEstateListing',
+      name: listing.title,
+      description: listing.description || undefined,
+      url: `${window.location.origin}/listings/${listing.id}`,
+      image: listing.imageUrls.length ? listing.imageUrls : undefined,
+      datePosted: listing.createdAt,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: listing.street || undefined,
+        addressLocality: listing.city || undefined,
+        addressRegion: listing.state || undefined,
+        postalCode: listing.zipCode || undefined,
+        addressCountry: listing.country || undefined
+      },
+      geo:
+        listing.lat != null && listing.lng != null
+          ? { '@type': 'GeoCoordinates', latitude: listing.lat, longitude: listing.lng }
+          : undefined,
+      offers:
+        !listing.priceOnRequest && listing.price > 0
+          ? {
+              '@type': 'Offer',
+              price: listing.price,
+              priceCurrency: listing.currency,
+              availability: 'https://schema.org/InStock'
+            }
+          : undefined,
+      numberOfBedroomsTotal: listing.bedrooms || undefined,
+      numberOfBathroomsTotal: listing.bathrooms || undefined,
+      floorSize: listing.areaSqm > 0 ? { '@type': 'QuantitativeValue', value: listing.areaSqm, unitCode: 'MTK' } : undefined
+    };
   }
 
   daysOnMarket(listing: Listing): number {
