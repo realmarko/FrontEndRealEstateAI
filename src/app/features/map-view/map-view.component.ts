@@ -22,6 +22,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { TranslationService } from '../../core/services/translation.service';
 import { AuthService } from '../../core/services/auth.service';
 import { FavoritesService } from '../../core/services/favorites.service';
+import { ComparisonService } from '../../core/services/comparison.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
@@ -563,6 +564,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly notification: NotificationService,
     protected readonly auth: AuthService,
     protected readonly favorites: FavoritesService,
+    protected readonly comparison: ComparisonService,
     private readonly brokerageService: BrokerageService,
     private readonly savedSearchService: SavedSearchService,
     private readonly geomarketingService: GeomarketingService,
@@ -2055,6 +2057,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   toggleFavorite(listingId: string): void {
     this.favorites.toggle(listingId);
+  }
+
+  toggleCompare(listingId: string): void {
+    this.comparison.toggle(listingId);
   }
 
   onCardHover(listingId: string): void {

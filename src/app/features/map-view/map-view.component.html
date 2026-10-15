@@ -396,6 +396,9 @@
                 [listing]="listing"
                 [isFavorite]="favorites.isFavorite(listing.id)"
                 (toggleFavorite)="toggleFavorite($event)"
+                [isComparing]="comparison.isSelected(listing.id)"
+                [compareDisabled]="comparison.isFull()"
+                (toggleCompare)="toggleCompare($event)"
               />
             </div>
           }

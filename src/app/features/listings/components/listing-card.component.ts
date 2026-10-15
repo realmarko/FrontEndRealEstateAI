@@ -22,6 +22,12 @@ export class ListingCardComponent {
   @Input({ required: true }) listing!: Listing;
   @Input() isFavorite = false;
   @Output() toggleFavorite = new EventEmitter<string>();
+  @Input() isComparing = false;
+  // Disables (rather than hides) the checkbox once MAX_COMPARE_LISTINGS is reached, for every
+  // card except ones already selected — same reasoning as a disabled "add" button elsewhere:
+  // the limit should be discoverable in place, not silently unclickable with no explanation.
+  @Input() compareDisabled = false;
+  @Output() toggleCompare = new EventEmitter<string>();
 
   private readonly landUseCategoryService = inject(LandUseCategoryService);
 

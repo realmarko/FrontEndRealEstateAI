@@ -1,6 +1,7 @@
 import { Component, Input, inject } from '@angular/core';
 import { Listing } from '../../../core/models/listing.model';
 import { FavoritesService } from '../../../core/services/favorites.service';
+import { ComparisonService } from '../../../core/services/comparison.service';
 import { ListingCardComponent } from '../../../features/listings/components/listing-card.component';
 
 // Shared by every page that renders a grid of listing cards (listing list, favorites, an
@@ -16,6 +17,7 @@ export class ListingGridComponent {
   @Input({ required: true }) listings: Listing[] = [];
 
   private readonly favorites = inject(FavoritesService);
+  protected readonly comparison = inject(ComparisonService);
 
   isFavorite(listingId: string): boolean {
     return this.favorites.isFavorite(listingId);
@@ -23,5 +25,9 @@ export class ListingGridComponent {
 
   toggleFavorite(listingId: string): void {
     this.favorites.toggle(listingId);
+  }
+
+  toggleCompare(listingId: string): void {
+    this.comparison.toggle(listingId);
   }
 }

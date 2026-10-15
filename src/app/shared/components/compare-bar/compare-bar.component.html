@@ -1,0 +1,13 @@
+@if (comparison.count() > 0 && !onComparisonPage()) {
+  <div class="compare-bar">
+    <span class="compare-count">{{ 'compareBar.count' | translate:{ count: comparison.count() } }}</span>
+
+    <button type="button" class="compare-clear" (click)="comparison.clear()">
+      {{ 'compareBar.clear' | translate }}
+    </button>
+
+    <button type="button" class="compare-go" (click)="goToComparison()">
+      {{ 'compareBar.compare' | translate }}
+    </button>
+  </div>
+}

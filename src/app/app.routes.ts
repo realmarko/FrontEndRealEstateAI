@@ -177,6 +177,15 @@ export const routes: Routes = [
       import('./features/favorites/favorites.component').then((m) => m.FavoritesComponent)
   },
   {
+    // No authGuard: ComparisonService's selection is anonymous-friendly (localStorage-backed,
+    // no account needed), so the page itself shouldn't require signing in either.
+    path: 'comparar',
+    loadComponent: () =>
+      import('./features/listings/listing-comparison/listing-comparison.component').then(
+        (m) => m.ListingComparisonComponent
+      )
+  },
+  {
     path: 'messages',
     // Owner-role accounts (which Agent accounts also get) receive inquiries on their own
     // listings; Admin accounts additionally see every owner-contact notification regardless of

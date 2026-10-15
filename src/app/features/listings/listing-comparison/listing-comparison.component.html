@@ -1,0 +1,114 @@
+<div class="page">
+  <h1>{{ 'comparison.title' | translate }}</h1>
+
+  @if (loading()) {
+    <p class="status">{{ 'comparison.loading' | translate }}</p>
+  } @else if (listings().length === 0) {
+    <div class="empty">
+      <p>{{ 'comparison.empty' | translate }}</p>
+      <a routerLink="/listings">{{ 'comparison.browseListings' | translate }}</a>
+    </div>
+  } @else {
+    <div class="table-scroll">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th class="row-label"></th>
+            @for (listing of listings(); track listing.id) {
+              <th class="listing-col">
+                <button type="button" class="remove-btn" [attr.aria-label]="'comparison.remove' | translate" (click)="remove(listing.id)">✕</button>
+                <a [routerLink]="['/listings', listing.id]" class="listing-photo">
+                  <img [src]="listing.imageUrls[0] ?? defaultImage" [alt]="listing.title" />
+                </a>
+                <a [routerLink]="['/listings', listing.id]" class="listing-title">{{ listing.title }}</a>
+                <p class="listing-address">{{ listing.address }}</p>
+              </th>
+            }
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="row-label">{{ 'comparison.price' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>
+                @if (listing.priceOnRequest || listing.price <= 0) {
+                  {{ 'listing.priceOnRequest' | translate }}
+                } @else {
+                  {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
+                }
+              </td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.pricePerSqm' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>
+                @if (!listing.priceOnRequest && listing.price > 0 && listing.areaSqm > 0) {
+                  {{ pricePerSqm(listing) | currency:listing.currency:'symbol':'1.0-0' }}
+                } @else {
+                  —
+                }
+              </td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.operation' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.propertyType' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.propertyType ? (('listingForm.' + listing.propertyType) | translate) : '—' }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.bedrooms' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.bedrooms }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.bathrooms' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.bathrooms }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.areaSqm' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.areaSqm }} m²</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.parkingSpaces' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.parkingSpaces ?? '—' }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.yearBuilt' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.yearBuilt ?? '—' }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.hoaFee' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              <td>{{ listing.hoaFee ? (listing.hoaFee | currency:listing.currency:'symbol':'1.0-0') : '—' }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label"></th>
+            @for (listing of listings(); track listing.id) {
+              <td>
+                <a class="view-link" [routerLink]="['/listings', listing.id]">{{ 'listing.viewProperty' | translate }}</a>
+              </td>
+            }
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
