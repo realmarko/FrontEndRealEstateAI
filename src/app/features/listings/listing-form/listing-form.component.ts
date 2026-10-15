@@ -26,6 +26,7 @@ import { ErrorReportingService } from '../../../core/services/error-reporting.se
 import { amountToWords } from '../../../shared/utils/amount-to-words';
 import { normalizeText } from '../../../shared/utils/normalize-text';
 import { CurrencyInputDirective } from '../../../shared/directives/currency-input.directive';
+import { ZipInputDirective } from '../../../shared/directives/zip-input.directive';
 import { MortgageCalculatorComponent } from '../../../shared/components/mortgage-calculator/mortgage-calculator.component';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { ListingQuotaComponent } from '../../../shared/components/listing-quota/listing-quota.component';
@@ -49,7 +50,7 @@ function optionalUrlValidator(control: AbstractControl): ValidationErrors | null
 @Component({
   selector: 'app-listing-form',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, MortgageCalculatorComponent, FormErrorComponent, ListingQuotaComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe, CurrencyInputDirective, ZipInputDirective, MortgageCalculatorComponent, FormErrorComponent, ListingQuotaComponent],
   templateUrl: './listing-form.component.html',
   styleUrl: './listing-form.component.css'
 })
@@ -94,7 +95,7 @@ export class ListingFormComponent {
     // below) — not free text, so a listing's location always matches a real place.
     city: ['', Validators.required],
     state: ['Puebla', Validators.required],
-    zipCode: [''],
+    zipCode: ['', [Validators.minLength(5), Validators.maxLength(5)]],
     // Locked to México: every listing in this app is Mexican real estate today, and there's no
     // second country's worth of state/city catalog data to offer as alternatives yet. disabled
     // controls still submit their value via form.getRawValue() (see submit() below).
@@ -120,8 +121,12 @@ export class ListingFormComponent {
     landUseCategoryId: this.fb.control<number | null>(null),
     landTenure: this.fb.control<LandTenureType | null>(null),
     hasEjidalCertificate: this.fb.control<boolean | null>(null),
-    cosCoefficient: this.fb.control<number | null>(null, Validators.min(0)),
-    cusCoefficient: this.fb.control<number | null>(null, Validators.min(0)),
+    // max(20) is a generous ceiling, not a strict zoning rule — COS/CUS values stay well under
+    // that in practice (CUS, the higher of the two, rarely exceeds single digits even for
+    // dense multi-story zoning); it exists only to catch an obvious data-entry slip like typing
+    // "150" meaning 1.50, not to enforce a real urban-planning limit this app has no authority over.
+    cosCoefficient: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(20)]),
+    cusCoefficient: this.fb.control<number | null>(null, [Validators.min(0), Validators.max(20)]),
     maxHeightMeters: this.fb.control<number | null>(null, Validators.min(0)),
     isFreeOfLiens: this.fb.control<boolean | null>(null),
     hasPropertyTaxDebt: this.fb.control<boolean | null>(null),
