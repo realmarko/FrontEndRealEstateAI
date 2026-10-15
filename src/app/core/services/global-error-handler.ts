@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorHandler, Injectable, inject } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import * as Sentry from '@sentry/angular';
+import { captureException } from './sentry';
 import { ErrorReportingService } from './error-reporting.service';
 import { isBrowser } from '../utils/platform';
 
@@ -77,7 +77,7 @@ export class GlobalErrorHandler implements ErrorHandler {
   }
 
   handleError(error: unknown): void {
-    Sentry.captureException(error);
+    captureException(error);
 
     const message = describeError(error);
     const stack = error instanceof Error ? error.stack : undefined;
