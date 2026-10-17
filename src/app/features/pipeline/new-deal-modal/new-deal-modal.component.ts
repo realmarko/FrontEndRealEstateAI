@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { PipelineStage, SaleProcessCreateInput } from '../../../core/models/pipeline.model';
 
@@ -12,9 +12,15 @@ import { PipelineStage, SaleProcessCreateInput } from '../../../core/models/pipe
   templateUrl: './new-deal-modal.component.html',
   styleUrl: './new-deal-modal.component.css'
 })
-export class NewDealModalComponent {
+export class NewDealModalComponent implements OnInit {
   @Input({ required: true }) stages: PipelineStage[] = [];
   @Input() saving = false;
+  // Set when opened from a listing's own "Add to pipeline" button (listing-detail) so the
+  // property side of the form arrives pre-filled and the created deal links back to it —
+  // left unset for the pipeline board's own "New property" button, which has no listing yet.
+  @Input() initialAddress = '';
+  @Input() initialPrice: number | null = null;
+  @Input() listingId?: string;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<SaleProcessCreateInput>();
@@ -24,6 +30,14 @@ export class NewDealModalComponent {
   readonly propertyAddress = signal('');
   readonly estimatedPrice = signal<number | null>(null);
   readonly stageId = signal<number | null>(null);
+
+  // Reads the @Input prefill values here rather than in the field initializers above — Angular
+  // sets @Input properties after construction, so initialAddress/initialPrice are still at their
+  // default (empty/null) during the signals' own initializers.
+  ngOnInit(): void {
+    this.propertyAddress.set(this.initialAddress);
+    this.estimatedPrice.set(this.initialPrice);
+  }
 
   close(): void {
     if (this.saving) return;
@@ -45,7 +59,8 @@ export class NewDealModalComponent {
       // Falls back to the first stage, matching what the <select> shows pre-selected when the
       // user never touches the dropdown (its [value] binding defaults the same way) — otherwise
       // the submitted stage could silently diverge from what was visually selected.
-      stageId: this.stageId() ?? this.stages[0]?.id
+      stageId: this.stageId() ?? this.stages[0]?.id,
+      listingId: this.listingId
     });
   }
 }

@@ -10,6 +10,7 @@ import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
+import { PipelineService } from '../../../core/services/pipeline.service';
 import { Listing, PriceHistoryEntry } from '../../../core/models/listing.model';
 import { User } from '../../../core/models/user.model';
 
@@ -79,6 +80,10 @@ describe('ListingDetailComponent', () => {
     const landUseCategoryServiceSpy = jasmine.createSpyObj('LandUseCategoryService', ['listAll'], {
       categories: signal([])
     });
+    const pipelineServiceSpy = jasmine.createSpyObj('PipelineService', ['refresh', 'create'], {
+      stages: signal([]),
+      processes: signal([])
+    });
 
     TestBed.configureTestingModule({
       imports: [ListingDetailComponent],
@@ -87,6 +92,7 @@ describe('ListingDetailComponent', () => {
         { provide: ListingService, useValue: listingServiceSpy },
         { provide: FavoritesService, useValue: favoritesServiceSpy },
         { provide: LandUseCategoryService, useValue: landUseCategoryServiceSpy },
+        { provide: PipelineService, useValue: pipelineServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: InquiryService, useValue: inquiryServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },

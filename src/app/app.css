@@ -22,3 +22,21 @@
   flex-direction: column;
   overflow-y: auto;
 }
+
+/* Crossfades between routed pages — see App.routeFading. A plain opacity transition on the
+   whole outlet wrapper rather than per-route Angular animations, since every page here already
+   mounts instantly and shows its own loading state; this only needs to soften the hard cut. */
+.route-fade {
+  transition: opacity 120ms ease-out;
+  opacity: 1;
+}
+
+.route-fade.fading {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .route-fade {
+    transition: none;
+  }
+}

@@ -1,6 +1,8 @@
 <div class="modal-backdrop" (click)="close()">
   <div class="modal" (click)="$event.stopPropagation()">
-    <button type="button" class="modal-close" [attr.aria-label]="'pipeline.detail.close' | translate" (click)="close()">✕</button>
+    <button type="button" class="modal-close" [attr.aria-label]="'pipeline.detail.close' | translate" (click)="close()">
+      <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+    </button>
     <h2>{{ 'pipeline.form.title' | translate }}</h2>
 
     <label>

@@ -426,13 +426,20 @@
 }
 
 .cma-close {
+  display: flex;
   border: none;
   background: none;
   color: #fff;
-  font-size: 1.4rem;
-  line-height: 1;
   cursor: pointer;
   padding: 0;
+}
+
+/* Matches the 18px close-icon size used by every modal in the app (contact-modal,
+   new-deal-modal, qr-code-modal, transfer-listing-modal, deal-detail-modal) — this one used to
+   be a one-off 1.4rem (~22px), noticeably bigger than everywhere else. */
+.icon-x {
+  width: 18px;
+  height: 18px;
 }
 
 .cma-body {

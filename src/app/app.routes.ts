@@ -219,10 +219,10 @@ export const routes: Routes = [
       )
   },
   {
-    // Admin-only (matches SaleProcessesController's own [Authorize(Roles = "Admin")]) — each
-    // admin sees/manages their own pipeline, not a cross-agent view of every agent's deals.
+    // Admin or Agent (matches SaleProcessesController's own [Authorize(Roles = "Admin,Agent")]) —
+    // each caller sees/manages their own pipeline, not a cross-agent view of every agent's deals.
     path: 'pipeline',
-    canActivate: [authGuard, roleGuard('Admin')],
+    canActivate: [authGuard, roleGuard(['Admin', 'Agent'])],
     loadComponent: () =>
       import('./features/pipeline/pipeline-board/pipeline-board.component').then(
         (m) => m.PipelineBoardComponent

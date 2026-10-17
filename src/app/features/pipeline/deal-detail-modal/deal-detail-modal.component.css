@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: var(--space-4);
   z-index: 1000;
 }
 
@@ -24,11 +24,11 @@
 .modal-head {
   background: var(--navy-deep);
   color: #fff;
-  padding: 1.1rem 1.4rem;
+  padding: var(--space-4) var(--space-6);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .modal-head h2 {
@@ -59,20 +59,33 @@
 }
 
 .modal-close {
+  display: flex;
   background: none;
   border: none;
   color: #cbd5e1;
-  font-size: 1.1rem;
   cursor: pointer;
   padding: 0.25rem;
 }
 
+.icon-x {
+  width: 18px;
+  height: 18px;
+}
+
+/* The inline per-task delete X is a lighter-weight, lower-frequency action than closing the
+   whole modal, so it reads at the smaller of the app's two close-icon sizes (see task-delete
+   below) instead of matching .modal-close's 18px. */
+.icon-x-small {
+  width: 14px;
+  height: 14px;
+}
+
 .modal-body {
-  padding: 1.25rem 1.4rem;
+  padding: var(--space-5) var(--space-6);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: var(--space-4);
 }
 
 .summary {
@@ -247,11 +260,12 @@
 }
 
 .task-delete {
+  display: flex;
   background: none;
   border: none;
   color: #9ca3af;
   cursor: pointer;
-  font-size: 0.78rem;
+  padding: 0.2rem;
 }
 
 .no-tasks {
@@ -302,7 +316,7 @@
 
 .modal-foot {
   border-top: 1px solid var(--hairline);
-  padding: 0.8rem 1.4rem;
+  padding: var(--space-3) var(--space-6);
   display: flex;
   justify-content: space-between;
 }

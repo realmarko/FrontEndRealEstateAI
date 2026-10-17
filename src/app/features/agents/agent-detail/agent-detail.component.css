@@ -18,8 +18,8 @@
 }
 
 .back svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .back:hover {
@@ -110,8 +110,8 @@
 }
 
 .credential svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   color: var(--gold-soft);
 }
 
@@ -134,7 +134,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
 }
 
@@ -154,8 +154,8 @@
 }
 
 .contact-line svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
   color: var(--gold-soft);
 }
@@ -198,8 +198,11 @@ a.contact-line:hover {
   background: var(--gold-hover);
 }
 
+/* 8px on top of .id-card-actions' own 8px flex gap = a clean 16px (var(--space-4)) separation
+   from the other action buttons — a destructive action deserves more distance than the bare
+   8px flex gap gave every other sibling, not the accidental 9.6px this used to average out to. */
 .id-card-cta-danger {
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
   background: #fff;
   color: #b91c1c;
   border: 1px solid #b91c1c;
@@ -212,7 +215,7 @@ a.contact-line:hover {
 .id-card-actions {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 

@@ -1,13 +1,31 @@
+/* The navbar lives outside .app-content (the scrollable region — see app.css) in a fixed-height
+   flex column, so it already never scrolls out of view without any position:sticky/fixed. What
+   it lacked was the glass-material look: a solid bar reads as a flat panel, while a translucent
+   blurred one reads as a floating layer with content visible (if briefly) underneath it. */
 .navbar {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #0d0d0d;
+  gap: var(--space-6);
+  padding: var(--space-3) var(--space-6);
+  background: rgba(13, 13, 13, 0.72);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
   color: #f6f5f3;
   position: relative;
   flex-wrap: wrap;
-  border-bottom: 1px solid rgba(198, 161, 91, 0.25);
+  /* A soft shadow reads as a scroll edge where content meets this floating bar, instead of the
+     hard 1px rule this replaced. */
+  box-shadow: 0 1px 0 rgba(198, 161, 91, 0.2), 0 8px 16px -12px rgba(0, 0, 0, 0.6);
+}
+
+/* Frostier/solid when the OS asks for less transparency — a blurred bar can't be told apart
+   from its background otherwise. */
+@media (prefers-reduced-transparency: reduce) {
+  .navbar {
+    background: #0d0d0d;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .brand {
@@ -60,7 +78,7 @@
 
 .links {
   display: flex;
-  gap: 1.25rem;
+  gap: var(--space-5);
   flex: 1;
 }
 
@@ -86,14 +104,14 @@
 .session {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .lang-toggle {
   background: transparent;
   border: 1px solid #9aa0a6;
   color: #f6f5f3;
-  padding: 0.3rem 0.65rem;
+  padding: var(--space-1) var(--space-3);
   border-radius: 2px;
   font-size: 0.8rem;
   cursor: pointer;
@@ -114,11 +132,11 @@
 .account-trigger {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   background: transparent;
   border: 1px solid #9aa0a6;
   color: #f6f5f3;
-  padding: 0.3rem 0.75rem;
+  padding: var(--space-1) var(--space-3);
   border-radius: 2px;
   cursor: pointer;
   font-size: 0.85rem;
@@ -148,23 +166,45 @@
   transform: rotate(180deg);
 }
 
+/* Anchored to the account button, not centered like a modal — it scales from the top-right
+   corner closest to the trigger, so it visually "comes from" the button instead of appearing in
+   place. Stays in the DOM when closed (pointer-events/aria-hidden off) so this can transition
+   both in and out, unlike the @if-mounted modals above which only get an entrance. */
 .account-panel {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 220px;
   background: #171717;
   border: 1px solid rgba(198, 161, 91, 0.3);
   border-radius: 6px;
-  padding: 0.5rem 0;
+  padding: var(--space-2) 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   z-index: 20;
+  transform-origin: top right;
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+  transition: opacity 160ms ease-out, transform 160ms ease-out;
+}
+
+.account-panel.open {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-panel {
+    transition: opacity 160ms ease-out;
+    transform: none;
+  }
 }
 
 .panel-section {
   display: flex;
   flex-direction: column;
-  padding: 0.35rem 0;
+  padding: var(--space-1) 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -177,7 +217,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #6b7280;
-  padding: 0.3rem 1rem;
+  padding: var(--space-1) var(--space-4);
 }
 
 .panel-item {
@@ -190,7 +230,7 @@
   text-align: left;
   font-size: 0.9rem;
   font-family: inherit;
-  padding: 0.5rem 1rem;
+  padding: var(--space-2) var(--space-4);
   cursor: pointer;
 }
 
@@ -213,26 +253,40 @@
   color: #f87171;
 }
 
-/* Second branch catches a phone in landscape — same reasoning as map-view-mobile.component.css's
-   identical media query: a phone stays under ~930px wide even sideways, but its height drops to
-   ~360-430px, well short of a tablet/laptop window of similar width (the 500px ceiling rules
-   those out — an iPad's landscape height, for example, is 768px). Width-only would never fire
-   for landscape, since 768px is tuned for portrait phones. */
-@media (max-width: 768px), (max-width: 1024px) and (max-height: 500px) {
+/* First branch (width-only) covers every portrait phone and portrait tablet up to a 1024px-wide
+   iPad Pro. Second branch catches landscape: a phone stays under ~930px wide even sideways
+   (already covered by the first branch), while a landscape tablet goes wider than 1024px but
+   its height drops to ~768-1024px — well short of a typical desktop/laptop browser window at
+   that width, which is usually taller than 1024px tall only when the OS taskbar/chrome is
+   hidden. The 1024px height ceiling is what distinguishes "landscape tablet" from "someone
+   resized their laptop browser narrow". */
+@media (max-width: 1024px), (max-width: 1380px) and (max-height: 1040px) {
   .hamburger {
     display: flex;
   }
 
   .nav-collapse {
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     width: 100%;
     order: 3;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 220ms ease-out, opacity 150ms ease-out;
   }
 
   .navbar.menu-open .nav-collapse {
-    display: flex;
+    max-height: 70vh;
+    opacity: 1;
+    overflow-y: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-collapse {
+      transition: opacity 150ms ease-out;
+    }
   }
 
   .links,
@@ -247,7 +301,7 @@
   .session a,
   .lang-toggle,
   .account-trigger {
-    padding: 0.75rem 0;
+    padding: var(--space-3) 0;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 0;
     text-align: left;
@@ -262,7 +316,7 @@
   }
 
   .session {
-    margin-top: 0.25rem;
+    margin-top: var(--space-1);
   }
 
   /* The flyout doesn't make sense once everything is already a full-width vertical list — it
@@ -279,6 +333,6 @@
   }
 
   .panel-item {
-    padding-left: 1rem;
+    padding-left: var(--space-4);
   }
 }

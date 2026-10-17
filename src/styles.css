@@ -14,6 +14,27 @@
   --ink: #1f2937;
   --ink-soft: #6b7280;
   --hairline: #e5e7eb;
+
+  /* Shared spacing scale, 4px grid (0.25rem steps) — every padding/margin/gap in the app should
+     resolve to one of these instead of a one-off rem value picked per component. Before this,
+     a single page's stylesheet could contain 15-20 near-miss values (0.72rem, 0.78rem, 0.88rem,
+     1.02rem...) with no shared rhythm, which is what made the site feel hand-assembled screen by
+     screen rather than built from one consistent system. */
+  --space-1: 0.25rem; /* 4px  — tight inline gaps (icon-to-text, badge padding) */
+  --space-2: 0.5rem; /* 8px  — compact padding, small stacks */
+  --space-3: 0.75rem; /* 12px — default inline gaps, compact card padding */
+  --space-4: 1rem; /* 16px — default stack gap, standard padding */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px — section-internal spacing, modal padding */
+  --space-8: 2rem; /* 32px — generous section padding */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px — large section padding */
+  --space-14: 3.5rem; /* 56px */
+  --space-16: 4rem; /* 64px — hero/landing-scale spacing */
+  --space-18: 4.5rem; /* 72px */
+  --space-20: 5rem; /* 80px */
+  --space-22: 5.5rem; /* 88px */
+  --space-24: 6rem; /* 96px — largest section padding (landing page heroes) */
 }
 
 * {
@@ -33,6 +54,72 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
+}
+
+/* Instant press feedback (WWDC "Designing Fluid Interfaces": respond on pointer-down, not on
+   release) — applied globally so every button site-wide shrinks slightly the moment it's
+   pressed, instead of only reacting to :hover (which doesn't exist on touch). No component
+   previously defined :active anywhere, so this had no existing rule to conflict with. */
+button:not(:disabled):active,
+a.btn:not(.disabled):active,
+input[type='submit']:not(:disabled):active,
+input[type='button']:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+button,
+input[type='submit'],
+input[type='button'] {
+  transition: transform 100ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  input[type='submit'],
+  input[type='button'] {
+    transition: none;
+  }
+
+  button:active,
+  a.btn:active,
+  input[type='submit']:active,
+  input[type='button']:active {
+    transform: none;
+  }
+}
+
+/* Modal entrance. All 5 modal components (contact, new-deal, qr-code, transfer-listing,
+   deal-detail) share this exact .modal-backdrop > .modal structure, so one rule here covers
+   every one of them instead of duplicating identical keyframes in 5 component stylesheets.
+   Modals stay centered rather than anchored to a trigger (an anchored popover is different —
+   see navbar.component.css's .account-panel), so they fade/scale in from the middle. Nothing
+   plays on exit: these mount/unmount via @if, so there's no DOM node left to animate out. */
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+.modal-backdrop {
+  animation: modal-backdrop-in 150ms ease-out;
+}
+
+.modal-backdrop > .modal {
+  animation: modal-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop,
+  .modal-backdrop > .modal {
+    animation: none;
+  }
 }
 
 .sr-only {

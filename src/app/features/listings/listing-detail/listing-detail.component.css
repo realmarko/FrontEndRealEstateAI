@@ -1,6 +1,6 @@
 .back {
   display: inline-block;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-4);
   color: var(--navy);
   text-decoration: none;
 }
@@ -12,20 +12,23 @@
      below its own content (photos, fact grid) even once the mobile breakpoint below
      collapsed this to a single column, forcing the whole page into horizontal scroll. */
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 2rem;
+  gap: var(--space-8);
 }
 
 .gallery {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--space-2);
 }
 
 .main-photo {
   position: relative;
+  /* Lets a horizontal swipe be read before the browser decides it's a page scroll, without
+     blocking vertical scrolling itself (pan-y stays native). */
+  touch-action: pan-y;
 }
 
-.main-photo img {
+.photo-layer {
   width: 100%;
   border-radius: 8px;
   object-fit: cover;
@@ -33,15 +36,45 @@
   display: block;
 }
 
+/* The outgoing photo: stays put underneath, unanimated, until changePhoto() in the component
+   removes it — by then the incoming photo has fully faded in and covers it completely. */
+.photo-layer.prev {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  max-height: none;
+  z-index: 1;
+}
+
+/* The incoming photo: a fresh element every time (keyed by activePhotoIndex in the template),
+   so this animation replays on every photo change instead of only once on first mount. */
+.photo-layer.current {
+  position: relative;
+  z-index: 2;
+  animation: photo-fade-in 200ms ease-out;
+}
+
+@keyframes photo-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-layer.current {
+    animation: none;
+  }
+}
+
 .type-tag {
   position: absolute;
-  top: 0.6rem;
-  left: 0.6rem;
+  top: var(--space-2);
+  left: var(--space-2);
   background: #1e3a5f;
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.25rem 0.6rem;
+  padding: var(--space-1) var(--space-2);
   border-radius: 4px;
 }
 
@@ -51,16 +84,16 @@
 
 .view-tag {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
+  top: var(--space-2);
+  right: var(--space-2);
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: var(--space-1);
   background: rgba(17, 24, 39, 0.7);
   color: #fff;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.25rem 0.6rem;
+  padding: var(--space-1) var(--space-2);
   border-radius: 4px;
 }
 
@@ -86,29 +119,29 @@
 }
 
 .nav-arrow.prev {
-  left: 0.6rem;
+  left: var(--space-2);
 }
 
 .nav-arrow.next {
-  right: 0.6rem;
+  right: var(--space-2);
 }
 
 .photo-count {
   position: absolute;
-  bottom: 0.6rem;
-  right: 0.6rem;
+  bottom: var(--space-2);
+  right: var(--space-2);
   background: rgba(17, 24, 39, 0.7);
   color: #fff;
   font-size: 0.78rem;
-  padding: 0.2rem 0.55rem;
+  padding: var(--space-1) var(--space-2);
   border-radius: 999px;
 }
 
 .thumbnails {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   overflow-x: auto;
-  padding-bottom: 0.2rem;
+  padding-bottom: var(--space-1);
 }
 
 .thumb {
@@ -139,16 +172,16 @@
 .fact-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.6rem;
+  gap: var(--space-2);
 }
 
 .fact {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
   background: #f3f4f6;
   border-radius: 6px;
-  padding: 0.6rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   font-size: 0.88rem;
   color: #1f2937;
 }
@@ -161,8 +194,8 @@
 }
 
 .section-title {
-  margin: 0.4rem 0 0;
-  padding-top: 0.5rem;
+  margin: var(--space-2) 0 0;
+  padding-top: var(--space-2);
   font-size: 1.05rem;
   color: var(--ink);
   border-top: 2px solid var(--gold);
@@ -226,17 +259,17 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .school-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: var(--space-3);
   background: #f9fafb;
   border-radius: 6px;
-  padding: 0.6rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
 }
 
 .school-info {
@@ -261,7 +294,7 @@
 .school-meta {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
   flex-shrink: 0;
   font-size: 0.82rem;
   color: #4b5563;
@@ -289,12 +322,12 @@
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
-  padding: 0.5rem 0.6rem;
+  padding: var(--space-2);
   border-bottom: 1px solid #e5e7eb;
 }
 
 .price-history td {
-  padding: 0.6rem;
+  padding: var(--space-2);
   border-bottom: 1px solid #f3f4f6;
 }
 
@@ -310,11 +343,11 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .gallery h1 {
-  margin: 0.2rem 0 0;
+  margin: var(--space-1) 0 0;
   font-weight: 700;
   font-size: 1.6rem;
   color: var(--ink);
@@ -322,26 +355,30 @@
 
 .action-row {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
 
 .fav,
 .share,
-.qr-code {
+.qr-code,
+.view-on-map {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: var(--space-1);
   border: 1px solid #d1d5db;
   background: #fff;
   color: #374151;
   border-radius: 4px;
-  padding: 0.4rem 0.7rem;
+  padding: var(--space-2) var(--space-3);
   cursor: pointer;
 }
 
+/* 18px — matches the favorite heart everywhere else it appears (e.g. listing-card's
+   .fav-overlay), instead of the 16px this used to be sized at. */
 .btn-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
 }
 
@@ -350,42 +387,27 @@
   color: #dc2626;
 }
 
-.view-on-map {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
-  width: 100%;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: #374151;
-  border-radius: 4px;
-  padding: 0.5rem 0.7rem;
-  margin-top: 0.6rem;
-  cursor: pointer;
-}
-
 .price {
   font-size: 1.55rem;
   font-weight: 700;
   color: var(--navy);
-  margin: 0.3rem 0 0.1rem;
+  margin: var(--space-1) 0 0.1rem;
 }
 
 .price-meta {
   color: var(--ink-soft);
   font-size: 0.85rem;
-  margin: 0 0 0.2rem;
+  margin: 0 0 var(--space-1);
 }
 
 .address {
   color: #4b5563;
-  margin: 0.2rem 0;
+  margin: var(--space-1) 0;
 }
 
 .meta {
   color: #6b7280;
-  margin: 0.2rem 0 1rem;
+  margin: var(--space-1) 0 var(--space-4);
 }
 
 .description {
@@ -394,15 +416,17 @@
 
 .owner-actions {
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
+  gap: var(--space-3);
+  /* 16px on top of .info's own 8px flex gap = a clean 24px (var(--space-6)) total separation
+     from the buttons above, same reasoning as .agent-card below. */
+  margin-top: var(--space-4);
 }
 
 .primary-link {
   background: var(--gold);
   color: var(--on-gold);
   text-decoration: none;
-  padding: 0.55rem 1rem;
+  padding: var(--space-2) var(--space-4);
   border-radius: 6px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -419,7 +443,7 @@
   border: 1px solid #b91c1c;
   color: #b91c1c;
   border-radius: 4px;
-  padding: 0.5rem 0.9rem;
+  padding: var(--space-2) var(--space-4);
   cursor: pointer;
 }
 
@@ -429,19 +453,26 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.1rem;
+  gap: var(--space-2);
   background: #fff;
   border-top: 3px solid var(--gold);
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  padding: 1.25rem 1.35rem;
+  padding: var(--space-5);
   width: 100%;
+  /* Separates this from the quick-action buttons above (favorite/share/QR/map) — a different
+     content group (the agent's contact card), not just another button in the same row. .info's
+     own flex gap (8px, var(--space-2)) already applies between every sibling here, so this adds
+     16px more on top of that for a clean 24px (var(--space-6)) total — before this it only had
+     the bare 8px flex gap like every other sibling, so a full card read as cramped right under
+     the buttons instead of as its own section. */
+  margin-top: var(--space-4);
 }
 
 .agent-photo {
   width: 56px;
   height: 56px;
-  margin-bottom: 0.65rem;
+  margin-bottom: var(--space-3);
 }
 
 .agent-photo img {
@@ -474,7 +505,7 @@
 
 .agent-email {
   display: inline-block;
-  margin: 0.15rem 0 0.9rem;
+  margin: var(--space-1) 0 var(--space-4);
   color: var(--ink-soft);
   font-size: 0.9rem;
   text-decoration: none;
@@ -493,12 +524,14 @@
 .agent-email.contact-line {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
 }
 
+/* 14px — the app's small inline-icon size (matches the view-count eye badge above), instead of
+   the one-off 15px this used to be sized at. */
 .contact-icon {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
   color: var(--gold);
 }
@@ -510,7 +543,7 @@
 
 .admin-owner-contact-link {
   display: inline-block;
-  margin-top: 0.75rem;
+  margin-top: var(--space-3);
   background: none;
   color: var(--navy);
   font-size: 0.85rem;
@@ -526,7 +559,7 @@
 }
 
 .agent-login-prompt {
-  margin: 0.15rem 0 0;
+  margin: var(--space-1) 0 0;
   color: var(--ink-soft);
   font-size: 0.9rem;
 }

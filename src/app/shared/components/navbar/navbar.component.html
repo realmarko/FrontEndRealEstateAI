@@ -47,8 +47,7 @@
             </svg>
           </button>
 
-          @if (isAccountMenuOpen()) {
-            <div class="account-panel">
+          <div class="account-panel" [class.open]="isAccountMenuOpen()" [attr.aria-hidden]="!isAccountMenuOpen()">
               @if (addableRoles().length > 0) {
                 <div class="panel-section">
                   <span class="panel-label">{{ 'nav.upgradeLabel' | translate }}</span>
@@ -68,10 +67,15 @@
                 }
               </div>
 
+              @if (auth.currentUser()?.roles?.includes('Agent') || auth.currentUser()?.roles?.includes('Admin')) {
+                <div class="panel-section">
+                  <a class="panel-item" routerLink="/pipeline" routerLinkActive="active">{{ 'nav.pipeline' | translate }}</a>
+                </div>
+              }
+
               @if (auth.currentUser()?.roles?.includes('Admin')) {
                 <div class="panel-section">
                   <span class="panel-label">{{ 'nav.adminLabel' | translate }}</span>
-                  <a class="panel-item" routerLink="/pipeline" routerLinkActive="active">{{ 'nav.pipeline' | translate }}</a>
                   <a class="panel-item" routerLink="/admin/errors" routerLinkActive="active">{{ 'nav.adminErrors' | translate }}</a>
                   <a class="panel-item" routerLink="/admin/fraccionamientos" routerLinkActive="active">{{ 'nav.adminFraccionamientos' | translate }}</a>
                   <a class="panel-item" routerLink="/admin/inmobiliarias" routerLinkActive="active">{{ 'nav.adminAgencies' | translate }}</a>
@@ -81,8 +85,7 @@
               <div class="panel-section">
                 <button type="button" class="panel-item danger" (click)="logout()">{{ 'nav.logOut' | translate }}</button>
               </div>
-            </div>
-          }
+          </div>
         </div>
       } @else {
         <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>

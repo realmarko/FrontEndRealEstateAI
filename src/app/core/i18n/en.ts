@@ -218,6 +218,10 @@ export const en: Record<string, string> = {
   'listingDetail.previousPhoto': 'Previous photo',
   'listingDetail.nextPhoto': 'Next photo',
   'listingDetail.edit': 'Edit',
+  'listingDetail.addToPipeline': 'Add to pipeline',
+  'listingDetail.viewInPipeline': 'View in pipeline',
+  'listingDetail.addedToPipeline': 'Property added to the pipeline.',
+  'listingDetail.addToPipelineError': 'Could not add to the pipeline. Please try again.',
   'listingDetail.delete': 'Delete',
   'listingDetail.adminDelete': 'Delete (admin)',
   'listingDetail.transferToAgent': 'Transfer to another agent',
@@ -799,9 +803,6 @@ export const en: Record<string, string> = {
   'landing.geoStat2Label': 'official sources — INEGI DENUE and Census, not estimates',
   'landing.geoCta': 'Analyze an area',
 
-  'landing.finalHeadline': 'Your next home in Puebla is one map click away.',
-  'landing.finalCta': 'Start searching',
-
   'landing.footerTagline': 'Made for Latin America, home by home.',
   'landing.heroFlagsLabel': 'Built for the region',
   'landing.footerBrowse': 'Browse',
@@ -1068,6 +1069,7 @@ export const en: Record<string, string> = {
   'pipeline.detail.newTaskPlaceholder': 'E.g. Schedule signing with the notary',
   'pipeline.detail.addTask': 'Add',
   'pipeline.detail.noTasks': 'No tasks yet.',
+  'pipeline.detail.deleteTask': 'Delete task',
 
   'pipeline.form.title': 'Register property',
   'pipeline.form.client': 'Client (seller)',

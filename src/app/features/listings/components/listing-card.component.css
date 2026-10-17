@@ -130,9 +130,11 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
 }
 
+/* 14px — the app's small inline-icon size, for an icon sitting next to text (same pairing as
+   .stat and .mortgage-tooltip below) rather than a standalone badge like .fav-overlay above. */
 .compare-overlay svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
 }
 
@@ -175,8 +177,8 @@
 }
 
 .mortgage-tooltip svg {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
 }
 
 .stats {
@@ -195,8 +197,8 @@
 }
 
 .stat svg {
-  width: 15px;
-  height: 15px;
+  width: 14px;
+  height: 14px;
   flex: none;
   color: #9ca3af;
 }

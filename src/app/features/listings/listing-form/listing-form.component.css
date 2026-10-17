@@ -15,9 +15,9 @@
 form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
   background: #fff;
-  padding: 1.5rem;
+  padding: var(--space-6);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
@@ -92,15 +92,23 @@ select.ng-invalid.ng-touched {
   position: absolute;
   top: 0.2rem;
   right: 0.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 22px;
   height: 22px;
   border-radius: 50%;
   border: none;
   background: rgba(17, 24, 39, 0.75);
   color: #fff;
-  font-size: 0.75rem;
-  line-height: 1;
   cursor: pointer;
+}
+
+/* 14px — the app's smaller close-icon size, for a remove action on a card/chip rather than a
+   whole modal's close button (which is 18px). */
+.icon-x {
+  width: 14px;
+  height: 14px;
 }
 
 .primary-badge {
@@ -169,11 +177,13 @@ select.ng-invalid.ng-touched {
   gap: 1rem;
 }
 
+/* 8px on top of the form's own 16px field gap = a clean 24px (var(--space-6)) break before the
+   submit row, instead of the accidental 1.5rem this used to average out to. */
 .actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
 }
 
 .actions .primary {

@@ -50,6 +50,7 @@ export interface SaleProcessCreateInput {
   propertyAddress: string;
   estimatedPrice: number;
   stageId?: number;
+  listingId?: string;
 }
 
 export interface PipelineMetrics {

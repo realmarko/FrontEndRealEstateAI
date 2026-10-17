@@ -58,15 +58,23 @@ h1 {
   position: absolute;
   top: 0;
   right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(17, 24, 39, 0.65);
   color: #fff;
   border: none;
   border-radius: 50%;
   width: 24px;
   height: 24px;
-  font-size: 0.8rem;
-  line-height: 1;
   cursor: pointer;
+}
+
+/* 14px — the app's smaller close-icon size, for a remove action on a card/chip rather than a
+   whole modal's close button (which is 18px). */
+.icon-x {
+  width: 14px;
+  height: 14px;
 }
 
 .listing-photo {

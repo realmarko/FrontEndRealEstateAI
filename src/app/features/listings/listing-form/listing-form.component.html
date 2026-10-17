@@ -372,7 +372,9 @@
         @for (url of displayImages(); track $index) {
           <div class="photo-thumb">
             <img [src]="url" [alt]="'Photo ' + ($index + 1)" />
-            <button type="button" class="remove-photo" (click)="removeImage($index)" [attr.aria-label]="'listingForm.removePhoto' | translate">✕</button>
+            <button type="button" class="remove-photo" (click)="removeImage($index)" [attr.aria-label]="'listingForm.removePhoto' | translate">
+              <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+            </button>
             @if ($index === 0) {
               <span class="primary-badge">{{ 'listingForm.primaryPhoto' | translate }}</span>
             }

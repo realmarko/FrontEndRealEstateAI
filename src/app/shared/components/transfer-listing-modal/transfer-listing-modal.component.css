@@ -5,7 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: var(--space-4);
   z-index: 1000;
 }
 
@@ -13,24 +13,24 @@
   position: relative;
   background: #fff;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: var(--space-6);
   width: 100%;
   max-width: 420px;
   max-height: 90vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: var(--space-4);
 }
 
 .modal h2 {
-  margin: 0 0.5rem 0 0;
+  margin: 0 var(--space-2) 0 0;
   font-size: 1.15rem;
-  padding-right: 1.5rem;
+  padding-right: var(--space-6);
 }
 
 .hint {
-  margin: -0.5rem 0 0;
+  margin: calc(var(--space-2) * -1) 0 0;
   font-size: 0.85rem;
   color: #6b7280;
 }
@@ -38,7 +38,7 @@
 .modal label {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-1);
   font-size: 0.85rem;
   font-weight: 600;
   color: #374151;
@@ -46,7 +46,7 @@
 
 .modal input {
   font-weight: 400;
-  padding: 0.5rem;
+  padding: var(--space-2);
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-family: inherit;
@@ -56,16 +56,16 @@
 .results {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-1);
   max-height: 220px;
   overflow-y: auto;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
-  padding: 0.35rem;
+  padding: var(--space-1);
 }
 
 .status {
-  margin: 0.5rem;
+  margin: var(--space-2);
   font-size: 0.85rem;
   color: #6b7280;
 }
@@ -78,7 +78,7 @@
   background: none;
   border: 1px solid transparent;
   border-radius: 4px;
-  padding: 0.5rem 0.6rem;
+  padding: var(--space-2);
   cursor: pointer;
   text-align: left;
   font-family: inherit;
@@ -109,7 +109,7 @@
   color: #fff;
   border: none;
   border-radius: 4px;
-  padding: 0.6rem 1rem;
+  padding: var(--space-2) var(--space-4);
   cursor: pointer;
   font-size: 0.95rem;
 }
@@ -121,13 +121,17 @@
 
 .modal-close {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
   background: none;
   border: none;
-  font-size: 1.1rem;
-  line-height: 1;
   cursor: pointer;
   color: #6b7280;
-  padding: 0.25rem;
+  padding: var(--space-1);
+}
+
+.icon-x {
+  width: 18px;
+  height: 18px;
 }

@@ -1,4 +1,4 @@
-import { Component, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -21,6 +21,9 @@ import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-but
 import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
+import { PipelineService } from '../../../core/services/pipeline.service';
+import { SaleProcessCreateInput } from '../../../core/models/pipeline.model';
+import { NewDealModalComponent } from '../../pipeline/new-deal-modal/new-deal-modal.component';
 import { shouldRecordView } from '../../../core/utils/view-dedup';
 import { environment } from '../../../../environments/environment';
 
@@ -54,7 +57,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -75,6 +78,7 @@ export class ListingDetailComponent {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly seo = inject(SeoService);
   private readonly landUseCategoryService = inject(LandUseCategoryService);
+  protected readonly pipeline = inject(PipelineService);
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -83,6 +87,13 @@ export class ListingDetailComponent {
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
   readonly isAdmin = computed(() => this.auth.currentUser()?.roles.includes('Admin') ?? false);
+  readonly isAgent = computed(() => this.auth.currentUser()?.roles.includes('Agent') ?? false);
+  // Only meaningful once pipeline.refresh() has populated processes() — triggered below, in the
+  // listing-load success handler, but only for an owner who's also an Agent (the only case the
+  // "Add to pipeline" button in the template is shown for).
+  readonly inPipeline = computed(() => this.pipeline.processes().some((p) => p.listingId === this.id));
+  readonly showPipelineModal = signal(false);
+  readonly savingPipelineDeal = signal(false);
 
   // Only YouTube links get an inline player (see getYouTubeVideoId) — anything else falls
   // back to a plain "open in new tab" link in the template.
@@ -94,6 +105,10 @@ export class ListingDetailComponent {
     return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
   });
   readonly activePhotoIndex = signal(0);
+  // Holds the photo being replaced for just long enough to crossfade under the new one (see
+  // changePhoto below) — null the rest of the time, when only the current photo is rendered.
+  readonly previousPhotoUrl = signal<string | null>(null);
+  private photoFadeTimeout?: ReturnType<typeof setTimeout>;
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
   // Which flow the open contact modal feeds into — set by whichever card's button opened it
@@ -175,6 +190,10 @@ export class ListingDetailComponent {
   }
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => {
+      if (this.photoFadeTimeout) clearTimeout(this.photoFadeTimeout);
+    });
+
     this.listingService.fetchById(this.id).subscribe({
       next: (listing) => {
         this.listing.set(listing);
@@ -195,6 +214,13 @@ export class ListingDetailComponent {
         // array would otherwise read past the end and break the image.
         this.activePhotoIndex.set(0);
         this.loading.set(false);
+
+        // Populates pipeline.processes() so inPipeline() above can tell whether this listing
+        // already has a deal, before the owner ever opens the "Add to pipeline" modal — only
+        // worth the call for an agent viewing their own listing, the one case that button shows.
+        if (listing.ownerId === this.auth.currentUser()?.id && this.isAgent()) {
+          this.pipeline.refresh();
+        }
 
         if (shouldRecordView(`listing_${this.id}`)) {
           this.listingService.recordView(this.id).subscribe({ error: () => {} });
@@ -413,19 +439,55 @@ export class ListingDetailComponent {
   }
 
   showPhoto(index: number): void {
-    this.activePhotoIndex.set(index);
+    this.changePhoto(index);
   }
 
   nextPhoto(): void {
     const count = this.listing()?.imageUrls.length ?? 0;
     if (count < 2) return;
-    this.activePhotoIndex.update((i) => (i + 1) % count);
+    this.changePhoto((this.activePhotoIndex() + 1) % count);
   }
 
   previousPhoto(): void {
     const count = this.listing()?.imageUrls.length ?? 0;
     if (count < 2) return;
-    this.activePhotoIndex.update((i) => (i - 1 + count) % count);
+    this.changePhoto((this.activePhotoIndex() - 1 + count) % count);
+  }
+
+  private touchStartX = 0;
+  private touchStartY = 0;
+
+  onPhotoTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+    this.touchStartY = event.touches[0].clientY;
+  }
+
+  // Only commits to a photo change once the gesture is clearly a deliberate horizontal swipe
+  // (past a small threshold, and more horizontal than vertical) — otherwise a vertical page
+  // scroll that happens to start on the photo would flip photos by accident.
+  onPhotoTouchEnd(event: TouchEvent): void {
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - this.touchStartX;
+    const dy = touch.clientY - this.touchStartY;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+    if (dx < 0) {
+      this.nextPhoto();
+    } else {
+      this.previousPhoto();
+    }
+  }
+
+  // Keeps the outgoing photo rendered (see previousPhotoUrl) just long enough for the incoming
+  // one to fade in on top of it, instead of the two swapping instantly. The 220ms timeout mirrors
+  // the CSS fade-in duration in listing-detail.component.css — the old photo is only removed once
+  // the new one has fully covered it.
+  private changePhoto(index: number): void {
+    const urls = this.listing()?.imageUrls;
+    if (!urls || index === this.activePhotoIndex()) return;
+    if (this.photoFadeTimeout) clearTimeout(this.photoFadeTimeout);
+    this.previousPhotoUrl.set(urls[this.activePhotoIndex()] ?? this.defaultImage);
+    this.activePhotoIndex.set(index);
+    this.photoFadeTimeout = setTimeout(() => this.previousPhotoUrl.set(null), 220);
   }
 
   openTransferModal(): void {
@@ -460,6 +522,30 @@ export class ListingDetailComponent {
         this.router.navigate(['/listings']);
       },
       error: () => this.notification.error('listingDetail.deleteError')
+    });
+  }
+
+  openPipelineModal(): void {
+    this.showPipelineModal.set(true);
+  }
+
+  closePipelineModal(): void {
+    if (this.savingPipelineDeal()) return;
+    this.showPipelineModal.set(false);
+  }
+
+  savePipelineDeal(input: SaleProcessCreateInput): void {
+    this.savingPipelineDeal.set(true);
+    this.pipeline.create(input).subscribe({
+      next: () => {
+        this.savingPipelineDeal.set(false);
+        this.showPipelineModal.set(false);
+        this.notification.success('listingDetail.addedToPipeline');
+      },
+      error: () => {
+        this.savingPipelineDeal.set(false);
+        this.notification.error('listingDetail.addToPipelineError');
+      }
     });
   }
 
