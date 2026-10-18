@@ -1,5 +1,10 @@
 @if (loading()) {
-  <div class="page"><p>{{ 'viabilityPage.loadingListing' | translate }}</p></div>
+  <div class="page">
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>{{ 'viabilityPage.loadingListing' | translate }}</p>
+    </div>
+  </div>
 } @else if (notEligible() || !listing()) {
   <div class="page">
     <p>{{ 'listingDetail.notFound' | translate }}</p>
@@ -39,7 +44,10 @@
     }
 
     @if (loadingAnalysis()) {
-      <p class="status">{{ 'listingDetail.viabilityLoading' | translate }}</p>
+      <div class="loading-state">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>{{ 'listingDetail.viabilityLoading' | translate }}</p>
+      </div>
     } @else if (analysisError()) {
       <p class="status">{{ 'listingDetail.viabilityError' | translate }}</p>
     } @else if (analysis(); as analysisValue) {
