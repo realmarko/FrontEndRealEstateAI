@@ -18,47 +18,114 @@
       {{ listingValue.title }}
     </a>
 
-    <h1>{{ 'viabilityPage.title' | translate }}</h1>
-    <p class="subtitle">{{ 'viabilityPage.subtitle' | translate }}</p>
-
-    <div class="badges">
-      @if (listingValue.isCornerLot != null) {
-        <span class="badge">{{ (listingValue.isCornerLot ? 'viabilityPage.badgeCorner' : 'viabilityPage.badgeNotCorner') | translate }}</span>
-      }
-      @if (listingValue.topography) {
-        <span class="badge">{{ (listingValue.topography === 'plana' ? 'viabilityPage.badgeFlat' : 'viabilityPage.badgeSloped') | translate }}</span>
-      }
-      @if (listingValue.hasPavedStreet != null) {
-        <span class="badge">{{ (listingValue.hasPavedStreet ? 'viabilityPage.badgePaved' : 'viabilityPage.badgeUnpaved') | translate }}</span>
-      }
-      @if (listingValue.lotSizeSqm) {
-        <span class="badge">{{ listingValue.lotSizeSqm | number }} m²</span>
-      }
-      @if (listingValue.frontageWidthMeters) {
-        <span class="badge">{{ 'viabilityPage.badgeFrontage' | translate }}: {{ listingValue.frontageWidthMeters }} m</span>
+    <div class="report-header">
+      <div>
+        <h1>{{ 'viabilityPage.title' | translate }}</h1>
+        <p class="subtitle">{{ listingValue.title }} · {{ listingValue.address }}</p>
+      </div>
+      @if (topBusiness(); as top) {
+        <span class="best-fit-badge">{{ top.displayName }} {{ top.score }}%</span>
       }
     </div>
 
-    @if (listingValue.lat != null && listingValue.lng != null) {
-      <div class="map-row">
-        <div #locationMap class="location-map"></div>
-        <div class="map-legend">
-          <h3 class="legend-title">{{ 'viabilityPage.legendTitle' | translate }}</h3>
-          @for (item of markerLegend; track item.labelKey) {
-            <div class="legend-item">
-              <img [src]="item.icon" alt="" class="legend-icon" />
-              <span>{{ item.labelKey | translate }}</span>
-            </div>
-          }
-          @for (item of roadLegend; track item.labelKey) {
-            <div class="legend-item">
-              <span class="legend-line" [style.background]="item.color"></span>
-              <span>{{ item.labelKey | translate }}</span>
-            </div>
-          }
-        </div>
+    <div class="kpi-row">
+      <div class="kpi">
+        <span class="kpi-label">{{ 'viabilityPage.kpiLotSize' | translate }}</span>
+        @if (listingValue.lotSizeSqm) {
+          <span class="kpi-value">{{ listingValue.lotSizeSqm | number }} m²</span>
+        } @else {
+          <span class="kpi-value kpi-unavailable">—</span>
+        }
+        @if (listingValue.frontageWidthMeters) {
+          <span class="kpi-sub">{{ 'viabilityPage.badgeFrontage' | translate }}: {{ listingValue.frontageWidthMeters }} m</span>
+        }
       </div>
-    }
+      <div class="kpi">
+        <span class="kpi-label">{{ 'viabilityPage.populationLabel' | translate }}</span>
+        @if (analysis(); as a) {
+          @if (a.populationDataAvailable) {
+            <span class="kpi-value">{{ a.populationInRadius | number }}</span>
+            <span class="kpi-sub">{{ 'viabilityPage.inhabitants' | translate }}</span>
+          } @else {
+            <span class="kpi-value kpi-unavailable">—</span>
+            <span class="kpi-sub">{{ 'viabilityPage.populationUnavailable' | translate }}</span>
+          }
+        } @else {
+          <span class="kpi-value kpi-unavailable">…</span>
+        }
+      </div>
+      <div class="kpi">
+        <span class="kpi-label">{{ 'viabilityPage.kpiBestFit' | translate }}</span>
+        @if (topBusiness(); as top) {
+          <span class="kpi-value">{{ top.score }}%</span>
+          <span class="kpi-sub">{{ top.displayName }}</span>
+        } @else {
+          <span class="kpi-value kpi-unavailable">…</span>
+        }
+      </div>
+    </div>
+
+    <div class="detail-grid">
+      <div class="card">
+        <h3 class="card-title">{{ 'viabilityPage.factSheetTitle' | translate }}</h3>
+        <table class="fact-table">
+          <tr>
+            <td>{{ 'viabilityPage.factTypology' | translate }}</td>
+            <td>
+              @if (listingValue.isCornerLot != null) {
+                {{ (listingValue.isCornerLot ? 'viabilityPage.badgeCorner' : 'viabilityPage.badgeNotCorner') | translate }}
+              } @else {
+                —
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>{{ 'viabilityPage.factStatus' | translate }}</td>
+            <td>
+              @if (listingValue.topography) {
+                {{ (listingValue.topography === 'plana' ? 'viabilityPage.badgeFlat' : 'viabilityPage.badgeSloped') | translate }}
+              } @else {
+                —
+              }
+            </td>
+          </tr>
+          <tr>
+            <td>{{ 'viabilityPage.factAccess' | translate }}</td>
+            <td>
+              @if (listingValue.hasPavedStreet != null) {
+                {{ (listingValue.hasPavedStreet ? 'viabilityPage.badgePaved' : 'viabilityPage.badgeUnpaved') | translate }}
+              } @else {
+                —
+              }
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      @if (listingValue.lat != null && listingValue.lng != null) {
+        <div class="card map-card">
+          <h3 class="card-title">{{ 'viabilityPage.mapCardTitle' | translate }}</h3>
+          <div class="map-row">
+            <div #locationMap class="location-map"></div>
+            <div class="map-legend">
+              <h4 class="legend-title">{{ 'viabilityPage.legendTitle' | translate }}</h4>
+              @for (item of markerLegend; track item.labelKey) {
+                <div class="legend-item">
+                  <img [src]="item.icon" alt="" class="legend-icon" />
+                  <span>{{ item.labelKey | translate }}</span>
+                </div>
+              }
+              @for (item of roadLegend; track item.labelKey) {
+                <div class="legend-item">
+                  <span class="legend-line" [style.background]="item.color"></span>
+                  <span>{{ item.labelKey | translate }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
 
     @if (loadingAnalysis()) {
       <div class="loading-state">
@@ -68,44 +135,37 @@
     } @else if (analysisError()) {
       <p class="status">{{ 'listingDetail.viabilityError' | translate }}</p>
     } @else if (analysis(); as analysisValue) {
-      <div class="summary-card">
-        <span class="summary-label">{{ 'viabilityPage.populationLabel' | translate }}</span>
-        <span class="summary-value">
-          @if (analysisValue.populationDataAvailable) {
-            {{ analysisValue.populationInRadius | number }} {{ 'viabilityPage.inhabitants' | translate }}
-          } @else {
-            {{ 'viabilityPage.populationUnavailable' | translate }}
+      @if (analysisValue.nearbyRoads.length || analysisValue.trafficGenerators.length) {
+        <div class="detail-grid">
+          @if (analysisValue.nearbyRoads.length) {
+            <div class="card">
+              <h3 class="card-title">{{ 'viabilityPage.nearbyRoadsTitle' | translate }}</h3>
+              <ul class="traffic-list">
+                @for (road of analysisValue.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
+                  <li>
+                    <span class="traffic-name">{{ road.name ?? road.classification }}</span>
+                    <span class="traffic-category">{{ road.classification }}</span>
+                    <span class="traffic-distance">{{ road.distanceMeters | number }} m</span>
+                  </li>
+                }
+              </ul>
+            </div>
           }
-        </span>
-      </div>
 
-      @if (analysisValue.nearbyRoads.length) {
-        <div class="traffic-card">
-          <h2 class="traffic-title">{{ 'viabilityPage.nearbyRoadsTitle' | translate }}</h2>
-          <ul class="traffic-list">
-            @for (road of analysisValue.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
-              <li>
-                <span class="traffic-name">{{ road.name ?? road.classification }}</span>
-                <span class="traffic-category">{{ road.classification }}</span>
-                <span class="traffic-distance">{{ road.distanceMeters | number }} m</span>
-              </li>
-            }
-          </ul>
-        </div>
-      }
-
-      @if (analysisValue.trafficGenerators.length) {
-        <div class="traffic-card">
-          <h2 class="traffic-title">{{ 'viabilityPage.trafficGeneratorsTitle' | translate }}</h2>
-          <ul class="traffic-list">
-            @for (generator of analysisValue.trafficGenerators; track generator.name) {
-              <li>
-                <span class="traffic-name">{{ generator.name }}</span>
-                <span class="traffic-category">{{ generator.category }}</span>
-                <span class="traffic-distance">{{ generator.distanceMeters | number }} m</span>
-              </li>
-            }
-          </ul>
+          @if (analysisValue.trafficGenerators.length) {
+            <div class="card">
+              <h3 class="card-title">{{ 'viabilityPage.trafficGeneratorsTitle' | translate }}</h3>
+              <ul class="traffic-list">
+                @for (generator of analysisValue.trafficGenerators; track generator.name) {
+                  <li>
+                    <span class="traffic-name">{{ generator.name }}</span>
+                    <span class="traffic-category">{{ generator.category }}</span>
+                    <span class="traffic-distance">{{ generator.distanceMeters | number }} m</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
         </div>
       }
 

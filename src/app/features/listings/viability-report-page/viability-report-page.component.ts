@@ -88,6 +88,7 @@ export class ViabilityReportPageComponent {
   // Worst-first would bury the point of the report; best-first lets a reader (often the business
   // actually scouting this lot, not just the seller) see the strongest fits immediately.
   readonly rankedBusinesses = computed(() => [...(this.analysis()?.businesses ?? [])].sort((a, b) => b.score - a.score));
+  readonly topBusiness = computed(() => this.rankedBusinesses()[0] ?? null);
 
   readonly showViabilityModal = signal(false);
   readonly submittingViabilityRequest = signal(false);
