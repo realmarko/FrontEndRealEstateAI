@@ -54,6 +54,21 @@
         </span>
       </div>
 
+      @if (analysisValue.nearbyRoads.length) {
+        <div class="traffic-card">
+          <h2 class="traffic-title">{{ 'viabilityPage.nearbyRoadsTitle' | translate }}</h2>
+          <ul class="traffic-list">
+            @for (road of analysisValue.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
+              <li>
+                <span class="traffic-name">{{ road.name ?? road.classification }}</span>
+                <span class="traffic-category">{{ road.classification }}</span>
+                <span class="traffic-distance">{{ road.distanceMeters | number }} m</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
       @if (analysisValue.trafficGenerators.length) {
         <div class="traffic-card">
           <h2 class="traffic-title">{{ 'viabilityPage.trafficGeneratorsTitle' | translate }}</h2>

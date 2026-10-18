@@ -246,6 +246,7 @@ export const en: Record<string, string> = {
   'viabilityPage.badgeUnpaved': 'Unpaved street',
   'viabilityPage.badgeFrontage': 'Frontage',
   'viabilityPage.trafficGeneratorsTitle': 'Nearby traffic generators',
+  'viabilityPage.nearbyRoadsTitle': 'Nearby roads',
   'viabilityPage.nearbyCompetitorsLabel': 'Nearby competitors',
   'listingDetail.delete': 'Delete',
   'listingDetail.adminDelete': 'Delete (admin)',

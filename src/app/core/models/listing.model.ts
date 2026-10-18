@@ -269,6 +269,12 @@ export interface TrafficGenerator extends NearbyBusiness {
   category: string;
 }
 
+export interface NearbyRoad {
+  name: string | null;
+  classification: string;
+  distanceMeters: number;
+}
+
 export interface BusinessViability {
   key: string;
   displayName: string;
@@ -288,4 +294,5 @@ export interface ViabilityAnalysis {
   populationDataAvailable: boolean;
   businesses: BusinessViability[];
   trafficGenerators: TrafficGenerator[];
+  nearbyRoads: NearbyRoad[];
 }

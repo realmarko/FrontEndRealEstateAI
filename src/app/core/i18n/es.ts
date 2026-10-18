@@ -246,6 +246,7 @@ export const es: Record<string, string> = {
   'viabilityPage.badgeUnpaved': 'Sin pavimentar',
   'viabilityPage.badgeFrontage': 'Frente',
   'viabilityPage.trafficGeneratorsTitle': 'Generadores de tráfico cercanos',
+  'viabilityPage.nearbyRoadsTitle': 'Vialidades cercanas',
   'viabilityPage.nearbyCompetitorsLabel': 'Competidores cercanos',
   'listingDetail.delete': 'Eliminar',
   'listingDetail.adminDelete': 'Eliminar (administrador)',
