@@ -1,5 +1,5 @@
 import { Component, DestroyRef, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
-import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
+import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { isBrowser } from '../../../core/utils/platform';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -58,7 +58,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })

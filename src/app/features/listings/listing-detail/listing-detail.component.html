@@ -257,31 +257,6 @@
           <app-roi-calculator [landPrice]="listing.price" [currency]="listing.currency" />
         }
 
-        @if (isLandOrCommercial()) {
-          <div class="viability-section">
-            <h2 class="section-title">{{ 'listingDetail.viabilityTitle' | translate }}</h2>
-            <p class="viability-intro">{{ 'listingDetail.viabilityIntro' | translate }}</p>
-
-            @if (loadingViability()) {
-              <p class="viability-status">{{ 'listingDetail.viabilityLoading' | translate }}</p>
-            } @else if (viabilityError()) {
-              <p class="viability-status">{{ 'listingDetail.viabilityError' | translate }}</p>
-            } @else if (viabilityTopBusiness(); as topBusiness) {
-              <div class="viability-card">
-                <div class="viability-card-head">
-                  <span class="viability-name">{{ topBusiness.displayName }}</span>
-                  <span class="viability-score" [class.good]="topBusiness.score >= 70" [class.medium]="topBusiness.score >= 40 && topBusiness.score < 70" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
-                </div>
-                <p class="viability-reason">{{ 'listingDetail.viabilityBestFit' | translate }}</p>
-              </div>
-
-              <a class="primary-link viability-cta" [routerLink]="['/listings', listing.id, 'viabilidad-comercial']">
-                {{ 'listingDetail.viabilityCta' | translate }}
-              </a>
-            }
-          </div>
-        }
-
         @if (priceHistoryRows().length) {
           <h2 class="section-title">{{ 'listingDetail.priceHistoryTitle' | translate }}</h2>
           <table class="price-history">
@@ -321,6 +296,39 @@
       </div>
 
       <div class="info">
+        <!-- Shared between the owner and visitor branches below (both place it just above
+             whatever comes next for that viewer — the contact card for a visitor, nothing
+             further for an owner) so the markup isn't duplicated. -->
+        <ng-template #viabilitySection>
+          @if (isLandOrCommercial()) {
+            <div class="viability-section">
+              <h2 class="section-title">{{ 'listingDetail.viabilityTitle' | translate }}</h2>
+              <p class="viability-intro">{{ 'listingDetail.viabilityIntro' | translate }}</p>
+
+              @if (loadingViability()) {
+                <div class="viability-loading">
+                  <span class="viability-spinner" aria-hidden="true"></span>
+                  <p class="viability-status">{{ 'listingDetail.viabilityLoading' | translate }}</p>
+                </div>
+              } @else if (viabilityError()) {
+                <p class="viability-status">{{ 'listingDetail.viabilityError' | translate }}</p>
+              } @else if (viabilityTopBusiness(); as topBusiness) {
+                <div class="viability-card">
+                  <div class="viability-card-head">
+                    <span class="viability-name">{{ topBusiness.displayName }}</span>
+                    <span class="viability-score" [class.good]="topBusiness.score >= 70" [class.medium]="topBusiness.score >= 40 && topBusiness.score < 70" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
+                  </div>
+                  <p class="viability-reason">{{ 'listingDetail.viabilityBestFit' | translate }}</p>
+                </div>
+
+                <a class="primary-link viability-cta" [routerLink]="['/listings', listing.id, 'viabilidad-comercial']">
+                  {{ 'listingDetail.viabilityCta' | translate }}
+                </a>
+              }
+            </div>
+          }
+        </ng-template>
+
         <div class="action-row">
           <button type="button" class="fav" [class.active]="isFavorite()" [attr.aria-pressed]="isFavorite()" (click)="toggleFavorite()">
             <svg class="btn-icon" viewBox="0 0 24 24" [attr.fill]="isFavorite() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -371,6 +379,7 @@
             }
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
+          <ng-container *ngTemplateOutlet="viabilitySection" />
         } @else {
           @if (isAdmin()) {
             <div class="owner-actions">
@@ -378,6 +387,8 @@
               <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
             </div>
           }
+          <ng-container *ngTemplateOutlet="viabilitySection" />
+
           @if (!listing.hideAgentContact) {
             <div class="agent-card">
               <div class="agent-photo">

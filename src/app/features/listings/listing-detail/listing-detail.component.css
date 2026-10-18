@@ -584,6 +584,34 @@
   color: var(--ink-soft);
 }
 
+.viability-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.viability-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(30, 58, 95, 0.15);
+  border-top-color: var(--navy);
+  border-radius: 50%;
+  animation: viability-teaser-spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes viability-teaser-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viability-spinner {
+    animation: none;
+  }
+}
+
 .viability-card {
   border: 1px solid var(--hairline, #e5e7eb);
   border-radius: 8px;
