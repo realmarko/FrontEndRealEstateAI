@@ -134,10 +134,11 @@ export class ViabilityReportPageComponent {
     const position = { lat, lng };
     // Unlike listing-detail's own static/no-gesture preview map, this one is meant to be explored
     // — it's plotting several points (traffic generators, nearby roads) that can fall outside a
-    // fixed zoom-15 view, so panning/zooming has to work.
+    // tight zoom, so panning/zooming has to work. Starts a bit further out than that detail map's
+    // own zoom 15 so there's visible context around the lot even before fitBounds runs.
     this.map = new google.maps.Map(this.locationMapEl.nativeElement, {
       center: position,
-      zoom: 15,
+      zoom: 13,
       mapTypeControl: false,
       streetViewControl: false,
       fullscreenControl: false
@@ -180,7 +181,16 @@ export class ViabilityReportPageComponent {
     }
 
     if (analysis.trafficGenerators.length > 0 || analysis.nearbyRoads.length > 0) {
-      map.fitBounds(bounds);
+      // Padding so the outermost markers/road points aren't flush against the map edge, and a
+      // one-time zoom cap after fitBounds settles — fitBounds can zoom in quite tight when every
+      // point happens to sit close together, which reads as "too close" rather than "a bit
+      // further out" as asked.
+      map.fitBounds(bounds, 32);
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        if ((map.getZoom() ?? 0) > 15) map.setZoom(15);
+      });
+    } else {
+      map.setZoom(13);
     }
   }
 
