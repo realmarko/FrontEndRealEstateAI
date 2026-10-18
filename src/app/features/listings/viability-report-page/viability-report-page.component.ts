@@ -60,6 +60,21 @@ export class ViabilityReportPageComponent {
   };
   private static readonly DEFAULT_ROAD_LINE_STYLE = { color: '#6b7280', scale: 3, weight: 3, gap: '12px' };
 
+  // The map legend — same marker icons/line styles used to actually plot things above, read
+  // directly off those definitions so the legend can never drift out of sync with what's drawn.
+  protected readonly markerLegend = [
+    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Escuela'].url, labelKey: 'viabilityPage.legendSchool' },
+    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Centro comercial'].url, labelKey: 'viabilityPage.legendMall' },
+    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Hospital'].url, labelKey: 'viabilityPage.legendHospital' },
+    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Parada de autobús'].url, labelKey: 'viabilityPage.legendTransit' }
+  ];
+  protected readonly roadLegend = [
+    { color: ViabilityReportPageComponent.ROAD_LINE_STYLES['Autopista'].color, labelKey: 'viabilityPage.legendHighway' },
+    { color: ViabilityReportPageComponent.ROAD_LINE_STYLES['Vía rápida'].color, labelKey: 'viabilityPage.legendExpressway' },
+    { color: ViabilityReportPageComponent.ROAD_LINE_STYLES['Avenida/carretera principal'].color, labelKey: 'viabilityPage.legendPrimaryAvenue' },
+    { color: ViabilityReportPageComponent.ROAD_LINE_STYLES['Avenida secundaria'].color, labelKey: 'viabilityPage.legendSecondaryAvenue' }
+  ];
+
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
   readonly listing = signal<Listing | null>(null);

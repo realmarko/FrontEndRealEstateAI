@@ -40,7 +40,24 @@
     </div>
 
     @if (listingValue.lat != null && listingValue.lng != null) {
-      <div #locationMap class="location-map"></div>
+      <div class="map-row">
+        <div #locationMap class="location-map"></div>
+        <div class="map-legend">
+          <h3 class="legend-title">{{ 'viabilityPage.legendTitle' | translate }}</h3>
+          @for (item of markerLegend; track item.labelKey) {
+            <div class="legend-item">
+              <img [src]="item.icon" alt="" class="legend-icon" />
+              <span>{{ item.labelKey | translate }}</span>
+            </div>
+          }
+          @for (item of roadLegend; track item.labelKey) {
+            <div class="legend-item">
+              <span class="legend-line" [style.background]="item.color"></span>
+              <span>{{ item.labelKey | translate }}</span>
+            </div>
+          }
+        </div>
+      </div>
     }
 
     @if (loadingAnalysis()) {
