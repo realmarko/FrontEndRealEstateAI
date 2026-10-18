@@ -49,13 +49,16 @@ export class ViabilityReportPageComponent {
 
   // Autopistas get a bolder, more saturated dashed line than other road classes — the user asked
   // specifically to make the highway stand out more than a plain avenue/secondary street.
-  private static readonly ROAD_LINE_STYLES: Record<string, { color: string; scale: number; gap: string }> = {
-    Autopista: { color: '#b91c1c', scale: 4, gap: '14px' },
-    'Vía rápida': { color: '#c2410c', scale: 3.2, gap: '14px' },
-    'Avenida/carretera principal': { color: '#92400e', scale: 2.6, gap: '12px' },
-    'Avenida secundaria': { color: '#6b7280', scale: 2.2, gap: '12px' }
+  // scale stretches the dash segment itself (its length along the road); weight is the line's
+  // actual thickness — both raised across the board so every road reads as a bold dashed line,
+  // not a thin one, with autopista still the boldest of the set.
+  private static readonly ROAD_LINE_STYLES: Record<string, { color: string; scale: number; weight: number; gap: string }> = {
+    Autopista: { color: '#7f1d1d', scale: 5, weight: 5, gap: '14px' },
+    'Vía rápida': { color: '#c2410c', scale: 4.2, weight: 4, gap: '14px' },
+    'Avenida/carretera principal': { color: '#dc2626', scale: 3.6, weight: 4, gap: '12px' },
+    'Avenida secundaria': { color: '#16a34a', scale: 3.6, weight: 4, gap: '12px' }
   };
-  private static readonly DEFAULT_ROAD_LINE_STYLE = { color: '#6b7280', scale: 2.2, gap: '12px' };
+  private static readonly DEFAULT_ROAD_LINE_STYLE = { color: '#6b7280', scale: 3, weight: 3, gap: '12px' };
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -187,7 +190,7 @@ export class ViabilityReportPageComponent {
       strokeOpacity: 0,
       icons: [
         {
-          icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: style.color, strokeWeight: 2, scale: style.scale },
+          icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: style.color, strokeWeight: style.weight, scale: style.scale },
           offset: '0',
           repeat: style.gap
         }
