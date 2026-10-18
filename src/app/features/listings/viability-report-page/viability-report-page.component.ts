@@ -7,8 +7,9 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { ViabilityReportModalComponent } from '../../../shared/components/viability-report-modal/viability-report-modal.component';
-import { Listing, ViabilityAnalysis, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
+import { Listing, NearbyRoad, ViabilityAnalysis, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
+import { BUS_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
 
 // The full "Reporte de Viabilidad Comercial" — every business type, every check, not just the
 // top-3 teaser shown inline on listing-detail (see its viability-section, which links here).
@@ -32,15 +33,29 @@ export class ViabilityReportPageComponent {
 
   @ViewChild('locationMap') private locationMapEl?: ElementRef<HTMLDivElement>;
   private map?: google.maps.Map;
-  // Distinct color per traffic-generator category so the map legend/markers read at a glance —
-  // Escuela/Centro comercial/Hospital/Parada de autobús/Central de autobuses.
-  private static readonly CATEGORY_MARKER_COLORS: Record<string, string> = {
-    Escuela: 'blue',
-    'Centro comercial': 'purple',
-    Hospital: 'red',
-    'Parada de autobús': 'green',
-    'Central de autobuses': 'green'
+  private readonly polylines: google.maps.Polyline[] = [];
+  // Same circular-badge icon language as /map's own POI checklist layer (core/utils/map-icons),
+  // not the generic colored-dot pins — one visual system for "this dot is a school/mall/..."
+  // across the app. Built eagerly: createPoiIcon only returns plain data (a data: URL + literal
+  // size/anchor objects), so it needs no live `google` global to construct, unlike a real
+  // google.maps.Marker.
+  private static readonly CATEGORY_ICONS: Record<string, google.maps.Icon> = {
+    Escuela: createPoiIcon('#15803d', SCHOOL_GLYPH),
+    'Centro comercial': createPoiIcon('#c2410c', MALL_GLYPH),
+    Hospital: createPoiIcon('#b91c1c', HOSPITAL_GLYPH),
+    'Parada de autobús': createPoiIcon('#2563eb', BUS_GLYPH),
+    'Central de autobuses': createPoiIcon('#2563eb', BUS_GLYPH)
   };
+
+  // Autopistas get a bolder, more saturated dashed line than other road classes — the user asked
+  // specifically to make the highway stand out more than a plain avenue/secondary street.
+  private static readonly ROAD_LINE_STYLES: Record<string, { color: string; scale: number; gap: string }> = {
+    Autopista: { color: '#b91c1c', scale: 4, gap: '14px' },
+    'Vía rápida': { color: '#c2410c', scale: 3.2, gap: '14px' },
+    'Avenida/carretera principal': { color: '#92400e', scale: 2.6, gap: '12px' },
+    'Avenida secundaria': { color: '#6b7280', scale: 2.2, gap: '12px' }
+  };
+  private static readonly DEFAULT_ROAD_LINE_STYLE = { color: '#6b7280', scale: 2.2, gap: '12px' };
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -137,25 +152,50 @@ export class ViabilityReportPageComponent {
         position,
         map,
         title: `${generator.name} (${generator.category})`,
-        icon: `https://maps.google.com/mapfiles/ms/icons/${ViabilityReportPageComponent.CATEGORY_MARKER_COLORS[generator.category] ?? 'yellow'}-dot.png`
+        icon: ViabilityReportPageComponent.CATEGORY_ICONS[generator.category]
       });
       bounds.extend(position);
     }
 
     for (const road of analysis.nearbyRoads) {
-      const position = { lat: road.lat, lng: road.lng };
-      new google.maps.Marker({
-        position,
-        map,
-        title: road.name ?? road.classification,
-        icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png'
-      });
-      bounds.extend(position);
+      this.plotRoad(map, road, bounds);
     }
 
     if (analysis.trafficGenerators.length > 0 || analysis.nearbyRoads.length > 0) {
       map.fitBounds(bounds);
     }
+  }
+
+  // A road is highlighted as a dashed line along its real shape (OSM geometry) rather than a
+  // single pin — a highway is a stretch to be aware of driving past the lot, not one point on a
+  // map. Falls back to a plain marker for the rare element OSM returned with no geometry.
+  private plotRoad(map: google.maps.Map, road: NearbyRoad, bounds: google.maps.LatLngBounds): void {
+    if (road.geometry.length < 2) {
+      new google.maps.Marker({ position: { lat: road.lat, lng: road.lng }, map, title: road.name ?? road.classification });
+      bounds.extend({ lat: road.lat, lng: road.lng });
+      return;
+    }
+
+    const style = ViabilityReportPageComponent.ROAD_LINE_STYLES[road.classification] ?? ViabilityReportPageComponent.DEFAULT_ROAD_LINE_STYLE;
+    const path = road.geometry.map((p) => ({ lat: p.lat, lng: p.lng }));
+
+    // The classic Maps JS dashed-line recipe: a fully transparent solid stroke (required for the
+    // line to exist/be clickable at all) plus a short line symbol repeated along it.
+    const polyline = new google.maps.Polyline({
+      path,
+      map,
+      strokeOpacity: 0,
+      icons: [
+        {
+          icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: style.color, strokeWeight: 2, scale: style.scale },
+          offset: '0',
+          repeat: style.gap
+        }
+      ]
+    });
+    this.polylines.push(polyline);
+
+    for (const point of path) bounds.extend(point);
   }
 
   private loadAnalysis(): void {

@@ -277,6 +277,9 @@ export interface NearbyRoad {
   distanceMeters: number;
   lat: number;
   lng: number;
+  // The road's own shape near this point (from OSM), for drawing it highlighted on the map —
+  // empty when no geometry came back for it.
+  geometry: { lat: number; lng: number }[];
 }
 
 export interface BusinessViability {

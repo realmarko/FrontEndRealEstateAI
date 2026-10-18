@@ -266,12 +266,18 @@ export interface TrafficGeneratorDto extends NearbyBusinessDto {
   category: string;
 }
 
+export interface LatLngDto {
+  lat: number;
+  lng: number;
+}
+
 export interface NearbyRoadDto {
   name: string | null;
   classification: string;
   distanceMeters: number;
   lat: number;
   lng: number;
+  geometry: LatLngDto[];
 }
 
 export interface BusinessViabilityDto {
@@ -310,7 +316,14 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
       nearbyCompetitors: b.nearbyCompetitors.map((n) => ({ name: n.name, distanceMeters: n.distanceMeters, lat: n.lat, lng: n.lng }))
     })),
     trafficGenerators: dto.trafficGenerators.map((g) => ({ name: g.name, distanceMeters: g.distanceMeters, category: g.category, lat: g.lat, lng: g.lng })),
-    nearbyRoads: dto.nearbyRoads.map((r) => ({ name: r.name, classification: r.classification, distanceMeters: r.distanceMeters, lat: r.lat, lng: r.lng }))
+    nearbyRoads: dto.nearbyRoads.map((r) => ({
+      name: r.name,
+      classification: r.classification,
+      distanceMeters: r.distanceMeters,
+      lat: r.lat,
+      lng: r.lng,
+      geometry: r.geometry.map((p) => ({ lat: p.lat, lng: p.lng }))
+    }))
   };
 }
 

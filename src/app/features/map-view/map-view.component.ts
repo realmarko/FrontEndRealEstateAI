@@ -28,6 +28,15 @@ import { SeoService } from '../../core/services/seo.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
+import {
+  CONVENIENCE_STORE_GLYPH,
+  GYM_GLYPH,
+  MALL_GLYPH,
+  PARK_GLYPH,
+  PHARMACY_GLYPH,
+  SCHOOL_GLYPH,
+  createPoiIcon
+} from '../../core/utils/map-icons';
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
 import { normalizeText } from '../../shared/utils/normalize-text';
@@ -81,47 +90,6 @@ interface PoiCategoryConfig {
   clusterColor: string;
 }
 
-// Builds a small circular badge (category color + a white glyph) instead of a generic colored
-// dot, so each POI type reads at a glance. scaledSize/anchor are plain object literals typed via
-// `as` rather than `new google.maps.Size(...)`/`new google.maps.Point(...)`: POI_CATEGORIES below
-// is built at module-evaluation time, before this lazy-loaded chunk is guaranteed the Google Maps
-// script has finished loading elsewhere on the page — a constructor call would risk "google is
-// not defined", while a plain literal only needs the *type* (compile-time only) to exist.
-function createPoiIcon(color: string, glyph: string): google.maps.Icon {
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34">` +
-    `<circle cx="17" cy="17" r="16" fill="${color}" stroke="#fff" stroke-width="2"/>` +
-    glyph +
-    `</svg>`;
-  return {
-    url: `data:image/svg+xml;base64,${btoa(svg)}`,
-    scaledSize: { width: 34, height: 34 } as google.maps.Size,
-    anchor: { x: 17, y: 17 } as google.maps.Point
-  };
-}
-
-const SCHOOL_GLYPH =
-  '<polygon points="17,10 26,14 17,18 8,14" fill="#fff"/>' +
-  '<path d="M12,15.5 L12,20.5 Q17,23.5 22,20.5 L22,15.5" fill="none" stroke="#fff" stroke-width="1.6"/>' +
-  '<line x1="26" y1="14" x2="26" y2="20" stroke="#fff" stroke-width="1.4"/>';
-
-const PHARMACY_GLYPH = '<rect x="14" y="8" width="6" height="18" rx="1.5" fill="#fff"/><rect x="8" y="14" width="18" height="6" rx="1.5" fill="#fff"/>';
-
-const MALL_GLYPH =
-  '<path d="M13,14 C13,9.5 21,9.5 21,14" fill="none" stroke="#fff" stroke-width="1.8"/>' +
-  '<path d="M11,14 L23,14 L22,26 L12,26 Z" fill="#fff"/>';
-
-const PARK_GLYPH = '<circle cx="17" cy="13" r="6.2" fill="#fff"/><rect x="15.3" y="18.5" width="3.4" height="7.5" fill="#fff"/>';
-
-const GYM_GLYPH =
-  '<rect x="9" y="15.3" width="16" height="3.4" fill="#fff"/>' +
-  '<rect x="6.5" y="11.5" width="4.5" height="11" rx="1.3" fill="#fff"/>' +
-  '<rect x="23" y="11.5" width="4.5" height="11" rx="1.3" fill="#fff"/>';
-
-const CONVENIENCE_STORE_GLYPH =
-  '<path d="M8,16 L17,9 L26,16 Z" fill="#fff"/>' +
-  '<rect x="9" y="16" width="16" height="9" fill="#fff"/>' +
-  '<rect x="14.5" y="19" width="5" height="6" fill="rgba(0,0,0,0.25)"/>';
 
 // One entry per checklist item on the map page. Each category gets its own marker color and
 // cluster color so overlapping categories (e.g. schools + parks) stay visually distinguishable.
