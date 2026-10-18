@@ -1,6 +1,7 @@
-import { Component, ElementRef, Injector, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, Injector, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActiveToast } from 'ngx-toastr';
 import { ListingService } from '../../../core/services/listing.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -97,7 +98,15 @@ export class ViabilityReportPageComponent {
   readonly viabilityRequestSent = signal(false);
   readonly viabilityReportUrl = signal<string | null>(null);
 
+  private viabilityLoadingToast: ActiveToast<unknown> | null = null;
+
   constructor() {
+    // Registered synchronously here (an active injection context) rather than inside
+    // loadAnalysis(), which runs later from inside an async subscribe callback where inject()
+    // would throw — a safety net dismissing the loading toast if the visitor navigates away
+    // mid-request, on top of the two branches in loadAnalysis() that already dismiss it.
+    inject(DestroyRef).onDestroy(() => this.dismissViabilityLoadingToast());
+
     this.listingService.fetchById(this.id).subscribe({
       next: (listing) => {
         this.listing.set(listing);
@@ -232,17 +241,33 @@ export class ViabilityReportPageComponent {
   private loadAnalysis(): void {
     this.loadingAnalysis.set(true);
     this.analysisError.set(false);
+
+    // The inline "cargando análisis" state sits well down the page (past the KPI row, fact
+    // sheet, and map card) — easy to miss without scrolling. This toast mirrors that same loading
+    // state but renders on top of the whole page. Dismissed in both branches below, never left up
+    // past the request finishing either way.
+    this.viabilityLoadingToast = this.notification.loading('listingDetail.viabilityLoading');
+
     this.listingService.getViabilityPreview(this.id).subscribe({
       next: (analysis) => {
         this.loadingAnalysis.set(false);
         this.analysis.set(analysis);
         this.plotAnalysisMarkers();
+        this.dismissViabilityLoadingToast();
       },
       error: () => {
         this.loadingAnalysis.set(false);
         this.analysisError.set(true);
+        this.dismissViabilityLoadingToast();
+        this.notification.error('listingDetail.viabilityError');
       }
     });
+  }
+
+  private dismissViabilityLoadingToast(): void {
+    if (!this.viabilityLoadingToast) return;
+    this.notification.dismiss(this.viabilityLoadingToast);
+    this.viabilityLoadingToast = null;
   }
 
   openViabilityModal(): void {

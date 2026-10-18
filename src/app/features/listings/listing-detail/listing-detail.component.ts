@@ -8,6 +8,7 @@ import { FavoritesService } from '../../../core/services/favorites.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
+import { ActiveToast } from 'ngx-toastr';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, ViabilityAnalysis, isLandOrCommercialPropertyType, isPureLandPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
@@ -110,6 +111,7 @@ export class ListingDetailComponent {
   // changePhoto below) — null the rest of the time, when only the current photo is rendered.
   readonly previousPhotoUrl = signal<string | null>(null);
   private photoFadeTimeout?: ReturnType<typeof setTimeout>;
+  private viabilityLoadingToast: ActiveToast<unknown> | null = null;
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
   // Which flow the open contact modal feeds into — set by whichever card's button opened it
@@ -208,6 +210,7 @@ export class ListingDetailComponent {
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       if (this.photoFadeTimeout) clearTimeout(this.photoFadeTimeout);
+      this.dismissViabilityLoadingToast();
     });
 
     this.listingService.fetchById(this.id).subscribe({
@@ -576,16 +579,35 @@ export class ListingDetailComponent {
   private loadViabilityPreview(): void {
     this.loadingViability.set(true);
     this.viabilityError.set(false);
+
+    // The inline spinner in the viability-section template sits below the action buttons and
+    // contact card — easy to miss without scrolling. This toast mirrors that same loading state
+    // but renders on top of the whole page, so there's immediate feedback either way. Dismissed
+    // in both branches below (never left up past the request finishing, success or failure); the
+    // constructor's own onDestroy also dismisses it as a safety net if the visitor navigates away
+    // mid-request — this method runs from inside an async subscribe callback, not synchronously
+    // from the constructor, so it can't call inject(DestroyRef) itself.
+    this.viabilityLoadingToast = this.notification.loading('listingDetail.viabilityLoading');
+
     this.listingService.getViabilityPreview(this.id).subscribe({
       next: (analysis) => {
         this.loadingViability.set(false);
         this.viabilityAnalysis.set(analysis);
+        this.dismissViabilityLoadingToast();
       },
       error: () => {
         this.loadingViability.set(false);
         this.viabilityError.set(true);
+        this.dismissViabilityLoadingToast();
+        this.notification.error('listingDetail.viabilityError');
       }
     });
+  }
+
+  private dismissViabilityLoadingToast(): void {
+    if (!this.viabilityLoadingToast) return;
+    this.notification.dismiss(this.viabilityLoadingToast);
+    this.viabilityLoadingToast = null;
   }
 
   openContactModal(contactOwner = false): void {
