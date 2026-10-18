@@ -47,3 +47,9 @@ export const BUS_GLYPH =
   '<rect x="8.5" y="11" width="17" height="13" rx="2.5" fill="#fff"/>' +
   '<rect x="11" y="13.2" width="12" height="4.6" rx="0.8" fill="' + '#000' + '" fill-opacity="0.18"/>' +
   '<circle cx="12.5" cy="24.5" r="1.8" fill="#fff"/><circle cx="21.5" cy="24.5" r="1.8" fill="#fff"/>';
+
+// A fuel pump silhouette — body + nozzle hose — reads as "gas station" at 34px.
+export const GAS_STATION_GLYPH =
+  '<rect x="9" y="11" width="10" height="15" rx="1.2" fill="#fff"/>' +
+  '<rect x="11.5" y="13.5" width="5" height="5" fill="rgba(0,0,0,0.25)"/>' +
+  '<path d="M19,15 L22,15 L22,22.5 Q22,24 23.5,24 Q25,24 25,22.5 L25,13" fill="none" stroke="#fff" stroke-width="1.6"/>';

@@ -133,35 +133,45 @@
     } @else if (analysisError()) {
       <p class="status">{{ 'listingDetail.viabilityError' | translate }}</p>
     } @else if (analysis(); as analysisValue) {
-      @if (analysisValue.nearbyRoads.length || analysisValue.trafficGenerators.length) {
+      @if (analysisValue.nearbyRoads.length || analysisValue.trafficGenerators.length || analysisValue.roadsDataUnavailable || analysisValue.trafficGeneratorsDataUnavailable) {
         <div class="detail-grid">
-          @if (analysisValue.nearbyRoads.length) {
+          @if (analysisValue.nearbyRoads.length || analysisValue.roadsDataUnavailable) {
             <div class="card">
               <h3 class="card-title">{{ 'viabilityPage.nearbyRoadsTitle' | translate }}</h3>
-              <ul class="traffic-list">
-                @for (road of analysisValue.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
-                  <li>
-                    <span class="traffic-name">{{ road.name ?? road.classification }}</span>
-                    <span class="traffic-category">{{ road.classification }}</span>
-                    <span class="traffic-distance">{{ road.distanceMeters | number }} m</span>
-                  </li>
-                }
-              </ul>
+              @if (analysisValue.roadsDataUnavailable) {
+                <p class="data-source-warning">{{ 'viabilityPage.roadsDataUnavailable' | translate }}</p>
+              }
+              @if (analysisValue.nearbyRoads.length) {
+                <ul class="traffic-list">
+                  @for (road of analysisValue.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
+                    <li>
+                      <span class="traffic-name">{{ road.name ?? road.classification }}</span>
+                      <span class="traffic-category">{{ road.classification }}</span>
+                      <span class="traffic-distance">{{ road.distanceMeters | number }} m</span>
+                    </li>
+                  }
+                </ul>
+              }
             </div>
           }
 
-          @if (analysisValue.trafficGenerators.length) {
+          @if (analysisValue.trafficGenerators.length || analysisValue.trafficGeneratorsDataUnavailable) {
             <div class="card">
               <h3 class="card-title">{{ 'viabilityPage.trafficGeneratorsTitle' | translate }}</h3>
-              <ul class="traffic-list">
-                @for (generator of analysisValue.trafficGenerators; track generator.name) {
-                  <li>
-                    <span class="traffic-name">{{ generator.name }}</span>
-                    <span class="traffic-category">{{ generator.category }}</span>
-                    <span class="traffic-distance">{{ generator.distanceMeters | number }} m</span>
-                  </li>
-                }
-              </ul>
+              @if (analysisValue.trafficGeneratorsDataUnavailable) {
+                <p class="data-source-warning">{{ 'viabilityPage.trafficGeneratorsDataUnavailable' | translate }}</p>
+              }
+              @if (analysisValue.trafficGenerators.length) {
+                <ul class="traffic-list">
+                  @for (generator of analysisValue.trafficGenerators; track generator.name) {
+                    <li>
+                      <span class="traffic-name">{{ generator.name }}</span>
+                      <span class="traffic-category">{{ generator.category }}</span>
+                      <span class="traffic-distance">{{ generator.distanceMeters | number }} m</span>
+                    </li>
+                  }
+                </ul>
+              }
             </div>
           }
         </div>

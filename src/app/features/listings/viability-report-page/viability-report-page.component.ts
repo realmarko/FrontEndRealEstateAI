@@ -9,7 +9,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { ViabilityReportModalComponent } from '../../../shared/components/viability-report-modal/viability-report-modal.component';
 import { Listing, NearbyRoad, ViabilityAnalysis, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
-import { BUS_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
+import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
 
 // The full "Reporte de Viabilidad Comercial" — every business type, every check, not just the
 // top-3 teaser shown inline on listing-detail (see its viability-section, which links here).
@@ -44,7 +44,8 @@ export class ViabilityReportPageComponent {
     'Centro comercial': createPoiIcon('#c2410c', MALL_GLYPH),
     Hospital: createPoiIcon('#b91c1c', HOSPITAL_GLYPH),
     'Parada de autobús': createPoiIcon('#2563eb', BUS_GLYPH),
-    'Central de autobuses': createPoiIcon('#2563eb', BUS_GLYPH)
+    'Central de autobuses': createPoiIcon('#2563eb', BUS_GLYPH),
+    Gasolinera: createPoiIcon('#ca8a04', GAS_STATION_GLYPH)
   };
 
   // Autopistas get a bolder, more saturated dashed line than other road classes — the user asked
@@ -66,7 +67,8 @@ export class ViabilityReportPageComponent {
     { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Escuela'].url, labelKey: 'viabilityPage.legendSchool' },
     { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Centro comercial'].url, labelKey: 'viabilityPage.legendMall' },
     { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Hospital'].url, labelKey: 'viabilityPage.legendHospital' },
-    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Parada de autobús'].url, labelKey: 'viabilityPage.legendTransit' }
+    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Parada de autobús'].url, labelKey: 'viabilityPage.legendTransit' },
+    { icon: ViabilityReportPageComponent.CATEGORY_ICONS['Gasolinera'].url, labelKey: 'viabilityPage.legendGasStation' }
   ];
   protected readonly roadLegend = [
     { color: ViabilityReportPageComponent.ROAD_LINE_STYLES['Autopista'].color, labelKey: 'viabilityPage.legendHighway' },

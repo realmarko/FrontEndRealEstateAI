@@ -302,4 +302,8 @@ export interface ViabilityAnalysis {
   businesses: BusinessViability[];
   trafficGenerators: TrafficGenerator[];
   nearbyRoads: NearbyRoad[];
+  // True when the lookup itself failed (e.g. OpenStreetMap/Overpass down) rather than genuinely
+  // finding nothing nearby — an empty list looks identical either way otherwise.
+  roadsDataUnavailable: boolean;
+  trafficGeneratorsDataUnavailable: boolean;
 }
