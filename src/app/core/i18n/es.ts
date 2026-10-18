@@ -247,6 +247,7 @@ export const es: Record<string, string> = {
   'viabilityPage.badgeFrontage': 'Frente',
   'viabilityPage.trafficGeneratorsTitle': 'Generadores de tráfico cercanos',
   'viabilityPage.nearbyRoadsTitle': 'Vialidades cercanas',
+  'viabilityPage.mapListingMarker': 'Este predio',
   'viabilityPage.nearbyCompetitorsLabel': 'Competidores cercanos',
   'listingDetail.delete': 'Eliminar',
   'listingDetail.adminDelete': 'Eliminar (administrador)',

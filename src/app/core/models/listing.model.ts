@@ -263,6 +263,8 @@ export interface ViabilityCheck {
 export interface NearbyBusiness {
   name: string;
   distanceMeters: number;
+  lat: number;
+  lng: number;
 }
 
 export interface TrafficGenerator extends NearbyBusiness {
@@ -273,6 +275,8 @@ export interface NearbyRoad {
   name: string | null;
   classification: string;
   distanceMeters: number;
+  lat: number;
+  lng: number;
 }
 
 export interface BusinessViability {

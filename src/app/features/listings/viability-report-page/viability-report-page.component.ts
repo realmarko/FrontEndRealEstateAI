@@ -31,6 +31,16 @@ export class ViabilityReportPageComponent {
   protected readonly translation = inject(TranslationService);
 
   @ViewChild('locationMap') private locationMapEl?: ElementRef<HTMLDivElement>;
+  private map?: google.maps.Map;
+  // Distinct color per traffic-generator category so the map legend/markers read at a glance —
+  // Escuela/Centro comercial/Hospital/Parada de autobús/Central de autobuses.
+  private static readonly CATEGORY_MARKER_COLORS: Record<string, string> = {
+    Escuela: 'blue',
+    'Centro comercial': 'purple',
+    Hospital: 'red',
+    'Parada de autobús': 'green',
+    'Central de autobuses': 'green'
+  };
 
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
@@ -89,19 +99,63 @@ export class ViabilityReportPageComponent {
     await loadGoogleMaps();
 
     const position = { lat, lng };
-    const map = new google.maps.Map(this.locationMapEl.nativeElement, {
+    // Unlike listing-detail's own static/no-gesture preview map, this one is meant to be explored
+    // — it's plotting several points (traffic generators, nearby roads) that can fall outside a
+    // fixed zoom-15 view, so panning/zooming has to work.
+    this.map = new google.maps.Map(this.locationMapEl.nativeElement, {
       center: position,
       zoom: 15,
       mapTypeControl: false,
       streetViewControl: false,
-      fullscreenControl: false,
-      zoomControl: false,
-      keyboardShortcuts: false,
-      gestureHandling: 'none',
-      disableDoubleClickZoom: true
+      fullscreenControl: false
     });
 
-    new google.maps.Marker({ position, map });
+    new google.maps.Marker({
+      position,
+      map: this.map,
+      title: this.translation.t('viabilityPage.mapListingMarker'),
+      zIndex: 999
+    });
+
+    this.plotAnalysisMarkers();
+  }
+
+  // Called after both the map and the analysis are ready, in whichever order they resolve
+  // (independent async operations — a slow Overpass/DENUE round-trip can finish well after the
+  // map itself has rendered, or vice versa) — a no-op until both are present.
+  private plotAnalysisMarkers(): void {
+    const map = this.map;
+    const analysis = this.analysis();
+    if (!map || !analysis) return;
+
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend({ lat: analysis.lat, lng: analysis.lng });
+
+    for (const generator of analysis.trafficGenerators) {
+      const position = { lat: generator.lat, lng: generator.lng };
+      new google.maps.Marker({
+        position,
+        map,
+        title: `${generator.name} (${generator.category})`,
+        icon: `https://maps.google.com/mapfiles/ms/icons/${ViabilityReportPageComponent.CATEGORY_MARKER_COLORS[generator.category] ?? 'yellow'}-dot.png`
+      });
+      bounds.extend(position);
+    }
+
+    for (const road of analysis.nearbyRoads) {
+      const position = { lat: road.lat, lng: road.lng };
+      new google.maps.Marker({
+        position,
+        map,
+        title: road.name ?? road.classification,
+        icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png'
+      });
+      bounds.extend(position);
+    }
+
+    if (analysis.trafficGenerators.length > 0 || analysis.nearbyRoads.length > 0) {
+      map.fitBounds(bounds);
+    }
   }
 
   private loadAnalysis(): void {
@@ -111,6 +165,7 @@ export class ViabilityReportPageComponent {
       next: (analysis) => {
         this.loadingAnalysis.set(false);
         this.analysis.set(analysis);
+        this.plotAnalysisMarkers();
       },
       error: () => {
         this.loadingAnalysis.set(false);
