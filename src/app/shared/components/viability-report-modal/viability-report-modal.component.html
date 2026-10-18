@@ -1,0 +1,43 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <button type="button" class="modal-close" [attr.aria-label]="'viabilityModal.close' | translate" (click)="close()">
+      <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+    </button>
+
+    @if (sent) {
+      <h2>{{ 'viabilityModal.successTitle' | translate }}</h2>
+      <p class="success-body">{{ 'viabilityModal.successBody' | translate }}</p>
+      @if (downloadUrl) {
+        <a class="primary download-link" [href]="downloadUrl" download="reporte-viabilidad-comercial.pdf">
+          {{ 'viabilityModal.download' | translate }}
+        </a>
+      }
+      <button type="button" class="secondary" (click)="close()">{{ 'viabilityModal.close' | translate }}</button>
+    } @else {
+      <h2>{{ 'viabilityModal.title' | translate }}</h2>
+      <p class="intro">{{ 'viabilityModal.intro' | translate }}</p>
+
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <label>
+          {{ 'viabilityModal.name' | translate }}
+          <input type="text" formControlName="name" maxlength="200" />
+          <app-form-error [control]="form.controls.name" />
+        </label>
+        <label>
+          {{ 'viabilityModal.email' | translate }}
+          <input type="email" formControlName="email" maxlength="320" />
+          <app-form-error [control]="form.controls.email" />
+        </label>
+        <label>
+          {{ 'viabilityModal.phone' | translate }}
+          <input type="tel" inputmode="numeric" formControlName="phone" appPhoneInput maxlength="12" />
+          <app-form-error [control]="form.controls.phone" />
+        </label>
+
+        <button type="submit" class="primary" [disabled]="sending">
+          {{ (sending ? 'viabilityModal.sending' : 'viabilityModal.send') | translate }}
+        </button>
+      </form>
+    }
+  </div>
+</div>

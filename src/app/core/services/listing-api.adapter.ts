@@ -11,7 +11,8 @@ import {
   PriceHistoryEntry,
   PropertyType,
   TopographyType,
-  VialidadType
+  VialidadType,
+  ViabilityAnalysis
 } from '../models/listing.model';
 
 // Backend enums serialize as numbers when writing (Create/Update) but as
@@ -245,6 +246,44 @@ export function cmaResultFromDto(dto: CmaResultDto): CmaResult {
     sale: cmaStatsFromDto(dto.sale),
     rent: cmaStatsFromDto(dto.rent),
     comparables: dto.comparables.map(fromDto)
+  };
+}
+
+export interface ViabilityCheckDto {
+  label: string;
+  passed: boolean | null;
+  detail: string;
+}
+
+export interface BusinessViabilityDto {
+  key: string;
+  displayName: string;
+  score: number;
+  checks: ViabilityCheckDto[];
+}
+
+export interface ViabilityAnalysisDto {
+  lat: number;
+  lng: number;
+  populationInRadius: number | null;
+  socioeconomicScore: number | null;
+  populationDataAvailable: boolean;
+  businesses: BusinessViabilityDto[];
+}
+
+export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAnalysis {
+  return {
+    lat: dto.lat,
+    lng: dto.lng,
+    populationInRadius: dto.populationInRadius,
+    socioeconomicScore: dto.socioeconomicScore,
+    populationDataAvailable: dto.populationDataAvailable,
+    businesses: dto.businesses.map((b) => ({
+      key: b.key,
+      displayName: b.displayName,
+      score: b.score,
+      checks: b.checks.map((c) => ({ label: c.label, passed: c.passed, detail: c.detail }))
+    }))
   };
 }
 

@@ -565,6 +565,86 @@
   font-weight: 600;
 }
 
+.viability-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.viability-intro {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.viability-status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+.viability-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-3);
+}
+
+.viability-card {
+  border: 1px solid var(--hairline, #e5e7eb);
+  border-radius: 8px;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.viability-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.viability-name {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.viability-score {
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 999px;
+  padding: 0.1rem var(--space-2);
+}
+
+.viability-score.good {
+  color: #15803d;
+  background: rgba(21, 128, 61, 0.1);
+}
+
+.viability-score.medium {
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.1);
+}
+
+.viability-score.low {
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.1);
+}
+
+.viability-reason {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.viability-cta {
+  align-self: flex-start;
+}
+
 @media (max-width: 720px) {
   .layout {
     grid-template-columns: minmax(0, 1fr);

@@ -8,7 +8,7 @@ import { ListingService } from '../../../core/services/listing.service';
 import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, isLandOrCommercialPropertyType, isPureLandPropertyType } from '../../../core/models/listing.model';
+import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, ViabilityAnalysis, isLandOrCommercialPropertyType, isPureLandPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { TransferListingModalComponent } from '../../../shared/components/transfer-listing-modal/transfer-listing-modal.component';
@@ -18,6 +18,7 @@ import { RoiCalculatorComponent } from '../../../shared/components/roi-calculato
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
+import { ViabilityReportModalComponent } from '../../../shared/components/viability-report-modal/viability-report-modal.component';
 import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
@@ -57,7 +58,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent, ViabilityReportModalComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -127,6 +128,22 @@ export class ListingDetailComponent {
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
   readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
 
+  // "Reporte de Viabilidad Comercial" — the free preview shown on the page (see
+  // loadViabilityPreview, triggered right after the listing loads for an eligible property type)
+  // plus the gated full-PDF-by-email request (openViabilityModal/submitViabilityRequest).
+  readonly viabilityAnalysis = signal<ViabilityAnalysis | null>(null);
+  readonly loadingViability = signal(false);
+  readonly viabilityError = signal(false);
+  readonly viabilityTopBusinesses = computed(() => [...(this.viabilityAnalysis()?.businesses ?? [])].sort((a, b) => b.score - a.score).slice(0, 3));
+  readonly showViabilityModal = signal(false);
+  readonly submittingViabilityRequest = signal(false);
+  readonly viabilityRequestSent = signal(false);
+  // Object URL for the just-generated report PDF, so the success state can offer an immediate
+  // download link on top of the emailed copy — revoked on every new request and on destroy
+  // (see the constructor's DestroyRef hook) so a visitor requesting several reports in one
+  // session doesn't leak a blob URL per request.
+  readonly viabilityReportUrl = signal<string | null>(null);
+
   // Points straight at the backend's anonymous PDF endpoint (not the listing-detail page) —
   // scanning the printed QR should hand over the fact sheet immediately, with no detour
   // through the site. Absolute by construction: environment.apiUrl is always a full origin
@@ -192,6 +209,7 @@ export class ListingDetailComponent {
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       if (this.photoFadeTimeout) clearTimeout(this.photoFadeTimeout);
+      this.revokeViabilityReportUrl();
     });
 
     this.listingService.fetchById(this.id).subscribe({
@@ -233,6 +251,10 @@ export class ListingDetailComponent {
           // afterNextRender guarantees that render has happened before ViewChild is read,
           // unlike setTimeout(0) which can still fire before Angular updates the query.
           afterNextRender(() => this.initLocationMap(lat, lng), { injector: this.injector });
+        }
+
+        if (isLandOrCommercialPropertyType(listing.propertyType)) {
+          this.loadViabilityPreview();
         }
       },
       error: () => {
@@ -547,6 +569,54 @@ export class ListingDetailComponent {
         this.notification.error('listingDetail.addToPipelineError');
       }
     });
+  }
+
+  private loadViabilityPreview(): void {
+    this.loadingViability.set(true);
+    this.viabilityError.set(false);
+    this.listingService.getViabilityPreview(this.id).subscribe({
+      next: (analysis) => {
+        this.loadingViability.set(false);
+        this.viabilityAnalysis.set(analysis);
+      },
+      error: () => {
+        this.loadingViability.set(false);
+        this.viabilityError.set(true);
+      }
+    });
+  }
+
+  openViabilityModal(): void {
+    this.viabilityRequestSent.set(false);
+    this.revokeViabilityReportUrl();
+    this.showViabilityModal.set(true);
+  }
+
+  closeViabilityModal(): void {
+    if (this.submittingViabilityRequest()) return;
+    this.showViabilityModal.set(false);
+  }
+
+  submitViabilityRequest(input: { name: string; email: string; phone?: string }): void {
+    this.submittingViabilityRequest.set(true);
+    this.listingService.requestViabilityReport(this.id, input).subscribe({
+      next: (pdf) => {
+        this.submittingViabilityRequest.set(false);
+        this.viabilityRequestSent.set(true);
+        this.revokeViabilityReportUrl();
+        this.viabilityReportUrl.set(URL.createObjectURL(pdf));
+      },
+      error: () => {
+        this.submittingViabilityRequest.set(false);
+        this.notification.error('listingDetail.viabilityRequestError');
+      }
+    });
+  }
+
+  private revokeViabilityReportUrl(): void {
+    const url = this.viabilityReportUrl();
+    if (url) URL.revokeObjectURL(url);
+    this.viabilityReportUrl.set(null);
   }
 
   openContactModal(contactOwner = false): void {

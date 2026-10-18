@@ -251,3 +251,27 @@ export interface CmaResult {
   rent: CmaStats;
   comparables: Listing[];
 }
+
+export interface ViabilityCheck {
+  label: string;
+  // true = meets the criterion, false = fails it, null = not applicable/not evaluated for this
+  // business type (e.g. a population check where no census data covers this point).
+  passed: boolean | null;
+  detail: string;
+}
+
+export interface BusinessViability {
+  key: string;
+  displayName: string;
+  score: number;
+  checks: ViabilityCheck[];
+}
+
+export interface ViabilityAnalysis {
+  lat: number;
+  lng: number;
+  populationInRadius: number | null;
+  socioeconomicScore: number | null;
+  populationDataAvailable: boolean;
+  businesses: BusinessViability[];
+}

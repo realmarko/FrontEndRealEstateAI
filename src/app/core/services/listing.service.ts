@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CmaResult, Listing, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType } from '../models/listing.model';
+import { CmaResult, Listing, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType, ViabilityAnalysis } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
@@ -11,10 +11,12 @@ import {
   ListingPriceHistoryDto,
   ListingQuotaDto,
   PROPERTY_TYPE_TO_NUMBER,
+  ViabilityAnalysisDto,
   cmaResultFromDto,
   fromDto,
   priceHistoryFromDto,
-  toFormData
+  toFormData,
+  viabilityAnalysisFromDto
 } from './listing-api.adapter';
 
 @Injectable({ providedIn: 'root' })
@@ -105,6 +107,21 @@ export class ListingService {
         propertyType: propertyType != null ? PROPERTY_TYPE_TO_NUMBER[propertyType] : null
       })
       .pipe(map(cmaResultFromDto));
+  }
+
+  // The free, ungated half of the "Reporte de Viabilidad Comercial" lead magnet — every business
+  // type's fit score + why, shown directly on the page. Only listings.component checks whether
+  // the listing's own property type is eligible before calling this (404s otherwise).
+  getViabilityPreview(id: string): Observable<ViabilityAnalysis> {
+    return this.http.get<ViabilityAnalysisDto>(`${this.apiUrl}/${id}/viability-preview`).pipe(map(viabilityAnalysisFromDto));
+  }
+
+  // The gated half: captures the lead's name/email (no login required — a lead magnet has to
+  // work for an anonymous visitor), triggers the full PDF report by email server-side, AND
+  // returns that same PDF in the response so the page can offer an immediate download too —
+  // the lead is already captured either way, no reason to make them wait on email for it.
+  requestViabilityReport(id: string, input: { name: string; email: string; phone?: string }): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/${id}/viability-report`, input, { responseType: 'blob' });
   }
 
   // Admin-only — ListingsController.UpdateOwnerContact, a separate endpoint from the regular

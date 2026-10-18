@@ -210,7 +210,7 @@ const SOCIOECONOMIC_LEVEL_COLORS: Record<SocioeconomicLevel, string> = {
 };
 const AGEB_UNSCORED_COLOR = '#9ca3af';
 
-export type OpportunityCategoryKey = 'pharmacy' | 'gym' | 'oxxo';
+export type OpportunityCategoryKey = 'pharmacy' | 'gym' | 'oxxo' | 'gasStation';
 
 interface OpportunityCategoryConfig {
   key: OpportunityCategoryKey;
@@ -273,6 +273,17 @@ const OPPORTUNITY_CATEGORIES: OpportunityCategoryConfig[] = [
     goodMaxCount: 1,
     moderateMaxCount: 3,
     denueSearchTerm: 'oxxo'
+  },
+  {
+    key: 'gasStation',
+    labelKey: 'map.opportunityGasStation',
+    pluralLabelKey: 'map.opportunityGasStationPlural',
+    placeType: 'gas_station',
+    icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    radiusMeters: 1500,
+    goodMaxCount: 1,
+    moderateMaxCount: 3,
+    denueSearchTerm: 'gasolinera'
   }
 ];
 
