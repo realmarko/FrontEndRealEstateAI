@@ -65,67 +65,65 @@
       </div>
     </div>
 
-    <div class="detail-grid">
-      <div class="card">
-        <h3 class="card-title">{{ 'viabilityPage.factSheetTitle' | translate }}</h3>
-        <table class="fact-table">
-          <tr>
-            <td>{{ 'viabilityPage.factTypology' | translate }}</td>
-            <td>
-              @if (listingValue.isCornerLot != null) {
-                {{ (listingValue.isCornerLot ? 'viabilityPage.badgeCorner' : 'viabilityPage.badgeNotCorner') | translate }}
-              } @else {
-                —
-              }
-            </td>
-          </tr>
-          <tr>
-            <td>{{ 'viabilityPage.factStatus' | translate }}</td>
-            <td>
-              @if (listingValue.topography) {
-                {{ (listingValue.topography === 'plana' ? 'viabilityPage.badgeFlat' : 'viabilityPage.badgeSloped') | translate }}
-              } @else {
-                —
-              }
-            </td>
-          </tr>
-          <tr>
-            <td>{{ 'viabilityPage.factAccess' | translate }}</td>
-            <td>
-              @if (listingValue.hasPavedStreet != null) {
-                {{ (listingValue.hasPavedStreet ? 'viabilityPage.badgePaved' : 'viabilityPage.badgeUnpaved') | translate }}
-              } @else {
-                —
-              }
-            </td>
-          </tr>
-        </table>
-      </div>
+    <div class="card">
+      <h3 class="card-title">{{ 'viabilityPage.factSheetTitle' | translate }}</h3>
+      <table class="fact-table">
+        <tr>
+          <td>{{ 'viabilityPage.factTypology' | translate }}</td>
+          <td>
+            @if (listingValue.isCornerLot != null) {
+              {{ (listingValue.isCornerLot ? 'viabilityPage.badgeCorner' : 'viabilityPage.badgeNotCorner') | translate }}
+            } @else {
+              —
+            }
+          </td>
+        </tr>
+        <tr>
+          <td>{{ 'viabilityPage.factStatus' | translate }}</td>
+          <td>
+            @if (listingValue.topography) {
+              {{ (listingValue.topography === 'plana' ? 'viabilityPage.badgeFlat' : 'viabilityPage.badgeSloped') | translate }}
+            } @else {
+              —
+            }
+          </td>
+        </tr>
+        <tr>
+          <td>{{ 'viabilityPage.factAccess' | translate }}</td>
+          <td>
+            @if (listingValue.hasPavedStreet != null) {
+              {{ (listingValue.hasPavedStreet ? 'viabilityPage.badgePaved' : 'viabilityPage.badgeUnpaved') | translate }}
+            } @else {
+              —
+            }
+          </td>
+        </tr>
+      </table>
+    </div>
 
-      @if (listingValue.lat != null && listingValue.lng != null) {
-        <div class="card map-card">
-          <h3 class="card-title">{{ 'viabilityPage.mapCardTitle' | translate }}</h3>
-          <div class="map-row">
-            <div #locationMap class="location-map"></div>
-            <div class="map-legend">
-              <h4 class="legend-title">{{ 'viabilityPage.legendTitle' | translate }}</h4>
-              @for (item of markerLegend; track item.labelKey) {
-                <div class="legend-item">
-                  <img [src]="item.icon" alt="" class="legend-icon" />
-                  <span>{{ item.labelKey | translate }}</span>
-                </div>
-              }
-              @for (item of roadLegend; track item.labelKey) {
-                <div class="legend-item">
-                  <span class="legend-line" [style.background]="item.color"></span>
-                  <span>{{ item.labelKey | translate }}</span>
-                </div>
-              }
-            </div>
+    @if (listingValue.lat != null && listingValue.lng != null) {
+      <div class="card map-card">
+        <h3 class="card-title">{{ 'viabilityPage.mapCardTitle' | translate }}</h3>
+        <div class="map-row">
+          <div #locationMap class="location-map"></div>
+          <div class="map-legend">
+            <h4 class="legend-title">{{ 'viabilityPage.legendTitle' | translate }}</h4>
+            @for (item of markerLegend; track item.labelKey) {
+              <div class="legend-item">
+                <img [src]="item.icon" alt="" class="legend-icon" />
+                <span>{{ item.labelKey | translate }}</span>
+              </div>
+            }
+            @for (item of roadLegend; track item.labelKey) {
+              <div class="legend-item">
+                <span class="legend-line" [style.background]="item.color"></span>
+                <span>{{ item.labelKey | translate }}</span>
+              </div>
+            }
           </div>
         </div>
-      }
-    </div>
+      </div>
+    }
 
     @if (loadingAnalysis()) {
       <div class="loading-state">

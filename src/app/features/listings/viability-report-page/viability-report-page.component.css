@@ -145,6 +145,13 @@ h1 {
   border: 1px solid var(--hairline, #e5e7eb);
   border-radius: 8px;
   padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+/* Inside .detail-grid the grid's own gap already separates cards — the standalone margin would
+   just stack on top of that gap. */
+.detail-grid .card {
+  margin-bottom: 0;
 }
 
 .card-title {
