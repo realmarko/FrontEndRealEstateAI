@@ -364,7 +364,13 @@
               </div>
               <p class="agent-name">{{ listing.ownerName }}</p>
 
-              <a class="agent-email" [class.blurred]="!auth.isAuthenticated()" [href]="'mailto:' + listing.ownerEmail">{{ listing.ownerEmail }}</a>
+              <p class="agent-email contact-line" [class.blurred]="!auth.isAuthenticated()">
+                <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="M3 7l9 6 9-6" />
+                </svg>
+                {{ listing.ownerEmail }}
+              </p>
 
               @if (auth.isAuthenticated()) {
                 <button type="button" class="primary-link" (click)="openContactModal()">
@@ -387,13 +393,13 @@
               <p class="agent-name">{{ listing.ownerContactName }}</p>
 
               @if (listing.ownerContactEmail) {
-                <a class="agent-email contact-line" [class.blurred]="!auth.isAuthenticated()" [href]="'mailto:' + listing.ownerContactEmail">
+                <p class="agent-email contact-line" [class.blurred]="!auth.isAuthenticated()">
                   <svg class="contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="5" width="18" height="14" rx="2" />
                     <path d="M3 7l9 6 9-6" />
                   </svg>
                   {{ listing.ownerContactEmail }}
-                </a>
+                </p>
               }
               @if (listing.ownerContactPhone) {
                 <p class="agent-email contact-line" [class.blurred]="!auth.isAuthenticated()">
