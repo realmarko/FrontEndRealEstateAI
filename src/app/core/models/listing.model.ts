@@ -260,11 +260,24 @@ export interface ViabilityCheck {
   detail: string;
 }
 
+export interface NearbyBusiness {
+  name: string;
+  distanceMeters: number;
+}
+
+export interface TrafficGenerator extends NearbyBusiness {
+  category: string;
+}
+
 export interface BusinessViability {
   key: string;
   displayName: string;
   score: number;
+  // Set when a hard-blocker (flood risk, unresolved liens/debts) caps the score below what the
+  // passed/applicable ratio alone would give.
+  scoreCapReason: string | null;
   checks: ViabilityCheck[];
+  nearbyCompetitors: NearbyBusiness[];
 }
 
 export interface ViabilityAnalysis {
@@ -274,4 +287,5 @@ export interface ViabilityAnalysis {
   socioeconomicScore: number | null;
   populationDataAvailable: boolean;
   businesses: BusinessViability[];
+  trafficGenerators: TrafficGenerator[];
 }

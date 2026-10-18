@@ -1,0 +1,259 @@
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-16);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--navy);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: var(--space-6);
+}
+
+.back svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.back:hover {
+  text-decoration: underline;
+}
+
+h1 {
+  margin: 0 0 var(--space-1);
+  font-size: 1.6rem;
+  color: var(--ink);
+}
+
+.subtitle {
+  margin: 0 0 var(--space-6);
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+.status {
+  color: var(--ink-soft);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.badge {
+  background: #f3f4f6;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.2rem var(--space-3);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.location-map {
+  width: 100%;
+  height: 220px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+}
+
+.traffic-card {
+  background: #f9fafb;
+  border: 1px solid var(--hairline, #e5e7eb);
+  border-radius: 8px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.traffic-title {
+  margin: 0 0 var(--space-3);
+  font-size: 1rem;
+  color: var(--navy);
+}
+
+.traffic-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.traffic-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.traffic-name {
+  flex: 1;
+  color: var(--ink);
+}
+
+.traffic-category {
+  color: var(--ink-soft);
+}
+
+.competitors-label {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.competitors-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.competitors-list li {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  padding-left: var(--space-2);
+}
+
+.summary-card {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  background: #f9fafb;
+  border: 1px solid var(--hairline, #e5e7eb);
+  border-radius: 8px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.summary-label {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.summary-value {
+  color: var(--ink-soft);
+}
+
+.business-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.business-card {
+  border: 1px solid var(--hairline, #e5e7eb);
+  border-radius: 8px;
+  padding: var(--space-4);
+}
+
+.business-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.business-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--navy);
+}
+
+.score {
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 999px;
+  padding: 0.15rem var(--space-3);
+  flex-shrink: 0;
+}
+
+.score.good {
+  color: #15803d;
+  background: rgba(21, 128, 61, 0.1);
+}
+
+.score.medium {
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.1);
+}
+
+.score.low {
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.1);
+}
+
+.cap-reason {
+  margin: var(--space-2) 0 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #b91c1c;
+}
+
+.checks {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.checks li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
+.mark {
+  flex-shrink: 0;
+  font-weight: 700;
+  width: 1.1em;
+}
+
+.checks li.pass .mark {
+  color: #15803d;
+}
+
+.checks li.fail .mark {
+  color: #b91c1c;
+}
+
+.checks li.unknown .mark {
+  color: #9ca3af;
+}
+
+.primary-link {
+  display: inline-block;
+  background: var(--gold);
+  color: var(--on-gold);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-link:hover {
+  background: var(--gold-hover);
+}
+
+.viability-cta {
+  margin-top: var(--space-6);
+}

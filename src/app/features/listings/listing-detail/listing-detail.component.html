@@ -266,24 +266,18 @@
               <p class="viability-status">{{ 'listingDetail.viabilityLoading' | translate }}</p>
             } @else if (viabilityError()) {
               <p class="viability-status">{{ 'listingDetail.viabilityError' | translate }}</p>
-            } @else if (viabilityAnalysis()) {
-              <div class="viability-cards">
-                @for (business of viabilityTopBusinesses(); track business.key) {
-                  <div class="viability-card">
-                    <div class="viability-card-head">
-                      <span class="viability-name">{{ business.displayName }}</span>
-                      <span class="viability-score" [class.good]="business.score >= 70" [class.medium]="business.score >= 40 && business.score < 70" [class.low]="business.score < 40">{{ business.score }}%</span>
-                    </div>
-                    @if (business.checks.length) {
-                      <p class="viability-reason">{{ business.checks[0].detail }}</p>
-                    }
-                  </div>
-                }
+            } @else if (viabilityTopBusiness(); as topBusiness) {
+              <div class="viability-card">
+                <div class="viability-card-head">
+                  <span class="viability-name">{{ topBusiness.displayName }}</span>
+                  <span class="viability-score" [class.good]="topBusiness.score >= 70" [class.medium]="topBusiness.score >= 40 && topBusiness.score < 70" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
+                </div>
+                <p class="viability-reason">{{ 'listingDetail.viabilityBestFit' | translate }}</p>
               </div>
 
-              <button type="button" class="primary-link viability-cta" (click)="openViabilityModal()">
+              <a class="primary-link viability-cta" [routerLink]="['/listings', listing.id, 'viabilidad-comercial']">
                 {{ 'listingDetail.viabilityCta' | translate }}
-              </button>
+              </a>
             }
           </div>
         }
@@ -511,16 +505,6 @@
       [listingId]="listing.id"
       (closed)="closePipelineModal()"
       (saved)="savePipelineDeal($event)"
-    />
-  }
-
-  @if (showViabilityModal()) {
-    <app-viability-report-modal
-      [sending]="submittingViabilityRequest()"
-      [sent]="viabilityRequestSent()"
-      [downloadUrl]="viabilityReportUrl()"
-      (closed)="closeViabilityModal()"
-      (requested)="submitViabilityRequest($event)"
     />
   }
 } @else if (!loading()) {

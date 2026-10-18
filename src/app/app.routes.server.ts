@@ -69,6 +69,11 @@ const clientOnlyPaths = [
 export const serverRoutes: ServerRoute[] = [
   ...clientOnlyPaths.map((path): ServerRoute => ({ path, renderMode: RenderMode.Client })),
   { path: 'listings/:id/edit', renderMode: RenderMode.Client },
+  // Client-only, not prerendered: unlike the listing page itself, this calls the rate-limited
+  // viability-preview endpoint (9 DENUE lookups) on load — prerendering it for every Land/
+  // commercial listing at build time would burn that external quota on every deploy for a page
+  // that doesn't need search-engine/link-preview treatment the way the listing page does.
+  { path: 'listings/:id/viabilidad-comercial', renderMode: RenderMode.Client },
   { path: 'admin/inmobiliarias/:id/edit', renderMode: RenderMode.Client },
   {
     path: 'listings/:id',

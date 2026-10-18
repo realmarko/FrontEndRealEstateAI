@@ -1,6 +1,7 @@
 import { Component, DestroyRef, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { isBrowser } from '../../../core/utils/platform';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { FavoritesService } from '../../../core/services/favorites.service';
@@ -18,7 +19,6 @@ import { RoiCalculatorComponent } from '../../../shared/components/roi-calculato
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
-import { ViabilityReportModalComponent } from '../../../shared/components/viability-report-modal/viability-report-modal.component';
 import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
@@ -58,7 +58,7 @@ function getYouTubeVideoId(url: string): string | null {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent, ViabilityReportModalComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })
@@ -125,24 +125,23 @@ export class ListingDetailComponent {
   readonly streetViewAvailable = signal(false);
   readonly streetViewChecked = signal(false);
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
+  // isBrowser() must run in an injection context — cached as a field (same pattern as
+  // AuthService/FavoritesService) so it can be read later from the async listing-load callback.
+  private readonly isBrowser = isBrowser();
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
   readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
 
-  // "Reporte de Viabilidad Comercial" — the free preview shown on the page (see
-  // loadViabilityPreview, triggered right after the listing loads for an eligible property type)
-  // plus the gated full-PDF-by-email request (openViabilityModal/submitViabilityRequest).
+  // "Reporte de Viabilidad Comercial" teaser — just the single best-fit business type, loaded
+  // right after the listing loads for an eligible property type (see loadViabilityPreview). The
+  // full breakdown + the gated PDF request live on their own page
+  // (viability-report-page.component.ts, linked from the CTA below) rather than inline here.
   readonly viabilityAnalysis = signal<ViabilityAnalysis | null>(null);
   readonly loadingViability = signal(false);
   readonly viabilityError = signal(false);
-  readonly viabilityTopBusinesses = computed(() => [...(this.viabilityAnalysis()?.businesses ?? [])].sort((a, b) => b.score - a.score).slice(0, 3));
-  readonly showViabilityModal = signal(false);
-  readonly submittingViabilityRequest = signal(false);
-  readonly viabilityRequestSent = signal(false);
-  // Object URL for the just-generated report PDF, so the success state can offer an immediate
-  // download link on top of the emailed copy — revoked on every new request and on destroy
-  // (see the constructor's DestroyRef hook) so a visitor requesting several reports in one
-  // session doesn't leak a blob URL per request.
-  readonly viabilityReportUrl = signal<string | null>(null);
+  readonly viabilityTopBusiness = computed(() => {
+    const businesses = this.viabilityAnalysis()?.businesses ?? [];
+    return businesses.reduce<(typeof businesses)[number] | null>((best, b) => (!best || b.score > best.score ? b : best), null);
+  });
 
   // Points straight at the backend's anonymous PDF endpoint (not the listing-detail page) —
   // scanning the printed QR should hand over the fact sheet immediately, with no detour
@@ -209,7 +208,6 @@ export class ListingDetailComponent {
   constructor() {
     inject(DestroyRef).onDestroy(() => {
       if (this.photoFadeTimeout) clearTimeout(this.photoFadeTimeout);
-      this.revokeViabilityReportUrl();
     });
 
     this.listingService.fetchById(this.id).subscribe({
@@ -253,7 +251,11 @@ export class ListingDetailComponent {
           afterNextRender(() => this.initLocationMap(lat, lng), { injector: this.injector });
         }
 
-        if (isLandOrCommercialPropertyType(listing.propertyType)) {
+        // Browser-only: this page is prerendered at build time for every listing
+        // (app.routes.server.ts), and the preview fans out to several DENUE calls per listing —
+        // doing that during SSR would burn real DENUE quota (and the "viability" rate limit) on
+        // every deploy, for a number the visitor never even sees until the page is interactive.
+        if (isLandOrCommercialPropertyType(listing.propertyType) && this.isBrowser) {
           this.loadViabilityPreview();
         }
       },
@@ -584,39 +586,6 @@ export class ListingDetailComponent {
         this.viabilityError.set(true);
       }
     });
-  }
-
-  openViabilityModal(): void {
-    this.viabilityRequestSent.set(false);
-    this.revokeViabilityReportUrl();
-    this.showViabilityModal.set(true);
-  }
-
-  closeViabilityModal(): void {
-    if (this.submittingViabilityRequest()) return;
-    this.showViabilityModal.set(false);
-  }
-
-  submitViabilityRequest(input: { name: string; email: string; phone?: string }): void {
-    this.submittingViabilityRequest.set(true);
-    this.listingService.requestViabilityReport(this.id, input).subscribe({
-      next: (pdf) => {
-        this.submittingViabilityRequest.set(false);
-        this.viabilityRequestSent.set(true);
-        this.revokeViabilityReportUrl();
-        this.viabilityReportUrl.set(URL.createObjectURL(pdf));
-      },
-      error: () => {
-        this.submittingViabilityRequest.set(false);
-        this.notification.error('listingDetail.viabilityRequestError');
-      }
-    });
-  }
-
-  private revokeViabilityReportUrl(): void {
-    const url = this.viabilityReportUrl();
-    if (url) URL.revokeObjectURL(url);
-    this.viabilityReportUrl.set(null);
   }
 
   openContactModal(contactOwner = false): void {

@@ -255,11 +255,22 @@ export interface ViabilityCheckDto {
   detail: string;
 }
 
+export interface NearbyBusinessDto {
+  name: string;
+  distanceMeters: number;
+}
+
+export interface TrafficGeneratorDto extends NearbyBusinessDto {
+  category: string;
+}
+
 export interface BusinessViabilityDto {
   key: string;
   displayName: string;
   score: number;
+  scoreCapReason: string | null;
   checks: ViabilityCheckDto[];
+  nearbyCompetitors: NearbyBusinessDto[];
 }
 
 export interface ViabilityAnalysisDto {
@@ -269,6 +280,7 @@ export interface ViabilityAnalysisDto {
   socioeconomicScore: number | null;
   populationDataAvailable: boolean;
   businesses: BusinessViabilityDto[];
+  trafficGenerators: TrafficGeneratorDto[];
 }
 
 export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAnalysis {
@@ -282,8 +294,11 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
       key: b.key,
       displayName: b.displayName,
       score: b.score,
-      checks: b.checks.map((c) => ({ label: c.label, passed: c.passed, detail: c.detail }))
-    }))
+      scoreCapReason: b.scoreCapReason,
+      checks: b.checks.map((c) => ({ label: c.label, passed: c.passed, detail: c.detail })),
+      nearbyCompetitors: b.nearbyCompetitors.map((n) => ({ name: n.name, distanceMeters: n.distanceMeters }))
+    })),
+    trafficGenerators: dto.trafficGenerators.map((g) => ({ name: g.name, distanceMeters: g.distanceMeters, category: g.category }))
   };
 }
 

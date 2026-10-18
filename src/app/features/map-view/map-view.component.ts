@@ -12,6 +12,7 @@ import { AgencyMapItem } from '../../core/models/agency.model';
 import { SavedSearchService } from '../../core/services/saved-search.service';
 import {
   AgebBoundary,
+  AgebCompetitorDensity,
   GeoJsonGeometry,
   GeomarketingService,
   MunicipalityListItem,
@@ -429,6 +430,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private searchMunicipalityRequestId = 0;
 
   readonly showAgebLayer = signal(false);
+  // The opt-in "mapa de color competitivo" layer — fetched once per click (not on every pan,
+  // unlike showAgebLayer above) for whichever opportunity category is currently selected. See
+  // loadCompetitorDensity.
+  readonly loadingCompetitorDensity = signal(false);
+  readonly competitorDensityActive = signal(false);
   readonly showSaveSearchForm = signal(false);
   readonly saveSearchName = signal('');
 
@@ -527,6 +533,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private opportunityCircle?: google.maps.Circle;
   private opportunityMarker?: google.maps.Marker;
   private agebDataLayer?: google.maps.Data;
+  private competitorDensityLayer?: google.maps.Data;
   // Freehand drawing is hand-rolled from the map's own mousedown/mousemove/mouseup events rather
   // than the Maps JS API's old Drawing library — that library (google.maps.drawing.DrawingManager)
   // was removed from the API as of version 3.65 (its type is still shipped, but empty/deprecated;
@@ -1947,6 +1954,81 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         type: 'Feature',
         geometry: ageb.boundary,
         properties: { cvegeo: ageb.cvegeo, estimatedSocioeconomicLevel: ageb.estimatedSocioeconomicLevel }
+      });
+    }
+  }
+
+  // One-shot, caller-triggered fetch for the opt-in competitor-density layer — unlike
+  // showAgebLayer's own loadAgebsForCurrentBounds, this does NOT refetch on every pan/zoom (see
+  // GeomarketingController.GetCompetitorDensity's own reasoning: each AGEB costs a DENUE call,
+  // so an automatic on-pan layer here would spend that budget far faster than the plain
+  // socioeconomic layer does). Requires a selected opportunity category, since the competitor
+  // count is always for one specific business type.
+  loadCompetitorDensity(): void {
+    if (!this.map) return;
+    const categoryKey = this.selectedOpportunityCategory();
+    if (!categoryKey) return;
+    const config = OPPORTUNITY_CATEGORIES.find((c) => c.key === categoryKey)!;
+    const bounds = this.map.getBounds();
+    if (!bounds) return;
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+
+    this.loadingCompetitorDensity.set(true);
+    this.geomarketingService
+      .competitorDensity(config.denueSearchTerm, config.radiusMeters, sw.lat(), sw.lng(), ne.lat(), ne.lng())
+      .subscribe({
+        next: (agebs) =>
+          this.zone.run(() => {
+            this.loadingCompetitorDensity.set(false);
+            this.competitorDensityActive.set(true);
+            this.renderCompetitorDensityLayer(agebs, config.goodMaxCount, config.moderateMaxCount);
+          }),
+        error: (err: { status?: number }) =>
+          this.zone.run(() => {
+            this.loadingCompetitorDensity.set(false);
+            this.notification.error(err?.status === 400 ? 'map.competitorDensityTooManyZones' : 'map.competitorDensityError');
+          })
+      });
+  }
+
+  clearCompetitorDensity(): void {
+    this.competitorDensityActive.set(false);
+    this.competitorDensityLayer?.forEach((feature) => this.competitorDensityLayer!.remove(feature));
+  }
+
+  private renderCompetitorDensityLayer(agebs: AgebCompetitorDensity[], goodMaxCount: number, moderateMaxCount: number): void {
+    if (!this.map) return;
+
+    if (!this.competitorDensityLayer) {
+      this.competitorDensityLayer = new google.maps.Data({ map: this.map });
+      this.competitorDensityLayer.setStyle((feature) => {
+        const count = feature.getProperty('competitorCount') as number | null;
+        const color =
+          count === null ? AGEB_UNSCORED_COLOR : count <= goodMaxCount ? '#15803d' : count <= moderateMaxCount ? '#b45309' : '#b91c1c';
+        return { fillColor: color, fillOpacity: 0.45, strokeColor: color, strokeWeight: 1 };
+      });
+      this.competitorDensityLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        this.zone.run(() => {
+          if (!this.infoWindow || !event.latLng) return;
+          const count = event.feature.getProperty('competitorCount') as number | null;
+          const content =
+            count === null
+              ? this.translation.t('map.competitorDensityUnavailable')
+              : this.translation.t('map.competitorDensityCount', { count: String(count) });
+          this.infoWindow.setContent(`<div>${content}</div>`);
+          this.infoWindow.setPosition(event.latLng);
+          this.infoWindow.open(this.map);
+        });
+      });
+    }
+
+    this.competitorDensityLayer.forEach((feature) => this.competitorDensityLayer!.remove(feature));
+    for (const ageb of agebs) {
+      this.competitorDensityLayer.addGeoJson({
+        type: 'Feature',
+        geometry: ageb.boundary,
+        properties: { cvegeo: ageb.cvegeo, competitorCount: ageb.competitorCount }
       });
     }
   }

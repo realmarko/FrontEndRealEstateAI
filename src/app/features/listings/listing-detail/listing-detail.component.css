@@ -584,12 +584,6 @@
   color: var(--ink-soft);
 }
 
-.viability-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--space-3);
-}
-
 .viability-card {
   border: 1px solid var(--hairline, #e5e7eb);
   border-radius: 8px;

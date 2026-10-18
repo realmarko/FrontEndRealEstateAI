@@ -65,6 +65,13 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'listings/:id/viabilidad-comercial',
+    loadComponent: () =>
+      import('./features/listings/viability-report-page/viability-report-page.component').then(
+        (m) => m.ViabilityReportPageComponent
+      )
+  },
+  {
     path: 'listings/:id',
     loadComponent: () =>
       import('./features/listings/listing-detail/listing-detail.component').then(

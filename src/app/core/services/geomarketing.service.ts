@@ -61,6 +61,13 @@ export interface AgebBoundary {
   estimatedSocioeconomicLevel: SocioeconomicLevel | null;
 }
 
+export interface AgebCompetitorDensity {
+  cvegeo: string;
+  boundary: GeoJsonGeometry;
+  // null means the DENUE lookup failed for this one AGEB — distinct from a genuine 0.
+  competitorCount: number | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class GeomarketingService {
   private readonly http = inject(HttpClient);
@@ -123,6 +130,24 @@ export class GeomarketingService {
   agebsInBounds(swLat: number, swLng: number, neLat: number, neLng: number): Observable<AgebBoundary[]> {
     return this.http.get<AgebBoundary[]>(`${this.apiUrl}/agebs`, {
       params: { swLat: String(swLat), swLng: String(swLng), neLat: String(neLat), neLng: String(neLng) }
+    });
+  }
+
+  // Same AGEBs as agebsInBounds, each with a DENUE competitor count at its centroid instead of a
+  // socioeconomic level — the opt-in "mapa de color competitivo" layer (see
+  // GeomarketingController.GetCompetitorDensity). Caller-triggered, not refetched on every pan —
+  // each AGEB's own DENUE count is cached 24h server-side, so re-opening the same area again is
+  // effectively free.
+  competitorDensity(searchTerm: string, radiusMeters: number, swLat: number, swLng: number, neLat: number, neLng: number): Observable<AgebCompetitorDensity[]> {
+    return this.http.get<AgebCompetitorDensity[]>(`${this.apiUrl}/competitor-density`, {
+      params: {
+        searchTerm,
+        radiusMeters: String(radiusMeters),
+        swLat: String(swLat),
+        swLng: String(swLng),
+        neLat: String(neLat),
+        neLng: String(neLng)
+      }
     });
   }
 }

@@ -1,0 +1,120 @@
+@if (loading()) {
+  <div class="page"><p>{{ 'viabilityPage.loadingListing' | translate }}</p></div>
+} @else if (notEligible() || !listing()) {
+  <div class="page">
+    <p>{{ 'listingDetail.notFound' | translate }}</p>
+    <a routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>
+  </div>
+} @else {
+  @let listingValue = listing()!;
+  <div class="page">
+    <a class="back" [routerLink]="['/listings', listingValue.id]">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+      {{ listingValue.title }}
+    </a>
+
+    <h1>{{ 'viabilityPage.title' | translate }}</h1>
+    <p class="subtitle">{{ 'viabilityPage.subtitle' | translate }}</p>
+
+    <div class="badges">
+      @if (listingValue.isCornerLot != null) {
+        <span class="badge">{{ (listingValue.isCornerLot ? 'viabilityPage.badgeCorner' : 'viabilityPage.badgeNotCorner') | translate }}</span>
+      }
+      @if (listingValue.topography) {
+        <span class="badge">{{ (listingValue.topography === 'plana' ? 'viabilityPage.badgeFlat' : 'viabilityPage.badgeSloped') | translate }}</span>
+      }
+      @if (listingValue.hasPavedStreet != null) {
+        <span class="badge">{{ (listingValue.hasPavedStreet ? 'viabilityPage.badgePaved' : 'viabilityPage.badgeUnpaved') | translate }}</span>
+      }
+      @if (listingValue.lotSizeSqm) {
+        <span class="badge">{{ listingValue.lotSizeSqm | number }} m²</span>
+      }
+      @if (listingValue.frontageWidthMeters) {
+        <span class="badge">{{ 'viabilityPage.badgeFrontage' | translate }}: {{ listingValue.frontageWidthMeters }} m</span>
+      }
+    </div>
+
+    @if (listingValue.lat != null && listingValue.lng != null) {
+      <div #locationMap class="location-map"></div>
+    }
+
+    @if (loadingAnalysis()) {
+      <p class="status">{{ 'listingDetail.viabilityLoading' | translate }}</p>
+    } @else if (analysisError()) {
+      <p class="status">{{ 'listingDetail.viabilityError' | translate }}</p>
+    } @else if (analysis(); as analysisValue) {
+      <div class="summary-card">
+        <span class="summary-label">{{ 'viabilityPage.populationLabel' | translate }}</span>
+        <span class="summary-value">
+          @if (analysisValue.populationDataAvailable) {
+            {{ analysisValue.populationInRadius | number }} {{ 'viabilityPage.inhabitants' | translate }}
+          } @else {
+            {{ 'viabilityPage.populationUnavailable' | translate }}
+          }
+        </span>
+      </div>
+
+      @if (analysisValue.trafficGenerators.length) {
+        <div class="traffic-card">
+          <h2 class="traffic-title">{{ 'viabilityPage.trafficGeneratorsTitle' | translate }}</h2>
+          <ul class="traffic-list">
+            @for (generator of analysisValue.trafficGenerators; track generator.name) {
+              <li>
+                <span class="traffic-name">{{ generator.name }}</span>
+                <span class="traffic-category">{{ generator.category }}</span>
+                <span class="traffic-distance">{{ generator.distanceMeters | number }} m</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
+      <div class="business-list">
+        @for (business of rankedBusinesses(); track business.key) {
+          <div class="business-card">
+            <div class="business-head">
+              <h2>{{ business.displayName }}</h2>
+              <span class="score" [class.good]="business.score >= 70" [class.medium]="business.score >= 40 && business.score < 70" [class.low]="business.score < 40">{{ business.score }}%</span>
+            </div>
+
+            @if (business.scoreCapReason) {
+              <p class="cap-reason">{{ business.scoreCapReason }}</p>
+            }
+
+            <ul class="checks">
+              @for (check of business.checks; track check.label) {
+                <li [class.pass]="check.passed === true" [class.fail]="check.passed === false" [class.unknown]="check.passed === null">
+                  <span class="mark">{{ check.passed === true ? '✓' : check.passed === false ? '✗' : '•' }}</span>
+                  {{ check.detail }}
+                </li>
+              }
+            </ul>
+
+            @if (business.nearbyCompetitors.length) {
+              <p class="competitors-label">{{ 'viabilityPage.nearbyCompetitorsLabel' | translate }}</p>
+              <ul class="competitors-list">
+                @for (competitor of business.nearbyCompetitors; track competitor.name) {
+                  <li>{{ competitor.name }} — {{ competitor.distanceMeters | number }} m</li>
+                }
+              </ul>
+            }
+          </div>
+        }
+      </div>
+
+      <button type="button" class="primary-link viability-cta" (click)="openViabilityModal()">
+        {{ 'viabilityPage.requestReportCta' | translate }}
+      </button>
+    }
+  </div>
+
+  @if (showViabilityModal()) {
+    <app-viability-report-modal
+      [sending]="submittingViabilityRequest()"
+      [sent]="viabilityRequestSent()"
+      [downloadUrl]="viabilityReportUrl()"
+      (closed)="closeViabilityModal()"
+      (requested)="submitViabilityRequest($event)"
+    />
+  }
+}
