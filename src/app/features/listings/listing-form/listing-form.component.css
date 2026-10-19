@@ -30,6 +30,14 @@ label {
   color: #374151;
 }
 
+/* Same type treatment as a <label>, for the "Photos" heading that now sits above two separate
+   file-input labels (one per photo source) instead of wrapping a single input itself. */
+.field-label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
 input,
 textarea,
 select {

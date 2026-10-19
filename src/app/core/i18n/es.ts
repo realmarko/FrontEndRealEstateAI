@@ -484,6 +484,8 @@ export const es: Record<string, string> = {
   'listingForm.hasWell': 'Pozo',
   'listingForm.isFloodRiskZone': 'Zona de riesgo de inundación',
   'listingForm.photos': 'Subir fotos',
+  'listingForm.takePhoto': 'Tomar foto',
+  'listingForm.choosePhotos': 'Elegir de la galería',
   'listingForm.removePhoto': 'Eliminar foto',
   'listingForm.primaryPhoto': 'Principal',
   'listingForm.atLeastOnePhoto': 'Agrega al menos una foto.',

@@ -484,6 +484,8 @@ export const en: Record<string, string> = {
   'listingForm.hasWell': 'Well',
   'listingForm.isFloodRiskZone': 'Flood / risk zone',
   'listingForm.photos': 'Upload photos',
+  'listingForm.takePhoto': 'Take photo',
+  'listingForm.choosePhotos': 'Choose from gallery',
   'listingForm.removePhoto': 'Remove photo',
   'listingForm.primaryPhoto': 'Primary',
   'listingForm.atLeastOnePhoto': 'Add at least one photo.',

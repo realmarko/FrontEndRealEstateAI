@@ -362,14 +362,22 @@
       <app-form-error [control]="form.controls.videoTourUrl" />
     </label>
 
-    <label>
-      {{ 'listingForm.photos' | translate }}
-      <!-- capture="environment": on mobile, the browser's file picker opens the rear camera as
-           the first/default option (falls back to the regular photo-library/file chooser if
-           camera access isn't available or the visitor backs out) — desktop browsers ignore it
-           and just show the normal file dialog. -->
-      <input type="file" accept="image/*" multiple capture="environment" (change)="onFilesSelected($event)" />
-    </label>
+    <p class="field-label">{{ 'listingForm.photos' | translate }}</p>
+    <!-- Two separate inputs, not one: capture="environment" reliably skips straight to the
+         camera on mobile (confirmed, especially on Android) instead of falling back to the
+         gallery/file chooser the way the old single-input comment here assumed — there was no
+         way to pick an existing photo without this split. Desktop ignores capture either way,
+         so both just open the normal file dialog there; harmless to show both. -->
+    <div class="grid-2">
+      <label>
+        {{ 'listingForm.takePhoto' | translate }}
+        <input type="file" accept="image/*" capture="environment" (change)="onFilesSelected($event)" />
+      </label>
+      <label>
+        {{ 'listingForm.choosePhotos' | translate }}
+        <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
+      </label>
+    </div>
 
     @if (displayImages().length) {
       <div class="photo-list">
