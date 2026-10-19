@@ -256,6 +256,10 @@
       </label>
       <label class="checkbox-label"><input type="checkbox" formControlName="hasNaturalGas" />{{ 'listingForm.hasNaturalGas' | translate }}</label>
       <label class="checkbox-label"><input type="checkbox" formControlName="hasLpGas" />{{ 'listingForm.hasLpGas' | translate }}</label>
+      <label class="checkbox-label"><input type="checkbox" formControlName="hasCistern" />{{ 'listingForm.hasCistern' | translate }}</label>
+      @if (isWellAvailable()) {
+        <label class="checkbox-label"><input type="checkbox" formControlName="hasWell" />{{ 'listingForm.hasWell' | translate }}</label>
+      }
     </div>
 
     @if (!isLandOrCommercial()) {

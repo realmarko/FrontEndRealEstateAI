@@ -124,6 +124,11 @@ export class ListingFormComponent {
     facadeOrientation: this.fb.control<CardinalOrientationType | null>(null),
     hasNaturalGas: this.fb.control<boolean | null>(null),
     hasLpGas: this.fb.control<boolean | null>(null),
+    hasCistern: this.fb.control<boolean | null>(null),
+    // Hidden/disabled for apartments (see isWellAvailable()) — not reset to null when hidden,
+    // same reasoning as the isLandOrCommercial()-gated fields above: switching away and back
+    // shouldn't lose what the visitor already entered.
+    hasWell: this.fb.control<boolean | null>(null),
     landUseZoning: this.fb.control<string | null>(null),
     landUseCategoryId: this.fb.control<number | null>(null),
     landTenure: this.fb.control<LandTenureType | null>(null),
@@ -327,6 +332,11 @@ export class ListingFormComponent {
     return isPureLandPropertyType(this.form.value.propertyType);
   }
 
+  // A single apartment unit wouldn't have its own well — every other property type can.
+  isWellAvailable(): boolean {
+    return this.form.value.propertyType !== 'apartment';
+  }
+
   get priceInWords(): string {
     return amountToWords(
       this.form.value.price ?? 0,
@@ -474,6 +484,7 @@ export class ListingFormComponent {
     const landOrCommercial = this.isLandOrCommercial();
     const pureLand = this.isPureLand();
     const isLand = this.isLand();
+    const wellAvailable = this.isWellAvailable();
     const value: ListingInput = {
       ...raw,
       bedrooms: landOrCommercial ? 0 : raw.bedrooms,
@@ -491,6 +502,8 @@ export class ListingFormComponent {
       facadeOrientation: raw.facadeOrientation ?? undefined,
       hasNaturalGas: raw.hasNaturalGas ?? undefined,
       hasLpGas: raw.hasLpGas ?? undefined,
+      hasCistern: raw.hasCistern ?? undefined,
+      hasWell: wellAvailable ? (raw.hasWell ?? undefined) : undefined,
       lotSizeSqm: raw.lotSizeSqm ?? undefined,
       // Nullish-guarded even though the control is typed as a plain (non-nullable) string:
       // patchValue() (edit mode, see constructor) sets it straight from a Listing whose

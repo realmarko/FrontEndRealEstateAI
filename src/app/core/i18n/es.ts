@@ -470,6 +470,8 @@ export const es: Record<string, string> = {
   'listingForm.orientationSuroeste': 'Suroeste',
   'listingForm.hasNaturalGas': 'Gas natural',
   'listingForm.hasLpGas': 'Gas estacionario (tanque)',
+  'listingForm.hasCistern': 'Cisterna',
+  'listingForm.hasWell': 'Pozo',
   'listingForm.isFloodRiskZone': 'Zona de riesgo de inundación',
   'listingForm.photos': 'Subir fotos',
   'listingForm.removePhoto': 'Eliminar foto',

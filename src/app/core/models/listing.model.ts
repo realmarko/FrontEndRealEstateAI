@@ -140,6 +140,8 @@ export interface Listing {
   facadeOrientation?: CardinalOrientationType;
   hasNaturalGas?: boolean;
   hasLpGas?: boolean;
+  hasCistern?: boolean;
+  hasWell?: boolean;
   landUseZoning?: string;
   landUseCategoryId?: number;
   landTenure?: LandTenureType;

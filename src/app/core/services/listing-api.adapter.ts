@@ -165,6 +165,8 @@ export interface ListingDto {
   facadeOrientation: string | null;
   hasNaturalGas: boolean | null;
   hasLpGas: boolean | null;
+  hasCistern: boolean | null;
+  hasWell: boolean | null;
   landUseZoning: string | null;
   landUseCategoryId: number | null;
   landTenure: string | null;
@@ -381,6 +383,8 @@ export function fromDto(dto: ListingDto): Listing {
     facadeOrientation: dto.facadeOrientation ? CARDINAL_ORIENTATION_FROM_STRING[dto.facadeOrientation] : undefined,
     hasNaturalGas: dto.hasNaturalGas ?? undefined,
     hasLpGas: dto.hasLpGas ?? undefined,
+    hasCistern: dto.hasCistern ?? undefined,
+    hasWell: dto.hasWell ?? undefined,
     landUseZoning: dto.landUseZoning ?? undefined,
     landUseCategoryId: dto.landUseCategoryId ?? undefined,
     landTenure: dto.landTenure ? LAND_TENURE_FROM_STRING[dto.landTenure] : undefined,
@@ -464,6 +468,8 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.facadeOrientation != null) form.append('facadeOrientation', String(CARDINAL_ORIENTATION_TO_NUMBER[input.facadeOrientation]));
   if (input.hasNaturalGas != null) form.append('hasNaturalGas', String(input.hasNaturalGas));
   if (input.hasLpGas != null) form.append('hasLpGas', String(input.hasLpGas));
+  if (input.hasCistern != null) form.append('hasCistern', String(input.hasCistern));
+  if (input.hasWell != null) form.append('hasWell', String(input.hasWell));
   if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
   if (input.landUseCategoryId != null) form.append('landUseCategoryId', String(input.landUseCategoryId));
   if (input.landTenure != null) form.append('landTenure', String(LAND_TENURE_TO_NUMBER[input.landTenure]));
