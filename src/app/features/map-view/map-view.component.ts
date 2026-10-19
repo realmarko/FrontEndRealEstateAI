@@ -364,7 +364,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly loadingPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
 
   readonly search = signal('');
-  readonly typeFilter = signal<ListingType | 'all'>('all');
+  readonly typeFilter = signal<ListingType | 'all'>('sale');
   readonly propertyTypeFilter = signal<PropertyType | 'all'>('all');
   readonly minPrice = signal<number | null>(null);
   readonly maxPrice = signal<number | null>(null);
@@ -418,7 +418,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // the main search text box doesn't count here, only the fields the filters page actually edits.
   readonly activeFilterCount = computed(() => {
     let count = 0;
-    if (this.typeFilter() !== 'all') count++;
+    if (this.typeFilter() !== 'sale') count++;
     if (this.propertyTypeFilter() !== 'all') count++;
     if (this.minPrice() !== null) count++;
     if (this.maxPrice() !== null) count++;
@@ -2107,7 +2107,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   }
 
   resetFilters(): void {
-    this.typeFilter.set('all');
+    this.typeFilter.set('sale');
     this.propertyTypeFilter.set('all');
     this.minPrice.set(null);
     this.maxPrice.set(null);

@@ -1,6 +1,7 @@
 <div class="map-page">
   <div class="mobile-search-bar">
     <input
+      id="map-search-mobile"
       type="search"
       class="search-input"
       [placeholder]="'listings.searchPlaceholder' | translate"
@@ -8,7 +9,7 @@
       (input)="onSearchChange($any($event.target).value)"
       (keyup.enter)="searchAddress()"
     />
-    <button type="button" class="mobile-filters-btn" (click)="openMobileFilters()">
+    <button id="map-mobile-filters-btn" type="button" class="mobile-filters-btn" (click)="openMobileFilters()">
       {{ 'map.filtersButton' | translate }}
       @if (activeFilterCount() > 0) {
         <span class="mobile-filters-badge">{{ activeFilterCount() }}</span>
@@ -17,16 +18,17 @@
   </div>
 
   <div class="mobile-view-tabs">
-    <button type="button" [class.active]="mobileView() === 'map'" (click)="setMobileView('map')">
+    <button id="map-mobile-tab-map" type="button" [class.active]="mobileView() === 'map'" (click)="setMobileView('map')">
       {{ 'map.mapResultsTab' | translate }}
     </button>
-    <button type="button" [class.active]="mobileView() === 'results'" (click)="setMobileView('results')">
+    <button id="map-mobile-tab-results" type="button" [class.active]="mobileView() === 'results'" (click)="setMobileView('results')">
       {{ 'map.listResultsTab' | translate }}
     </button>
   </div>
 
   <div class="search-bar">
     <input
+      id="map-search"
       type="search"
       class="search-input"
       [placeholder]="'listings.searchPlaceholder' | translate"
@@ -35,7 +37,7 @@
       (keyup.enter)="searchAddress()"
     />
 
-    <select class="filter-select" [value]="typeFilter()" (change)="setTypeFilter($any($event.target).value)">
+    <select id="map-filter-type" class="filter-select" [value]="typeFilter()" (change)="setTypeFilter($any($event.target).value)">
       <option value="all">{{ 'listings.filterAll' | translate }}</option>
       <option value="rent">{{ 'listings.filterRent' | translate }}</option>
       <option value="sale">{{ 'listings.filterSale' | translate }}</option>
@@ -43,6 +45,7 @@
 
     <div class="price-group">
       <input
+        id="map-price-min"
         type="text"
         inputmode="numeric"
         class="price-input price-mask"
@@ -51,6 +54,7 @@
       />
       <span class="price-sep">–</span>
       <input
+        id="map-price-max"
         type="text"
         inputmode="numeric"
         class="price-input price-mask"
@@ -59,7 +63,7 @@
       />
     </div>
 
-    <select class="filter-select" [value]="minBeds()" (change)="setMinBeds($any($event.target).value)">
+    <select id="map-filter-beds" class="filter-select" [value]="minBeds()" (change)="setMinBeds($any($event.target).value)">
       <option value="any">{{ 'map.bedsAny' | translate }}</option>
       <option value="1">{{ 'map.beds1' | translate }}</option>
       <option value="2">{{ 'map.beds2' | translate }}</option>
@@ -67,23 +71,24 @@
       <option value="4">{{ 'map.beds4' | translate }}</option>
     </select>
 
-    <select class="filter-select" [value]="propertyTypeFilter()" (change)="setPropertyTypeFilter($any($event.target).value)">
+    <select id="map-filter-property-type" class="filter-select" [value]="propertyTypeFilter()" (change)="setPropertyTypeFilter($any($event.target).value)">
       <option value="all">{{ 'listings.filterAll' | translate }}</option>
       @for (type of propertyTypeOptions; track type) {
         <option [value]="type">{{ ('listingForm.' + type) | translate }}</option>
       }
     </select>
 
-    <button type="button" class="more-filters-btn" (click)="toggleMoreFilters()">
+    <button id="map-more-filters-btn" type="button" class="more-filters-btn" (click)="toggleMoreFilters()">
       {{ (showMoreFilters() ? 'map.fewerFilters' : 'map.moreFilters') | translate }}
     </button>
 
     <ng-container *ngIf="auth.isAuthenticated()">
-      <button type="button" class="more-filters-btn" (click)="toggleSaveSearchForm()">
+      <button id="map-save-search-toggle-btn" type="button" class="more-filters-btn" (click)="toggleSaveSearchForm()">
         {{ 'savedSearches.saveButton' | translate }}
       </button>
       <div class="save-search-form" *ngIf="showSaveSearchForm()">
         <input
+          id="map-save-search-name"
           type="text"
           class="filter-input"
           [placeholder]="'savedSearches.namePlaceholder' | translate"
@@ -92,18 +97,19 @@
           (keyup.enter)="saveCurrentSearch()"
           maxlength="200"
         />
-        <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+        <button id="map-save-search-confirm-btn" type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
       </div>
     </ng-container>
 
     <div class="more-filters-panel" *ngIf="showMoreFilters()">
-      <select class="filter-select" [value]="minBaths()" (change)="setMinBaths($any($event.target).value)">
+      <select id="map-filter-baths" class="filter-select" [value]="minBaths()" (change)="setMinBaths($any($event.target).value)">
         <option value="any">{{ 'map.bathsAny' | translate }}</option>
         <option value="1">{{ 'map.baths1' | translate }}</option>
         <option value="2">{{ 'map.baths2' | translate }}</option>
         <option value="3">{{ 'map.baths3' | translate }}</option>
       </select>
       <input
+        id="map-filter-company"
         type="text"
         class="filter-input"
         list="map-company-options"
@@ -117,6 +123,7 @@
         }
       </datalist>
       <select
+        id="map-filter-municipality"
         class="filter-select"
         [value]="municipalityFilter()"
         (change)="selectMunicipality($any($event.target).value)"
@@ -137,10 +144,10 @@
       @if (freehandShape() && !streetViewActive()) {
         <div class="freehand-result-badge">
           {{ 'map.freehandResultCount' | translate:{ count: visibleListings().length } }}
-          <button type="button" [disabled]="loadingCma()" (click)="openCma()">
+          <button id="map-cma-open-btn" type="button" [disabled]="loadingCma()" (click)="openCma()">
             {{ (loadingCma() ? 'map.cmaLoading' : 'map.cmaButton') | translate }}
           </button>
-          <button type="button" (click)="clearFreehandShape()">{{ 'map.freehandClear' | translate }}</button>
+          <button id="map-freehand-clear-btn" type="button" (click)="clearFreehandShape()">{{ 'map.freehandClear' | translate }}</button>
         </div>
       }
       @if (!streetViewActive()) {
@@ -149,10 +156,11 @@
           <!-- Also hidden during opportunityMode, same reasoning as everything inside the
                ng-container below: a click means something different to each of these tools, so
                only the active one should be reachable at a time. -->
-          <button type="button" class="add-property-btn" *ngIf="auth.isAuthenticated() && !opportunityMode" [class.active]="addMode" (click)="toggleAddMode()">
+          <button id="map-add-property-btn" type="button" class="add-property-btn" *ngIf="auth.isAuthenticated() && !opportunityMode" [class.active]="addMode" (click)="toggleAddMode()">
             {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
           </button>
           <button
+            id="map-add-brokerage-btn"
             type="button"
             class="add-property-btn"
             *ngIf="auth.currentUser()?.roles?.includes('Admin') && !opportunityMode"
@@ -175,6 +183,7 @@
             <ng-container *ngIf="!opportunityMode">
               <div class="picker-anchor">
                 <button
+                  id="map-poi-toggle-btn"
                   type="button"
                   class="poi-toggle-btn"
                   [class.active]="showPoiChecklist()"
@@ -193,6 +202,7 @@
                     @for (category of poiCategories; track category.key) {
                       <label class="poi-checklist-item">
                         <input
+                          [attr.id]="'map-poi-category-' + category.key"
                           type="checkbox"
                           [checked]="checkedPoiCategories().has(category.key)"
                           (change)="togglePoiCategory(category.key, $any($event.target).checked)"
@@ -204,13 +214,14 @@
                       </label>
                     }
                     <label class="poi-checklist-item ageb-checklist-item">
-                      <input type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
+                      <input id="map-ageb-layer-toggle" type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
                       {{ 'map.agebLayer' | translate }}
                     </label>
                   </div>
                 }
               </div>
               <button
+                id="map-freehand-btn"
                 type="button"
                 class="freehand-btn"
                 [class.active]="freehandMode"
@@ -226,6 +237,7 @@
                 <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
               }
               <button
+                id="map-locate-btn"
                 type="button"
                 class="locate-btn"
                 [disabled]="locatingMe"
@@ -243,6 +255,7 @@
             </ng-container>
             <div class="picker-anchor">
               <button
+                id="map-opportunity-btn"
                 type="button"
                 class="opportunity-btn"
                 [class.active]="showOpportunityChecklist()"
@@ -259,6 +272,7 @@
                   @for (category of opportunityCategories; track category.key) {
                     <label class="opportunity-checklist-item">
                       <input
+                        [attr.id]="'map-opportunity-category-' + category.key"
                         type="radio"
                         name="opportunity-category"
                         [checked]="selectedOpportunityCategory() === category.key"
@@ -270,11 +284,11 @@
                 </div>
                 @if (selectedOpportunityCategory()) {
                   @if (competitorDensityActive()) {
-                    <button type="button" class="competitor-density-btn" (click)="clearCompetitorDensity()">
+                    <button id="map-competitor-density-clear-btn" type="button" class="competitor-density-btn" (click)="clearCompetitorDensity()">
                       {{ 'map.competitorDensityClear' | translate }}
                     </button>
                   } @else {
-                    <button type="button" class="competitor-density-btn" [disabled]="loadingCompetitorDensity()" (click)="loadCompetitorDensity()">
+                    <button id="map-competitor-density-load-btn" type="button" class="competitor-density-btn" [disabled]="loadingCompetitorDensity()" (click)="loadCompetitorDensity()">
                       {{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}
                     </button>
                   }
@@ -294,10 +308,10 @@
       }
       <div class="location-confirm-card" *ngIf="selectedLat !== null && selectedLng !== null">
         <div class="location-confirm-actions">
-          <button type="button" class="location-cancel-btn" (click)="cancelAddMode()">
+          <button id="map-location-cancel-btn" type="button" class="location-cancel-btn" (click)="cancelAddMode()">
             {{ 'map.cancelLocation' | translate }}
           </button>
-          <button type="button" class="location-confirm-btn" (click)="confirmLocation()">
+          <button id="map-location-confirm-btn" type="button" class="location-confirm-btn" (click)="confirmLocation()">
             {{ 'map.continue' | translate }}
           </button>
         </div>
@@ -309,7 +323,7 @@
           <div class="cma-panel" (click)="$event.stopPropagation()">
             <div class="cma-header">
               <h2>{{ 'map.cmaTitle' | translate }}</h2>
-              <button type="button" class="cma-close" (click)="closeCma()" [attr.aria-label]="'map.close' | translate">
+              <button id="map-cma-close-btn" type="button" class="cma-close" (click)="closeCma()" [attr.aria-label]="'map.close' | translate">
                 <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
               </button>
             </div>
@@ -376,6 +390,7 @@
         </div>
       }
       <button
+        id="map-expand-btn"
         type="button"
         class="expand-btn"
         [attr.aria-label]="(mapExpanded() ? 'map.collapse' : 'map.expand') | translate"
@@ -424,7 +439,7 @@
 
   <div class="mobile-filters-page" *ngIf="mobileFiltersOpen()">
     <div class="mobile-filters-header">
-      <button type="button" class="mobile-filters-back" [attr.aria-label]="'map.closeFilters' | translate" (click)="closeMobileFilters()">
+      <button id="map-mobile-filters-back-btn" type="button" class="mobile-filters-back" [attr.aria-label]="'map.closeFilters' | translate" (click)="closeMobileFilters()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
       </button>
       <h2>{{ 'map.filtersTitle' | translate }}</h2>
@@ -434,48 +449,48 @@
       <section class="filter-section">
         <h3>{{ 'listingForm.operation' | translate }}</h3>
         <div class="pill-row">
-          <button type="button" class="pill" [class.active]="typeFilter() === 'all'" (click)="setTypeFilter('all')">{{ 'listings.filterAll' | translate }}</button>
-          <button type="button" class="pill" [class.active]="typeFilter() === 'rent'" (click)="setTypeFilter('rent')">{{ 'listingForm.forRent' | translate }}</button>
-          <button type="button" class="pill" [class.active]="typeFilter() === 'sale'" (click)="setTypeFilter('sale')">{{ 'listingForm.forSale' | translate }}</button>
+          <button id="map-mobile-pill-type-all" type="button" class="pill" [class.active]="typeFilter() === 'all'" (click)="setTypeFilter('all')">{{ 'listings.filterAll' | translate }}</button>
+          <button id="map-mobile-pill-type-rent" type="button" class="pill" [class.active]="typeFilter() === 'rent'" (click)="setTypeFilter('rent')">{{ 'listingForm.forRent' | translate }}</button>
+          <button id="map-mobile-pill-type-sale" type="button" class="pill" [class.active]="typeFilter() === 'sale'" (click)="setTypeFilter('sale')">{{ 'listingForm.forSale' | translate }}</button>
         </div>
       </section>
 
       <section class="filter-section">
         <h3>{{ 'map.priceRangeLabel' | translate }}</h3>
         <div class="price-group">
-          <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMin' | translate" (input)="setMinPrice($any($event.target))" />
+          <input id="map-price-min-mobile" type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMin' | translate" (input)="setMinPrice($any($event.target))" />
           <span class="price-sep">–</span>
-          <input type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMax' | translate" (input)="setMaxPrice($any($event.target))" />
+          <input id="map-price-max-mobile" type="text" inputmode="numeric" class="price-input price-mask" [placeholder]="'map.priceMax' | translate" (input)="setMaxPrice($any($event.target))" />
         </div>
       </section>
 
       <section class="filter-section">
         <h3>{{ 'map.bedsLabel' | translate }}</h3>
         <div class="pill-row">
-          <button type="button" class="pill" [class.active]="minBeds() === 'any'" (click)="setMinBeds('any')">{{ 'map.bedsAny' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBeds() === 1" (click)="setMinBeds('1')">{{ 'map.beds1' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBeds() === 2" (click)="setMinBeds('2')">{{ 'map.beds2' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBeds() === 3" (click)="setMinBeds('3')">{{ 'map.beds3' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBeds() === 4" (click)="setMinBeds('4')">{{ 'map.beds4' | translate }}</button>
+          <button id="map-mobile-pill-beds-any" type="button" class="pill" [class.active]="minBeds() === 'any'" (click)="setMinBeds('any')">{{ 'map.bedsAny' | translate }}</button>
+          <button id="map-mobile-pill-beds-1" type="button" class="pill" [class.active]="minBeds() === 1" (click)="setMinBeds('1')">{{ 'map.beds1' | translate }}</button>
+          <button id="map-mobile-pill-beds-2" type="button" class="pill" [class.active]="minBeds() === 2" (click)="setMinBeds('2')">{{ 'map.beds2' | translate }}</button>
+          <button id="map-mobile-pill-beds-3" type="button" class="pill" [class.active]="minBeds() === 3" (click)="setMinBeds('3')">{{ 'map.beds3' | translate }}</button>
+          <button id="map-mobile-pill-beds-4" type="button" class="pill" [class.active]="minBeds() === 4" (click)="setMinBeds('4')">{{ 'map.beds4' | translate }}</button>
         </div>
       </section>
 
       <section class="filter-section">
         <h3>{{ 'map.bathsLabel' | translate }}</h3>
         <div class="pill-row">
-          <button type="button" class="pill" [class.active]="minBaths() === 'any'" (click)="setMinBaths('any')">{{ 'map.bathsAny' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBaths() === 1" (click)="setMinBaths('1')">{{ 'map.baths1' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBaths() === 2" (click)="setMinBaths('2')">{{ 'map.baths2' | translate }}</button>
-          <button type="button" class="pill" [class.active]="minBaths() === 3" (click)="setMinBaths('3')">{{ 'map.baths3' | translate }}</button>
+          <button id="map-mobile-pill-baths-any" type="button" class="pill" [class.active]="minBaths() === 'any'" (click)="setMinBaths('any')">{{ 'map.bathsAny' | translate }}</button>
+          <button id="map-mobile-pill-baths-1" type="button" class="pill" [class.active]="minBaths() === 1" (click)="setMinBaths('1')">{{ 'map.baths1' | translate }}</button>
+          <button id="map-mobile-pill-baths-2" type="button" class="pill" [class.active]="minBaths() === 2" (click)="setMinBaths('2')">{{ 'map.baths2' | translate }}</button>
+          <button id="map-mobile-pill-baths-3" type="button" class="pill" [class.active]="minBaths() === 3" (click)="setMinBaths('3')">{{ 'map.baths3' | translate }}</button>
         </div>
       </section>
 
       <section class="filter-section">
         <h3>{{ 'listingForm.propertyType' | translate }}</h3>
         <div class="pill-row wrap">
-          <button type="button" class="pill" [class.active]="propertyTypeFilter() === 'all'" (click)="setPropertyTypeFilter('all')">{{ 'listings.filterAll' | translate }}</button>
+          <button id="map-mobile-pill-property-type-all" type="button" class="pill" [class.active]="propertyTypeFilter() === 'all'" (click)="setPropertyTypeFilter('all')">{{ 'listings.filterAll' | translate }}</button>
           @for (type of propertyTypeOptions; track type) {
-            <button type="button" class="pill" [class.active]="propertyTypeFilter() === type" (click)="setPropertyTypeFilter(type)">{{ ('listingForm.' + type) | translate }}</button>
+            <button [attr.id]="'map-mobile-pill-property-type-' + type" type="button" class="pill" [class.active]="propertyTypeFilter() === type" (click)="setPropertyTypeFilter(type)">{{ ('listingForm.' + type) | translate }}</button>
           }
         </div>
       </section>
@@ -483,6 +498,7 @@
       <section class="filter-section">
         <h3>{{ 'listings.companyPlaceholder' | translate }}</h3>
         <input
+          id="map-filter-company-mobile"
           type="text"
           class="filter-select full"
           list="mobile-company-options"
@@ -499,7 +515,7 @@
 
       <section class="filter-section">
         <h3>{{ 'map.municipalityAll' | translate }}</h3>
-        <select class="filter-select full" [value]="municipalityFilter()" (change)="selectMunicipality($any($event.target).value)">
+        <select id="map-filter-municipality-mobile" class="filter-select full" [value]="municipalityFilter()" (change)="selectMunicipality($any($event.target).value)">
           <option value="">{{ 'map.municipalityAll' | translate }}</option>
           @for (municipality of municipalities(); track municipality.cvegeo) {
             <option [value]="municipality.cvegeo">{{ municipality.name }}</option>
@@ -509,15 +525,16 @@
     </div>
 
     <div class="mobile-filters-footer">
-      <button type="button" class="filters-reset-btn" (click)="resetFilters()">{{ 'map.reset' | translate }}</button>
+      <button id="map-filters-reset-btn" type="button" class="filters-reset-btn" (click)="resetFilters()">{{ 'map.reset' | translate }}</button>
       <ng-container *ngIf="auth.isAuthenticated()">
-        <button type="button" class="filters-secondary-btn" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
+        <button id="map-save-search-toggle-btn-mobile" type="button" class="filters-secondary-btn" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
       </ng-container>
-      <button type="button" class="filters-apply-btn" (click)="applyMobileFilters()">{{ 'map.applyFilters' | translate }}</button>
+      <button id="map-filters-apply-btn" type="button" class="filters-apply-btn" (click)="applyMobileFilters()">{{ 'map.applyFilters' | translate }}</button>
     </div>
 
     <div class="save-search-form mobile" *ngIf="showSaveSearchForm()">
       <input
+        id="map-save-search-name-mobile"
         type="text"
         class="filter-input"
         [placeholder]="'savedSearches.namePlaceholder' | translate"
@@ -526,7 +543,7 @@
         (keyup.enter)="saveCurrentSearch()"
         maxlength="200"
       />
-      <button type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+      <button id="map-save-search-confirm-btn-mobile" type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
     </div>
   </div>
 </div>

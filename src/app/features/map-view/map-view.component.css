@@ -26,7 +26,13 @@
 }
 
 .search-input {
-  flex: 1 1 220px;
+  /* Was flex-grow:1, filling whatever space was left in the row (nothing else in .search-bar
+     grows) — its real rendered width was never the 220px flex-basis, it was the row's leftover
+     space, ~650px on a normal desktop width. A max-width percentage of the row doesn't fix this:
+     the leftover space is already smaller than 60% of the full row (siblings eat the rest), so
+     that cap never actually binds. Dropping flex-grow to 0 and sizing it directly at 60% of that
+     real ~650px (measured live) is what actually reads as "40% smaller" on screen. */
+  flex: 0 1 390px;
   min-width: 160px;
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
