@@ -62,7 +62,7 @@ export class LoginComponent implements AfterViewInit {
 
   private onGoogleCredential(idToken: string): void {
     this.auth.loginWithGoogle(idToken).subscribe({
-      next: () => this.router.navigate(['/listings']),
+      next: () => this.router.navigate(['/map']),
       error: () => this.notification.error('auth.errors.googleSignInFailed')
     });
   }
@@ -76,7 +76,7 @@ export class LoginComponent implements AfterViewInit {
       const accessToken = await loginWithFacebookSdk();
       // No role sent here — same reasoning as the Google button above.
       this.auth.loginWithFacebook(accessToken).subscribe({
-        next: () => this.router.navigate(['/listings']),
+        next: () => this.router.navigate(['/map']),
         error: () => this.notification.error('auth.errors.facebookSignInFailed')
       });
     } catch {
@@ -92,7 +92,7 @@ export class LoginComponent implements AfterViewInit {
     }
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/listings']),
+      next: () => this.router.navigate(['/map']),
       // A 403 here means AuthController.Login found valid credentials but the account's email
       // isn't confirmed yet — route straight to the verify-email screen (with the email
       // pre-filled and a resend option) instead of the dead-end "invalid credentials" message.
