@@ -49,6 +49,8 @@ describe('ListingService', () => {
     facadeOrientation: null,
     hasNaturalGas: null,
     hasLpGas: null,
+    hasCistern: null,
+    hasWell: null,
     landUseZoning: null,
     landUseCategoryId: null,
     landTenure: null,
