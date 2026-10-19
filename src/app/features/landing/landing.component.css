@@ -13,10 +13,19 @@
   --paper: #f6f5f3;
   --platinum: #e7e5e1;
 
+  /* Strong ease-out: built-in CSS easings read as too weak for an entrance meant to feel
+     immediate. One curve, reused everywhere motion enters, keeps the hero's reveal cohesive. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
   display: block;
   color: var(--landing-ink);
   background: var(--paper);
-  overflow-x: hidden;
+  /* No overflow-x here on purpose: per spec, "overflow-x: hidden" with the y-axis left at its
+     initial 'visible' gets the y-axis silently promoted to 'auto' too — which turned this host
+     into its own scroll container instead of the page scrolling in .app-content (the shell's
+     intended scroller, see app.css), breaking anything that needs the real scroll root
+     (IntersectionObserver-based reveals, scroll-restoration). .hero already clips its own
+     full-bleed skyline SVG with its own overflow: hidden, so nothing here actually needs this. */
 }
 
 .landing h1,
@@ -44,7 +53,7 @@
   letter-spacing: 0.01em;
   text-decoration: none;
   border: 1px solid transparent;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s var(--ease-out), box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   cursor: pointer;
 }
 
@@ -53,7 +62,7 @@
   color: var(--landing-ink);
 }
 
-.btn-primary:hover {
+.btn-primary:hover:not(:active) {
   transform: translateY(-2px);
   box-shadow: 0 12px 26px rgba(198, 161, 91, 0.3);
 }
@@ -69,12 +78,19 @@
   color: var(--gold);
 }
 
+/* Press feedback fires on the instant, overriding the hover-lift — confirms the interface
+   heard the click before the navigation even starts. */
+.btn:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
 .btn-dark {
   background: var(--landing-ink);
   color: var(--paper);
 }
 
-.btn-dark:hover {
+.btn-dark:hover:not(:active) {
   transform: translateY(-2px);
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
 }
@@ -109,24 +125,32 @@
 
 .hero-copy {
   color: var(--paper);
-  animation: rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: rise 0.6s var(--ease-out) both;
 }
 
 .hero-rule {
   width: 56px;
   height: 1px;
   background: var(--gold);
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-7);
+  transform-origin: left;
+  animation: draw-in 0.5s 0.08s var(--ease-out) both;
 }
 
+/* Display-size type reads tighter, not wider — the global 0.005em (tuned for body-size
+   headings elsewhere on this page) goes visibly loose at 3.7rem. Line-height also drops a touch
+   from the shared 1.1 so the two-line headline sits closer, like a single composed mark rather
+   than two stacked sentences. */
 .hero-copy h1 {
   font-size: clamp(2.5rem, 4.2vw, 3.7rem);
   max-width: 15ch;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
   color: var(--paper);
 }
 
 .hero-body {
-  margin-top: var(--space-6);
+  margin-top: var(--space-7);
   font-size: 1.1rem;
   line-height: 1.6;
   max-width: 46ch;
@@ -165,7 +189,7 @@
 }
 
 .hero-art {
-  animation: rise 0.8s 0.15s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: rise 0.6s 0.1s var(--ease-out) both;
 }
 
 .hero-art svg {
@@ -174,12 +198,26 @@
   display: block;
 }
 
+/* A pin settling into place reads as "a listing landing on the map" — the one piece of motion
+   here that's about what the product does, not just decoration. Eased to a plain deceleration
+   (no spring overshoot) so it reads as precise placement, not a bounce. */
 .pin {
-  animation: drop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation: settle 0.45s var(--ease-out) both;
+  animation-delay: 0.2s;
+}
+
+/* Staggered by map position, not randomly — pins settle in the order a glance crosses the
+   canvas, so it reads as listings being discovered rather than everything landing at once. */
+.pin-2 {
+  animation-delay: 0.28s;
+}
+
+.pin-3 {
+  animation-delay: 0.36s;
 }
 
 .pin-featured {
-  animation-delay: 0.35s;
+  animation-delay: 0.46s;
 }
 
 @keyframes rise {
@@ -193,10 +231,19 @@
   }
 }
 
-@keyframes drop {
+@keyframes draw-in {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes settle {
   from {
     opacity: 0;
-    transform: translateY(-14px) scale(0.9);
+    transform: translateY(-10px) scale(0.94);
   }
   to {
     opacity: 1;
@@ -224,11 +271,27 @@
   gap: var(--space-4);
   min-height: 250px;
   border-left: 1px solid var(--platinum);
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
 }
 
 .corridor-track .panel:first-child {
   border-left: none;
 }
+
+/* Reveals once, when scrolled into view — stops the four cards popping in all at once, and
+   the per-card stagger reads in the same left-to-right order the eye already scans. .in-view
+   is added once by IntersectionObserver in landing.component.ts (see ngAfterViewInit). */
+.corridor.in-view .panel {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.corridor.in-view .panel:nth-child(1) { transition-delay: 0ms; }
+.corridor.in-view .panel:nth-child(2) { transition-delay: 70ms; }
+.corridor.in-view .panel:nth-child(3) { transition-delay: 140ms; }
+.corridor.in-view .panel:nth-child(4) { transition-delay: 210ms; }
 
 .panel-icon {
   width: 30px;
@@ -259,6 +322,14 @@
   font-size: clamp(1.9rem, 3vw, 2.5rem);
   text-align: center;
   margin-bottom: var(--space-14);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
+}
+
+.how.in-view h2 {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .steps {
@@ -277,7 +348,21 @@
   gap: var(--space-4);
   padding: 0 var(--space-8);
   border-left: 1px solid var(--platinum);
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s var(--ease-out), transform 0.5s var(--ease-out);
 }
+
+/* Each step reveals in the order it's numbered — 1, then 2, then 3 — so the stagger mirrors
+   the sequence the copy itself describes, instead of an arbitrary left-to-right wipe. */
+.how.in-view .steps li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.how.in-view .steps li:nth-child(1) { transition-delay: 80ms; }
+.how.in-view .steps li:nth-child(2) { transition-delay: 160ms; }
+.how.in-view .steps li:nth-child(3) { transition-delay: 240ms; }
 
 .steps li:first-child {
   border-left: none;
@@ -439,8 +524,16 @@
 @media (prefers-reduced-motion: reduce) {
   .hero-copy,
   .hero-art,
+  .hero-rule,
   .pin {
     animation: none;
+  }
+
+  .panel,
+  .how h2,
+  .steps li {
+    transform: none;
+    transition: opacity 0.3s ease;
   }
 }
 

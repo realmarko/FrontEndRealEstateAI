@@ -1,4 +1,11 @@
 <main class="landing">
+  <!-- .panel/.how h2/.steps li default to opacity:0 and wait for JS (landing.component.ts) to
+       add .in-view on scroll. Without JavaScript that never happens, so force them visible here
+       — a plain <style> in <noscript> isn't subject to this component's view encapsulation, so
+       the selectors match unscoped, same as any global stylesheet rule would. -->
+  <noscript>
+    <style>.panel, .how h2, .steps li { opacity: 1; transform: none; }</style>
+  </noscript>
   <section class="hero">
     <!-- Stylized skyline, standing in for the "4K photo" request: a hand-drawn illustration
          (not a stock photo) that mixes a colonial dome, a stepped Mesoamerican-echo silhouette,
@@ -94,13 +101,13 @@
             </g>
           </g>
           <g transform="translate(300,120) scale(0.75)">
-            <g class="pin">
+            <g class="pin pin-2">
               <path d="M0,16 C-15,-4 -13,-25 0,-25 C13,-25 15,-4 0,16 Z" fill="none" stroke="var(--silver)" stroke-width="1.5" />
               <circle cy="-13" r="4" fill="var(--silver)" />
             </g>
           </g>
           <g transform="translate(340,260) scale(0.85)">
-            <g class="pin">
+            <g class="pin pin-3">
               <path d="M0,16 C-15,-4 -13,-25 0,-25 C13,-25 15,-4 0,16 Z" fill="none" stroke="var(--silver)" stroke-width="1.5" />
               <circle cy="-13" r="4" fill="var(--silver)" />
             </g>
@@ -125,7 +132,7 @@
     </div>
   </section>
 
-  <section class="corridor" aria-label="Diferenciadores">
+  <section class="corridor" aria-label="Diferenciadores" #corridor>
     <div class="corridor-track">
       <article class="panel">
         <svg class="panel-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -168,7 +175,7 @@
     </div>
   </section>
 
-  <section class="how">
+  <section class="how" #how>
     <h2>{{ 'landing.howHeadline' | translate }}</h2>
     <ol class="steps">
       <li>
