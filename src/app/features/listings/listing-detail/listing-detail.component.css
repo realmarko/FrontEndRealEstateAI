@@ -211,6 +211,39 @@
   display: none;
 }
 
+.spec-list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.88rem;
+}
+
+.spec-row dt {
+  color: #6b7280;
+}
+
+.spec-row dd {
+  margin: 0;
+  font-weight: 600;
+  color: #1f2937;
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .spec-list {
+    grid-template-columns: 1fr;
+  }
+}
+
 .location-map {
   width: 100%;
   height: 260px;

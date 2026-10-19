@@ -10,7 +10,19 @@ import { InquiryService } from '../../../core/services/inquiry.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ActiveToast } from 'ngx-toastr';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import { DEFAULT_LISTING_IMAGE, Listing, PriceHistoryEntry, ViabilityAnalysis, isLandOrCommercialPropertyType, isPureLandPropertyType } from '../../../core/models/listing.model';
+import {
+  CardinalOrientationType,
+  ConstructionConditionType,
+  DEFAULT_LISTING_IMAGE,
+  LandTenureType,
+  Listing,
+  LotShapeType,
+  PriceHistoryEntry,
+  TopographyType,
+  ViabilityAnalysis,
+  isLandOrCommercialPropertyType,
+  isPureLandPropertyType
+} from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
 import { TransferListingModalComponent } from '../../../shared/components/transfer-listing-modal/transfer-listing-modal.component';
@@ -158,6 +170,85 @@ export class ListingDetailComponent {
     const id = this.listing()?.landUseCategoryId;
     if (id == null) return null;
     return this.landUseCategoryService.categories().find((c) => c.id === id)?.name ?? null;
+  });
+
+  // "Ficha técnica" section below — enum value -> i18n key, reusing the exact same labels the
+  // publish/edit form's own dropdowns already use (core/i18n/{es,en}.ts), so this never drifts
+  // into a second copy of the same wording.
+  private static readonly CONDITION_KEYS: Record<ConstructionConditionType, string> = {
+    nueva: 'listingForm.conditionNueva',
+    usada: 'listingForm.conditionUsada',
+    remodelada: 'listingForm.conditionRemodelada',
+    enObra: 'listingForm.conditionEnObra'
+  };
+  private static readonly ORIENTATION_KEYS: Record<CardinalOrientationType, string> = {
+    norte: 'listingForm.orientationNorte',
+    sur: 'listingForm.orientationSur',
+    este: 'listingForm.orientationEste',
+    oeste: 'listingForm.orientationOeste',
+    noreste: 'listingForm.orientationNoreste',
+    noroeste: 'listingForm.orientationNoroeste',
+    sureste: 'listingForm.orientationSureste',
+    suroeste: 'listingForm.orientationSuroeste'
+  };
+  private static readonly TENURE_KEYS: Record<LandTenureType, string> = {
+    privado: 'listingForm.tenurePrivado',
+    ejidal: 'listingForm.tenureEjidal',
+    comunal: 'listingForm.tenureComunal',
+    enRegularizacion: 'listingForm.tenureEnRegularizacion'
+  };
+  private static readonly SHAPE_KEYS: Record<LotShapeType, string> = {
+    regular: 'listingForm.shapeRegular',
+    irregular: 'listingForm.shapeIrregular'
+  };
+  private static readonly TOPOGRAPHY_KEYS: Record<TopographyType, string> = {
+    plana: 'listingForm.topographyPlana',
+    inclinada: 'listingForm.topographyInclinada'
+  };
+
+  conditionLabelKey(value: ConstructionConditionType | undefined): string | null {
+    return value ? ListingDetailComponent.CONDITION_KEYS[value] : null;
+  }
+
+  orientationLabelKey(value: CardinalOrientationType | undefined): string | null {
+    return value ? ListingDetailComponent.ORIENTATION_KEYS[value] : null;
+  }
+
+  tenureLabelKey(value: LandTenureType | undefined): string | null {
+    return value ? ListingDetailComponent.TENURE_KEYS[value] : null;
+  }
+
+  shapeLabelKey(value: LotShapeType | undefined): string | null {
+    return value ? ListingDetailComponent.SHAPE_KEYS[value] : null;
+  }
+
+  topographyLabelKey(value: TopographyType | undefined): string | null {
+    return value ? ListingDetailComponent.TOPOGRAPHY_KEYS[value] : null;
+  }
+
+  // Same field set as FactSheetPdfService.HasLandDetails — whether the "Uso de suelo y
+  // servicios" block has anything to show at all.
+  readonly hasLandDetails = computed(() => {
+    const l = this.listing();
+    if (!l) return false;
+    return (
+      !!l.landUseZoning ||
+      !!l.landTenure ||
+      l.hasEjidalCertificate != null ||
+      l.hasPotableWater != null ||
+      l.hasDrainage != null ||
+      l.hasElectricity != null ||
+      l.frontageWidthMeters != null ||
+      l.frontageDepthMeters != null ||
+      !!l.lotShape ||
+      !!l.topography ||
+      l.cosCoefficient != null ||
+      l.cusCoefficient != null ||
+      l.hasTelecomService != null ||
+      l.hasPavedStreet != null ||
+      l.hasPropertyTaxDebt != null ||
+      l.hasWaterDebt != null
+    );
   });
 
   // Newest first for display (matches how Redfin/Zillow order their price-history table),

@@ -197,7 +197,110 @@
               <span>{{ 'listingDetail.hasRoofGarden' | translate }}</span>
             </div>
           }
+          @if (conditionLabelKey(listing.constructionCondition); as key) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+              </svg>
+              <span>{{ key | translate }}</span>
+            </div>
+          }
+          @if (orientationLabelKey(listing.facadeOrientation); as key) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+              </svg>
+              <span>{{ key | translate }}</span>
+            </div>
+          }
+          @if (listing.hasNaturalGas) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 17a2.5 2.5 0 0 0 2.5-2.5c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+              </svg>
+              <span>{{ 'listingForm.hasNaturalGas' | translate }}</span>
+            </div>
+          }
+          @if (listing.hasLpGas) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 2h6v4H9z" />
+                <path d="M7 6h10l1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2z" />
+              </svg>
+              <span>{{ 'listingForm.hasLpGas' | translate }}</span>
+            </div>
+          }
+          @if (listing.hasCistern) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="5" y="4" width="14" height="16" rx="2" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              <span>{{ 'listingForm.hasCistern' | translate }}</span>
+            </div>
+          }
+          @if (listing.hasWell) {
+            <div class="fact">
+              <svg class="fact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <circle cx="12" cy="12" r="4" />
+              </svg>
+              <span>{{ 'listingForm.hasWell' | translate }}</span>
+            </div>
+          }
         </div>
+
+        @if (isLandOrCommercial() && hasLandDetails()) {
+          <h2 class="section-title">{{ 'listingDetail.landDetailsTitle' | translate }}</h2>
+          <dl class="spec-list">
+            @if (listing.landUseZoning) {
+              <div class="spec-row"><dt>{{ 'listingDetail.specZoning' | translate }}</dt><dd>{{ listing.landUseZoning }}</dd></div>
+            }
+            @if (tenureLabelKey(listing.landTenure); as key) {
+              <div class="spec-row"><dt>{{ 'listingDetail.specTenure' | translate }}</dt><dd>{{ key | translate }}</dd></div>
+            }
+            @if (listing.hasEjidalCertificate != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasEjidalCertificate' | translate }}</dt><dd>{{ (listing.hasEjidalCertificate ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.frontageWidthMeters != null) {
+              <div class="spec-row"><dt>{{ 'listingDetail.specFrontage' | translate }}</dt><dd>{{ listing.frontageWidthMeters }} m</dd></div>
+            }
+            @if (listing.frontageDepthMeters != null) {
+              <div class="spec-row"><dt>{{ 'listingDetail.specDepth' | translate }}</dt><dd>{{ listing.frontageDepthMeters }} m</dd></div>
+            }
+            @if (shapeLabelKey(listing.lotShape); as key) {
+              <div class="spec-row"><dt>{{ 'listingForm.lotShape' | translate }}</dt><dd>{{ key | translate }}</dd></div>
+            }
+            @if (topographyLabelKey(listing.topography); as key) {
+              <div class="spec-row"><dt>{{ 'listingForm.topography' | translate }}</dt><dd>{{ key | translate }}</dd></div>
+            }
+            @if (listing.cosCoefficient != null) {
+              <div class="spec-row"><dt>{{ 'listingDetail.specCos' | translate }}</dt><dd>{{ listing.cosCoefficient }}</dd></div>
+            }
+            @if (listing.cusCoefficient != null) {
+              <div class="spec-row"><dt>{{ 'listingDetail.specCus' | translate }}</dt><dd>{{ listing.cusCoefficient }}</dd></div>
+            }
+            <div class="spec-row"><dt>{{ 'listingForm.hasPotableWater' | translate }}</dt><dd>{{ (listing.hasPotableWater == null ? 'listingDetail.notAvailable' : listing.hasPotableWater ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>{{ (listing.hasDrainage == null ? 'listingDetail.notAvailable' : listing.hasDrainage ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            <div class="spec-row"><dt>{{ 'listingForm.hasElectricity' | translate }}</dt><dd>{{ (listing.hasElectricity == null ? 'listingDetail.notAvailable' : listing.hasElectricity ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            @if (listing.hasTelecomService != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasTelecomService' | translate }}</dt><dd>{{ (listing.hasTelecomService ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasPavedStreet != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasPavedStreet' | translate }}</dt><dd>{{ (listing.hasPavedStreet ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.isFreeOfLiens != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.isFreeOfLiens' | translate }}</dt><dd>{{ (listing.isFreeOfLiens ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasPropertyTaxDebt != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasPropertyTaxDebt' | translate }}</dt><dd>{{ (listing.hasPropertyTaxDebt ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasWaterDebt != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasWaterDebt' | translate }}</dt><dd>{{ (listing.hasWaterDebt ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+          </dl>
+        }
 
         @if (listing.lat != null && listing.lng != null) {
           <h2 class="section-title">{{ 'listingDetail.locationTitle' | translate }}</h2>
