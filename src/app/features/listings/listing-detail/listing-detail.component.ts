@@ -246,6 +246,8 @@ export class ListingDetailComponent {
     const l = this.listing();
     if (!l) return false;
     return (
+      l.commercialUnitCount != null ||
+      l.hasApartmentUnit != null ||
       !!l.landUseZoning ||
       !!l.landTenure ||
       l.hasEjidalCertificate != null ||

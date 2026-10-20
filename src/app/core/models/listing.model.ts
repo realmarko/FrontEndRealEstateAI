@@ -15,7 +15,8 @@ export type PropertyType =
   | 'commercialStorage'
   | 'industrialLand'
   | 'land'
-  | 'commercial';
+  | 'commercial'
+  | 'shoppingPlaza';
 // Single source of truth for the property-type dropdown, shared by the listing form and the
 // map filter — each option's label lives at `listingForm.<value>` in the i18n files.
 // 'commercial', 'commercialLand', and 'industrialLand' are deliberately excluded: 'commercial'
@@ -37,7 +38,8 @@ export const PROPERTY_TYPE_OPTIONS: PropertyType[] = [
   'building',
   'room',
   'commercialStorage',
-  'land'
+  'land',
+  'shoppingPlaza'
 ];
 
 // For filtering existing listings (map, search), not creating new ones — unlike
@@ -70,7 +72,8 @@ export const LAND_OR_COMMERCIAL_PROPERTY_TYPES: PropertyType[] = [
   'building',
   'commercialStorage',
   'industrialStorage',
-  'industrialWarehouse'
+  'industrialWarehouse',
+  'shoppingPlaza'
 ];
 
 // Subset of the above with no structure at all — raw land only. Also hides parking/floors/
@@ -176,6 +179,8 @@ export interface Listing {
   hasWaterDebt?: boolean;
   frontageWidthMeters?: number;
   frontageDepthMeters?: number;
+  commercialUnitCount?: number;
+  hasApartmentUnit?: boolean;
   hasPotableWater?: boolean;
   hasDrainage?: boolean;
   hasElectricity?: boolean;

@@ -314,6 +314,12 @@
         @if (isLandOrCommercial() && hasLandDetails()) {
           <h2 class="section-title">{{ 'listingDetail.landDetailsTitle' | translate }}</h2>
           <dl class="spec-list">
+            @if (listing.commercialUnitCount != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.commercialUnitCount' | translate }}</dt><dd>{{ listing.commercialUnitCount }}</dd></div>
+            }
+            @if (listing.hasApartmentUnit != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasApartmentUnit' | translate }}</dt><dd>{{ (listing.hasApartmentUnit ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
             @if (listing.landUseZoning) {
               <div class="spec-row"><dt>{{ 'listingDetail.specZoning' | translate }}</dt><dd>{{ listing.landUseZoning }}</dd></div>
             }

@@ -131,6 +131,19 @@
           <label>{{ 'listingForm.frontageDepthMeters' | translate }}<input type="number" step="0.01" min="0" formControlName="frontageDepthMeters" /></label>
         </div>
 
+        @if (isShoppingPlaza()) {
+          <div class="grid-2">
+            <label>
+              {{ 'listingForm.commercialUnitCount' | translate }}
+              <input type="number" min="0" formControlName="commercialUnitCount" />
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="hasApartmentUnit" />
+              {{ 'listingForm.hasApartmentUnit' | translate }}
+            </label>
+          </div>
+        }
+
         <div class="grid-2">
           <label>{{ 'listingForm.cadastralValue' | translate }}<input type="text" inputmode="numeric" formControlName="cadastralValue" appCurrencyInput /></label>
           <label>
@@ -271,15 +284,15 @@
       }
     </div>
 
-    @if (!isLandOrCommercial()) {
+    @if (!isLandOrCommercial() || (isShoppingPlaza() && form.value.hasApartmentUnit)) {
       <div class="grid-2">
         <label>
-          {{ 'listingForm.bedrooms' | translate }}
+          {{ (isShoppingPlaza() ? 'listingForm.apartmentUnitBedrooms' : 'listingForm.bedrooms') | translate }}
           <input type="number" formControlName="bedrooms" min="0" />
         </label>
 
         <label>
-          {{ 'listingForm.bathrooms' | translate }}
+          {{ (isShoppingPlaza() ? 'listingForm.apartmentUnitBathrooms' : 'listingForm.bathrooms') | translate }}
           <input type="number" formControlName="bathrooms" min="0" />
         </label>
       </div>

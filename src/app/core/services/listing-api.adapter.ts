@@ -38,7 +38,8 @@ export const PROPERTY_TYPE_TO_NUMBER: Record<PropertyType, number> = {
   commercialStorage: 15,
   industrialLand: 16,
   land: 4,
-  commercial: 5
+  commercial: 5,
+  shoppingPlaza: 17
 };
 export const PROPERTY_TYPE_FROM_STRING: Record<string, PropertyType> = {
   House: 'house',
@@ -57,7 +58,8 @@ export const PROPERTY_TYPE_FROM_STRING: Record<string, PropertyType> = {
   Building: 'building',
   Room: 'room',
   CommercialStorage: 'commercialStorage',
-  IndustrialLand: 'industrialLand'
+  IndustrialLand: 'industrialLand',
+  ShoppingPlaza: 'shoppingPlaza'
 };
 
 export const LAND_TENURE_TO_NUMBER: Record<LandTenureType, number> = {
@@ -192,6 +194,8 @@ export interface ListingDto {
   hasWaterDebt: boolean | null;
   frontageWidthMeters: number | null;
   frontageDepthMeters: number | null;
+  commercialUnitCount: number | null;
+  hasApartmentUnit: boolean | null;
   hasPotableWater: boolean | null;
   hasDrainage: boolean | null;
   hasElectricity: boolean | null;
@@ -423,6 +427,8 @@ export function fromDto(dto: ListingDto): Listing {
     hasWaterDebt: dto.hasWaterDebt ?? undefined,
     frontageWidthMeters: dto.frontageWidthMeters ?? undefined,
     frontageDepthMeters: dto.frontageDepthMeters ?? undefined,
+    commercialUnitCount: dto.commercialUnitCount ?? undefined,
+    hasApartmentUnit: dto.hasApartmentUnit ?? undefined,
     hasPotableWater: dto.hasPotableWater ?? undefined,
     hasDrainage: dto.hasDrainage ?? undefined,
     hasElectricity: dto.hasElectricity ?? undefined,
@@ -521,6 +527,8 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.hasWaterDebt != null) form.append('hasWaterDebt', String(input.hasWaterDebt));
   if (input.frontageWidthMeters != null) form.append('frontageWidthMeters', String(input.frontageWidthMeters));
   if (input.frontageDepthMeters != null) form.append('frontageDepthMeters', String(input.frontageDepthMeters));
+  if (input.commercialUnitCount != null) form.append('commercialUnitCount', String(input.commercialUnitCount));
+  if (input.hasApartmentUnit != null) form.append('hasApartmentUnit', String(input.hasApartmentUnit));
   if (input.hasPotableWater != null) form.append('hasPotableWater', String(input.hasPotableWater));
   if (input.hasDrainage != null) form.append('hasDrainage', String(input.hasDrainage));
   if (input.hasElectricity != null) form.append('hasElectricity', String(input.hasElectricity));

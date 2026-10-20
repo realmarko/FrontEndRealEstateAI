@@ -160,6 +160,8 @@ export class ListingFormComponent {
     hasWaterDebt: this.fb.control<boolean | null>(null),
     frontageWidthMeters: this.fb.control<number | null>(null, Validators.min(0)),
     frontageDepthMeters: this.fb.control<number | null>(null, Validators.min(0)),
+    commercialUnitCount: this.fb.control<number | null>(null, Validators.min(0)),
+    hasApartmentUnit: this.fb.control<boolean | null>(null),
     // Defaults to checked: most houses/apartments in this market do have potable water and
     // drainage, so defaulting to true (instead of unchecked/unknown) saves the common case a
     // click — an owner publishing a lot/land listing without either still unchecks these by hand.
@@ -383,6 +385,13 @@ export class ListingFormComponent {
     return this.form.value.propertyType === 'land';
   }
 
+  // The "número de locales comerciales" input only makes sense for a plaza comercial, not every
+  // LAND_OR_COMMERCIAL_PROPERTY_TYPES member (an office or warehouse isn't subdivided into
+  // independently rentable units the same way).
+  isShoppingPlaza(): boolean {
+    return this.form.value.propertyType === 'shoppingPlaza';
+  }
+
   // Raw land: no structure exists, so parking/floors/year-built/heating-cooling don't apply
   // either (on top of the residential-dwelling fields isLandOrCommercial() already covers).
   isPureLand(): boolean {
@@ -549,10 +558,16 @@ export class ListingFormComponent {
     const isLand = this.isLand();
     const wellAvailable = this.isWellAvailable();
     const houseOrApartment = this.isHouseOrApartment();
+    const shoppingPlaza = this.isShoppingPlaza();
+    // A shopping plaza with hasApartmentUnit checked still reports real bedrooms/bathrooms (for
+    // the included dwelling unit) instead of being zeroed out like every other land/commercial
+    // listing — see HasApartmentUnit's own comment on the Listing entity.
+    const includesApartment = shoppingPlaza && raw.hasApartmentUnit === true;
     const value: ListingInput = {
       ...raw,
-      bedrooms: landOrCommercial ? 0 : raw.bedrooms,
-      bathrooms: landOrCommercial ? 0 : raw.bathrooms,
+      bedrooms: landOrCommercial && !includesApartment ? 0 : raw.bedrooms,
+      bathrooms: landOrCommercial && !includesApartment ? 0 : raw.bathrooms,
+      hasApartmentUnit: shoppingPlaza ? (raw.hasApartmentUnit ?? undefined) : undefined,
       landUseCategoryId: isLand ? (raw.landUseCategoryId ?? undefined) : undefined,
       gardenSizeSqm: landOrCommercial ? undefined : (raw.gardenSizeSqm ?? undefined),
       hoaFee: landOrCommercial ? undefined : (raw.hoaFee ?? undefined),
@@ -598,6 +613,7 @@ export class ListingFormComponent {
       hasWaterDebt: raw.hasWaterDebt ?? undefined,
       frontageWidthMeters: raw.frontageWidthMeters ?? undefined,
       frontageDepthMeters: raw.frontageDepthMeters ?? undefined,
+      commercialUnitCount: raw.commercialUnitCount ?? undefined,
       // Defaults to true (see the control's own comment) — only actually submitted when the
       // checkbox is visible somewhere (land/commercial section or the house/apartment Rooms
       // section). Without this gate, a Ranch/Room listing (neither isLandOrCommercial() nor
