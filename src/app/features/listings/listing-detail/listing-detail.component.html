@@ -9,7 +9,13 @@
             <img class="photo-layer prev" [src]="prevUrl" [alt]="listing.title" />
           }
           @for (url of [listing.imageUrls[activePhotoIndex()] ?? defaultImage]; track activePhotoIndex()) {
-            <img class="photo-layer current" [src]="url" [alt]="listing.title" />
+            <img
+              class="photo-layer current"
+              [class.clickable]="listing.imageUrls.length > 0"
+              [src]="url"
+              [alt]="listing.title"
+              (click)="listing.imageUrls.length > 0 && openLightbox()"
+            />
           }
 
           <span class="type-tag" [class.rent]="listing.type === 'rent'">
@@ -623,6 +629,37 @@
       (closed)="closePipelineModal()"
       (saved)="savePipelineDeal($event)"
     />
+  }
+
+  @if (showLightbox()) {
+    <div class="lightbox-backdrop" (click)="closeLightbox()" (touchstart)="onPhotoTouchStart($event)" (touchend)="onPhotoTouchEnd($event)">
+      <button type="button" class="lightbox-close" (click)="closeLightbox()" [attr.aria-label]="'listingDetail.closeLightbox' | translate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18M6 6l12 12" />
+        </svg>
+      </button>
+
+      @if (listing.imageUrls.length > 1) {
+        <button
+          type="button"
+          class="lightbox-nav prev"
+          (click)="previousPhoto(); $event.stopPropagation()"
+          [attr.aria-label]="'listingDetail.previousPhoto' | translate"
+        >‹</button>
+      }
+
+      <img class="lightbox-image" [src]="listing.imageUrls[activePhotoIndex()]" [alt]="listing.title" (click)="$event.stopPropagation()" />
+
+      @if (listing.imageUrls.length > 1) {
+        <button
+          type="button"
+          class="lightbox-nav next"
+          (click)="nextPhoto(); $event.stopPropagation()"
+          [attr.aria-label]="'listingDetail.nextPhoto' | translate"
+        >›</button>
+        <span class="lightbox-count">{{ activePhotoIndex() + 1 }} / {{ listing.imageUrls.length }}</span>
+      }
+    </div>
   }
 } @else if (!loading()) {
   <div class="page">

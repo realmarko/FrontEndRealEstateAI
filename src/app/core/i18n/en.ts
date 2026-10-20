@@ -227,6 +227,7 @@ export const en: Record<string, string> = {
   'roiCalc.disclaimer': 'Estimate only, based on your own assumptions — not financial advice.',
   'listingDetail.previousPhoto': 'Previous photo',
   'listingDetail.nextPhoto': 'Next photo',
+  'listingDetail.closeLightbox': 'Close',
   'listingDetail.edit': 'Edit',
   'listingDetail.addToPipeline': 'Add to pipeline',
   'listingDetail.viewInPipeline': 'View in pipeline',

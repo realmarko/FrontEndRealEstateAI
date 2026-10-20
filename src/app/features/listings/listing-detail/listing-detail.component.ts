@@ -1,4 +1,4 @@
-import { Component, DestroyRef, ElementRef, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { isBrowser } from '../../../core/utils/platform';
@@ -558,6 +558,32 @@ export class ListingDetailComponent {
 
   showPhoto(index: number): void {
     this.changePhoto(index);
+  }
+
+  // Fullscreen view, opened by clicking the main photo — shares activePhotoIndex with the main
+  // gallery (via nextPhoto/previousPhoto below) so navigating inside the lightbox and closing it
+  // leaves the gallery showing whichever photo was last viewed, instead of resetting to the one
+  // it was opened on.
+  readonly showLightbox = signal(false);
+
+  openLightbox(): void {
+    this.showLightbox.set(true);
+  }
+
+  closeLightbox(): void {
+    this.showLightbox.set(false);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onLightboxKeydown(event: KeyboardEvent): void {
+    if (!this.showLightbox()) return;
+    if (event.key === 'Escape') {
+      this.closeLightbox();
+    } else if (event.key === 'ArrowRight') {
+      this.nextPhoto();
+    } else if (event.key === 'ArrowLeft') {
+      this.previousPhoto();
+    }
   }
 
   nextPhoto(): void {
