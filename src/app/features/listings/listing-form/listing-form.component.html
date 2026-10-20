@@ -50,6 +50,15 @@
 
     @if (!form.value.priceOnRequest) {
       <p class="price-words">{{ 'listingForm.priceInWords' | translate:{ words: priceInWords } }}</p>
+
+      <label>
+        {{ 'listingForm.pricePerSqm' | translate }}
+        <input type="text" inputmode="numeric" class="price-mask" [formControl]="pricePerSqmControl" appCurrencyInput />
+        <app-form-error [control]="pricePerSqmControl" />
+      </label>
+      <p class="price-per-sqm-hint">
+        {{ (form.value.areaSqm ? 'listingForm.pricePerSqmHint' : 'listingForm.pricePerSqmNeedsArea') | translate }}
+      </p>
     }
 
     @if (form.value.type === 'sale' && (form.value.price ?? 0) > 0) {

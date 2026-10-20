@@ -144,6 +144,12 @@ select.ng-invalid.ng-touched {
   color: #4b5563;
 }
 
+.price-per-sqm-hint {
+  margin: -0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
 .mortgage-preview {
   display: flex;
   flex-direction: column;

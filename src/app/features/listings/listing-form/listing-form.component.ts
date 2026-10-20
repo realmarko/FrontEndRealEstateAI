@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, ElementRef, computed, effect, inject, signal } from '@angular/core';
-import { AbstractControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, ReactiveFormsModule, FormBuilder, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ListingService } from '../../../core/services/listing.service';
@@ -162,6 +162,15 @@ export class ListingFormComponent {
     cadastralValue: this.fb.control<number | null>(null, Validators.min(0))
   });
 
+  // A convenience input, not a real field: the backend only stores total price, so this is kept
+  // outside `form` (never part of raw/getRawValue(), never submitted) and synced bidirectionally
+  // with price/areaSqm instead — see the constructor's subscriptions below.
+  readonly pricePerSqmControl = new FormControl<number | null>(null, Validators.min(0));
+  // Set while one side of the price/areaSqm ↔ pricePerSqm sync is writing to the other, so that
+  // write's own valueChanges doesn't bounce straight back and fight over rounding, or spin into
+  // an infinite loop between the two subscriptions.
+  private syncingPricePerSqm = false;
+
   // Admin-only section (ListingsController.UpdateOwnerContact) for swapping the listing-detail
   // contact card from the agent who posted it to the real property owner's own free-text info —
   // only an Admin ever sees this, and only once editing an existing listing (there's nothing to
@@ -240,6 +249,26 @@ export class ListingFormComponent {
       this.citiesForState.set(this.filterCitiesByState(this.municipalities(), state));
     });
 
+    // Keeps pricePerSqmControl showing price ÷ areaSqm whenever either changes — including the
+    // edit-mode patchValue(listing) below, and programmatic setValue(price) elsewhere in this
+    // component (e.g. appCurrencyInput writing back a typed price).
+    this.form.controls.price.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
+    this.form.controls.areaSqm.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
+
+    // The other direction: typing a price-per-m² computes and writes the total price. emitEvent
+    // defaults to true here so the template (which reads form.value.price directly, not via an
+    // async pipe) and anything else watching the price control pick up the change immediately;
+    // syncingPricePerSqm above stops that price update from recomputing pricePerSqmControl right
+    // back from itself.
+    this.pricePerSqmControl.valueChanges.subscribe((pricePerSqm) => {
+      if (this.syncingPricePerSqm) return;
+      const areaSqm = this.form.controls.areaSqm.value;
+      if (pricePerSqm == null || !areaSqm) return;
+      this.syncingPricePerSqm = true;
+      this.form.controls.price.setValue(Math.round(pricePerSqm * areaSqm));
+      this.syncingPricePerSqm = false;
+    });
+
     // New listings start with zero photos on purpose — the "add at least one photo" check in
     // submit() forces a real upload/URL instead of silently shipping a stock placeholder that
     // looks like a saved photo once the listing is later reopened for editing.
@@ -264,6 +293,15 @@ export class ListingFormComponent {
       // whether (or how much of) this succeeds.
       this.reverseGeocodeAddress(this.lat, this.lng);
     }
+  }
+
+  private syncPricePerSqmFromPrice(): void {
+    if (this.syncingPricePerSqm) return;
+    const price = this.form.controls.price.value;
+    const areaSqm = this.form.controls.areaSqm.value;
+    this.syncingPricePerSqm = true;
+    this.pricePerSqmControl.setValue(areaSqm ? Math.round(price / areaSqm) : null, { emitEvent: false });
+    this.syncingPricePerSqm = false;
   }
 
   // Only overwrites a field that's still at its untouched default — if reverse geocoding takes
