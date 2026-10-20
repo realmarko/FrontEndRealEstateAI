@@ -167,6 +167,19 @@ export interface ListingDto {
   hasLpGas: boolean | null;
   hasCistern: boolean | null;
   hasWell: boolean | null;
+  hasKitchen: boolean | null;
+  hasLivingRoom: boolean | null;
+  hasDiningRoom: boolean | null;
+  hasPool: boolean | null;
+  hasTerrace: boolean | null;
+  hasBalcony: boolean | null;
+  hasServiceRoom: boolean | null;
+  hasLaundryArea: boolean | null;
+  hasStorageRoom: boolean | null;
+  hasGym: boolean | null;
+  hasSecurity: boolean | null;
+  hasElevator: boolean | null;
+  hasBbqArea: boolean | null;
   landUseZoning: string | null;
   landUseCategoryId: number | null;
   landTenure: string | null;
@@ -385,6 +398,19 @@ export function fromDto(dto: ListingDto): Listing {
     hasLpGas: dto.hasLpGas ?? undefined,
     hasCistern: dto.hasCistern ?? undefined,
     hasWell: dto.hasWell ?? undefined,
+    hasKitchen: dto.hasKitchen ?? undefined,
+    hasLivingRoom: dto.hasLivingRoom ?? undefined,
+    hasDiningRoom: dto.hasDiningRoom ?? undefined,
+    hasPool: dto.hasPool ?? undefined,
+    hasTerrace: dto.hasTerrace ?? undefined,
+    hasBalcony: dto.hasBalcony ?? undefined,
+    hasServiceRoom: dto.hasServiceRoom ?? undefined,
+    hasLaundryArea: dto.hasLaundryArea ?? undefined,
+    hasStorageRoom: dto.hasStorageRoom ?? undefined,
+    hasGym: dto.hasGym ?? undefined,
+    hasSecurity: dto.hasSecurity ?? undefined,
+    hasElevator: dto.hasElevator ?? undefined,
+    hasBbqArea: dto.hasBbqArea ?? undefined,
     landUseZoning: dto.landUseZoning ?? undefined,
     landUseCategoryId: dto.landUseCategoryId ?? undefined,
     landTenure: dto.landTenure ? LAND_TENURE_FROM_STRING[dto.landTenure] : undefined,
@@ -470,6 +496,19 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.hasLpGas != null) form.append('hasLpGas', String(input.hasLpGas));
   if (input.hasCistern != null) form.append('hasCistern', String(input.hasCistern));
   if (input.hasWell != null) form.append('hasWell', String(input.hasWell));
+  if (input.hasKitchen != null) form.append('hasKitchen', String(input.hasKitchen));
+  if (input.hasLivingRoom != null) form.append('hasLivingRoom', String(input.hasLivingRoom));
+  if (input.hasDiningRoom != null) form.append('hasDiningRoom', String(input.hasDiningRoom));
+  if (input.hasPool != null) form.append('hasPool', String(input.hasPool));
+  if (input.hasTerrace != null) form.append('hasTerrace', String(input.hasTerrace));
+  if (input.hasBalcony != null) form.append('hasBalcony', String(input.hasBalcony));
+  if (input.hasServiceRoom != null) form.append('hasServiceRoom', String(input.hasServiceRoom));
+  if (input.hasLaundryArea != null) form.append('hasLaundryArea', String(input.hasLaundryArea));
+  if (input.hasStorageRoom != null) form.append('hasStorageRoom', String(input.hasStorageRoom));
+  if (input.hasGym != null) form.append('hasGym', String(input.hasGym));
+  if (input.hasSecurity != null) form.append('hasSecurity', String(input.hasSecurity));
+  if (input.hasElevator != null) form.append('hasElevator', String(input.hasElevator));
+  if (input.hasBbqArea != null) form.append('hasBbqArea', String(input.hasBbqArea));
   if (input.landUseZoning) form.append('landUseZoning', input.landUseZoning);
   if (input.landUseCategoryId != null) form.append('landUseCategoryId', String(input.landUseCategoryId));
   if (input.landTenure != null) form.append('landTenure', String(LAND_TENURE_TO_NUMBER[input.landTenure]));

@@ -18,6 +18,7 @@ import {
   PropertyType,
   TopographyType,
   VialidadType,
+  isHouseOrApartmentPropertyType,
   isLandOrCommercialPropertyType,
   isPureLandPropertyType
 } from '../../../core/models/listing.model';
@@ -129,6 +130,19 @@ export class ListingFormComponent {
     // same reasoning as the isLandOrCommercial()-gated fields above: switching away and back
     // shouldn't lose what the visitor already entered.
     hasWell: this.fb.control<boolean | null>(null),
+    hasKitchen: this.fb.control<boolean | null>(null),
+    hasLivingRoom: this.fb.control<boolean | null>(null),
+    hasDiningRoom: this.fb.control<boolean | null>(null),
+    hasPool: this.fb.control<boolean | null>(null),
+    hasTerrace: this.fb.control<boolean | null>(null),
+    hasBalcony: this.fb.control<boolean | null>(null),
+    hasServiceRoom: this.fb.control<boolean | null>(null),
+    hasLaundryArea: this.fb.control<boolean | null>(null),
+    hasStorageRoom: this.fb.control<boolean | null>(null),
+    hasGym: this.fb.control<boolean | null>(null),
+    hasSecurity: this.fb.control<boolean | null>(null),
+    hasElevator: this.fb.control<boolean | null>(null),
+    hasBbqArea: this.fb.control<boolean | null>(null),
     landUseZoning: this.fb.control<string | null>(null),
     landUseCategoryId: this.fb.control<number | null>(null),
     landTenure: this.fb.control<LandTenureType | null>(null),
@@ -375,6 +389,12 @@ export class ListingFormComponent {
     return this.form.value.propertyType !== 'apartment';
   }
 
+  // Rooms (cocina/sala/comedor) + amenities section — only for a self-contained dwelling unit,
+  // not raw land/commercial-industrial structures or a single rented room.
+  isHouseOrApartment(): boolean {
+    return isHouseOrApartmentPropertyType(this.form.value.propertyType);
+  }
+
   get priceInWords(): string {
     return amountToWords(
       this.form.value.price ?? 0,
@@ -523,6 +543,7 @@ export class ListingFormComponent {
     const pureLand = this.isPureLand();
     const isLand = this.isLand();
     const wellAvailable = this.isWellAvailable();
+    const houseOrApartment = this.isHouseOrApartment();
     const value: ListingInput = {
       ...raw,
       bedrooms: landOrCommercial ? 0 : raw.bedrooms,
@@ -542,6 +563,19 @@ export class ListingFormComponent {
       hasLpGas: raw.hasLpGas ?? undefined,
       hasCistern: raw.hasCistern ?? undefined,
       hasWell: wellAvailable ? (raw.hasWell ?? undefined) : undefined,
+      hasKitchen: houseOrApartment ? (raw.hasKitchen ?? undefined) : undefined,
+      hasLivingRoom: houseOrApartment ? (raw.hasLivingRoom ?? undefined) : undefined,
+      hasDiningRoom: houseOrApartment ? (raw.hasDiningRoom ?? undefined) : undefined,
+      hasPool: houseOrApartment ? (raw.hasPool ?? undefined) : undefined,
+      hasTerrace: houseOrApartment ? (raw.hasTerrace ?? undefined) : undefined,
+      hasBalcony: houseOrApartment ? (raw.hasBalcony ?? undefined) : undefined,
+      hasServiceRoom: houseOrApartment ? (raw.hasServiceRoom ?? undefined) : undefined,
+      hasLaundryArea: houseOrApartment ? (raw.hasLaundryArea ?? undefined) : undefined,
+      hasStorageRoom: houseOrApartment ? (raw.hasStorageRoom ?? undefined) : undefined,
+      hasGym: houseOrApartment ? (raw.hasGym ?? undefined) : undefined,
+      hasSecurity: houseOrApartment ? (raw.hasSecurity ?? undefined) : undefined,
+      hasElevator: houseOrApartment ? (raw.hasElevator ?? undefined) : undefined,
+      hasBbqArea: houseOrApartment ? (raw.hasBbqArea ?? undefined) : undefined,
       lotSizeSqm: raw.lotSizeSqm ?? undefined,
       // Nullish-guarded even though the control is typed as a plain (non-nullable) string:
       // patchValue() (edit mode, see constructor) sets it straight from a Listing whose

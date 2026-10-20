@@ -365,6 +365,31 @@
       </label>
     }
 
+    @if (isHouseOrApartment()) {
+      <div class="land-commercial-section">
+        <h3 class="section-title">{{ 'listingForm.roomsTitle' | translate }}</h3>
+        <div class="grid-3">
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasKitchen" />{{ 'listingForm.hasKitchen' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasLivingRoom" />{{ 'listingForm.hasLivingRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasDiningRoom" />{{ 'listingForm.hasDiningRoom' | translate }}</label>
+        </div>
+
+        <h3 class="section-title">{{ 'listingForm.amenitiesTitle' | translate }}</h3>
+        <div class="grid-3">
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasPool" />{{ 'listingForm.hasPool' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasTerrace" />{{ 'listingForm.hasTerrace' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasBalcony" />{{ 'listingForm.hasBalcony' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasServiceRoom" />{{ 'listingForm.hasServiceRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasLaundryArea" />{{ 'listingForm.hasLaundryArea' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasStorageRoom" />{{ 'listingForm.hasStorageRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasGym" />{{ 'listingForm.hasGym' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasSecurity" />{{ 'listingForm.hasSecurity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasElevator" />{{ 'listingForm.hasElevator' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" formControlName="hasBbqArea" />{{ 'listingForm.hasBbqArea' | translate }}</label>
+        </div>
+      </div>
+    }
+
     <label>
       {{ 'listingForm.videoTourUrl' | translate }}
       <input type="url" formControlName="videoTourUrl" placeholder="https://..." maxlength="2048" />

@@ -88,6 +88,15 @@ export function isPureLandPropertyType(propertyType: PropertyType | null | undef
   return propertyType != null && PURE_LAND_PROPERTY_TYPES.includes(propertyType);
 }
 
+// Property types with individual living rooms (cocina/sala/comedor) and the amenities section
+// below — a single dwelling unit, as opposed to raw land/commercial-industrial structures or a
+// single rented room.
+export const HOUSE_OR_APARTMENT_PROPERTY_TYPES: PropertyType[] = ['house', 'condoHouse', 'apartment'];
+
+export function isHouseOrApartmentPropertyType(propertyType: PropertyType | null | undefined): boolean {
+  return propertyType != null && HOUSE_OR_APARTMENT_PROPERTY_TYPES.includes(propertyType);
+}
+
 export type LandTenureType = 'privado' | 'ejidal' | 'comunal' | 'enRegularizacion';
 export type VialidadType = 'avenidaPrincipal' | 'calleSecundaria' | 'privada';
 export type LotShapeType = 'regular' | 'irregular';
@@ -142,6 +151,19 @@ export interface Listing {
   hasLpGas?: boolean;
   hasCistern?: boolean;
   hasWell?: boolean;
+  hasKitchen?: boolean;
+  hasLivingRoom?: boolean;
+  hasDiningRoom?: boolean;
+  hasPool?: boolean;
+  hasTerrace?: boolean;
+  hasBalcony?: boolean;
+  hasServiceRoom?: boolean;
+  hasLaundryArea?: boolean;
+  hasStorageRoom?: boolean;
+  hasGym?: boolean;
+  hasSecurity?: boolean;
+  hasElevator?: boolean;
+  hasBbqArea?: boolean;
   landUseZoning?: string;
   landUseCategoryId?: number;
   landTenure?: LandTenureType;
