@@ -480,6 +480,9 @@
                 <button type="button" class="primary-link" (click)="openPipelineModal()">{{ 'listingDetail.addToPipeline' | translate }}</button>
               }
             }
+            @if (isAdmin()) {
+              <button type="button" class="primary-link" (click)="openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
+            }
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
           <ng-container *ngTemplateOutlet="viabilitySection" />
