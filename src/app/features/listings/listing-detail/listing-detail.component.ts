@@ -151,7 +151,7 @@ export class ListingDetailComponent {
   hasAmenityDetails(listing: Listing): boolean {
     return [
       listing.hasKitchen, listing.hasLivingRoom, listing.hasDiningRoom,
-      listing.hasPotableWater, listing.hasDrainage,
+      listing.hasPotableWater, listing.hasDrainage, listing.hasElectricity,
       listing.hasPool, listing.hasTerrace, listing.hasBalcony, listing.hasServiceRoom,
       listing.hasLaundryArea, listing.hasStorageRoom, listing.hasGym, listing.hasSecurity,
       listing.hasElevator, listing.hasBbqArea

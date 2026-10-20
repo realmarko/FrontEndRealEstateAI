@@ -165,7 +165,8 @@ export class ListingFormComponent {
     // click — an owner publishing a lot/land listing without either still unchecks these by hand.
     hasPotableWater: this.fb.control<boolean | null>(true),
     hasDrainage: this.fb.control<boolean | null>(true),
-    hasElectricity: this.fb.control<boolean | null>(null),
+    // Also defaulted to checked, same reasoning as hasPotableWater/hasDrainage above.
+    hasElectricity: this.fb.control<boolean | null>(true),
     hasThreePhaseElectricity: this.fb.control<boolean | null>(null),
     hasTelecomService: this.fb.control<boolean | null>(null),
     hasVehicleAccess: this.fb.control<boolean | null>(null),
@@ -603,7 +604,7 @@ export class ListingFormComponent {
       // isHouseOrApartment()) would silently publish "sí" for a checkbox it never showed.
       hasPotableWater: (landOrCommercial || houseOrApartment) ? (raw.hasPotableWater ?? undefined) : undefined,
       hasDrainage: (landOrCommercial || houseOrApartment) ? (raw.hasDrainage ?? undefined) : undefined,
-      hasElectricity: raw.hasElectricity ?? undefined,
+      hasElectricity: (landOrCommercial || houseOrApartment) ? (raw.hasElectricity ?? undefined) : undefined,
       hasThreePhaseElectricity: raw.hasThreePhaseElectricity ?? undefined,
       hasTelecomService: raw.hasTelecomService ?? undefined,
       hasVehicleAccess: raw.hasVehicleAccess ?? undefined,

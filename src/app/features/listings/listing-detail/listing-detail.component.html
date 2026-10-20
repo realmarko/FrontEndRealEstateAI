@@ -275,6 +275,9 @@
             @if (listing.hasDrainage != null) {
               <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>{{ (listing.hasDrainage ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
             }
+            @if (listing.hasElectricity != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasElectricity' | translate }}</dt><dd>{{ (listing.hasElectricity ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
             @if (listing.hasPool != null) {
               <div class="spec-row"><dt>{{ 'listingForm.hasPool' | translate }}</dt><dd>{{ (listing.hasPool ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
             }
