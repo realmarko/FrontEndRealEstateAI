@@ -182,4 +182,12 @@ export class ListingService {
       tap((listing) => this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l))))
     );
   }
+
+  // Map's "editar ubicación" pin-drag flow (map-view.component.ts) — owner-only, backend-enforced.
+  updateLocation(id: string, lat: number, lng: number): Observable<Listing> {
+    return this.http.patch<ListingDto>(`${this.apiUrl}/${id}/location`, { latitude: lat, longitude: lng }).pipe(
+      map(fromDto),
+      tap((listing) => this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l))))
+    );
+  }
 }

@@ -392,6 +392,87 @@
   cursor: default;
 }
 
+.edit-location-banner {
+  position: absolute;
+  bottom: 0.8rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  background: rgba(17, 24, 39, 0.9);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-radius: 16px;
+}
+
+.edit-location-hint {
+  margin: 0;
+  text-align: center;
+}
+
+.edit-location-coords {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.edit-location-coords label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.edit-location-coords input {
+  width: 9rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 0.3rem 0.5rem;
+}
+
+.edit-location-coords input:disabled {
+  opacity: 0.6;
+}
+
+.edit-location-actions {
+  display: flex;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.edit-location-actions button {
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  background: transparent;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.edit-location-actions button.primary {
+  border-color: #fff;
+  background: #fff;
+  color: #1e3a5f;
+}
+
+.edit-location-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .cma-backdrop {
   position: fixed;
   inset: 0;

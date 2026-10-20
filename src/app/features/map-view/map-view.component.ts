@@ -40,6 +40,7 @@ import {
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
 import { normalizeText } from '../../shared/utils/normalize-text';
+import { parseCoordinates } from '../../shared/utils/parse-coordinates';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
   DEFAULT_INTEREST_RATE_PERCENT,
@@ -498,6 +499,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private map?: google.maps.Map;
   private marker?: google.maps.Marker;
   private myLocationMarker?: google.maps.Marker;
+  // Dropped by searchAddress() when the search box resolves to a plain address/coordinate with
+  // no listing of its own to show a marker already — cleared the moment the search term changes
+  // again (see onSearchChange) so it never lingers once the visitor moves on to a new query.
+  private searchResultMarker?: google.maps.Marker;
   private opportunityCircle?: google.maps.Circle;
   private opportunityMarker?: google.maps.Marker;
   private agebDataLayer?: google.maps.Data;
@@ -941,6 +946,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   }
 
   private renderListingMarkers(): void {
+    // A filter/auth change re-renders every marker from scratch while a pin is mid-drag (see
+    // the effect that calls this) — without carrying its current dragged position and
+    // draggable state over to the freshly-created marker, the drag would silently reset to the
+    // listing's saved position with the "editar ubicación" banner still showing, and "Guardar"
+    // would then just re-save that unchanged position with no indication the edit was lost.
+    const editingId = this.editingLocationListingId();
+    const editingPosition = editingId ? this.listingMarkers.get(editingId)?.getPosition() ?? null : null;
+
     this.listingClusterer?.clearMarkers();
     this.listingMarkers.clear();
 
@@ -949,14 +962,29 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const markers: google.maps.Marker[] = [];
 
     for (const listing of listings) {
+      const isEditing = listing.id === editingId;
       const marker = new google.maps.Marker({
-        position: { lat: listing.lat!, lng: listing.lng! },
+        position: isEditing && editingPosition ? { lat: editingPosition.lat(), lng: editingPosition.lng() } : { lat: listing.lat!, lng: listing.lng! },
         title: listing.title,
-        icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : undefined
+        icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : undefined,
+        draggable: isEditing
       });
 
       marker.addListener('click', () => {
         this.zone.run(() => this.openListingInfo(listing, marker));
+      });
+
+      // Only ever fires while this marker is draggable (i.e. mid-edit) — keeps the banner's
+      // lat/lng inputs mirroring a drag in progress, the same way applyEditingCoordinates keeps
+      // the marker mirroring those inputs.
+      marker.addListener('drag', () => {
+        if (listing.id !== this.editingLocationListingId()) return;
+        const pos = marker.getPosition();
+        if (!pos) return;
+        this.zone.run(() => {
+          this.editingLat.set(pos.lat());
+          this.editingLng.set(pos.lng());
+        });
       });
 
       this.listingMarkers.set(listing.id, marker);
@@ -1096,10 +1124,128 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     addressEl.textContent = listing.address;
     body.appendChild(addressEl);
 
+    if (listing.ownerId === this.auth.currentUser()?.id) {
+      const editLocationBtn = document.createElement('button');
+      editLocationBtn.type = 'button';
+      editLocationBtn.className = 'map-info-edit-location';
+      editLocationBtn.textContent = this.translation.t('map.editLocation');
+      editLocationBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        this.zone.run(() => this.startEditingLocation(listing));
+      });
+      body.appendChild(editLocationBtn);
+    }
+
     container.appendChild(body);
 
     this.infoWindow.setContent(container);
     this.infoWindow.open({ map: this.map, anchor: marker });
+  }
+
+  // Drives the "arrastra el marcador…" banner (template) while a listing's pin is being
+  // repositioned — only ever set for a listing the signed-in user owns (see openListingInfo's
+  // "editar ubicación" button, the only place this is set).
+  readonly editingLocationListingId = signal<string | null>(null);
+  readonly savingLocation = signal(false);
+  // The banner's own lat/lng number inputs — the second way to move the pin, alongside
+  // dragging. Kept in sync with the marker's actual position in both directions: dragging
+  // updates these (see the 'drag' listener wired in renderListingMarkers) and typing into them
+  // moves the marker (see onEditingLatChange/onEditingLngChange below).
+  readonly editingLat = signal<number | null>(null);
+  readonly editingLng = signal<number | null>(null);
+  // Captured when editing starts so cancelEditingLocation can snap the marker back if the edit
+  // is abandoned, without needing a round-trip to the server.
+  private editingLocationOriginalPosition: google.maps.LatLngLiteral | null = null;
+
+  startEditingLocation(listing: Listing): void {
+    // Only one pin can be mid-drag at a time — abandon whichever one was already being edited
+    // (snapping it back) before letting this one go draggable.
+    this.cancelEditingLocation();
+
+    const marker = this.listingMarkers.get(listing.id);
+    if (!marker || listing.lat == null || listing.lng == null) return;
+
+    this.infoWindow?.close();
+    this.editingLocationOriginalPosition = { lat: listing.lat, lng: listing.lng };
+    this.editingLocationListingId.set(listing.id);
+    this.editingLat.set(listing.lat);
+    this.editingLng.set(listing.lng);
+    marker.setDraggable(true);
+  }
+
+  cancelEditingLocation(): void {
+    const id = this.editingLocationListingId();
+    if (!id) return;
+
+    const marker = this.listingMarkers.get(id);
+    if (marker && this.editingLocationOriginalPosition) {
+      marker.setPosition(this.editingLocationOriginalPosition);
+    }
+    marker?.setDraggable(false);
+    this.editingLocationListingId.set(null);
+    this.editingLat.set(null);
+    this.editingLng.set(null);
+    this.editingLocationOriginalPosition = null;
+  }
+
+  saveEditingLocation(): void {
+    const id = this.editingLocationListingId();
+    const marker = id ? this.listingMarkers.get(id) : undefined;
+    const position = marker?.getPosition();
+    if (!id || !marker || !position) return;
+
+    this.savingLocation.set(true);
+    this.listingService.updateLocation(id, position.lat(), position.lng()).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          this.savingLocation.set(false);
+          marker.setDraggable(false);
+          this.editingLocationListingId.set(null);
+          this.editingLat.set(null);
+          this.editingLng.set(null);
+          this.editingLocationOriginalPosition = null;
+          this.notification.success('map.editLocationSaved');
+        });
+      },
+      error: () => {
+        this.zone.run(() => {
+          this.savingLocation.set(false);
+          this.notification.error('map.editLocationError');
+        });
+      }
+    });
+  }
+
+  // The manual-coordinates half of the banner — typing a value moves the marker (and recenters
+  // the map on it) exactly as a drag would, so saveEditingLocation (which just reads the
+  // marker's current position) works unchanged for either input method. Invalid/empty input is
+  // ignored rather than moving the pin to NaN,NaN; out-of-range input is clamped rather than
+  // rejected outright, matching the backend's own [Range(-90,90)]/[Range(-180,180)] on
+  // ListingLocationUpdateDto — otherwise a stray extra digit would round-trip a 400 instead of
+  // just landing the pin at the nearest valid coordinate.
+  onEditingLatChange(value: string): void {
+    const lat = Number(value);
+    if (value.trim() === '' || !Number.isFinite(lat)) return;
+    this.editingLat.set(Math.min(90, Math.max(-90, lat)));
+    this.applyEditingCoordinates();
+  }
+
+  onEditingLngChange(value: string): void {
+    const lng = Number(value);
+    if (value.trim() === '' || !Number.isFinite(lng)) return;
+    this.editingLng.set(Math.min(180, Math.max(-180, lng)));
+    this.applyEditingCoordinates();
+  }
+
+  private applyEditingCoordinates(): void {
+    const id = this.editingLocationListingId();
+    const marker = id ? this.listingMarkers.get(id) : undefined;
+    const lat = this.editingLat();
+    const lng = this.editingLng();
+    if (!marker || lat == null || lng == null) return;
+
+    marker.setPosition({ lat, lng });
+    this.map?.panTo({ lat, lng });
   }
 
   // Wired to the explicit "recenter" map button (template) — wrapped in zone.run since the
@@ -1693,6 +1839,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   onSearchChange(term: string): void {
     this.search.set(term);
     this.syncSearchMunicipality(term);
+    // Typing again means whatever searchAddress() last found no longer matches this query —
+    // drop it rather than leaving a stale pin from the previous search sitting on the map.
+    this.searchResultMarker?.setMap(null);
+    this.searchResultMarker = undefined;
   }
 
   // If the typed term exactly matches a municipality name (accent/case-insensitive), fetches its
@@ -1751,6 +1901,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const query = this.search().trim();
     if (!query || this.searchMunicipalityCvegeo || !this.map) return;
 
+    // A typed/pasted coordinate pair (DMS like 20°42'17.7"N 102°26'38.5"W, or plain decimal
+    // "lat,lng") already tells us exactly where to go — skip the Geocoder (which doesn't
+    // reliably parse the DMS form anyway) and pan straight there.
+    const coordinates = parseCoordinates(query);
+    if (coordinates) {
+      this.map.panTo(coordinates);
+      this.map.setZoom(16);
+      this.placeSearchResultMarker(coordinates);
+      return;
+    }
+
     new google.maps.Geocoder().geocode(
       { address: query, componentRestrictions: { country: 'mx' } },
       (results, status) => {
@@ -1768,11 +1929,28 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
             return;
           }
 
-          this.map?.panTo(results[0].geometry.location);
+          const location = results[0].geometry.location;
+          this.map?.panTo(location);
           this.map?.setZoom(16);
+          this.placeSearchResultMarker({ lat: location.lat(), lng: location.lng() });
         });
       }
     );
+  }
+
+  // Only when nothing already marks this spot: a text search that also matched real listings
+  // already shows their own markers (see filteredListings/renderListingMarkers) — adding a
+  // second, unrelated pin right next to one would just be visual noise. A pure address/
+  // coordinate search with zero listing matches has nothing on the map yet, so this is the only
+  // thing that tells the visitor where their search actually landed.
+  private placeSearchResultMarker(location: google.maps.LatLngLiteral): void {
+    if (this.filteredListings().length > 0) return;
+
+    if (this.searchResultMarker) {
+      this.searchResultMarker.setPosition(location);
+    } else {
+      this.searchResultMarker = new google.maps.Marker({ position: location, map: this.map });
+    }
   }
 
   setTypeFilter(type: ListingType | 'all'): void {

@@ -371,6 +371,19 @@ body {
   color: #6b7280;
 }
 
+.map-info-edit-location {
+  display: block;
+  margin-top: 0.5rem;
+  border: 1px solid #1e3a5f;
+  border-radius: 4px;
+  background: #fff;
+  color: #1e3a5f;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+}
+
 .map-info-poi {
   padding: 0.5rem 0.25rem;
   font-family: inherit;
