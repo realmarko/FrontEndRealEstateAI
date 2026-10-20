@@ -76,6 +76,8 @@ describe('ListingService', () => {
     hasWaterDebt: null,
     frontageWidthMeters: null,
     frontageDepthMeters: null,
+    commercialUnitCount: null,
+    hasApartmentUnit: null,
     hasPotableWater: null,
     hasDrainage: null,
     hasElectricity: null,
