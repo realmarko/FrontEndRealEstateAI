@@ -130,9 +130,10 @@ export class ListingFormComponent {
     // same reasoning as the isLandOrCommercial()-gated fields above: switching away and back
     // shouldn't lose what the visitor already entered.
     hasWell: this.fb.control<boolean | null>(null),
-    hasKitchen: this.fb.control<boolean | null>(null),
-    hasLivingRoom: this.fb.control<boolean | null>(null),
-    hasDiningRoom: this.fb.control<boolean | null>(null),
+    // Also defaulted to checked, same reasoning as hasPotableWater/hasDrainage above.
+    hasKitchen: this.fb.control<boolean | null>(true),
+    hasLivingRoom: this.fb.control<boolean | null>(true),
+    hasDiningRoom: this.fb.control<boolean | null>(true),
     hasPool: this.fb.control<boolean | null>(null),
     hasTerrace: this.fb.control<boolean | null>(null),
     hasBalcony: this.fb.control<boolean | null>(null),
@@ -159,8 +160,11 @@ export class ListingFormComponent {
     hasWaterDebt: this.fb.control<boolean | null>(null),
     frontageWidthMeters: this.fb.control<number | null>(null, Validators.min(0)),
     frontageDepthMeters: this.fb.control<number | null>(null, Validators.min(0)),
-    hasPotableWater: this.fb.control<boolean | null>(null),
-    hasDrainage: this.fb.control<boolean | null>(null),
+    // Defaults to checked: most houses/apartments in this market do have potable water and
+    // drainage, so defaulting to true (instead of unchecked/unknown) saves the common case a
+    // click — an owner publishing a lot/land listing without either still unchecks these by hand.
+    hasPotableWater: this.fb.control<boolean | null>(true),
+    hasDrainage: this.fb.control<boolean | null>(true),
     hasElectricity: this.fb.control<boolean | null>(null),
     hasThreePhaseElectricity: this.fb.control<boolean | null>(null),
     hasTelecomService: this.fb.control<boolean | null>(null),
@@ -593,8 +597,12 @@ export class ListingFormComponent {
       hasWaterDebt: raw.hasWaterDebt ?? undefined,
       frontageWidthMeters: raw.frontageWidthMeters ?? undefined,
       frontageDepthMeters: raw.frontageDepthMeters ?? undefined,
-      hasPotableWater: raw.hasPotableWater ?? undefined,
-      hasDrainage: raw.hasDrainage ?? undefined,
+      // Defaults to true (see the control's own comment) — only actually submitted when the
+      // checkbox is visible somewhere (land/commercial section or the house/apartment Rooms
+      // section). Without this gate, a Ranch/Room listing (neither isLandOrCommercial() nor
+      // isHouseOrApartment()) would silently publish "sí" for a checkbox it never showed.
+      hasPotableWater: (landOrCommercial || houseOrApartment) ? (raw.hasPotableWater ?? undefined) : undefined,
+      hasDrainage: (landOrCommercial || houseOrApartment) ? (raw.hasDrainage ?? undefined) : undefined,
       hasElectricity: raw.hasElectricity ?? undefined,
       hasThreePhaseElectricity: raw.hasThreePhaseElectricity ?? undefined,
       hasTelecomService: raw.hasTelecomService ?? undefined,

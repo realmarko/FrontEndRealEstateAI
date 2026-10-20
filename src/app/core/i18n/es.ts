@@ -157,6 +157,7 @@ export const es: Record<string, string> = {
   'listingDetail.hoaAbbr': 'HOA/mes',
   'listingDetail.hasHeatingCooling': 'Calefacción/AA',
   'listingDetail.hasRoofGarden': 'Roof garden',
+  'listingDetail.amenityDetailsTitle': 'Espacios y amenidades',
   'listingDetail.landDetailsTitle': 'Uso de suelo y servicios',
   'listingDetail.specZoning': 'Zonificación',
   'listingDetail.specTenure': 'Tenencia',

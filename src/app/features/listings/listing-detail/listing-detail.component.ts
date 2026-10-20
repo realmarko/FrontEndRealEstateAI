@@ -20,6 +20,7 @@ import {
   PriceHistoryEntry,
   TopographyType,
   ViabilityAnalysis,
+  isHouseOrApartmentPropertyType,
   isLandOrCommercialPropertyType,
   isPureLandPropertyType
 } from '../../../core/models/listing.model';
@@ -143,6 +144,19 @@ export class ListingDetailComponent {
   // AuthService/FavoritesService) so it can be read later from the async listing-load callback.
   private readonly isBrowser = isBrowser();
   readonly isLandOrCommercial = computed(() => isLandOrCommercialPropertyType(this.listing()?.propertyType));
+  readonly isHouseOrApartment = computed(() => isHouseOrApartmentPropertyType(this.listing()?.propertyType));
+
+  // Whether there's anything to show in the "Espacios y amenidades" section below — avoids
+  // rendering an empty <dl> for a house/apartment listing published before these fields existed.
+  hasAmenityDetails(listing: Listing): boolean {
+    return [
+      listing.hasKitchen, listing.hasLivingRoom, listing.hasDiningRoom,
+      listing.hasPotableWater, listing.hasDrainage,
+      listing.hasPool, listing.hasTerrace, listing.hasBalcony, listing.hasServiceRoom,
+      listing.hasLaundryArea, listing.hasStorageRoom, listing.hasGym, listing.hasSecurity,
+      listing.hasElevator, listing.hasBbqArea
+    ].some((v) => v != null);
+  }
   readonly isPureLand = computed(() => isPureLandPropertyType(this.listing()?.propertyType));
 
   // "Reporte de Viabilidad Comercial" teaser — just the single best-fit business type, loaded

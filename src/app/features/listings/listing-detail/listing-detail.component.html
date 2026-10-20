@@ -257,6 +257,57 @@
           }
         </div>
 
+        @if (isHouseOrApartment() && hasAmenityDetails(listing)) {
+          <h2 class="section-title">{{ 'listingDetail.amenityDetailsTitle' | translate }}</h2>
+          <dl class="spec-list">
+            @if (listing.hasKitchen != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasKitchen' | translate }}</dt><dd>{{ (listing.hasKitchen ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasLivingRoom != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasLivingRoom' | translate }}</dt><dd>{{ (listing.hasLivingRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasDiningRoom != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasDiningRoom' | translate }}</dt><dd>{{ (listing.hasDiningRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasPotableWater != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasPotableWater' | translate }}</dt><dd>{{ (listing.hasPotableWater ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasDrainage != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>{{ (listing.hasDrainage ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasPool != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasPool' | translate }}</dt><dd>{{ (listing.hasPool ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasTerrace != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasTerrace' | translate }}</dt><dd>{{ (listing.hasTerrace ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasBalcony != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasBalcony' | translate }}</dt><dd>{{ (listing.hasBalcony ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasServiceRoom != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasServiceRoom' | translate }}</dt><dd>{{ (listing.hasServiceRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasLaundryArea != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasLaundryArea' | translate }}</dt><dd>{{ (listing.hasLaundryArea ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasStorageRoom != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasStorageRoom' | translate }}</dt><dd>{{ (listing.hasStorageRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasGym != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasGym' | translate }}</dt><dd>{{ (listing.hasGym ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasSecurity != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasSecurity' | translate }}</dt><dd>{{ (listing.hasSecurity ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasElevator != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasElevator' | translate }}</dt><dd>{{ (listing.hasElevator ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+            @if (listing.hasBbqArea != null) {
+              <div class="spec-row"><dt>{{ 'listingForm.hasBbqArea' | translate }}</dt><dd>{{ (listing.hasBbqArea ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            }
+          </dl>
+        }
+
         @if (isLandOrCommercial() && hasLandDetails()) {
           <h2 class="section-title">{{ 'listingDetail.landDetailsTitle' | translate }}</h2>
           <dl class="spec-list">
