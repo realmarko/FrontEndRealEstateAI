@@ -556,8 +556,6 @@ export const en: Record<string, string> = {
   'map.poiParks': 'Parks',
   'map.poiGyms': 'Gyms',
   'map.poiOxxo': 'OXXO',
-  'map.expand': 'Expand map',
-  'map.collapse': 'Collapse map',
   'map.myLocation': 'My location',
   'map.locating': 'Locating…',
   'map.loadingMap': 'Loading map…',

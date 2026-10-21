@@ -137,7 +137,7 @@
   </div>
 
   <div class="map-content">
-    <div class="map-pane" [class.expanded]="mapExpanded()" [class.mobile-active]="mobileView() === 'map'">
+    <div class="map-pane" [class.mobile-active]="mobileView() === 'map'">
       <div class="mobile-results-badge" *ngIf="mobileView() === 'map' && !freehandShape()">
         {{ 'map.resultsInView' | translate:{ count: visibleListings().length } }}
       </div>
@@ -373,23 +373,6 @@
           </div>
         </div>
       }
-      <button
-        id="map-expand-btn"
-        type="button"
-        class="expand-btn"
-        [attr.aria-label]="(mapExpanded() ? 'map.collapse' : 'map.expand') | translate"
-        (click)="toggleMapExpanded()"
-      >
-        @if (mapExpanded()) {
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 3v3a2 2 0 0 1-2 2H3" /><path d="M21 8h-3a2 2 0 0 1-2-2V3" /><path d="M3 16h3a2 2 0 0 1 2 2v3" /><path d="M16 21v-3a2 2 0 0 1 2-2h3" />
-          </svg>
-        } @else {
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-          </svg>
-        }
-      </button>
       <!-- Relocated here (used to live in the top-left toolbar, alongside freehand/opportunity
            tools) so it joins Google's own zoom control at bottom-right (pushed into
            map.controls[RIGHT_BOTTOM] in buildMap() — see that method) instead of competing for

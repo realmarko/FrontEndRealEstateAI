@@ -320,17 +320,6 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // False until buildMap() runs once on initial load — drives the loading overlay so the visitor
   // sees "loading map…" instead of a blank container while resolveInitialCenter is still working.
   mapReady = false;
-  // The real browser Fullscreen API can be blocked by the embedding context's permissions policy
-  // (confirmed: this page silently no-ops when viewed inside an embedded preview pane), which
-  // made Google Maps' native fullscreenControl button look broken with no visible error.
-  // document.fullscreenEnabled is NOT a reliable predictor of this — tested directly in that same
-  // embedding context and it reports `true` while a real requestFullscreen() call still throws
-  // "Permissions check failed". Since there's no reliable way to know in advance whether native
-  // fullscreen will actually work, this always uses a CSS-only "expand within the viewport"
-  // toggle instead (see toggleMapExpanded) rather than Google's native control (disabled below) —
-  // it loses the OS-chrome-hiding effect of real fullscreen, but it's the one implementation that
-  // is correct in every context, with no dependency on a permissions check that can't be trusted.
-  readonly mapExpanded = signal(false);
   // Drives hiding the toolbar (add-property, POI/opportunity pickers, legend) while Street View
   // fills the map pane — those controls interpret map clicks (placing a marker, analyzing
   // opportunity) that don't make sense once the view isn't looking down at the map anymore.
@@ -711,6 +700,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       mapTypeControl: false,
       streetViewControl: true,
       streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+      // Left disabled, not re-enabled after removing our own expand button — the real Fullscreen
+      // API (and Google's native control, which relies on it) can silently no-op when this page
+      // is viewed inside an embedding context with a restrictive permissions policy (confirmed:
+      // requestFullscreen() throws there even though document.fullscreenEnabled reports true).
       fullscreenControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
@@ -1818,20 +1811,6 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (this.freehandMode) {
       this.setFreehandMode(false);
     }
-  }
-
-  toggleMapExpanded(): void {
-    this.mapExpanded.update((expanded) => !expanded);
-    // The container's on-screen size changes via the CSS class binding, but Google Maps caches
-    // its last-known size and won't redraw to fill it until told to. Zone.js flushes Angular's
-    // own change detection (and the resulting class/layout change) synchronously right after this
-    // method returns, well before the next paint — one rAF is enough to land after that and see
-    // the container's final size.
-    requestAnimationFrame(() => {
-      if (!this.map) return;
-      google.maps.event.trigger(this.map, 'resize');
-      this.map.setCenter(this.map.getCenter() ?? DEFAULT_CENTER);
-    });
   }
 
   confirmLocation(): void {
