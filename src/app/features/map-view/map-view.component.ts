@@ -309,6 +309,7 @@ function createClusterRenderer(color: string): Renderer {
 })
 export class MapViewComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) private readonly mapContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('mapStreetView') private mapStreetViewEl?: ElementRef<HTMLDivElement>;
 
   hasError = false;
   addMode = false;
@@ -1140,6 +1141,56 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     this.infoWindow.setContent(container);
     this.infoWindow.open({ map: this.map, anchor: marker });
+
+    this.showStreetView(listing);
+  }
+
+  // Street View coverage is spotty (especially off main roads), so availability is checked
+  // first via StreetViewService instead of always building a panorama that could come up blank
+  // — same pattern as listing-detail.component.ts's initStreetView.
+  //
+  // Bumped on every call so a late-arriving getPanorama response can tell it's stale — same
+  // reasoning as infoWindowGeneration above: clicking marker A then quickly marker B before A's
+  // async response lands must not let A's response overwrite B's already-shown panel.
+  private streetViewGeneration = 0;
+
+  private showStreetView(listing: Listing): void {
+    if (listing.lat == null || listing.lng == null) return;
+
+    const requestId = ++this.streetViewGeneration;
+    this.selectedStreetViewListing.set(listing);
+    this.streetViewChecked.set(false);
+    this.streetViewAvailable.set(false);
+
+    const position = { lat: listing.lat, lng: listing.lng };
+    const streetViewService = new google.maps.StreetViewService();
+    streetViewService.getPanorama({ location: position, radius: 50 }, (data, status) => {
+      this.zone.run(() => {
+        if (requestId !== this.streetViewGeneration) return;
+
+        this.streetViewChecked.set(true);
+
+        if (status !== google.maps.StreetViewStatus.OK || !data?.location?.latLng || !this.mapStreetViewEl) {
+          this.streetViewAvailable.set(false);
+          return;
+        }
+
+        this.streetViewAvailable.set(true);
+        new google.maps.StreetViewPanorama(this.mapStreetViewEl.nativeElement, {
+          position: data.location.latLng,
+          pov: { heading: 0, pitch: 0 },
+          addressControl: false,
+          fullscreenControl: false,
+          motionTracking: false,
+          motionTrackingControl: false
+        });
+      });
+    });
+  }
+
+  closeStreetView(): void {
+    this.streetViewGeneration++;
+    this.selectedStreetViewListing.set(null);
   }
 
   // Drives the "arrastra el marcador…" banner (template) while a listing's pin is being
@@ -1147,6 +1198,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // "editar ubicación" button, the only place this is set).
   readonly editingLocationListingId = signal<string | null>(null);
   readonly savingLocation = signal(false);
+
+  // Small Street View panel, bottom-left of the map — shows the clicked marker's listing (see
+  // openListingInfo). Stays in the DOM (hidden via [hidden], not @if) once a listing is first
+  // selected, same reasoning as listing-detail's own street view: keeps #mapStreetView's
+  // ViewChild stable across re-checks instead of tearing the panorama down and rebuilding it.
+  readonly selectedStreetViewListing = signal<Listing | null>(null);
+  readonly streetViewAvailable = signal(false);
+  readonly streetViewChecked = signal(false);
   // The banner's own lat/lng number inputs — the second way to move the pin, alongside
   // dragging. Kept in sync with the marker's actual position in both directions: dragging
   // updates these (see the 'drag' listener wired in renderListingMarkers) and typing into them

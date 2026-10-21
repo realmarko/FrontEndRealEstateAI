@@ -452,6 +452,16 @@
           </div>
         </div>
       }
+      <div class="map-street-view-panel" [hidden]="!selectedStreetViewListing()">
+        <div class="map-street-view-header">
+          <span class="map-street-view-title">{{ selectedStreetViewListing()?.title }}</span>
+          <button type="button" class="map-street-view-close" (click)="closeStreetView()" [attr.aria-label]="'map.close' | translate">×</button>
+        </div>
+        <div #mapStreetView class="map-street-view" [hidden]="!streetViewAvailable()"></div>
+        @if (streetViewChecked() && !streetViewAvailable()) {
+          <p class="map-no-street-view">{{ 'listingDetail.noStreetView' | translate }}</p>
+        }
+      </div>
     </div>
 
     <div class="listings-pane" [class.mobile-active]="mobileView() === 'results'">
