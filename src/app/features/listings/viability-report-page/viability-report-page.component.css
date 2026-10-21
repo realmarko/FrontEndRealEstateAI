@@ -266,6 +266,16 @@ h1 {
   font-size: 0.82rem;
 }
 
+.traffic-congestion-note {
+  margin: 0 0 var(--space-2);
+  font-size: 0.88rem;
+  color: var(--ink-soft);
+}
+
+.traffic-congestion-note strong {
+  color: var(--ink);
+}
+
 .traffic-list {
   list-style: none;
   margin: 0;

@@ -78,6 +78,13 @@ export class ViabilityReportPageComponent {
     { color: ViabilityReportPageComponent.ROAD_LINE_STYLES['Avenida secundaria'].color, labelKey: 'viabilityPage.legendSecondaryAvenue' }
   ];
 
+  // Mirrors TrafficCongestionLevel's own numeric order on the backend (Low/Moderate/High = 0/1/2).
+  private static readonly TRAFFIC_LEVEL_KEYS = ['viabilityPage.trafficLow', 'viabilityPage.trafficModerate', 'viabilityPage.trafficHigh'] as const;
+
+  protected trafficLevelLabelKey(level: 0 | 1 | 2 | null): string | null {
+    return level === null ? null : ViabilityReportPageComponent.TRAFFIC_LEVEL_KEYS[level];
+  }
+
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
   readonly listing = signal<Listing | null>(null);

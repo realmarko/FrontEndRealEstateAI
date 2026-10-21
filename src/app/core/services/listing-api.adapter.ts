@@ -319,6 +319,9 @@ export interface ViabilityAnalysisDto {
   nearbyRoads: NearbyRoadDto[];
   roadsDataUnavailable: boolean;
   trafficGeneratorsDataUnavailable: boolean;
+  trafficCongestionLevel: 0 | 1 | 2 | null;
+  trafficCongestionRoadName: string | null;
+  trafficDataUnavailable: boolean;
 }
 
 export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAnalysis {
@@ -346,7 +349,10 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
       geometry: r.geometry.map((p) => ({ lat: p.lat, lng: p.lng }))
     })),
     roadsDataUnavailable: dto.roadsDataUnavailable,
-    trafficGeneratorsDataUnavailable: dto.trafficGeneratorsDataUnavailable
+    trafficGeneratorsDataUnavailable: dto.trafficGeneratorsDataUnavailable,
+    trafficCongestionLevel: dto.trafficCongestionLevel,
+    trafficCongestionRoadName: dto.trafficCongestionRoadName,
+    trafficDataUnavailable: dto.trafficDataUnavailable
   };
 }
 

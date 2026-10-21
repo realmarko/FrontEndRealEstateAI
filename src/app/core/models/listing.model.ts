@@ -335,4 +335,10 @@ export interface ViabilityAnalysis {
   // finding nothing nearby — an empty list looks identical either way otherwise.
   roadsDataUnavailable: boolean;
   trafficGeneratorsDataUnavailable: boolean;
+  // Real-time congestion snapshot (Google Routes API) for the nearest major road — 0/1/2 =
+  // Low/Moderate/High (TrafficCongestionLevel's own numeric order on the backend), null when no
+  // nearby road had geometry to measure or the lookup failed (see trafficDataUnavailable).
+  trafficCongestionLevel: 0 | 1 | 2 | null;
+  trafficCongestionRoadName: string | null;
+  trafficDataUnavailable: boolean;
 }

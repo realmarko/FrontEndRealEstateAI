@@ -141,6 +141,17 @@
               @if (analysisValue.roadsDataUnavailable) {
                 <p class="data-source-warning">{{ 'viabilityPage.roadsDataUnavailable' | translate }}</p>
               }
+              @if (trafficLevelLabelKey(analysisValue.trafficCongestionLevel); as levelKey) {
+                <p class="traffic-congestion-note">
+                  {{ 'viabilityPage.trafficCongestionNote' | translate }}
+                  <strong>{{ levelKey | translate }}</strong>
+                  @if (analysisValue.trafficCongestionRoadName) {
+                    <span>({{ analysisValue.trafficCongestionRoadName }})</span>
+                  }
+                </p>
+              } @else if (analysisValue.trafficDataUnavailable) {
+                <p class="data-source-warning">{{ 'viabilityPage.trafficDataUnavailable' | translate }}</p>
+              }
               @if (analysisValue.nearbyRoads.length) {
                 <ul class="traffic-list">
                   @for (road of analysisValue.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
