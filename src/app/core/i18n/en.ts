@@ -385,6 +385,7 @@ export const en: Record<string, string> = {
   'listingForm.pricePerSqm': 'Price per m²',
   'listingForm.pricePerSqmHint': 'Optional: change this value and the total price recalculates automatically.',
   'listingForm.pricePerSqmNeedsArea': 'Enter the area (m²) below to use this field.',
+  'listingForm.pricePerSqmNeedsLotSize': 'Enter the lot size (m²) below to use this field.',
   'listingForm.mortgagePreviewTitle': 'Estimated monthly payment',
   'listingForm.currency': 'Currency',
   'listingForm.mxn': 'MXN - Mexican Peso',

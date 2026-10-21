@@ -185,17 +185,8 @@ export class ListingFormComponent {
 
   // A convenience input, not a real field: the backend only stores total price, so this is kept
   // outside `form` (never part of raw/getRawValue(), never submitted) and synced bidirectionally
-  // with price/areaSqm instead — see the constructor's subscriptions below. Starts disabled
-  // whenever areaSqm is still 0 (true for a brand-new listing, and for any existing one that was
-  // saved without an area) — area is the divisor this field needs to turn into a real price, so
-  // without it there's nothing to sync. Previously left enabled with only a hint paragraph saying
-  // as much: a visitor who typed a value anyway saw it accepted into this field with no error,
-  // but it silently never touched the real `price` control — "I set a price per m² and it didn't
-  // save" with no indication why. Disabling makes that state visibly inert instead.
-  readonly pricePerSqmControl = new FormControl<number | null>(
-    { value: null, disabled: !this.form.controls.areaSqm.value },
-    Validators.min(0)
-  );
+  // with price/areaSqm instead — see the constructor's subscriptions below.
+  readonly pricePerSqmControl = new FormControl<number | null>(null, Validators.min(0));
   // Set while one side of the price/areaSqm ↔ pricePerSqm sync is writing to the other, so that
   // write's own valueChanges doesn't bounce straight back and fight over rounding, or spin into
   // an infinite loop between the two subscriptions.
@@ -279,21 +270,20 @@ export class ListingFormComponent {
       this.citiesForState.set(this.filterCitiesByState(this.municipalities(), state));
     });
 
-    // Keeps pricePerSqmControl showing price ÷ areaSqm whenever either changes — including the
-    // edit-mode patchValue(listing) below, and programmatic setValue(price) elsewhere in this
-    // component (e.g. appCurrencyInput writing back a typed price).
+    // Keeps pricePerSqmControl showing price ÷ area whenever price, areaSqm, or lotSizeSqm
+    // changes — including the edit-mode patchValue(listing) below, and programmatic
+    // setValue(price) elsewhere in this component (e.g. appCurrencyInput writing back a typed
+    // price). lotSizeSqm only matters for pure land (see effectiveAreaForPricePerSqm's own
+    // comment), but subscribing unconditionally is simpler than tearing this down/rebuilding it
+    // every time propertyType changes, and costs nothing for a property type where it's ignored.
     this.form.controls.price.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
-    this.form.controls.areaSqm.valueChanges.subscribe((areaSqm) => {
-      this.syncPricePerSqmFromPrice();
-      // Mirrors the control's own initial-value comment: enabled only once there's a real area to
-      // divide by, re-evaluated every time areaSqm changes (typed by hand, or set by
-      // patchValue(listing) in edit mode below).
-      if (areaSqm) {
-        this.pricePerSqmControl.enable({ emitEvent: false });
-      } else {
-        this.pricePerSqmControl.disable({ emitEvent: false });
-      }
-    });
+    this.form.controls.areaSqm.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
+    this.form.controls.lotSizeSqm.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
+    // effectiveAreaForPricePerSqm()'s basis (areaSqm vs. lotSizeSqm) depends on propertyType —
+    // without this, switching between a pure-land and a built property type would leave
+    // pricePerSqmControl showing a stale value (computed against the old basis) until price or
+    // either area control happened to change again.
+    this.form.controls.propertyType.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
 
     // The other direction: typing a price-per-m² computes and writes the total price. emitEvent
     // defaults to true here so the template (which reads form.value.price directly, not via an
@@ -302,10 +292,10 @@ export class ListingFormComponent {
     // back from itself.
     this.pricePerSqmControl.valueChanges.subscribe((pricePerSqm) => {
       if (this.syncingPricePerSqm) return;
-      const areaSqm = this.form.controls.areaSqm.value;
-      if (pricePerSqm == null || !areaSqm) return;
+      const area = this.effectiveAreaForPricePerSqm();
+      if (pricePerSqm == null || !area) return;
       this.syncingPricePerSqm = true;
-      this.form.controls.price.setValue(Math.round(pricePerSqm * areaSqm));
+      this.form.controls.price.setValue(Math.round(pricePerSqm * area));
       this.syncingPricePerSqm = false;
     });
 
@@ -338,10 +328,31 @@ export class ListingFormComponent {
   private syncPricePerSqmFromPrice(): void {
     if (this.syncingPricePerSqm) return;
     const price = this.form.controls.price.value;
-    const areaSqm = this.form.controls.areaSqm.value;
+    const area = this.effectiveAreaForPricePerSqm();
     this.syncingPricePerSqm = true;
-    this.pricePerSqmControl.setValue(areaSqm ? Math.round(price / areaSqm) : null, { emitEvent: false });
+    this.pricePerSqmControl.setValue(area ? Math.round(price / area) : null, { emitEvent: false });
     this.syncingPricePerSqm = false;
+  }
+
+  // Raw land (isPureLand()) has no construction, so areaSqm ("Área de construcción") is normally
+  // left at its default 0 there — the area that actually prices the property is lotSizeSqm
+  // ("Área de terreno") instead. Reported bug: an owner filled in lotSizeSqm for a terreno
+  // listing, typed a price per m², and nothing happened — the sync was unconditionally dividing
+  // by areaSqm, which was still 0 for a lot with no building on it. Every other property type
+  // keeps using areaSqm, same as before — a built property (house, retail space, office) prices
+  // by its construction area, not its lot size.
+  effectiveAreaForPricePerSqm(): number | null {
+    // Reads the propertyType CONTROL's own value directly rather than calling isPureLand()
+    // (which reads this.form.value.propertyType, the whole group's rolled-up value object).
+    // That distinction matters here specifically: form.patchValue() in edit mode sets each
+    // control with {onlySelf: true}, so the group's aggregate `.value` only refreshes once after
+    // every control has been patched — not incrementally as each one lands. This method runs
+    // synchronously from inside the areaSqm/lotSizeSqm valueChanges handlers DURING that patch,
+    // so reading the aggregate here could still see the PRE-patch propertyType (e.g. "house")
+    // even after the propertyType control itself already holds "land", silently picking the
+    // wrong area and leaving pricePerSqmControl at null for a freshly opened land listing.
+    const propertyType = this.form.controls.propertyType.value;
+    return isPureLandPropertyType(propertyType) ? this.form.controls.lotSizeSqm.value : this.form.controls.areaSqm.value;
   }
 
   // Only overwrites a field that's still at its untouched default — if reverse geocoding takes

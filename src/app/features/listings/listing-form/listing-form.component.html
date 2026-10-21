@@ -57,7 +57,7 @@
         <app-form-error [control]="pricePerSqmControl" />
       </label>
       <p class="price-per-sqm-hint">
-        {{ (form.value.areaSqm ? 'listingForm.pricePerSqmHint' : 'listingForm.pricePerSqmNeedsArea') | translate }}
+        {{ (effectiveAreaForPricePerSqm() ? 'listingForm.pricePerSqmHint' : (isPureLand() ? 'listingForm.pricePerSqmNeedsLotSize' : 'listingForm.pricePerSqmNeedsArea')) | translate }}
       </p>
     }
 
