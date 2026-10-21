@@ -309,6 +309,7 @@ function createClusterRenderer(color: string): Renderer {
 })
 export class MapViewComponent implements AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: true }) private readonly mapContainer!: ElementRef<HTMLDivElement>;
+  @ViewChild('locateBtn', { static: true }) private readonly locateBtnEl!: ElementRef<HTMLButtonElement>;
 
   hasError = false;
   addMode = false;
@@ -713,6 +714,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       fullscreenControl: false
     });
     this.infoWindow = new google.maps.InfoWindow();
+
+    // Joins Google's own zoom control in the same corner — pushing into the controls array
+    // (rather than absolutely positioning our own button against pixel guesses about where
+    // Google's native UI happens to sit) stacks it correctly above zoom regardless of Maps JS
+    // version/theme, and matches the look of a native "my location" control.
+    this.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(this.locateBtnEl.nativeElement);
 
     // The pegman opens Street View in the same panorama Google attaches to this map (not a
     // separate view) — listening for its own visible_changed is how the toolbar knows to hide

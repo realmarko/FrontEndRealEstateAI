@@ -184,6 +184,13 @@
   height: 18px;
 }
 
+/* No absolute positioning here on purpose — this button is pushed into Google's own
+   RIGHT_BOTTOM controls array (see buildMap()), so Maps JS stacks it with the native zoom
+   control itself instead of guessing pixel offsets against UI we don't control. */
+.locate-btn-floating {
+  margin: 0 10px 10px 0;
+}
+
 .map-toolbar-wrap {
   position: absolute;
   top: 1rem;

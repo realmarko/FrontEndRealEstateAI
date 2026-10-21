@@ -236,22 +236,6 @@
               @if (freehandMode) {
                 <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
               }
-              <button
-                id="map-locate-btn"
-                type="button"
-                class="locate-btn"
-                [disabled]="locatingMe"
-                [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"
-                (click)="centerOnCurrentLocation(true)"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="7" />
-                  <line x1="12" y1="1" x2="12" y2="4" />
-                  <line x1="12" y1="20" x2="12" y2="23" />
-                  <line x1="1" y1="12" x2="4" y2="12" />
-                  <line x1="20" y1="12" x2="23" y2="12" />
-                </svg>
-              </button>
             </ng-container>
             <div class="picker-anchor">
               <button
@@ -405,6 +389,32 @@
             <path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" />
           </svg>
         }
+      </button>
+      <!-- Relocated here (used to live in the top-left toolbar, alongside freehand/opportunity
+           tools) so it joins Google's own zoom control at bottom-right (pushed into
+           map.controls[RIGHT_BOTTOM] in buildMap() — see that method) instead of competing for
+           space in the toolbar row. [hidden], not *ngIf: the control array holds a direct
+           reference to this DOM node, which *ngIf would destroy/detach on every toggle. Same
+           visibility gate the toolbar itself used — hidden while street view, add-mode/
+           add-brokerage-mode, a pending pin confirmation, or opportunity mode are active, since a
+           click means something different to each of those tools. -->
+      <button
+        #locateBtn
+        id="map-locate-btn"
+        type="button"
+        class="locate-btn locate-btn-floating"
+        [hidden]="streetViewActive() || selectedLat !== null || selectedLng !== null || addMode || addBrokerageMode || opportunityMode"
+        [disabled]="locatingMe"
+        [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"
+        (click)="centerOnCurrentLocation(true)"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="7" />
+          <line x1="12" y1="1" x2="12" y2="4" />
+          <line x1="12" y1="20" x2="12" y2="23" />
+          <line x1="1" y1="12" x2="4" y2="12" />
+          <line x1="20" y1="12" x2="23" y2="12" />
+        </svg>
       </button>
       <div #mapContainer class="map-container"></div>
       <div class="map-loading" *ngIf="!mapReady">
