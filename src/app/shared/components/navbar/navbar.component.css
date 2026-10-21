@@ -3,6 +3,15 @@
    it lacked was the glass-material look: a solid bar reads as a flat panel, while a translucent
    blurred one reads as a floating layer with content visible (if briefly) underneath it. */
 .navbar {
+  /* The bar isn't an overlay (nothing scrolls under it — see the comment above), so its
+     rendered color is always this rgba over the page's own #f4f6f8 body background, never
+     anything darker. Against that actual ~rgb(78,78,79), the brand gold (#c6a15b, 3.4:1) and
+     silver (#9aa0a6, 3.1:1) both read fine as borders/accents (3:1 is enough for non-text UI)
+     but fail WCAG AA's 4.5:1 for body text — these two lightened variants are for text only;
+     every border/accent use below keeps the original brand colors. */
+  --nav-text-dim: #c4c8cc;
+  --nav-text-gold: #dcbf88;
+
   display: flex;
   align-items: center;
   gap: var(--space-6);
@@ -31,7 +40,7 @@
 .brand {
   font-weight: 600;
   font-size: 1.2rem;
-  color: #c6a15b;
+  color: var(--nav-text-gold);
   text-decoration: none;
 }
 
@@ -84,7 +93,7 @@
 
 .links a,
 .session a {
-  color: #9aa0a6;
+  color: var(--nav-text-dim);
   text-decoration: none;
   font-size: 0.95rem;
   white-space: nowrap;
@@ -92,12 +101,12 @@
 
 .links a:hover,
 .session a:hover {
-  color: #c6a15b;
+  color: var(--nav-text-gold);
 }
 
 .links a.active,
 .session a.active {
-  color: #c6a15b;
+  color: var(--nav-text-gold);
   font-weight: 600;
 }
 
@@ -120,7 +129,7 @@
 
 .lang-toggle:hover {
   border-color: #c6a15b;
-  color: #c6a15b;
+  color: var(--nav-text-gold);
 }
 
 /* --- Account menu (logged-in state) --- */
@@ -148,11 +157,11 @@
 }
 
 .account-role {
-  color: #9aa0a6;
+  color: var(--nav-text-dim);
 }
 
 .account-trigger:hover .account-role {
-  color: #c6a15b;
+  color: var(--nav-text-gold);
 }
 
 .chevron {
@@ -216,7 +225,10 @@
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #6b7280;
+  /* #6b7280 (the app-wide --ink-soft token) only reaches 3.7:1 on this panel's solid #171717 —
+     short of WCAG AA's 4.5:1 for small text, so this uses a lighter one-off instead of the
+     shared token. */
+  color: #8b96a3;
   padding: var(--space-1) var(--space-4);
 }
 
