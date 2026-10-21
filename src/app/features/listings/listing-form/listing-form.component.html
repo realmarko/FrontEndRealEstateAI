@@ -151,6 +151,9 @@
             <input type="number" min="0" formControlName="streetFrontageCount" />
           </label>
         </div>
+        @if ((form.value.streetFrontageCount ?? 0) >= 2) {
+          <p class="price-per-sqm-hint">{{ 'listingForm.multipleFrontagesHint' | translate }}</p>
+        }
 
         <div class="grid-2">
           <label>

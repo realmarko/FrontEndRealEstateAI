@@ -185,8 +185,17 @@ export class ListingFormComponent {
 
   // A convenience input, not a real field: the backend only stores total price, so this is kept
   // outside `form` (never part of raw/getRawValue(), never submitted) and synced bidirectionally
-  // with price/areaSqm instead — see the constructor's subscriptions below.
-  readonly pricePerSqmControl = new FormControl<number | null>(null, Validators.min(0));
+  // with price/areaSqm instead — see the constructor's subscriptions below. Starts disabled
+  // whenever areaSqm is still 0 (true for a brand-new listing, and for any existing one that was
+  // saved without an area) — area is the divisor this field needs to turn into a real price, so
+  // without it there's nothing to sync. Previously left enabled with only a hint paragraph saying
+  // as much: a visitor who typed a value anyway saw it accepted into this field with no error,
+  // but it silently never touched the real `price` control — "I set a price per m² and it didn't
+  // save" with no indication why. Disabling makes that state visibly inert instead.
+  readonly pricePerSqmControl = new FormControl<number | null>(
+    { value: null, disabled: !this.form.controls.areaSqm.value },
+    Validators.min(0)
+  );
   // Set while one side of the price/areaSqm ↔ pricePerSqm sync is writing to the other, so that
   // write's own valueChanges doesn't bounce straight back and fight over rounding, or spin into
   // an infinite loop between the two subscriptions.
@@ -274,7 +283,17 @@ export class ListingFormComponent {
     // edit-mode patchValue(listing) below, and programmatic setValue(price) elsewhere in this
     // component (e.g. appCurrencyInput writing back a typed price).
     this.form.controls.price.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
-    this.form.controls.areaSqm.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
+    this.form.controls.areaSqm.valueChanges.subscribe((areaSqm) => {
+      this.syncPricePerSqmFromPrice();
+      // Mirrors the control's own initial-value comment: enabled only once there's a real area to
+      // divide by, re-evaluated every time areaSqm changes (typed by hand, or set by
+      // patchValue(listing) in edit mode below).
+      if (areaSqm) {
+        this.pricePerSqmControl.enable({ emitEvent: false });
+      } else {
+        this.pricePerSqmControl.disable({ emitEvent: false });
+      }
+    });
 
     // The other direction: typing a price-per-m² computes and writes the total price. emitEvent
     // defaults to true here so the template (which reads form.value.price directly, not via an
