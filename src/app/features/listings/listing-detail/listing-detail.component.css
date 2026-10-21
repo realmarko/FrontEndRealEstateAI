@@ -241,7 +241,11 @@
   margin: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0;
+  /* Row gap stays 0 (each .spec-row already has its own vertical padding + border); column gap
+     can't be 0 — a right-aligned dd in the left column would otherwise sit flush against the
+     right column's label with no visual separation at all. */
+  column-gap: var(--space-6);
+  row-gap: 0;
 }
 
 .spec-row {
