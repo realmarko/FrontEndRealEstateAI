@@ -389,6 +389,7 @@ export const es: Record<string, string> = {
   'listingForm.pasteAdSuccess': 'Formulario precargado — revisa los campos antes de publicar.',
   'listingForm.pasteAdError': 'No pudimos autocompletar el formulario. Puedes llenarlo manualmente.',
   'listingForm.pasteAdMissingKeyInfo': 'Ese texto no parece incluir metros cuadrados ni precio — agrégalos al anuncio o llena el formulario manualmente.',
+  'listingForm.pasteAdInvalidMapsLink': 'El link de ubicación no es válido o no pudimos obtener las coordenadas — verifícalo o marca la ubicación manualmente en el mapa.',
   'listingForm.titleLabel': 'Título',
   'listingForm.description': 'Descripción',
   'listingForm.price': 'Precio',

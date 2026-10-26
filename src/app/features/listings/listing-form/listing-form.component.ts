@@ -447,6 +447,8 @@ export class ListingFormComponent {
             // comment), so this can't overwrite anything the AI extraction (or the owner) already
             // set above, only backfill what's still missing.
             this.reverseGeocodeAddress(draft.lat, draft.lng);
+          } else if (draft.mapsLinkResolutionFailed) {
+            this.notification.error('listingForm.pasteAdInvalidMapsLink');
           }
           this.syncPricePerSqmFromPrice();
           this.notification.success('listingForm.pasteAdSuccess');

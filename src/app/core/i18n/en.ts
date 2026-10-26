@@ -389,6 +389,7 @@ export const en: Record<string, string> = {
   'listingForm.pasteAdSuccess': 'Form pre-filled — review the fields before publishing.',
   'listingForm.pasteAdError': "We couldn't autofill the form. You can fill it in manually.",
   'listingForm.pasteAdMissingKeyInfo': "That text doesn't seem to include an area or a price — add them to the ad, or fill out the form manually.",
+  'listingForm.pasteAdInvalidMapsLink': "The location link isn't valid or we couldn't get coordinates from it — check it, or mark the location manually on the map.",
   'listingForm.titleLabel': 'Title',
   'listingForm.description': 'Description',
   'listingForm.price': 'Price',

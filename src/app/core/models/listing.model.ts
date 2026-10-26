@@ -383,4 +383,8 @@ export interface ListingDraft {
   // or the link couldn't be resolved to a real location.
   lat: number | null;
   lng: number | null;
+  // True when the text had a Google Maps link that couldn't be turned into coordinates (broken
+  // link, unsupported share format, failed lookup) — distinct from lat/lng simply being null
+  // because there was no link at all, so the form can warn instead of silently doing nothing.
+  mapsLinkResolutionFailed: boolean;
 }

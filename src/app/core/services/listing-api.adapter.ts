@@ -394,6 +394,7 @@ export interface ListingDraftDto {
   hasPropertyTaxDebt: boolean | null;
   lat: number | null;
   lng: number | null;
+  mapsLinkResolutionFailed: boolean;
 }
 
 export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
@@ -429,7 +430,8 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
     hasStorageRoom: dto.hasStorageRoom,
     hasPropertyTaxDebt: dto.hasPropertyTaxDebt,
     lat: dto.lat,
-    lng: dto.lng
+    lng: dto.lng,
+    mapsLinkResolutionFailed: dto.mapsLinkResolutionFailed
   };
 }
 
