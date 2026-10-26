@@ -271,6 +271,14 @@ export class ListingFormComponent {
   private existingLat: number | null = null;
   private existingLng: number | null = null;
 
+  // Set from autofillFromDraft() when the pasted text's Google Maps link resolves to real
+  // coordinates — takes priority over the map-click location (this.lat/this.lng) at submit time
+  // since it's a more deliberate, named-source signal than wherever the owner happened to click
+  // before reaching this form. this.lat/this.lng stay readonly (they're the route's own query
+  // params), so this is a separate field rather than reassigning those.
+  private draftLat: number | null = null;
+  private draftLng: number | null = null;
+
   constructor() {
     inject(SeoService).set({
       title: this.isEditMode ? 'Editar propiedad' : 'Publicar propiedad',
@@ -431,6 +439,15 @@ export class ListingFormComponent {
           if (draft.hasServiceRoom != null) this.form.controls.hasServiceRoom.setValue(draft.hasServiceRoom);
           if (draft.hasStorageRoom != null) this.form.controls.hasStorageRoom.setValue(draft.hasStorageRoom);
           if (draft.hasPropertyTaxDebt != null) this.form.controls.hasPropertyTaxDebt.setValue(draft.hasPropertyTaxDebt);
+          if (draft.lat != null && draft.lng != null) {
+            this.draftLat = draft.lat;
+            this.draftLng = draft.lng;
+            // Re-derives street/colonia/city/state/zipCode from this more precise location —
+            // reverseGeocodeAddress only ever fills a field that's still empty (see its own doc
+            // comment), so this can't overwrite anything the AI extraction (or the owner) already
+            // set above, only backfill what's still missing.
+            this.reverseGeocodeAddress(draft.lat, draft.lng);
+          }
           this.syncPricePerSqmFromPrice();
           this.notification.success('listingForm.pasteAdSuccess');
         },
@@ -748,8 +765,8 @@ export class ListingFormComponent {
       cadastralValue: raw.cadastralValue ?? undefined,
       existingImageUrls: this.existingImageUrls(),
       photos: this.newPhotos().map((p) => p.file),
-      lat: this.lat ?? this.existingLat ?? undefined,
-      lng: this.lng ?? this.existingLng ?? undefined
+      lat: this.draftLat ?? this.lat ?? this.existingLat ?? undefined,
+      lng: this.draftLng ?? this.lng ?? this.existingLng ?? undefined
     };
 
     const request$ = this.editingId

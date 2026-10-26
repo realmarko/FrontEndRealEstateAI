@@ -392,6 +392,8 @@ export interface ListingDraftDto {
   hasServiceRoom: boolean | null;
   hasStorageRoom: boolean | null;
   hasPropertyTaxDebt: boolean | null;
+  lat: number | null;
+  lng: number | null;
 }
 
 export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
@@ -425,7 +427,9 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
     hasBbqArea: dto.hasBbqArea,
     hasServiceRoom: dto.hasServiceRoom,
     hasStorageRoom: dto.hasStorageRoom,
-    hasPropertyTaxDebt: dto.hasPropertyTaxDebt
+    hasPropertyTaxDebt: dto.hasPropertyTaxDebt,
+    lat: dto.lat,
+    lng: dto.lng
   };
 }
 

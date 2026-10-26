@@ -378,4 +378,9 @@ export interface ListingDraft {
   hasServiceRoom: boolean | null;
   hasStorageRoom: boolean | null;
   hasPropertyTaxDebt: boolean | null;
+  // Resolved from a Google Maps link in the pasted text (see GoogleMapsLinkResolverService on
+  // the backend), not from the ad's own wording — null when no Maps link was found in the text,
+  // or the link couldn't be resolved to a real location.
+  lat: number | null;
+  lng: number | null;
 }
