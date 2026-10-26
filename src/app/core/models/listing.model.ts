@@ -342,3 +342,40 @@ export interface ViabilityAnalysis {
   trafficCongestionRoadName: string | null;
   trafficDataUnavailable: boolean;
 }
+
+// Best-effort extraction from a pasted classified-ad text (/listings/new's "paste and
+// autofill"), used to patchValue() the form — every field nullable/absent by design, since this
+// is a draft the owner must still review, not a validated listing. See ListingDraftParsingService
+// on the backend for what makes a field confident enough to fill vs. left out.
+export interface ListingDraft {
+  title: string | null;
+  listingType: ListingType | null;
+  propertyType: PropertyType | null;
+  price: number | null;
+  currency: Currency | null;
+  colonia: string | null;
+  city: string | null;
+  state: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  areaSqm: number | null;
+  lotSizeSqm: number | null;
+  parkingSpaces: number | null;
+  floors: number | null;
+  yearBuilt: number | null;
+  constructionCondition: ConstructionConditionType | null;
+  hasPool: boolean | null;
+  hasRoofGarden: boolean | null;
+  hasTerrace: boolean | null;
+  hasLaundryArea: boolean | null;
+  hasCistern: boolean | null;
+  hasNaturalGas: boolean | null;
+  hasLpGas: boolean | null;
+  hasSecurity: boolean | null;
+  hasElevator: boolean | null;
+  hasGym: boolean | null;
+  hasBbqArea: boolean | null;
+  hasServiceRoom: boolean | null;
+  hasStorageRoom: boolean | null;
+  hasPropertyTaxDebt: boolean | null;
+}

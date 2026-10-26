@@ -192,6 +192,12 @@ export class ListingFormComponent {
   // an infinite loop between the two subscriptions.
   private syncingPricePerSqm = false;
 
+  // "Paste a classified ad, autofill the form" — also outside `form`, same reasoning as
+  // pricePerSqmControl above: this is scratch input for autofillFromDraft() below, never
+  // submitted itself.
+  readonly draftText = new FormControl<string>('', { nonNullable: true });
+  readonly parsingDraft = signal(false);
+
   // Admin-only section (ListingsController.UpdateOwnerContact) for swapping the listing-detail
   // contact card from the agent who posted it to the real property owner's own free-text info —
   // only an Admin ever sees this, and only once editing an existing listing (there's nothing to
@@ -353,6 +359,62 @@ export class ListingFormComponent {
     // wrong area and leaving pricePerSqmControl at null for a freshly opened land listing.
     const propertyType = this.form.controls.propertyType.value;
     return isPureLandPropertyType(propertyType) ? this.form.controls.lotSizeSqm.value : this.form.controls.areaSqm.value;
+  }
+
+  // "Pegar un anuncio y autocompletar" — meant to be used FIRST, before manually filling
+  // anything else (see the hint text in the template): every matched field is overwritten
+  // unconditionally, since on a blank /listings/new form there's no real data to lose yet.
+  // ListingDraftParsingService (backend) only returns a field when the source text stated it
+  // explicitly or it's a direct unit conversion, never a guess, so anything it leaves out here
+  // is left exactly as the form already had it. description is set straight from the pasted
+  // text itself (never sent through the AI) so the owner's own wording is never altered.
+  autofillFromDraft(): void {
+    const text = this.draftText.value.trim();
+    if (!text) return;
+
+    this.form.controls.description.setValue(text);
+    this.parsingDraft.set(true);
+
+    this.listingService
+      .parseDraft(text)
+      .pipe(finalize(() => this.parsingDraft.set(false)))
+      .subscribe({
+        next: (draft) => {
+          if (draft.title) this.form.controls.title.setValue(draft.title);
+          if (draft.listingType) this.form.controls.type.setValue(draft.listingType);
+          if (draft.propertyType) this.form.controls.propertyType.setValue(draft.propertyType);
+          if (draft.price != null) this.form.controls.price.setValue(draft.price);
+          if (draft.currency) this.form.controls.currency.setValue(draft.currency);
+          if (draft.colonia) this.form.controls.colonia.setValue(draft.colonia);
+          if (draft.city) this.form.controls.city.setValue(draft.city);
+          if (draft.state) this.form.controls.state.setValue(draft.state);
+          if (draft.bedrooms != null) this.form.controls.bedrooms.setValue(draft.bedrooms);
+          if (draft.bathrooms != null) this.form.controls.bathrooms.setValue(draft.bathrooms);
+          if (draft.areaSqm != null) this.form.controls.areaSqm.setValue(draft.areaSqm);
+          if (draft.lotSizeSqm != null) this.form.controls.lotSizeSqm.setValue(draft.lotSizeSqm);
+          if (draft.parkingSpaces != null) this.form.controls.parkingSpaces.setValue(draft.parkingSpaces);
+          if (draft.floors != null) this.form.controls.floors.setValue(draft.floors);
+          if (draft.yearBuilt != null) this.form.controls.yearBuilt.setValue(draft.yearBuilt);
+          if (draft.constructionCondition) this.form.controls.constructionCondition.setValue(draft.constructionCondition);
+          if (draft.hasPool != null) this.form.controls.hasPool.setValue(draft.hasPool);
+          if (draft.hasRoofGarden != null) this.form.controls.hasRoofGarden.setValue(draft.hasRoofGarden);
+          if (draft.hasTerrace != null) this.form.controls.hasTerrace.setValue(draft.hasTerrace);
+          if (draft.hasLaundryArea != null) this.form.controls.hasLaundryArea.setValue(draft.hasLaundryArea);
+          if (draft.hasCistern != null) this.form.controls.hasCistern.setValue(draft.hasCistern);
+          if (draft.hasNaturalGas != null) this.form.controls.hasNaturalGas.setValue(draft.hasNaturalGas);
+          if (draft.hasLpGas != null) this.form.controls.hasLpGas.setValue(draft.hasLpGas);
+          if (draft.hasSecurity != null) this.form.controls.hasSecurity.setValue(draft.hasSecurity);
+          if (draft.hasElevator != null) this.form.controls.hasElevator.setValue(draft.hasElevator);
+          if (draft.hasGym != null) this.form.controls.hasGym.setValue(draft.hasGym);
+          if (draft.hasBbqArea != null) this.form.controls.hasBbqArea.setValue(draft.hasBbqArea);
+          if (draft.hasServiceRoom != null) this.form.controls.hasServiceRoom.setValue(draft.hasServiceRoom);
+          if (draft.hasStorageRoom != null) this.form.controls.hasStorageRoom.setValue(draft.hasStorageRoom);
+          if (draft.hasPropertyTaxDebt != null) this.form.controls.hasPropertyTaxDebt.setValue(draft.hasPropertyTaxDebt);
+          this.syncPricePerSqmFromPrice();
+          this.notification.success('listingForm.pasteAdSuccess');
+        },
+        error: () => this.notification.error('listingForm.pasteAdError')
+      });
   }
 
   // Only overwrites a field that's still at its untouched default — if reverse geocoding takes

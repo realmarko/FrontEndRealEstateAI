@@ -12,6 +12,31 @@
   color: #6b7280;
 }
 
+.draft-paste-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  border: 1px dashed #c6a15b;
+  border-radius: 8px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.draft-paste-panel textarea {
+  font-family: inherit;
+}
+
+.draft-paste-panel button {
+  align-self: flex-start;
+}
+
+.draft-paste-hint {
+  margin: 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
 form {
   display: flex;
   flex-direction: column;

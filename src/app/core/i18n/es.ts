@@ -381,6 +381,13 @@ export const es: Record<string, string> = {
 
   'listingForm.addTitle': 'Agregar una nueva propiedad',
   'listingForm.editTitle': 'Editar propiedad',
+  'listingForm.pasteAdTitle': '¿Ya tienes un anuncio escrito?',
+  'listingForm.pasteAdHint': 'Pégalo aquí antes de llenar el formulario a mano — lo usamos para precargar los campos que podamos reconocer. Siempre revisa y corrige lo que haga falta antes de publicar.',
+  'listingForm.pasteAdPlaceholder': 'Pega aquí el texto de tu anuncio (WhatsApp, Facebook, etc.)...',
+  'listingForm.pasteAdButton': 'Autocompletar con IA',
+  'listingForm.pasteAdLoading': 'Leyendo el anuncio...',
+  'listingForm.pasteAdSuccess': 'Formulario precargado — revisa los campos antes de publicar.',
+  'listingForm.pasteAdError': 'No pudimos autocompletar el formulario. Puedes llenarlo manualmente.',
   'listingForm.titleLabel': 'Título',
   'listingForm.description': 'Descripción',
   'listingForm.price': 'Precio',

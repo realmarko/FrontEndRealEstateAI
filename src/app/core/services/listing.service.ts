@@ -3,10 +3,11 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CmaResult, Listing, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType, ViabilityAnalysis } from '../models/listing.model';
+import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType, ViabilityAnalysis } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
+  ListingDraftDto,
   ListingDto,
   ListingPriceHistoryDto,
   ListingQuotaDto,
@@ -14,6 +15,7 @@ import {
   ViabilityAnalysisDto,
   cmaResultFromDto,
   fromDto,
+  listingDraftFromDto,
   priceHistoryFromDto,
   toFormData,
   viabilityAnalysisFromDto
@@ -114,6 +116,13 @@ export class ListingService {
   // the listing's own property type is eligible before calling this (404s otherwise).
   getViabilityPreview(id: string): Observable<ViabilityAnalysis> {
     return this.http.get<ViabilityAnalysisDto>(`${this.apiUrl}/${id}/viability-preview`).pipe(map(viabilityAnalysisFromDto));
+  }
+
+  // Best-effort autofill for /listings/new: sends a pasted classified-ad text, gets back the
+  // structured fields the backend's AI parsing could confidently extract. Never creates or
+  // touches a listing — the caller patches its own form with the result.
+  parseDraft(text: string): Observable<ListingDraft> {
+    return this.http.post<ListingDraftDto>(`${this.apiUrl}/parse-draft`, { text }).pipe(map(listingDraftFromDto));
   }
 
   // The gated half: captures the lead's name/email (no login required — a lead magnet has to

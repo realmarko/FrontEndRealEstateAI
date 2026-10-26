@@ -3,7 +3,9 @@ import {
   CmaResult,
   CmaStats,
   ConstructionConditionType,
+  Currency,
   Listing,
+  ListingDraft,
   ListingInput,
   ListingType,
   LandTenureType,
@@ -353,6 +355,77 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
     trafficCongestionLevel: dto.trafficCongestionLevel,
     trafficCongestionRoadName: dto.trafficCongestionRoadName,
     trafficDataUnavailable: dto.trafficDataUnavailable
+  };
+}
+
+// Matches ListingDraftParseResultDto on the backend exactly — string fields hold the enum's
+// .ToString() name (e.g. "House", "Sale"), same convention as ListingDto's own ListingType/
+// PropertyType, so listingDraftFromDto below reuses the very same *_FROM_STRING maps.
+export interface ListingDraftDto {
+  title: string | null;
+  listingType: string | null;
+  propertyType: string | null;
+  price: number | null;
+  currency: string | null;
+  colonia: string | null;
+  city: string | null;
+  state: string | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  areaSqm: number | null;
+  lotSizeSqm: number | null;
+  parkingSpaces: number | null;
+  floors: number | null;
+  yearBuilt: number | null;
+  constructionCondition: string | null;
+  hasPool: boolean | null;
+  hasRoofGarden: boolean | null;
+  hasTerrace: boolean | null;
+  hasLaundryArea: boolean | null;
+  hasCistern: boolean | null;
+  hasNaturalGas: boolean | null;
+  hasLpGas: boolean | null;
+  hasSecurity: boolean | null;
+  hasElevator: boolean | null;
+  hasGym: boolean | null;
+  hasBbqArea: boolean | null;
+  hasServiceRoom: boolean | null;
+  hasStorageRoom: boolean | null;
+  hasPropertyTaxDebt: boolean | null;
+}
+
+export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
+  return {
+    title: dto.title,
+    listingType: dto.listingType ? LISTING_TYPE_FROM_STRING[dto.listingType] ?? null : null,
+    propertyType: dto.propertyType ? PROPERTY_TYPE_FROM_STRING[dto.propertyType] ?? null : null,
+    price: dto.price,
+    currency: dto.currency === 'MXN' || dto.currency === 'USD' ? (dto.currency as Currency) : null,
+    colonia: dto.colonia,
+    city: dto.city,
+    state: dto.state,
+    bedrooms: dto.bedrooms,
+    bathrooms: dto.bathrooms,
+    areaSqm: dto.areaSqm,
+    lotSizeSqm: dto.lotSizeSqm,
+    parkingSpaces: dto.parkingSpaces,
+    floors: dto.floors,
+    yearBuilt: dto.yearBuilt,
+    constructionCondition: dto.constructionCondition ? CONSTRUCTION_CONDITION_FROM_STRING[dto.constructionCondition] ?? null : null,
+    hasPool: dto.hasPool,
+    hasRoofGarden: dto.hasRoofGarden,
+    hasTerrace: dto.hasTerrace,
+    hasLaundryArea: dto.hasLaundryArea,
+    hasCistern: dto.hasCistern,
+    hasNaturalGas: dto.hasNaturalGas,
+    hasLpGas: dto.hasLpGas,
+    hasSecurity: dto.hasSecurity,
+    hasElevator: dto.hasElevator,
+    hasGym: dto.hasGym,
+    hasBbqArea: dto.hasBbqArea,
+    hasServiceRoom: dto.hasServiceRoom,
+    hasStorageRoom: dto.hasStorageRoom,
+    hasPropertyTaxDebt: dto.hasPropertyTaxDebt
   };
 }
 

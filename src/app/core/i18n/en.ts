@@ -381,6 +381,13 @@ export const en: Record<string, string> = {
 
   'listingForm.addTitle': 'Add a new listing',
   'listingForm.editTitle': 'Edit listing',
+  'listingForm.pasteAdTitle': 'Already have an ad written?',
+  'listingForm.pasteAdHint': "Paste it here before filling out the form by hand — we'll use it to pre-fill the fields we can recognize. Always review and fix anything missing before publishing.",
+  'listingForm.pasteAdPlaceholder': 'Paste your ad text here (WhatsApp, Facebook, etc.)...',
+  'listingForm.pasteAdButton': 'Autofill with AI',
+  'listingForm.pasteAdLoading': 'Reading the ad...',
+  'listingForm.pasteAdSuccess': 'Form pre-filled — review the fields before publishing.',
+  'listingForm.pasteAdError': "We couldn't autofill the form. You can fill it in manually.",
   'listingForm.titleLabel': 'Title',
   'listingForm.description': 'Description',
   'listingForm.price': 'Price',

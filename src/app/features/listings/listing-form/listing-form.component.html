@@ -3,6 +3,15 @@
 
   @if (!isEditMode) {
     <app-listing-quota />
+
+    <div class="draft-paste-panel">
+      <label for="draft-paste-textarea" class="field-label">{{ 'listingForm.pasteAdTitle' | translate }}</label>
+      <p class="draft-paste-hint">{{ 'listingForm.pasteAdHint' | translate }}</p>
+      <textarea id="draft-paste-textarea" rows="6" [formControl]="draftText" [placeholder]="'listingForm.pasteAdPlaceholder' | translate"></textarea>
+      <button type="button" class="primary" [disabled]="!draftText.value.trim() || parsingDraft()" (click)="autofillFromDraft()">
+        {{ (parsingDraft() ? 'listingForm.pasteAdLoading' : 'listingForm.pasteAdButton') | translate }}
+      </button>
+    </div>
   }
 
   @if (showMainForm()) {
