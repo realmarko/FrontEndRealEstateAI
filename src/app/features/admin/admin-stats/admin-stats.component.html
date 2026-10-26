@@ -1,0 +1,43 @@
+<div class="page">
+  <h1>{{ 'adminStats.title' | translate }}</h1>
+  <p class="hint">{{ 'adminStats.hint' | translate }}</p>
+
+  <label class="weeks-select">
+    {{ 'adminStats.weeksBack' | translate }}
+    <select [value]="weeksBack()" (change)="setWeeksBack(+$any($event.target).value)">
+      @for (option of weeksOptions; track option) {
+        <option [value]="option">{{ option }}</option>
+      }
+    </select>
+  </label>
+
+  @if (loading()) {
+    <p class="loading">{{ 'adminStats.loading' | translate }}</p>
+  } @else if (weeks().length) {
+    @for (week of weeks(); track week.weekStart) {
+      <section class="week-block">
+        <h2 class="week-title">{{ 'adminStats.weekOf' | translate }} {{ week.weekStart | date: 'longDate' }}</h2>
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>{{ 'adminStats.page' | translate }}</th>
+              <th>{{ 'adminStats.views' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (page of week.pages; track page.pathPattern) {
+              <tr>
+                <td>
+                  {{ pageLabelKey(page.pathPattern) ? (pageLabelKey(page.pathPattern) | translate) : page.pathPattern }}
+                </td>
+                <td class="views-cell">{{ page.views }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </section>
+    }
+  } @else {
+    <p class="empty">{{ 'adminStats.empty' | translate }}</p>
+  }
+</div>

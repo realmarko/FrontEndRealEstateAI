@@ -252,6 +252,14 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'admin/estadisticas',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-stats/admin-stats.component').then(
+        (m) => m.AdminStatsComponent
+      )
+  },
+  {
     path: 'admin/inmobiliarias',
     canActivate: [authGuard, roleGuard('Admin')],
     loadComponent: () =>

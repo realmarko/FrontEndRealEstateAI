@@ -62,6 +62,7 @@ const clientOnlyPaths = [
   'saved-searches',
   'pipeline',
   'admin/errors',
+  'admin/estadisticas',
   'admin/fraccionamientos',
   'admin/inmobiliarias'
 ];

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet } from '@angular/router';
 import { NavbarComponent } from './shared/components/navbar/navbar.component';
 import { CompareBarComponent } from './shared/components/compare-bar/compare-bar.component';
+import { PageViewService } from './core/services/page-view.service';
 import { isBrowser } from './core/utils/platform';
 
 @Component({
@@ -26,6 +27,7 @@ export class App {
     if (!isBrowser()) return;
 
     const router = inject(Router);
+    const pageViewService = inject(PageViewService);
     router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.routeFading.set(true);
@@ -33,6 +35,19 @@ export class App {
         // Let the new route's DOM paint one frame before fading it in, so there's something to
         // fade in rather than catching the previous frame's content.
         requestAnimationFrame(() => this.routeFading.set(false));
+      }
+
+      // Sitewide page-view tracking — every completed navigation, not deduplicated (see
+      // PageViewService.record's own doc comment for why this differs from the per-listing/
+      // per-agent view counters). A separate `if`, not folded into the `else if` above: that one
+      // also covers NavigationCancel/NavigationError for the fade animation, but a cancelled or
+      // failed navigation never actually showed the visitor a page, so only NavigationEnd itself
+      // should count here.
+      if (event instanceof NavigationEnd) {
+        let route = router.routerState.snapshot.root;
+        while (route.firstChild) route = route.firstChild;
+        const pathPattern = route.routeConfig?.path ?? event.urlAfterRedirects;
+        pageViewService.record(pathPattern, event.urlAfterRedirects).subscribe({ error: () => {} });
       }
     });
   }
