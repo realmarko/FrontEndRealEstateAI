@@ -153,34 +153,31 @@
       @if (!streetViewActive()) {
       <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
-          <!-- Also hidden during opportunityMode, same reasoning as everything inside the
-               ng-container below: a click means something different to each of these tools, so
-               only the active one should be reachable at a time. -->
-          <button id="map-add-property-btn" type="button" class="add-property-btn" *ngIf="auth.isAuthenticated() && !opportunityMode" [class.active]="addMode" (click)="toggleAddMode()">
-            {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
-          </button>
-          <button
-            id="map-add-brokerage-btn"
-            type="button"
-            class="add-property-btn"
-            *ngIf="auth.currentUser()?.roles?.includes('Admin') && !opportunityMode"
-            [class.active]="addBrokerageMode"
-            (click)="toggleAddBrokerageMode()"
-          >
-            {{ (addBrokerageMode ? 'map.clickToPlace' : 'map.addBrokerage') | translate }}
-          </button>
-          <!-- Everything else in the toolbar competes for attention with placing/confirming a
-               pin, so it hides as soon as add-mode turns on (not just once a pin is placed) —
-               matching how the confirm card itself only appears once a pin is placed. -->
-          <ng-container *ngIf="!addMode && !addBrokerageMode">
-            <!-- Same "armed" banner treatment as the add-property/add-brokerage buttons above
-                 (same class, same orange active look) once a category is picked and the map is
-                 waiting for a click — and same reasoning as this block's own *ngIf below for
-                 hiding the other tools: they'd all interpret that click differently. -->
-            @if (opportunityMode) {
-              <span class="add-property-btn active">{{ 'map.clickToAnalyze' | translate }}</span>
-            }
-            <ng-container *ngIf="!opportunityMode">
+          <!-- Everything in here competes for attention with the opportunity tool, so it's
+               hidden while opportunityMode is on — a click means something different to each of
+               these. Hidden via CSS (.toolbar-hidden), not *ngIf/ng-container removal: removing
+               them outright shrank the toolbar row, which dragged the opportunity button itself
+               sideways to fill the gap the moment someone activated it — the one button they're
+               looking straight at mid-click. -->
+          <div class="toolbar-collapsible" [class.toolbar-hidden]="opportunityMode" [attr.aria-hidden]="opportunityMode">
+            <button id="map-add-property-btn" type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
+              {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
+            </button>
+            <button
+              id="map-add-brokerage-btn"
+              type="button"
+              class="add-property-btn"
+              *ngIf="auth.currentUser()?.roles?.includes('Admin')"
+              [class.active]="addBrokerageMode"
+              (click)="toggleAddBrokerageMode()"
+            >
+              {{ (addBrokerageMode ? 'map.clickToPlace' : 'map.addBrokerage') | translate }}
+            </button>
+            <!-- Unlike the two buttons above (which stay put and relabel themselves while their
+                 own mode is active), poi/freehand fully leave the DOM during addMode/
+                 addBrokerageMode — they'd conflict with placing a pin, and nothing sits after
+                 them inside this wrapper for their removal to shift out of place. -->
+            <ng-container *ngIf="!addMode && !addBrokerageMode">
               <div class="picker-anchor">
                 <button
                   id="map-poi-toggle-btn"
@@ -233,10 +230,12 @@
                   <path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" />
                 </svg>
               </button>
-              @if (freehandMode) {
-                <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
-              }
             </ng-container>
+          </div>
+          <!-- Everything else in the toolbar competes for attention with placing/confirming a
+               pin, so it hides as soon as add-mode turns on (not just once a pin is placed) —
+               matching how the confirm card itself only appears once a pin is placed. -->
+          <ng-container *ngIf="!addMode && !addBrokerageMode">
             <div class="picker-anchor">
               <button
                 id="map-opportunity-btn"
@@ -279,17 +278,36 @@
                 }
               }
             </div>
+            <!-- Same "armed" banner treatment as the add-property/add-brokerage buttons use
+                 (same class, same orange active look) once a category is picked and the map is
+                 waiting for a click. Placed AFTER the button rather than before it: an element
+                 inserted before .opportunity-btn in this flex row pushes the button itself
+                 sideways the moment it appears — see the .toolbar-hidden comment above for the
+                 matching reason the rest of the row stays reserved instead of disappearing. -->
+            @if (opportunityMode) {
+              <span class="add-property-btn active">{{ 'map.clickToAnalyze' | translate }}</span>
+            }
             @if (loadingOpportunity()) {
               <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
             }
-            <div class="map-legend" *ngIf="auth.isAuthenticated() && !opportunityMode">
-              <span class="dot mine"></span>{{ 'map.myListings' | translate }}
-              <span class="dot other"></span>{{ 'map.otherListings' | translate }}
-            </div>
           </ng-container>
+          <!-- Also kept AFTER .opportunity-btn's own ng-container above, same reasoning as the
+               clickToAnalyze banner right above it: this text only ever appears once freehandMode
+               is already on, at which point it's just another variable-width element that would
+               otherwise shove the opportunity button sideways if it sat anywhere before it. -->
+          @if (freehandMode && !opportunityMode) {
+            <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
+          }
         </div>
       </div>
       }
+      <!-- Its own corner, not the toolbar: a static legend doesn't compete with any tool for
+           attention the way the toolbar's buttons do, so it doesn't need to hide/reflow with
+           them — anchoring it separately keeps it out of that reflow entirely. -->
+      <div class="map-legend" *ngIf="!streetViewActive() && auth.isAuthenticated() && selectedLat === null && selectedLng === null && !opportunityMode">
+        <span class="dot mine"></span>{{ 'map.myListings' | translate }}
+        <span class="dot other"></span>{{ 'map.otherListings' | translate }}
+      </div>
       <div class="location-confirm-card" *ngIf="selectedLat !== null && selectedLng !== null">
         <div class="location-confirm-actions">
           <button id="map-location-cancel-btn" type="button" class="location-cancel-btn" (click)="cancelAddMode()">

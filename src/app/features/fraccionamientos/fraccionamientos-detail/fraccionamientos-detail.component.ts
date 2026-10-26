@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FraccionamientoService } from '../../../core/services/fraccionamiento.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
@@ -31,6 +31,7 @@ function parseAmenities(json: string | null): string[] {
 })
 export class FraccionamientosDetailComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly fraccionamientoService = inject(FraccionamientoService);
   private readonly notification = inject(NotificationService);
   private readonly translation = inject(TranslationService);
@@ -70,6 +71,12 @@ export class FraccionamientosDetailComponent {
 
   retry(): void {
     this.load();
+  }
+
+  viewOnMap(): void {
+    const frac = this.frac();
+    if (!frac) return;
+    this.router.navigate(['/map'], { queryParams: { lat: frac.latitude, lng: frac.longitude } });
   }
 
   openContactModal(): void {

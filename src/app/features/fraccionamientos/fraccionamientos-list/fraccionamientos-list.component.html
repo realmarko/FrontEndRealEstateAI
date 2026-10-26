@@ -4,6 +4,29 @@
     <p class="subtitle">{{ 'fraccionamientos.subtitle' | translate }}</p>
   </header>
 
+  @if (states().length) {
+    <div class="filters">
+      <label>
+        {{ 'fraccionamientos.filterState' | translate }}
+        <select [value]="stateFilter()" (change)="setStateFilter($any($event.target).value)">
+          <option value="">{{ 'fraccionamientos.filterAllStates' | translate }}</option>
+          @for (state of states(); track state) {
+            <option [value]="state">{{ state }}</option>
+          }
+        </select>
+      </label>
+      <label>
+        {{ 'fraccionamientos.filterCity' | translate }}
+        <select [value]="cityFilter()" (change)="setCityFilter($any($event.target).value)">
+          <option value="">{{ 'fraccionamientos.filterAllCities' | translate }}</option>
+          @for (city of cities(); track city) {
+            <option [value]="city">{{ city }}</option>
+          }
+        </select>
+      </label>
+    </div>
+  }
+
   <p class="sr-only" role="status">
     @if (loading()) {
       {{ 'fraccionamientos.loadingAnnouncement' | translate }}
@@ -13,25 +36,62 @@
   @if (items().length) {
     <div class="grid">
       @for (item of items(); track item.id) {
-        <a class="card" [routerLink]="['/fraccionamientos', item.id]">
-          <div class="photo">
-            @if (item.masterPlanImageUrl) {
-              <img [src]="item.masterPlanImageUrl" [alt]="item.name" />
-            } @else {
-              <div class="photo-fallback">{{ item.name.charAt(0) }}</div>
+        <div class="card">
+          <a class="card-link" [routerLink]="['/fraccionamientos', item.id]">
+            <div class="photo">
+              @if (item.masterPlanImageUrl) {
+                <img [src]="item.masterPlanImageUrl" [alt]="item.name" />
+              } @else {
+                <div class="photo-fallback">{{ item.name.charAt(0) }}</div>
+              }
+            </div>
+            <div class="body">
+              <h3 [attr.title]="item.name">{{ item.name }}</h3>
+              @if (item.developerName) {
+                <p class="developer" [attr.title]="item.developerName">{{ item.developerName }}</p>
+              }
+              <p class="location">{{ item.address || (item.city + ', ' + item.state) }}</p>
+              @if (item.stage) {
+                <span class="stage-badge">{{ item.stage }}</span>
+              }
+              @if (item.googleRating != null) {
+                <span class="rating-line">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M12 2l2.9 6.26 6.9.6-5.2 4.54 1.6 6.76L12 16.9l-6.2 3.26 1.6-6.76L2.2 8.86l6.9-.6z" />
+                  </svg>
+                  {{ item.googleRating }}
+                </span>
+              }
+              @if (item.description) {
+                <p class="description">{{ item.description }}</p>
+              }
+            </div>
+          </a>
+
+          <div class="card-footer">
+            @if (item.contactPhone) {
+              <a class="footer-link" [href]="'tel:' + item.contactPhone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </a>
             }
+            @if (item.websiteUrl) {
+              <a class="footer-link" [href]="item.websiteUrl" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+              </a>
+            }
+            <button type="button" class="view-on-map" (click)="viewOnMap(item)">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" />
+              </svg>
+              {{ 'fraccionamientos.viewOnMap' | translate }}
+            </button>
           </div>
-          <div class="body">
-            <h3 [attr.title]="item.name">{{ item.name }}</h3>
-            @if (item.developerName) {
-              <p class="developer" [attr.title]="item.developerName">{{ item.developerName }}</p>
-            }
-            <p class="location">{{ item.city }}, {{ item.state }}</p>
-            @if (item.stage) {
-              <span class="stage-badge">{{ item.stage }}</span>
-            }
-          </div>
-        </a>
+        </div>
       }
     </div>
 
@@ -56,7 +116,7 @@
     </app-state-panel>
   } @else {
     <app-state-panel kind="empty">
-      {{ 'fraccionamientos.empty' | translate }}
+      {{ (stateFilter() || cityFilter() ? 'fraccionamientos.emptyFiltered' : 'fraccionamientos.empty') | translate }}
     </app-state-panel>
   }
 </div>

@@ -6,6 +6,7 @@ import {
   CreateFraccionamientoInput,
   CreateFraccionamientoResult,
   FraccionamientoDetail,
+  FraccionamientoLocation,
   FraccionamientoPublicDetail,
   FraccionamientoStatus,
   PagedFraccionamientos,
@@ -52,12 +53,20 @@ export class FraccionamientoService {
     return this.http.patch<void>(`${this.apiUrl}/${id}/merge`, { targetFraccionamientoId });
   }
 
-  listPublished(options: { page?: number; pageSize?: number } = {}): Observable<PagedFraccionamientosPublic> {
+  listPublished(
+    options: { state?: string; city?: string; page?: number; pageSize?: number } = {}
+  ): Observable<PagedFraccionamientosPublic> {
     let params = new HttpParams();
+    if (options.state) params = params.set('state', options.state);
+    if (options.city) params = params.set('city', options.city);
     if (options.page) params = params.set('page', String(options.page));
     if (options.pageSize) params = params.set('pageSize', String(options.pageSize));
 
     return this.http.get<PagedFraccionamientosPublic>(`${this.apiUrl}/published`, { params });
+  }
+
+  getPublishedLocations(): Observable<FraccionamientoLocation[]> {
+    return this.http.get<FraccionamientoLocation[]>(`${this.apiUrl}/published/locations`);
   }
 
   getPublishedDetail(id: string): Observable<FraccionamientoPublicDetail> {

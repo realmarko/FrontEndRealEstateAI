@@ -22,20 +22,41 @@
         @if (frac.developerName) {
           <p class="developer">{{ 'fraccionamientoDetail.by' | translate }} {{ frac.developerName }}</p>
         }
-        <p class="location">{{ frac.city }}, {{ frac.state }}</p>
+        <p class="location">{{ frac.address || (frac.city + ', ' + frac.state) }}</p>
         @if (frac.stage) {
           <span class="stage-badge">{{ frac.stage }}</span>
         }
-
-        @if (frac.contactEmail) {
-          <button type="button" class="contact-button" (click)="openContactModal()">
-            {{ 'fraccionamientoDetail.contactDeveloper' | translate }}
-          </button>
-        } @else if (frac.contactPhone) {
-          <a class="contact-button" [href]="'tel:' + frac.contactPhone">
-            {{ 'fraccionamientoDetail.callDeveloper' | translate }}
-          </a>
+        @if (frac.googleRating != null) {
+          <span class="rating-line">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M12 2l2.9 6.26 6.9.6-5.2 4.54 1.6 6.76L12 16.9l-6.2 3.26 1.6-6.76L2.2 8.86l6.9-.6z" />
+            </svg>
+            {{ frac.googleRating }}
+          </span>
         }
+
+        <div class="hero-actions">
+          @if (frac.contactEmail) {
+            <button type="button" class="contact-button" (click)="openContactModal()">
+              {{ 'fraccionamientoDetail.contactDeveloper' | translate }}
+            </button>
+          } @else if (frac.contactPhone) {
+            <a class="contact-button" [href]="'tel:' + frac.contactPhone">
+              {{ 'fraccionamientoDetail.callDeveloper' | translate }}
+            </a>
+          }
+          @if (frac.websiteUrl) {
+            <a class="website-button" [href]="frac.websiteUrl" target="_blank" rel="noopener">
+              {{ 'fraccionamientoDetail.visitWebsite' | translate }}
+            </a>
+          }
+          <button type="button" class="view-on-map" (click)="viewOnMap()">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            {{ 'fraccionamientoDetail.viewOnMap' | translate }}
+          </button>
+        </div>
       </div>
     </div>
 

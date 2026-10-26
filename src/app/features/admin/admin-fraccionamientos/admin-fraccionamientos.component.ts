@@ -46,6 +46,9 @@ interface ApproveFormValue {
   description: string;
   amenitiesText: string;
   masterPlanImageUrl: string;
+  address: string;
+  googleRating: string;
+  websiteUrl: string;
   contactPhone: string;
   contactEmail: string;
 }
@@ -60,6 +63,9 @@ function emptyForm(): ApproveFormValue {
     description: '',
     amenitiesText: '',
     masterPlanImageUrl: '',
+    address: '',
+    googleRating: '',
+    websiteUrl: '',
     contactPhone: '',
     contactEmail: ''
   };
@@ -93,6 +99,9 @@ function detailToForm(detail: FraccionamientoDetail): ApproveFormValue {
     description: detail.description ?? '',
     amenitiesText: amenitiesToText(detail.amenitiesJson),
     masterPlanImageUrl: detail.masterPlanImageUrl ?? '',
+    address: detail.address ?? '',
+    googleRating: detail.googleRating != null ? String(detail.googleRating) : '',
+    websiteUrl: detail.websiteUrl ?? '',
     contactPhone: detail.contactPhone ?? '',
     contactEmail: detail.contactEmail ?? ''
   };
@@ -108,6 +117,9 @@ function formToApproveInput(form: ApproveFormValue): ApproveFraccionamientoInput
     description: form.description.trim() || null,
     amenitiesJson: textToAmenities(form.amenitiesText),
     masterPlanImageUrl: form.masterPlanImageUrl.trim() || null,
+    address: form.address.trim() || null,
+    googleRating: form.googleRating.trim() ? Number(form.googleRating) : null,
+    websiteUrl: form.websiteUrl.trim() || null,
     contactPhone: form.contactPhone.trim() || null,
     contactEmail: form.contactEmail.trim() || null
   };

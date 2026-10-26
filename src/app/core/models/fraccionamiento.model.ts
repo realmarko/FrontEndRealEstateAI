@@ -47,6 +47,9 @@ export interface FraccionamientoDetail {
   description: string | null;
   amenitiesJson: string | null;
   masterPlanImageUrl: string | null;
+  address: string | null;
+  googleRating: number | null;
+  websiteUrl: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
   firstDetectedAt: string;
@@ -87,6 +90,9 @@ export interface ApproveFraccionamientoInput {
   description: string | null;
   amenitiesJson: string | null;
   masterPlanImageUrl: string | null;
+  address: string | null;
+  googleRating: number | null;
+  websiteUrl: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
 }
@@ -105,6 +111,16 @@ export interface FraccionamientoPublicListItem {
   publishedAt: string | null;
   latitude: number;
   longitude: number;
+  address: string | null;
+  googleRating: number | null;
+  websiteUrl: string | null;
+  contactPhone: string | null;
+  description: string | null;
+}
+
+export interface FraccionamientoLocation {
+  state: string;
+  city: string;
 }
 
 export interface PagedFraccionamientosPublic {
@@ -126,6 +142,9 @@ export interface FraccionamientoPublicDetail {
   description: string | null;
   amenitiesJson: string | null;
   masterPlanImageUrl: string | null;
+  address: string | null;
+  googleRating: number | null;
+  websiteUrl: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
   publishedAt: string | null;

@@ -142,6 +142,18 @@
                         <input type="url" [value]="form().masterPlanImageUrl" (input)="updateForm('masterPlanImageUrl', $any($event.target).value)" />
                       </label>
                       <label>
+                        {{ 'adminFraccionamientos.formAddress' | translate }}
+                        <input type="text" [value]="form().address" (input)="updateForm('address', $any($event.target).value)" />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formGoogleRating' | translate }}
+                        <input type="number" min="0" max="5" step="0.1" [value]="form().googleRating" (input)="updateForm('googleRating', $any($event.target).value)" />
+                      </label>
+                      <label>
+                        {{ 'adminFraccionamientos.formWebsiteUrl' | translate }}
+                        <input type="url" [value]="form().websiteUrl" (input)="updateForm('websiteUrl', $any($event.target).value)" />
+                      </label>
+                      <label>
                         {{ 'adminFraccionamientos.formContactPhone' | translate }}
                         <input type="tel" [value]="form().contactPhone" (input)="updateForm('contactPhone', $any($event.target).value)" />
                       </label>

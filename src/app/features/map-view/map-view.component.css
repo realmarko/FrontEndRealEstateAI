@@ -175,7 +175,27 @@
   flex-wrap: wrap;
 }
 
+/* A flex child itself, matching .map-toolbar's own layout so its buttons line up exactly as if
+   they were direct children of it. */
+.toolbar-collapsible {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Keeps the hidden group's footprint in the flex row (unlike display:none/*ngIf removal) so
+   .opportunity-btn doesn't get dragged sideways when this group disappears — see the comment
+   above .toolbar-collapsible's usage in the template. */
+.toolbar-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .map-legend {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  z-index: 2;
   display: flex;
   align-items: center;
   gap: 0.4rem;
