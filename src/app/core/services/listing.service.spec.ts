@@ -50,6 +50,7 @@ describe('ListingService', () => {
     hasNaturalGas: null,
     hasLpGas: null,
     hasCistern: null,
+    cisternCapacityLiters: null,
     hasWell: null,
     hasKitchen: null,
     hasLivingRoom: null,

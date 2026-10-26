@@ -170,6 +170,7 @@ export interface ListingDto {
   hasNaturalGas: boolean | null;
   hasLpGas: boolean | null;
   hasCistern: boolean | null;
+  cisternCapacityLiters: number | null;
   hasWell: boolean | null;
   hasKitchen: boolean | null;
   hasLivingRoom: boolean | null;
@@ -383,6 +384,7 @@ export interface ListingDraftDto {
   hasTerrace: boolean | null;
   hasLaundryArea: boolean | null;
   hasCistern: boolean | null;
+  cisternCapacityLiters: number | null;
   hasNaturalGas: boolean | null;
   hasLpGas: boolean | null;
   hasSecurity: boolean | null;
@@ -420,6 +422,7 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
     hasTerrace: dto.hasTerrace,
     hasLaundryArea: dto.hasLaundryArea,
     hasCistern: dto.hasCistern,
+    cisternCapacityLiters: dto.cisternCapacityLiters,
     hasNaturalGas: dto.hasNaturalGas,
     hasLpGas: dto.hasLpGas,
     hasSecurity: dto.hasSecurity,
@@ -486,6 +489,7 @@ export function fromDto(dto: ListingDto): Listing {
     hasNaturalGas: dto.hasNaturalGas ?? undefined,
     hasLpGas: dto.hasLpGas ?? undefined,
     hasCistern: dto.hasCistern ?? undefined,
+    cisternCapacityLiters: dto.cisternCapacityLiters ?? undefined,
     hasWell: dto.hasWell ?? undefined,
     hasKitchen: dto.hasKitchen ?? undefined,
     hasLivingRoom: dto.hasLivingRoom ?? undefined,
@@ -586,6 +590,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   if (input.hasNaturalGas != null) form.append('hasNaturalGas', String(input.hasNaturalGas));
   if (input.hasLpGas != null) form.append('hasLpGas', String(input.hasLpGas));
   if (input.hasCistern != null) form.append('hasCistern', String(input.hasCistern));
+  if (input.cisternCapacityLiters != null) form.append('cisternCapacityLiters', String(input.cisternCapacityLiters));
   if (input.hasWell != null) form.append('hasWell', String(input.hasWell));
   if (input.hasKitchen != null) form.append('hasKitchen', String(input.hasKitchen));
   if (input.hasLivingRoom != null) form.append('hasLivingRoom', String(input.hasLivingRoom));

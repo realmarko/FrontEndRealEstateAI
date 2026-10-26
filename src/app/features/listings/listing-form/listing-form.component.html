@@ -298,6 +298,14 @@
       }
     </div>
 
+    @if (form.value.hasCistern) {
+      <label>
+        {{ 'listingForm.cisternCapacityLiters' | translate }}
+        <input type="number" id="cisternCapacityLiters" formControlName="cisternCapacityLiters" name="cisternCapacityLiters" min="0" />
+        <app-form-error [control]="form.controls.cisternCapacityLiters" />
+      </label>
+    }
+
     @if (!isLandOrCommercial() || (isShoppingPlaza() && form.value.hasApartmentUnit)) {
       <div class="grid-2">
         <label>

@@ -139,6 +139,10 @@ export class ListingFormComponent {
     hasNaturalGas: this.fb.control<boolean | null>(null),
     hasLpGas: this.fb.control<boolean | null>(null),
     hasCistern: this.fb.control<boolean | null>(null),
+    // Only shown/relevant once hasCistern is checked (see the template) — not reset to null when
+    // hidden, same reasoning as every other conditionally-shown field here: the owner's already-
+    // entered value survives toggling the checkbox off and back on.
+    cisternCapacityLiters: this.fb.control<number | null>(null, Validators.min(0)),
     // Hidden/disabled for apartments (see isWellAvailable()) — not reset to null when hidden,
     // same reasoning as the isLandOrCommercial()-gated fields above: switching away and back
     // shouldn't lose what the visitor already entered.
@@ -430,6 +434,7 @@ export class ListingFormComponent {
           if (draft.hasTerrace != null) this.form.controls.hasTerrace.setValue(draft.hasTerrace);
           if (draft.hasLaundryArea != null) this.form.controls.hasLaundryArea.setValue(draft.hasLaundryArea);
           if (draft.hasCistern != null) this.form.controls.hasCistern.setValue(draft.hasCistern);
+          if (draft.cisternCapacityLiters != null) this.form.controls.cisternCapacityLiters.setValue(draft.cisternCapacityLiters);
           if (draft.hasNaturalGas != null) this.form.controls.hasNaturalGas.setValue(draft.hasNaturalGas);
           if (draft.hasLpGas != null) this.form.controls.hasLpGas.setValue(draft.hasLpGas);
           if (draft.hasSecurity != null) this.form.controls.hasSecurity.setValue(draft.hasSecurity);
@@ -714,6 +719,10 @@ export class ListingFormComponent {
       hasNaturalGas: raw.hasNaturalGas ?? undefined,
       hasLpGas: raw.hasLpGas ?? undefined,
       hasCistern: raw.hasCistern ?? undefined,
+      // Only submitted while hasCistern is actually checked — the control itself isn't cleared
+      // when the field hides (see its own comment), so this stops a stale value typed before
+      // unchecking the box from silently surviving into the saved listing.
+      cisternCapacityLiters: raw.hasCistern ? (raw.cisternCapacityLiters ?? undefined) : undefined,
       hasWell: wellAvailable ? (raw.hasWell ?? undefined) : undefined,
       hasKitchen: houseOrApartment ? (raw.hasKitchen ?? undefined) : undefined,
       hasLivingRoom: houseOrApartment ? (raw.hasLivingRoom ?? undefined) : undefined,

@@ -522,6 +522,7 @@ export const es: Record<string, string> = {
   'listingForm.hasNaturalGas': 'Gas natural',
   'listingForm.hasLpGas': 'Gas estacionario (tanque)',
   'listingForm.hasCistern': 'Cisterna',
+  'listingForm.cisternCapacityLiters': 'Capacidad de la cisterna (litros, opcional)',
   'listingForm.hasWell': 'Pozo',
   'listingForm.isFloodRiskZone': 'Zona de riesgo de inundación',
   'listingForm.photos': 'Subir fotos',

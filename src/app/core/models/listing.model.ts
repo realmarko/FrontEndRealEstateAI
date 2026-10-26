@@ -153,6 +153,7 @@ export interface Listing {
   hasNaturalGas?: boolean;
   hasLpGas?: boolean;
   hasCistern?: boolean;
+  cisternCapacityLiters?: number;
   hasWell?: boolean;
   hasKitchen?: boolean;
   hasLivingRoom?: boolean;
@@ -369,6 +370,7 @@ export interface ListingDraft {
   hasTerrace: boolean | null;
   hasLaundryArea: boolean | null;
   hasCistern: boolean | null;
+  cisternCapacityLiters: number | null;
   hasNaturalGas: boolean | null;
   hasLpGas: boolean | null;
   hasSecurity: boolean | null;
