@@ -42,6 +42,19 @@ const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PHOTOS_PER_LISTING = 20;
 
+// Cheap client-side gate before autofillFromDraft() ever calls the (paid, per-request) AI
+// parsing endpoint — a pasted text with neither an area nor a price in it almost certainly isn't
+// a real listing ad, so there's nothing useful for the model to extract and the request is
+// skipped entirely rather than spending a call to confirm that. Deliberately loose: a false
+// negative here (blocking a real ad) is worse than a false positive (letting a borderline text
+// through, which the backend's own prompt already handles safely for free) — so this only needs
+// ONE of area/price to match to let the request proceed.
+// "\d\s*m\b" needs a word boundary right after the "m" so "3 meses"/"5 pm" don't match (the next
+// letter keeps "m" from being a word boundary), while "72.50m" and "112 metros" do (space/EOL
+// right after "m").
+const DRAFT_AREA_HINT_PATTERN = /\d\s*m\b|\d\s*m²|\d\s*m2\b|metros\s*cuadrados?/i;
+const DRAFT_PRICE_HINT_PATTERN = /\$\s*\d|\d\s*(mxn|usd|pesos|d[oó]lares)\b|precio|valor\s*(de\s*)?(venta|renta)/i;
+
 // Blank/whitespace-only counts as "not entered" (matches the trim-and-clear treatment at
 // submit time) rather than a pattern mismatch — only an actually-typed value gets validated.
 function optionalUrlValidator(control: AbstractControl): ValidationErrors | null {
@@ -371,6 +384,14 @@ export class ListingFormComponent {
   autofillFromDraft(): void {
     const text = this.draftText.value.trim();
     if (!text) return;
+
+    // Stops here — never reaches listingService.parseDraft() — when the text has neither an
+    // area nor a price hint in it (see DRAFT_AREA_HINT_PATTERN/DRAFT_PRICE_HINT_PATTERN above),
+    // so a clearly-not-an-ad paste doesn't spend an AI call just to come back empty.
+    if (!DRAFT_AREA_HINT_PATTERN.test(text) && !DRAFT_PRICE_HINT_PATTERN.test(text)) {
+      this.notification.error('listingForm.pasteAdMissingKeyInfo');
+      return;
+    }
 
     this.form.controls.description.setValue(text);
     this.parsingDraft.set(true);

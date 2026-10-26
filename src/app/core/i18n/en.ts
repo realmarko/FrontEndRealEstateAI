@@ -388,6 +388,7 @@ export const en: Record<string, string> = {
   'listingForm.pasteAdLoading': 'Reading the ad...',
   'listingForm.pasteAdSuccess': 'Form pre-filled — review the fields before publishing.',
   'listingForm.pasteAdError': "We couldn't autofill the form. You can fill it in manually.",
+  'listingForm.pasteAdMissingKeyInfo': "That text doesn't seem to include an area or a price — add them to the ad, or fill out the form manually.",
   'listingForm.titleLabel': 'Title',
   'listingForm.description': 'Description',
   'listingForm.price': 'Price',

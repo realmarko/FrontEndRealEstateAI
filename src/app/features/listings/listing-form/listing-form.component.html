@@ -7,7 +7,7 @@
     <div class="draft-paste-panel">
       <label for="draft-paste-textarea" class="field-label">{{ 'listingForm.pasteAdTitle' | translate }}</label>
       <p class="draft-paste-hint">{{ 'listingForm.pasteAdHint' | translate }}</p>
-      <textarea id="draft-paste-textarea" rows="6" [formControl]="draftText" [placeholder]="'listingForm.pasteAdPlaceholder' | translate"></textarea>
+      <textarea id="draft-paste-textarea" name="draftText" rows="6" maxlength="8000" [formControl]="draftText" [placeholder]="'listingForm.pasteAdPlaceholder' | translate"></textarea>
       <button type="button" class="primary" [disabled]="!draftText.value.trim() || parsingDraft()" (click)="autofillFromDraft()">
         {{ (parsingDraft() ? 'listingForm.pasteAdLoading' : 'listingForm.pasteAdButton') | translate }}
       </button>
@@ -18,26 +18,26 @@
   <form [formGroup]="form" (ngSubmit)="submit()">
     <label>
       {{ 'listingForm.titleLabel' | translate }}
-      <input type="text" formControlName="title" maxlength="200" />
+      <input type="text" id="title" formControlName="title" name="title" maxlength="200" />
       <app-form-error [control]="form.controls.title" />
     </label>
 
     <label>
       {{ 'listingForm.description' | translate }}
-      <textarea rows="4" formControlName="description" maxlength="5000"></textarea>
+      <textarea id="description" rows="4" formControlName="description" name="description" maxlength="5000"></textarea>
       <app-form-error [control]="form.controls.description" />
     </label>
 
     <div class="grid-3">
       <label>
         {{ 'listingForm.price' | translate }}
-        <input type="text" inputmode="numeric" class="price-mask" formControlName="price" appCurrencyInput />
+        <input type="text" id="price" inputmode="numeric" class="price-mask" formControlName="price" name="price" appCurrencyInput />
         <app-form-error [control]="form.controls.price" />
       </label>
 
       <label>
         {{ 'listingForm.currency' | translate }}
-        <select formControlName="currency">
+        <select id="currency" formControlName="currency" name="currency">
           <option value="MXN">{{ 'listingForm.mxn' | translate }}</option>
           <option value="USD">{{ 'listingForm.usd' | translate }}</option>
         </select>
@@ -45,7 +45,7 @@
 
       <label>
         {{ 'listingForm.operation' | translate }}
-        <select formControlName="type">
+        <select id="type" formControlName="type" name="type">
           <option value="rent">{{ 'listingForm.forRent' | translate }}</option>
           <option value="sale">{{ 'listingForm.forSale' | translate }}</option>
         </select>
@@ -53,7 +53,7 @@
     </div>
 
     <label class="checkbox-label">
-      <input type="checkbox" formControlName="priceOnRequest" />
+      <input type="checkbox" id="priceOnRequest" formControlName="priceOnRequest" name="priceOnRequest" />
       {{ 'listingForm.priceOnRequest' | translate }}
     </label>
 
@@ -62,7 +62,7 @@
 
       <label>
         {{ 'listingForm.pricePerSqm' | translate }}
-        <input type="text" inputmode="numeric" class="price-mask" [formControl]="pricePerSqmControl" appCurrencyInput />
+        <input type="text" id="pricePerSqm" inputmode="numeric" class="price-mask" [formControl]="pricePerSqmControl" name="pricePerSqm" appCurrencyInput />
         <app-form-error [control]="pricePerSqmControl" />
       </label>
       <p class="price-per-sqm-hint">
@@ -79,7 +79,7 @@
 
     <label>
       {{ 'listingForm.propertyType' | translate }}
-      <select formControlName="propertyType">
+      <select id="propertyType" formControlName="propertyType" name="propertyType">
         @for (type of propertyTypeOptions; track type) {
           <option [value]="type">{{ ('listingForm.' + type) | translate }}</option>
         }
@@ -102,7 +102,7 @@
           <div class="grid-2">
             <label>
               {{ 'listingForm.landUseCategory' | translate }}
-              <select formControlName="landUseCategoryId">
+              <select id="landUseCategoryId" formControlName="landUseCategoryId" name="landUseCategoryId">
                 <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
                 @for (category of landUseCategories(); track category.id) {
                   <option [ngValue]="category.id">{{ category.name }}</option>
@@ -115,11 +115,11 @@
         <div class="grid-2">
           <label>
             {{ 'listingForm.landUseZoning' | translate }}
-            <input type="text" formControlName="landUseZoning" placeholder="H30-A" maxlength="50" />
+            <input type="text" id="landUseZoning" formControlName="landUseZoning" name="landUseZoning" placeholder="H30-A" maxlength="50" />
           </label>
           <label>
             {{ 'listingForm.landTenure' | translate }}
-            <select formControlName="landTenure">
+            <select id="landTenure" formControlName="landTenure" name="landTenure">
               <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
               <option value="privado">{{ 'listingForm.tenurePrivado' | translate }}</option>
               <option value="ejidal">{{ 'listingForm.tenureEjidal' | translate }}</option>
@@ -130,34 +130,36 @@
         </div>
 
         <div class="grid-3">
-          <label>{{ 'listingForm.cosCoefficient' | translate }}<input type="number" step="0.01" min="0" formControlName="cosCoefficient" /></label>
-          <label>{{ 'listingForm.cusCoefficient' | translate }}<input type="number" step="0.01" min="0" formControlName="cusCoefficient" /></label>
-          <label>{{ 'listingForm.maxHeightMeters' | translate }}<input type="number" step="0.1" min="0" formControlName="maxHeightMeters" /></label>
+          <label>{{ 'listingForm.cosCoefficient' | translate }}<input type="number" id="cosCoefficient" step="0.01" min="0" formControlName="cosCoefficient" name="cosCoefficient" /><app-form-error [control]="form.controls.cosCoefficient" /></label>
+          <label>{{ 'listingForm.cusCoefficient' | translate }}<input type="number" id="cusCoefficient" step="0.01" min="0" formControlName="cusCoefficient" name="cusCoefficient" /><app-form-error [control]="form.controls.cusCoefficient" /></label>
+          <label>{{ 'listingForm.maxHeightMeters' | translate }}<input type="number" id="maxHeightMeters" step="0.1" min="0" formControlName="maxHeightMeters" name="maxHeightMeters" /><app-form-error [control]="form.controls.maxHeightMeters" /></label>
         </div>
 
         <div class="grid-2">
-          <label>{{ 'listingForm.frontageWidthMeters' | translate }}<input type="number" step="0.01" min="0" formControlName="frontageWidthMeters" /></label>
-          <label>{{ 'listingForm.frontageDepthMeters' | translate }}<input type="number" step="0.01" min="0" formControlName="frontageDepthMeters" /></label>
+          <label>{{ 'listingForm.frontageWidthMeters' | translate }}<input type="number" id="frontageWidthMeters" step="0.01" min="0" formControlName="frontageWidthMeters" name="frontageWidthMeters" /><app-form-error [control]="form.controls.frontageWidthMeters" /></label>
+          <label>{{ 'listingForm.frontageDepthMeters' | translate }}<input type="number" id="frontageDepthMeters" step="0.01" min="0" formControlName="frontageDepthMeters" name="frontageDepthMeters" /><app-form-error [control]="form.controls.frontageDepthMeters" /></label>
         </div>
 
         @if (isShoppingPlaza()) {
           <div class="grid-2">
             <label>
               {{ 'listingForm.commercialUnitCount' | translate }}
-              <input type="number" min="0" formControlName="commercialUnitCount" />
+              <input type="number" id="commercialUnitCount" min="0" formControlName="commercialUnitCount" name="commercialUnitCount" />
+              <app-form-error [control]="form.controls.commercialUnitCount" />
             </label>
             <label class="checkbox-label">
-              <input type="checkbox" formControlName="hasApartmentUnit" />
+              <input type="checkbox" id="hasApartmentUnit" formControlName="hasApartmentUnit" name="hasApartmentUnit" />
               {{ 'listingForm.hasApartmentUnit' | translate }}
             </label>
           </div>
         }
 
         <div class="grid-2">
-          <label>{{ 'listingForm.cadastralValue' | translate }}<input type="text" inputmode="numeric" formControlName="cadastralValue" appCurrencyInput /></label>
+          <label>{{ 'listingForm.cadastralValue' | translate }}<input type="text" id="cadastralValue" inputmode="numeric" formControlName="cadastralValue" name="cadastralValue" appCurrencyInput /><app-form-error [control]="form.controls.cadastralValue" /></label>
           <label>
             {{ 'listingForm.streetFrontageCount' | translate }}
-            <input type="number" min="0" formControlName="streetFrontageCount" />
+            <input type="number" id="streetFrontageCount" min="0" formControlName="streetFrontageCount" name="streetFrontageCount" />
+            <app-form-error [control]="form.controls.streetFrontageCount" />
           </label>
         </div>
         @if ((form.value.streetFrontageCount ?? 0) >= 2) {
@@ -167,7 +169,7 @@
         <div class="grid-2">
           <label>
             {{ 'listingForm.primaryVialidadType' | translate }}
-            <select formControlName="primaryVialidadType">
+            <select id="primaryVialidadType" formControlName="primaryVialidadType" name="primaryVialidadType">
               <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
               <option value="avenidaPrincipal">{{ 'listingForm.vialidadAvenidaPrincipal' | translate }}</option>
               <option value="calleSecundaria">{{ 'listingForm.vialidadCalleSecundaria' | translate }}</option>
@@ -176,7 +178,7 @@
           </label>
           <label>
             {{ 'listingForm.lotShape' | translate }}
-            <select formControlName="lotShape">
+            <select id="lotShape" formControlName="lotShape" name="lotShape">
               <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
               <option value="regular">{{ 'listingForm.shapeRegular' | translate }}</option>
               <option value="irregular">{{ 'listingForm.shapeIrregular' | translate }}</option>
@@ -186,7 +188,7 @@
 
         <label>
           {{ 'listingForm.topography' | translate }}
-          <select formControlName="topography">
+          <select id="topography" formControlName="topography" name="topography">
             <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
             <option value="plana">{{ 'listingForm.topographyPlana' | translate }}</option>
             <option value="inclinada">{{ 'listingForm.topographyInclinada' | translate }}</option>
@@ -194,37 +196,37 @@
         </label>
 
         <div class="grid-2">
-          <label class="checkbox-label"><input type="checkbox" formControlName="isFreeOfLiens" />{{ 'listingForm.isFreeOfLiens' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasPropertyTaxDebt" />{{ 'listingForm.hasPropertyTaxDebt' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasWaterDebt" />{{ 'listingForm.hasWaterDebt' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasEjidalCertificate" />{{ 'listingForm.hasEjidalCertificate' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasPotableWater" />{{ 'listingForm.hasPotableWater' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasDrainage" />{{ 'listingForm.hasDrainage' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasElectricity" />{{ 'listingForm.hasElectricity' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasThreePhaseElectricity" />{{ 'listingForm.hasThreePhaseElectricity' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasTelecomService" />{{ 'listingForm.hasTelecomService' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasVehicleAccess" />{{ 'listingForm.hasVehicleAccess' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasNearbyUTurn" />{{ 'listingForm.hasNearbyUTurn' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="isFloodRiskZone" />{{ 'listingForm.isFloodRiskZone' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="isFreeOfLiens" formControlName="isFreeOfLiens" name="isFreeOfLiens" />{{ 'listingForm.isFreeOfLiens' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasPropertyTaxDebt" formControlName="hasPropertyTaxDebt" name="hasPropertyTaxDebt" />{{ 'listingForm.hasPropertyTaxDebt' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasWaterDebt" formControlName="hasWaterDebt" name="hasWaterDebt" />{{ 'listingForm.hasWaterDebt' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasEjidalCertificate" formControlName="hasEjidalCertificate" name="hasEjidalCertificate" />{{ 'listingForm.hasEjidalCertificate' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasPotableWaterLand" formControlName="hasPotableWater" name="hasPotableWaterLand" />{{ 'listingForm.hasPotableWater' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasDrainageLand" formControlName="hasDrainage" name="hasDrainageLand" />{{ 'listingForm.hasDrainage' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasElectricityLand" formControlName="hasElectricity" name="hasElectricityLand" />{{ 'listingForm.hasElectricity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasThreePhaseElectricity" formControlName="hasThreePhaseElectricity" name="hasThreePhaseElectricity" />{{ 'listingForm.hasThreePhaseElectricity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasTelecomService" formControlName="hasTelecomService" name="hasTelecomService" />{{ 'listingForm.hasTelecomService' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasVehicleAccess" formControlName="hasVehicleAccess" name="hasVehicleAccess" />{{ 'listingForm.hasVehicleAccess' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasNearbyUTurn" formControlName="hasNearbyUTurn" name="hasNearbyUTurn" />{{ 'listingForm.hasNearbyUTurn' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="isFloodRiskZone" formControlName="isFloodRiskZone" name="isFloodRiskZone" />{{ 'listingForm.isFloodRiskZone' | translate }}</label>
         </div>
       </div>
     }
 
     <label>
       {{ 'listingForm.street' | translate }}
-      <input type="text" formControlName="street" maxlength="300" />
+      <input type="text" id="street" formControlName="street" name="street" maxlength="300" />
       <app-form-error [control]="form.controls.street" />
     </label>
 
     <div class="grid-3">
       <label>
         {{ 'listingForm.colonia' | translate }}
-        <input type="text" formControlName="colonia" maxlength="150" />
+        <input type="text" id="colonia" formControlName="colonia" name="colonia" maxlength="150" />
       </label>
 
       <label>
         {{ 'listingForm.city' | translate }}
-        <input type="text" formControlName="city" list="listing-city-options" maxlength="100" />
+        <input type="text" id="city" formControlName="city" name="city" list="listing-city-options" maxlength="100" />
         <datalist id="listing-city-options">
           @for (city of citiesForState(); track city.cvegeo) {
             <option [value]="city.name"></option>
@@ -235,7 +237,7 @@
 
       <label>
         {{ 'listingForm.zipCode' | translate }}
-        <input type="text" inputmode="numeric" formControlName="zipCode" appZipInput maxlength="5" />
+        <input type="text" id="zipCode" inputmode="numeric" formControlName="zipCode" name="zipCode" appZipInput maxlength="5" />
         <app-form-error [control]="form.controls.zipCode" />
       </label>
     </div>
@@ -243,7 +245,7 @@
     <div class="grid-2">
       <label>
         {{ 'listingForm.state' | translate }}
-        <input type="text" formControlName="state" list="listing-state-options" maxlength="100" />
+        <input type="text" id="state" formControlName="state" name="state" list="listing-state-options" maxlength="100" />
         <datalist id="listing-state-options">
           @for (state of states(); track state.code) {
             <option [value]="state.name"></option>
@@ -254,7 +256,7 @@
 
       <label>
         {{ 'listingForm.country' | translate }}
-        <input type="text" formControlName="country" maxlength="100" />
+        <input type="text" id="country" formControlName="country" name="country" maxlength="100" />
       </label>
     </div>
 
@@ -262,12 +264,12 @@
          paved street are just as relevant for a house or apartment building as for raw land or a
          commercial parcel. -->
     <label class="checkbox-label">
-      <input type="checkbox" formControlName="isCornerLot" />
+      <input type="checkbox" id="isCornerLot" formControlName="isCornerLot" name="isCornerLot" />
       {{ 'listingForm.isCornerLot' | translate }}
     </label>
 
     <label class="checkbox-label">
-      <input type="checkbox" formControlName="hasPavedStreet" />
+      <input type="checkbox" id="hasPavedStreet" formControlName="hasPavedStreet" name="hasPavedStreet" />
       {{ 'listingForm.hasPavedStreet' | translate }}
     </label>
 
@@ -276,7 +278,7 @@
     <div class="grid-3">
       <label>
         {{ 'listingForm.facadeOrientation' | translate }}
-        <select formControlName="facadeOrientation">
+        <select id="facadeOrientation" formControlName="facadeOrientation" name="facadeOrientation">
           <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
           <option value="norte">{{ 'listingForm.orientationNorte' | translate }}</option>
           <option value="sur">{{ 'listingForm.orientationSur' | translate }}</option>
@@ -288,11 +290,11 @@
           <option value="suroeste">{{ 'listingForm.orientationSuroeste' | translate }}</option>
         </select>
       </label>
-      <label class="checkbox-label"><input type="checkbox" formControlName="hasNaturalGas" />{{ 'listingForm.hasNaturalGas' | translate }}</label>
-      <label class="checkbox-label"><input type="checkbox" formControlName="hasLpGas" />{{ 'listingForm.hasLpGas' | translate }}</label>
-      <label class="checkbox-label"><input type="checkbox" formControlName="hasCistern" />{{ 'listingForm.hasCistern' | translate }}</label>
+      <label class="checkbox-label"><input type="checkbox" id="hasNaturalGas" formControlName="hasNaturalGas" name="hasNaturalGas" />{{ 'listingForm.hasNaturalGas' | translate }}</label>
+      <label class="checkbox-label"><input type="checkbox" id="hasLpGas" formControlName="hasLpGas" name="hasLpGas" />{{ 'listingForm.hasLpGas' | translate }}</label>
+      <label class="checkbox-label"><input type="checkbox" id="hasCistern" formControlName="hasCistern" name="hasCistern" />{{ 'listingForm.hasCistern' | translate }}</label>
       @if (isWellAvailable()) {
-        <label class="checkbox-label"><input type="checkbox" formControlName="hasWell" />{{ 'listingForm.hasWell' | translate }}</label>
+        <label class="checkbox-label"><input type="checkbox" id="hasWell" formControlName="hasWell" name="hasWell" />{{ 'listingForm.hasWell' | translate }}</label>
       }
     </div>
 
@@ -300,19 +302,21 @@
       <div class="grid-2">
         <label>
           {{ (isShoppingPlaza() ? 'listingForm.apartmentUnitBedrooms' : 'listingForm.bedrooms') | translate }}
-          <input type="number" formControlName="bedrooms" min="0" />
+          <input type="number" id="bedrooms" formControlName="bedrooms" name="bedrooms" min="0" />
+          <app-form-error [control]="form.controls.bedrooms" />
         </label>
 
         <label>
           {{ (isShoppingPlaza() ? 'listingForm.apartmentUnitBathrooms' : 'listingForm.bathrooms') | translate }}
-          <input type="number" formControlName="bathrooms" min="0" />
+          <input type="number" id="bathrooms" formControlName="bathrooms" name="bathrooms" min="0" step="0.5" />
+          <app-form-error [control]="form.controls.bathrooms" />
         </label>
       </div>
     }
 
     <label>
       {{ 'listingForm.area' | translate }}
-      <input type="number" formControlName="areaSqm" min="0" />
+      <input type="number" id="areaSqm" formControlName="areaSqm" name="areaSqm" min="0" />
       <app-form-error [control]="form.controls.areaSqm" />
     </label>
 
@@ -320,16 +324,18 @@
       <div class="grid-3">
         <label>
           {{ 'listingForm.parkingSpaces' | translate }}
-          <input type="number" formControlName="parkingSpaces" min="0" />
+          <input type="number" id="parkingSpaces" formControlName="parkingSpaces" name="parkingSpaces" min="0" />
+          <app-form-error [control]="form.controls.parkingSpaces" />
         </label>
 
         <label>
           {{ 'listingForm.floors' | translate }}
-          <input type="number" formControlName="floors" min="0" />
+          <input type="number" id="floors" formControlName="floors" name="floors" min="0" />
+          <app-form-error [control]="form.controls.floors" />
         </label>
 
         <label class="checkbox-label">
-          <input type="checkbox" formControlName="parkingIsCovered" />
+          <input type="checkbox" id="parkingIsCovered" formControlName="parkingIsCovered" name="parkingIsCovered" />
           {{ 'listingForm.parkingIsCovered' | translate }}
         </label>
       </div>
@@ -338,17 +344,20 @@
     @if (isLandOrCommercial()) {
       <label>
         {{ 'listingForm.lotSize' | translate }}
-        <input type="number" formControlName="lotSizeSqm" min="0" />
+        <input type="number" id="lotSizeSqm-land" formControlName="lotSizeSqm" name="lotSizeSqm" min="0" />
+        <app-form-error [control]="form.controls.lotSizeSqm" />
       </label>
     } @else {
       <div class="grid-2">
         <label>
           {{ 'listingForm.lotSize' | translate }}
-          <input type="number" formControlName="lotSizeSqm" min="0" />
+          <input type="number" id="lotSizeSqm" formControlName="lotSizeSqm" name="lotSizeSqm" min="0" />
+          <app-form-error [control]="form.controls.lotSizeSqm" />
         </label>
         <label>
           {{ 'listingForm.gardenSize' | translate }}
-          <input type="number" formControlName="gardenSizeSqm" min="0" />
+          <input type="number" id="gardenSizeSqm" formControlName="gardenSizeSqm" name="gardenSizeSqm" min="0" />
+          <app-form-error [control]="form.controls.gardenSizeSqm" />
         </label>
       </div>
     }
@@ -357,11 +366,12 @@
       <div class="grid-2">
         <label>
           {{ 'listingForm.yearBuilt' | translate }}
-          <input type="number" formControlName="yearBuilt" min="1800" [max]="currentYear" />
+          <input type="number" id="yearBuilt" formControlName="yearBuilt" name="yearBuilt" min="1800" [max]="currentYear" />
+          <app-form-error [control]="form.controls.yearBuilt" />
         </label>
         <label>
           {{ 'listingForm.constructionCondition' | translate }}
-          <select formControlName="constructionCondition">
+          <select id="constructionCondition" formControlName="constructionCondition" name="constructionCondition">
             <option [ngValue]="null">{{ 'listingForm.notSpecified' | translate }}</option>
             <option value="nueva">{{ 'listingForm.conditionNueva' | translate }}</option>
             <option value="usada">{{ 'listingForm.conditionUsada' | translate }}</option>
@@ -375,17 +385,18 @@
     @if (!isLandOrCommercial()) {
       <label>
         {{ 'listingForm.hoaFee' | translate }}
-        <input type="text" inputmode="numeric" formControlName="hoaFee" appCurrencyInput />
+        <input type="text" id="hoaFee" inputmode="numeric" formControlName="hoaFee" name="hoaFee" appCurrencyInput />
+        <app-form-error [control]="form.controls.hoaFee" />
       </label>
     }
 
     @if (!isPureLand()) {
       <label class="checkbox-label">
-        <input type="checkbox" formControlName="hasHeatingCooling" />
+        <input type="checkbox" id="hasHeatingCooling" formControlName="hasHeatingCooling" name="hasHeatingCooling" />
         {{ 'listingForm.hasHeatingCooling' | translate }}
       </label>
       <label class="checkbox-label">
-        <input type="checkbox" formControlName="hasRoofGarden" />
+        <input type="checkbox" id="hasRoofGarden" formControlName="hasRoofGarden" name="hasRoofGarden" />
         {{ 'listingForm.hasRoofGarden' | translate }}
       </label>
     }
@@ -394,33 +405,33 @@
       <div class="land-commercial-section">
         <h3 class="section-title">{{ 'listingForm.roomsTitle' | translate }}</h3>
         <div class="grid-3">
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasKitchen" />{{ 'listingForm.hasKitchen' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasLivingRoom" />{{ 'listingForm.hasLivingRoom' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasDiningRoom" />{{ 'listingForm.hasDiningRoom' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasPotableWater" />{{ 'listingForm.hasPotableWater' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasDrainage" />{{ 'listingForm.hasDrainage' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasElectricity" />{{ 'listingForm.hasElectricity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasKitchen" formControlName="hasKitchen" name="hasKitchen" />{{ 'listingForm.hasKitchen' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasLivingRoom" formControlName="hasLivingRoom" name="hasLivingRoom" />{{ 'listingForm.hasLivingRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasDiningRoom" formControlName="hasDiningRoom" name="hasDiningRoom" />{{ 'listingForm.hasDiningRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasPotableWater" formControlName="hasPotableWater" name="hasPotableWater" />{{ 'listingForm.hasPotableWater' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasDrainage" formControlName="hasDrainage" name="hasDrainage" />{{ 'listingForm.hasDrainage' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasElectricity" formControlName="hasElectricity" name="hasElectricity" />{{ 'listingForm.hasElectricity' | translate }}</label>
         </div>
 
         <h3 class="section-title">{{ 'listingForm.amenitiesTitle' | translate }}</h3>
         <div class="grid-3">
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasPool" />{{ 'listingForm.hasPool' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasTerrace" />{{ 'listingForm.hasTerrace' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasBalcony" />{{ 'listingForm.hasBalcony' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasServiceRoom" />{{ 'listingForm.hasServiceRoom' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasLaundryArea" />{{ 'listingForm.hasLaundryArea' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasStorageRoom" />{{ 'listingForm.hasStorageRoom' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasGym" />{{ 'listingForm.hasGym' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasSecurity" />{{ 'listingForm.hasSecurity' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasElevator" />{{ 'listingForm.hasElevator' | translate }}</label>
-          <label class="checkbox-label"><input type="checkbox" formControlName="hasBbqArea" />{{ 'listingForm.hasBbqArea' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasPool" formControlName="hasPool" name="hasPool" />{{ 'listingForm.hasPool' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasTerrace" formControlName="hasTerrace" name="hasTerrace" />{{ 'listingForm.hasTerrace' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasBalcony" formControlName="hasBalcony" name="hasBalcony" />{{ 'listingForm.hasBalcony' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasServiceRoom" formControlName="hasServiceRoom" name="hasServiceRoom" />{{ 'listingForm.hasServiceRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasLaundryArea" formControlName="hasLaundryArea" name="hasLaundryArea" />{{ 'listingForm.hasLaundryArea' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasStorageRoom" formControlName="hasStorageRoom" name="hasStorageRoom" />{{ 'listingForm.hasStorageRoom' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasGym" formControlName="hasGym" name="hasGym" />{{ 'listingForm.hasGym' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasSecurity" formControlName="hasSecurity" name="hasSecurity" />{{ 'listingForm.hasSecurity' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasElevator" formControlName="hasElevator" name="hasElevator" />{{ 'listingForm.hasElevator' | translate }}</label>
+          <label class="checkbox-label"><input type="checkbox" id="hasBbqArea" formControlName="hasBbqArea" name="hasBbqArea" />{{ 'listingForm.hasBbqArea' | translate }}</label>
         </div>
       </div>
     }
 
     <label>
       {{ 'listingForm.videoTourUrl' | translate }}
-      <input type="url" formControlName="videoTourUrl" placeholder="https://..." maxlength="2048" />
+      <input type="url" id="videoTourUrl" formControlName="videoTourUrl" name="videoTourUrl" placeholder="https://..." maxlength="2048" />
       <app-form-error [control]="form.controls.videoTourUrl" />
     </label>
 
@@ -475,23 +486,27 @@
       <p class="owner-contact-hint">{{ 'listingForm.ownerContactHint' | translate }}</p>
 
       <label class="checkbox-label">
-        <input type="checkbox" formControlName="hideAgentContact" />
+        <input type="checkbox" id="hideAgentContact" formControlName="hideAgentContact" name="hideAgentContact" />
         {{ 'listingForm.hideAgentContact' | translate }}
       </label>
 
       <label>
         {{ 'listingForm.ownerContactName' | translate }}
-        <input type="text" formControlName="ownerContactName" maxlength="200" />
+        <!-- autocomplete="off": this is the real property owner's info overriding the agent's
+             own contact card — autofilling the admin's own saved name/phone/email here would be
+             a real mistake, not just a mismatched suggestion (see the form review's note on
+             owner-contact autocomplete risk). -->
+        <input type="text" id="ownerContactName" formControlName="ownerContactName" name="ownerContactName" autocomplete="off" maxlength="200" />
       </label>
 
       <div class="grid-2">
         <label>
           {{ 'listingForm.ownerContactPhone' | translate }}
-          <input type="tel" formControlName="ownerContactPhone" maxlength="30" />
+          <input type="tel" id="ownerContactPhone" formControlName="ownerContactPhone" name="ownerContactPhone" autocomplete="off" maxlength="30" />
         </label>
         <label>
           {{ 'listingForm.ownerContactEmail' | translate }}
-          <input type="email" formControlName="ownerContactEmail" maxlength="320" />
+          <input type="email" id="ownerContactEmail" formControlName="ownerContactEmail" name="ownerContactEmail" autocomplete="off" maxlength="320" />
           <app-form-error [control]="ownerContactForm.controls.ownerContactEmail" />
         </label>
       </div>
