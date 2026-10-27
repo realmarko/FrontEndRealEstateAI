@@ -36,6 +36,13 @@ h1 {
   line-height: 1.5;
 }
 
+.coordinates-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
 .status {
   color: var(--ink-soft);
 }

@@ -662,6 +662,23 @@
   font-size: 0.85rem;
   color: #1f2937;
   white-space: nowrap;
+  /* On a narrow viewport this can still run past the right edge (anchored via `left: 0` to
+     whichever button opened it, with no clamp) — capped here so it's never wider than the
+     screen; the opportunity button sits near the right end of the toolbar, so its own panel
+     additionally flips to grow leftward below (see the @media rule) instead of off-screen. */
+  max-width: calc(100vw - 2rem);
+}
+
+@media (max-width: 480px) {
+  .opportunity-checklist {
+    left: auto;
+    right: 0;
+  }
+
+  .poi-checklist,
+  .opportunity-checklist {
+    white-space: normal;
+  }
 }
 
 .poi-checklist-item,

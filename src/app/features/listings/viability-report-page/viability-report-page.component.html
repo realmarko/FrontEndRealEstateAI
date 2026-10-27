@@ -21,7 +21,12 @@
     <div class="report-header">
       <div>
         <h1>{{ 'viabilityPage.title' | translate }}</h1>
-        <p class="subtitle">{{ listingValue.title }} · {{ listingValue.address }}</p>
+        <p class="subtitle">
+          {{ listingValue.title }} · {{ listingValue.address }}
+          @if (analysis(); as a) {
+            · <a class="coordinates-link" [href]="'https://www.google.com/maps?q=' + a.lat + ',' + a.lng" target="_blank" rel="noopener">{{ a.lat | number: '1.5-5' }}, {{ a.lng | number: '1.5-5' }}</a>
+          }
+        </p>
       </div>
       @if (topBusiness(); as top) {
         <span class="best-fit-badge">{{ top.displayName }} {{ top.score }}%</span>
