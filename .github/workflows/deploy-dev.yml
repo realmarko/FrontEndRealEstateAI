@@ -38,7 +38,11 @@ jobs:
         run: echo "CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }}" >> "$GITHUB_ENV"
 
       - name: Test
-        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox
+        # --reporters=progress drops Karma's default Jasmine HTML reporter — in this headless CI
+        # browser it reliably throws post-suite ("Cannot read properties of null (reading
+        # 'appendChild')", HtmlReporter.jasmineDone trying to write to a DOM node that's gone by
+        # the time it runs) and fails the job even though every spec above it already passed.
+        run: npx ng test --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox --reporters=progress
 
   deploy:
     needs: test
