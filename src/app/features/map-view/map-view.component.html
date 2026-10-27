@@ -153,13 +153,13 @@
       @if (!streetViewActive()) {
       <div class="map-toolbar-wrap" *ngIf="selectedLat === null || selectedLng === null">
         <div class="map-toolbar">
-          <!-- Everything in here competes for attention with the opportunity tool, so it's
-               hidden while opportunityMode is on — a click means something different to each of
-               these. Hidden via CSS (.toolbar-hidden), not *ngIf/ng-container removal: removing
-               them outright shrank the toolbar row, which dragged the opportunity button itself
-               sideways to fill the gap the moment someone activated it — the one button they're
-               looking straight at mid-click. -->
-          <div class="toolbar-collapsible" [class.toolbar-hidden]="opportunityMode" [attr.aria-hidden]="opportunityMode">
+          <!-- Stays visible and clickable even while opportunityMode is on — clicking any of
+               these already cancels opportunity mode on its way in (toggleAddMode,
+               toggleAddBrokerageMode, toggleFreehandMode, togglePoiChecklist all call
+               closeOpportunityPicker or check opportunityMode themselves), so there's no need to
+               hide them meanwhile; a visitor can freely switch tools without hunting for a way
+               back to the toolbar first. -->
+          <div class="toolbar-collapsible">
             <button id="map-add-property-btn" type="button" class="add-property-btn" *ngIf="auth.isAuthenticated()" [class.active]="addMode" (click)="toggleAddMode()">
               {{ (addMode ? 'map.clickToPlace' : 'map.addProperty') | translate }}
             </button>
@@ -285,15 +285,11 @@
                 </div>
               }
             </div>
-            <!-- Same "armed" banner treatment as the add-property/add-brokerage buttons use
-                 (same class, same orange active look) once a category is picked and the map is
-                 waiting for a click. Placed AFTER the button rather than before it: an element
-                 inserted before .opportunity-btn in this flex row pushes the button itself
-                 sideways the moment it appears — see the .toolbar-hidden comment above for the
-                 matching reason the rest of the row stays reserved instead of disappearing. -->
-            @if (opportunityMode) {
-              <span class="add-property-btn active">{{ 'map.clickToAnalyze' | translate }}</span>
-            }
+            <!-- No persistent "armed" banner here (unlike add-property/add-brokerage's in-place
+                 button text) — selectOpportunityCategory fires a toast with the same instruction
+                 instead, once, right when the mode turns on. The checklist panel staying open
+                 with the picked category checked already shows the mode is armed, and a toast
+                 can never shift another button's position the way this banner used to. -->
             @if (loadingOpportunity()) {
               <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
             }

@@ -183,14 +183,6 @@
   gap: 0.6rem;
 }
 
-/* Keeps the hidden group's footprint in the flex row (unlike display:none/*ngIf removal) so
-   .opportunity-btn doesn't get dragged sideways when this group disappears — see the comment
-   above .toolbar-collapsible's usage in the template. */
-.toolbar-hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .map-legend {
   position: absolute;
   bottom: 1rem;

@@ -1811,6 +1811,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (this.freehandMode) {
       this.setFreehandMode(false);
     }
+    // A toast, not a persistent toolbar banner — same instruction either way ("click the map to
+    // analyze that spot"), but a toast can't shift any other button's position the way the old
+    // inline banner did (see the two fixes for map-opportunity-btn's position above).
+    this.notification.info('map.clickToAnalyze');
   }
 
   confirmLocation(): void {

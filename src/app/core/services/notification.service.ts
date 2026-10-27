@@ -15,6 +15,12 @@ export class NotificationService {
     this.toastr.error(this.translation.t(key, params));
   }
 
+  // Neutral/instructional, not a success or failure — e.g. "click the map to analyze that spot"
+  // after arming a tool. Auto-dismisses like success/error (unlike loading() below).
+  info(key: string, params?: Record<string, string | number>): void {
+    this.toastr.info(this.translation.t(key, params));
+  }
+
   // For a background fetch that has no loading UI in view without scrolling (e.g. the viability
   // analysis, loaded below the fold) — same overlay-on-top mechanism as success/error above, so
   // it's visible immediately regardless of scroll position. disableTimeOut: true deliberately —
