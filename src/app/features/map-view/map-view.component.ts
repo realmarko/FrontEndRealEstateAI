@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, Signal, ViewChild, computed, effect, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { timeout } from 'rxjs/operators';
+import { ActiveToast } from 'ngx-toastr';
 import { MarkerClusterer, Renderer } from '@googlemaps/markerclusterer';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
@@ -336,8 +337,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly freehandShape = signal<google.maps.Polygon | null>(null);
 
   opportunityMode = false;
-  readonly loadingOpportunity = signal(false);
   readonly opportunityResult = signal<OpportunityAnalysisResult | null>(null);
+  // Tracks the "analyzing…" toast shown by analyzeOpportunity (see also clearOpportunityOverlay)
+  // so it can be dismissed on every exit path, same contract as
+  // NotificationService.loading's own doc comment.
+  private opportunityLoadingToast: ActiveToast<unknown> | null = null;
 
   // CMA (comparative market analysis) over the active freehand shape — see openCma below. Null
   // whenever the results panel isn't open.
@@ -1315,7 +1319,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // Also serves as the "info window generation" this request was started at — see
     // infoWindowGeneration's own comment for why that's what guards against a stale response.
     const requestId = ++this.infoWindowGeneration;
-    this.loadingOpportunity.set(true);
+    this.opportunityLoadingToast = this.notification.loading('map.analyzing');
 
     const [placesCount, denueCount, population] = await Promise.all([
       this.searchPlacesCount(position, config.radiusMeters, config.placeType),
@@ -1325,7 +1329,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     this.zone.run(() => {
       if (requestId !== this.infoWindowGeneration) return;
-      this.loadingOpportunity.set(false);
+      if (this.opportunityLoadingToast) {
+        this.notification.dismiss(this.opportunityLoadingToast);
+        this.opportunityLoadingToast = null;
+      }
 
       if (placesCount === null && denueCount === null) {
         this.notification.error('map.opportunityError');
@@ -1447,7 +1454,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // Invalidates any in-flight analyzeOpportunity request in the same stroke as marking that
     // this feature no longer owns the info window, since both checks read this one counter.
     this.infoWindowGeneration++;
-    this.loadingOpportunity.set(false);
+    if (this.opportunityLoadingToast) {
+      this.notification.dismiss(this.opportunityLoadingToast);
+      this.opportunityLoadingToast = null;
+    }
     this.opportunityResult.set(null);
     this.opportunityCircle?.setMap(null);
     this.opportunityCircle = undefined;
@@ -1642,6 +1652,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.closeOpportunityPicker();
     this.showPoiChecklist.set(false);
     this.setFreehandMode(true);
+    // Same toast treatment as selectOpportunityCategory's own hint — was a persistent toolbar
+    // paragraph before, which (like that hint) only ever needed to say it once.
+    this.notification.info('map.freehandHint');
   }
 
   private setFreehandMode(active: boolean): void {

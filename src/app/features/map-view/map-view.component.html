@@ -285,22 +285,13 @@
                 </div>
               }
             </div>
-            <!-- No persistent "armed" banner here (unlike add-property/add-brokerage's in-place
-                 button text) — selectOpportunityCategory fires a toast with the same instruction
-                 instead, once, right when the mode turns on. The checklist panel staying open
-                 with the picked category checked already shows the mode is armed, and a toast
-                 can never shift another button's position the way this banner used to. -->
-            @if (loadingOpportunity()) {
-              <span class="opportunity-loading">{{ 'map.analyzing' | translate }}</span>
-            }
+            <!-- No persistent "armed" banner or loading text here (unlike add-property/
+                 add-brokerage's in-place button text) — selectOpportunityCategory and
+                 analyzeOpportunity fire toasts with the same messages instead, via
+                 NotificationService.info/loading. The checklist panel staying open with the
+                 picked category checked already shows the mode is armed, and a toast can never
+                 shift another button's position the way these inline messages used to. -->
           </ng-container>
-          <!-- Also kept AFTER .opportunity-btn's own ng-container above, same reasoning as the
-               clickToAnalyze banner right above it: this text only ever appears once freehandMode
-               is already on, at which point it's just another variable-width element that would
-               otherwise shove the opportunity button sideways if it sat anywhere before it. -->
-          @if (freehandMode && !opportunityMode) {
-            <p class="freehand-hint">{{ 'map.freehandHint' | translate }}</p>
-          }
         </div>
       </div>
       }

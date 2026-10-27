@@ -336,13 +336,6 @@
   color: #fff;
 }
 
-.freehand-hint {
-  align-self: center;
-  margin: 0;
-  font-size: 0.8rem;
-  color: #1e3a5f;
-}
-
 .freehand-result-badge {
   position: absolute;
   bottom: 0.8rem;
@@ -595,12 +588,6 @@
 .opportunity-btn.active {
   background: #7c3aed;
   color: #fff;
-}
-
-.opportunity-loading {
-  align-self: center;
-  font-size: 0.85rem;
-  color: #6b7280;
 }
 
 .poi-toggle-btn {
