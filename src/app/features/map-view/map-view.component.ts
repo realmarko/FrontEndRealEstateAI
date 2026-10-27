@@ -786,7 +786,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       });
 
       marker.addListener('click', () => {
-        this.zone.run(() => this.openFraccionamientoInfo(frac, marker));
+        this.zone.run(() => this.handleMarkerClick(marker.getPosition(), () => this.openFraccionamientoInfo(frac, marker)));
       });
 
       this.fraccionamientoMarkers.set(frac.id, marker);
@@ -827,7 +827,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       });
 
       marker.addListener('click', () => {
-        this.zone.run(() => this.openBrokerageInfo(agency, marker));
+        this.zone.run(() => this.handleMarkerClick(marker.getPosition(), () => this.openBrokerageInfo(agency, marker)));
       });
 
       this.brokerageMarkers.set(agency.id, marker);
@@ -975,7 +975,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       });
 
       marker.addListener('click', () => {
-        this.zone.run(() => this.openListingInfo(listing, marker));
+        this.zone.run(() => this.handleMarkerClick(marker.getPosition(), () => this.openListingInfo(listing, marker)));
       });
 
       // Only ever fires while this marker is draggable (i.e. mid-edit) — keeps the banner's
@@ -1301,6 +1301,20 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // Shared by every marker's own click handler (listing, fraccionamiento, brokerage): while the
+  // opportunity tool is armed, a click on any of them means "analyze this point," same as a
+  // click on open map — not whatever that marker would normally do (open its info window). A
+  // marker's own click event never reaches the map's 'click' listener (that's just how Google
+  // Maps dispatches these), so without this each marker would silently keep its old behavior
+  // and ignore the armed tool entirely.
+  private handleMarkerClick(position: google.maps.LatLng | null | undefined, openInfo: () => void): void {
+    if (this.opportunityMode && position) {
+      this.analyzeOpportunity(position);
+      return;
+    }
+    openInfo();
+  }
+
   // Counts nearby competitors of the selected category and draws a traffic-light circle from
   // the count. Two sources are queried in parallel: INEGI DENUE (Mexico's official business
   // registry, proxied through our backend — see GeomarketingService) and Google Places Nearby
@@ -1319,6 +1333,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // Also serves as the "info window generation" this request was started at — see
     // infoWindowGeneration's own comment for why that's what guards against a stale response.
     const requestId = ++this.infoWindowGeneration;
+    // Dismiss any still-open toast from a previous call before replacing the reference below —
+    // otherwise a category switch fired while an earlier analysis is still in flight (now easy to
+    // trigger, since selectOpportunityCategory can call this repeatedly without a map click)
+    // orphans that earlier toast: disableTimeOut means it never clears on its own, and once this
+    // field points at the new toast nothing can ever dismiss the old one again.
+    if (this.opportunityLoadingToast) {
+      this.notification.dismiss(this.opportunityLoadingToast);
+    }
     this.opportunityLoadingToast = this.notification.loading('map.analyzing');
 
     const [placesCount, denueCount, population] = await Promise.all([
@@ -1392,7 +1414,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const { level, count, source, population } = result;
 
     if (this.opportunityCircle) {
-      this.opportunityCircle.setOptions({ center: position, strokeColor: level.color, fillColor: level.color });
+      this.opportunityCircle.setOptions({ center: position, radius: radiusMeters, strokeColor: level.color, fillColor: level.color });
     } else {
       this.opportunityCircle = new google.maps.Circle({
         map: this.map,
@@ -1406,6 +1428,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         clickable: false
       });
     }
+
+    // Zooms in (or out) to frame the whole radius, not just centers on it — a 300 m pharmacy
+    // check and a 2 km supermarket check need very different zoom levels, and the visitor
+    // shouldn't have to zoom by hand to actually see the circle fitBounds just drew.
+    const circleBounds = this.opportunityCircle.getBounds();
+    if (circleBounds) this.map.fitBounds(circleBounds);
 
     if (this.opportunityMarker) {
       // Reusing the marker across analyses now matters: with a single category (pharmacy) every
@@ -1491,6 +1519,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.opportunityMode = false;
       this.clearOpportunityOverlay();
     }
+  }
+
+  // The panel's own close (X) button — unlike closeOpportunityPicker above, this only collapses
+  // the category list. A visible radius/result stays exactly as it is: closing the list to see
+  // the map better isn't the same as canceling the tool, and re-opening it (the chart icon
+  // itself still toggles the panel) shouldn't have lost the analysis in the meantime.
+  closeOpportunityChecklistPanel(): void {
+    this.showOpportunityChecklist.set(false);
   }
 
   // Searches once per check, not on every pan/zoom — each search is a billed Places API call,
@@ -1824,6 +1860,17 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     if (this.freehandMode) {
       this.setFreehandMode(false);
     }
+
+    // A radius is already on the map (an earlier category was analyzed at some point) — switching
+    // categories re-runs the analysis right there instead of asking the visitor to click the map
+    // again for the exact same spot. Only when nothing's been analyzed yet does this still need a
+    // click, so that's the only time the hint toast below applies.
+    const center = this.opportunityCircle?.getCenter();
+    if (center) {
+      this.analyzeOpportunity(center);
+      return;
+    }
+
     // A toast, not a persistent toolbar banner — same instruction either way ("click the map to
     // analyze that spot"), but a toast can't shift any other button's position the way the old
     // inline banner did (see the two fixes for map-opportunity-btn's position above).

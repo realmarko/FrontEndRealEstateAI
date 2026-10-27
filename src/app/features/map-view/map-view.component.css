@@ -660,6 +660,17 @@
   }
 }
 
+.opportunity-checklist-close {
+  align-self: flex-end;
+  display: flex;
+  border: none;
+  background: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0;
+  margin: -0.2rem -0.2rem 0 0;
+}
+
 .poi-checklist-item,
 .opportunity-checklist-item {
   display: flex;
