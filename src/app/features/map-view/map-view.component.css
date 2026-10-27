@@ -642,17 +642,6 @@
   display: flex;
 }
 
-/* Pins the opportunity button's anchor to the very first slot of .map-toolbar's flex-wrap
-   layout, no matter what else is hidden/shown around it. We kept chasing individual siblings
-   that pushed this button out of place when they appeared (the clickToAnalyze banner, the
-   freehand hint, and now the "Ver densidad de competidores" button that grows this very anchor
-   once a category's picked) — any sibling BEFORE it in the row can change width and shift which
-   row it wraps to. Going first instead of last makes that whole class of bug impossible: nothing
-   can ever precede it, so its own position can't depend on anything else's size. */
-.opportunity-anchor {
-  order: -1;
-}
-
 /* Shared by both toolbar picker panels — the POI checklist and the opportunity-category radio
    group are visually the same panel shape, just with different controls inside. Anchored to
    their own button via .picker-anchor rather than the toolbar row, so the panel always opens

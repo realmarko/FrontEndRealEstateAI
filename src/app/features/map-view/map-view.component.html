@@ -236,7 +236,7 @@
                pin, so it hides as soon as add-mode turns on (not just once a pin is placed) —
                matching how the confirm card itself only appears once a pin is placed. -->
           <ng-container *ngIf="!addMode && !addBrokerageMode">
-            <div class="picker-anchor opportunity-anchor">
+            <div class="picker-anchor">
               <button
                 id="map-opportunity-btn"
                 type="button"
@@ -264,18 +264,25 @@
                       {{ category.labelKey | translate }}
                     </label>
                   }
-                </div>
-                @if (selectedOpportunityCategory()) {
-                  @if (competitorDensityActive()) {
-                    <button id="map-competitor-density-clear-btn" type="button" class="competitor-density-btn" (click)="clearCompetitorDensity()">
-                      {{ 'map.competitorDensityClear' | translate }}
-                    </button>
-                  } @else {
-                    <button id="map-competitor-density-load-btn" type="button" class="competitor-density-btn" [disabled]="loadingCompetitorDensity()" (click)="loadCompetitorDensity()">
-                      {{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}
-                    </button>
+                  <!-- Inside the (position: absolute) panel rather than a sibling of the button
+                       like it used to be: that made it a normal-flow child of .picker-anchor, so
+                       picking a category widened the button's own flex item and shifted which
+                       row of the toolbar it wrapped to — the same bug fixed twice before for
+                       other siblings, this time from content inside the button's own anchor. An
+                       absolutely-positioned panel never affects its anchor's layout size, so
+                       nothing about this button's own slot in the toolbar can change again. -->
+                  @if (selectedOpportunityCategory()) {
+                    @if (competitorDensityActive()) {
+                      <button id="map-competitor-density-clear-btn" type="button" class="competitor-density-btn" (click)="clearCompetitorDensity()">
+                        {{ 'map.competitorDensityClear' | translate }}
+                      </button>
+                    } @else {
+                      <button id="map-competitor-density-load-btn" type="button" class="competitor-density-btn" [disabled]="loadingCompetitorDensity()" (click)="loadCompetitorDensity()">
+                        {{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}
+                      </button>
+                    }
                   }
-                }
+                </div>
               }
             </div>
             <!-- Same "armed" banner treatment as the add-property/add-brokerage buttons use
