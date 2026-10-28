@@ -354,7 +354,7 @@
       <!-- Its own corner, not the toolbar: a static legend doesn't compete with any tool for
            attention the way the toolbar's buttons do, so it doesn't need to hide/reflow with
            them — anchoring it separately keeps it out of that reflow entirely. -->
-      <div class="map-legend" *ngIf="!streetViewActive() && auth.isAuthenticated() && selectedLat === null && selectedLng === null && !opportunityMode && !showOpportunityChecklist()">
+      <div class="map-legend" *ngIf="!streetViewActive() && auth.isAuthenticated() && selectedLat === null && selectedLng === null && !opportunityMode && !showOpportunityChecklist() && !showPoiChecklist()">
         <span class="dot mine"></span>{{ 'map.myListings' | translate }}
         <span class="dot other"></span>{{ 'map.otherListings' | translate }}
       </div>
