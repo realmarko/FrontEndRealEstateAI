@@ -496,6 +496,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly checkedPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
   readonly loadingPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
 
+  // Mobile bottom-sheet-only behavior: scrolling a panel's body down collapses it to just its
+  // header (more map visible underneath), scrolling back up restores it. Shared by both panels
+  // since only one is ever open at a time. Desktop ignores this (its sheets are small anchored
+  // dropdowns, not a bottom sheet eating screen space), but the signal is harmless there too.
+  readonly sheetCollapsed = signal(false);
+  private lastSheetScrollTop = 0;
+
   readonly search = signal('');
   readonly typeFilter = signal<ListingType | 'all'>('sale');
   readonly propertyTypeFilter = signal<PropertyType | 'all'>('all');
@@ -1650,6 +1657,65 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // at once visually overlaps them, so opening one closes the other.
     if (this.showPoiChecklist()) {
       this.closeOpportunityPicker();
+      this.resetSheetCollapse();
+    }
+  }
+
+  // Resets the collapse-on-scroll state whenever a panel (re)opens, so it always starts expanded
+  // rather than carrying over whatever scroll position collapsed the previous panel.
+  private resetSheetCollapse(): void {
+    this.sheetCollapsed.set(false);
+    this.lastSheetScrollTop = 0;
+  }
+
+  // Bound to (scroll) on each panel's scrollable body. Scrolling its content down past a small
+  // threshold collapses the sheet to just its header (more map visible on a phone); scrolling
+  // back up restores it. Reads scrollTop directly off the event target rather than a signal —
+  // this fires on every scroll tick and doesn't need to trigger change detection on its own.
+  onSheetScroll(event: Event): void {
+    const scrollTop = (event.target as HTMLElement).scrollTop;
+    const delta = scrollTop - this.lastSheetScrollTop;
+    this.applySheetScrollDelta(delta);
+    this.lastSheetScrollTop = scrollTop;
+  }
+
+  // Once collapsed, the body is hidden (max-height: 0) and isn't a touchable surface any more, so
+  // the body's own (scroll) binding above can never fire again to bring it back — there'd be no
+  // way to re-expand a collapsed sheet. The header stays visible in every state, so it carries its
+  // own swipe/wheel tracking for the "scroll back up to restore" half of the gesture (and, for the
+  // opportunity panel whose short body never actually overflows/scrolls, this is also its only way
+  // to collapse at all).
+  private headerTouchY = 0;
+
+  onSheetHeaderWheel(event: WheelEvent): void {
+    this.applySheetScrollDelta(event.deltaY);
+  }
+
+  onSheetHeaderTouchStart(event: TouchEvent): void {
+    if (event.touches.length === 0) {
+      return;
+    }
+    this.headerTouchY = event.touches[0].clientY;
+  }
+
+  onSheetHeaderTouchMove(event: TouchEvent): void {
+    if (event.touches.length === 0) {
+      return;
+    }
+    const y = event.touches[0].clientY;
+    // Finger moving up (y decreasing) reads as a positive "scrolled down" delta here, matching
+    // onSheetScroll's sign convention (content scrolling down = positive delta) with the same
+    // applySheetScrollDelta threshold/logic.
+    this.applySheetScrollDelta(this.headerTouchY - y);
+    this.headerTouchY = y;
+  }
+
+  private applySheetScrollDelta(delta: number): void {
+    const threshold = 6;
+    if (delta > threshold) {
+      this.sheetCollapsed.set(true);
+    } else if (delta < -threshold) {
+      this.sheetCollapsed.set(false);
     }
   }
 
@@ -1990,6 +2056,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     // Both picker panels are positioned near the same corner of the toolbar — having both
     // open at once visually overlaps them, so opening one closes the other.
     this.showPoiChecklist.set(false);
+    this.resetSheetCollapse();
   }
 
   selectOpportunityCategory(key: OpportunityCategoryKey): void {

@@ -697,6 +697,19 @@
     border-radius: 20px 20px 0 0;
     animation: map-sheet-slide-up 0.18s ease-out;
   }
+
+  /* Scrolling a panel's body down (onSheetScroll) adds this class, shrinking the sheet to just
+     its header so more of the map is visible underneath; scrolling back up removes it. Desktop's
+     anchored dropdown never gets this class's visual effect since it's scoped to this breakpoint
+     (see the resetSheetCollapse comment in the component for why the signal itself isn't gated). */
+  .map-sheet.sheet-collapsed .map-sheet-body {
+    max-height: 0;
+    opacity: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
 }
 
 @keyframes map-sheet-slide-up {
@@ -719,6 +732,10 @@
   background: var(--navy, #1e3a5f);
   color: #fff;
   padding: 0.75rem 1rem;
+  /* The collapse/expand swipe (onSheetHeaderTouchMove) reads this element's own touch gesture —
+     without this, the browser's default vertical-pan handling can also kick in on the drag,
+     fighting the JS-driven collapse/expand instead of leaving it as the only effect. */
+  touch-action: none;
 }
 
 .map-sheet-title {
@@ -756,6 +773,7 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.9rem 1rem 1rem;
+  transition: max-height 0.2s ease, opacity 0.15s ease, padding 0.2s ease;
 }
 
 /* The POI panel groups 16 categories into 4 sections — too tall to fit the viewport on a phone,
