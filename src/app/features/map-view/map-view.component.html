@@ -198,16 +198,21 @@
                   <div class="map-sheet poi-checklist" [class.sheet-collapsed]="sheetCollapsed()">
                     <div
                       class="map-sheet-header"
+                      (click)="onSheetHeaderClick($event)"
                       (wheel)="onSheetHeaderWheel($event)"
-                      (touchstart)="onSheetHeaderTouchStart($event)"
-                      (touchmove)="onSheetHeaderTouchMove($event)"
+                      (pointerdown)="onSheetPointerDown($event)"
+                      (pointermove)="onSheetHeaderPointerMove($event)"
                     >
                       <span class="map-sheet-title">{{ 'map.poiLayersTitle' | translate }}</span>
                       <button type="button" class="map-sheet-close" (click)="togglePoiChecklist()" [attr.aria-label]="'map.close' | translate">
                         <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
                       </button>
                     </div>
-                    <div class="map-sheet-body map-sheet-body-scroll" (scroll)="onSheetScroll($event)">
+                    <div
+                      class="map-sheet-body map-sheet-body-scroll"
+                      (pointerdown)="onSheetPointerDown($event)"
+                      (pointermove)="onSheetBodyPointerMove($event)"
+                    >
                       @for (group of poiGroups; track group.key) {
                         <div class="map-sheet-group">
                           <span class="map-sheet-group-title">{{ group.labelKey | translate }}</span>
@@ -280,16 +285,21 @@
                 <div class="map-sheet opportunity-checklist" [class.sheet-collapsed]="sheetCollapsed()" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
                   <div
                     class="map-sheet-header"
+                    (click)="onSheetHeaderClick($event)"
                     (wheel)="onSheetHeaderWheel($event)"
-                    (touchstart)="onSheetHeaderTouchStart($event)"
-                    (touchmove)="onSheetHeaderTouchMove($event)"
+                    (pointerdown)="onSheetPointerDown($event)"
+                    (pointermove)="onSheetHeaderPointerMove($event)"
                   >
                     <span class="map-sheet-title">{{ 'map.analyzeOpportunity' | translate }}</span>
                     <button type="button" class="map-sheet-close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
                       <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
                     </button>
                   </div>
-                  <div class="map-sheet-body" (scroll)="onSheetScroll($event)">
+                  <div
+                    class="map-sheet-body"
+                    (pointerdown)="onSheetPointerDown($event)"
+                    (pointermove)="onSheetBodyPointerMove($event)"
+                  >
                     <div class="map-sheet-grid">
                       @for (category of opportunityCategories; track category.key) {
                         <label class="map-sheet-pill opportunity-checklist-item">

@@ -496,12 +496,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly checkedPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
   readonly loadingPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
 
-  // Mobile bottom-sheet-only behavior: scrolling a panel's body down collapses it to just its
-  // header (more map visible underneath), scrolling back up restores it. Shared by both panels
-  // since only one is ever open at a time. Desktop ignores this (its sheets are small anchored
+  // Mobile bottom-sheet-only behavior: dragging a finger down on a panel collapses it to just its
+  // header (more map visible underneath), dragging up restores it. Shared by both panels since
+  // only one is ever open at a time. Desktop ignores this (its sheets are small anchored
   // dropdowns, not a bottom sheet eating screen space), but the signal is harmless there too.
   readonly sheetCollapsed = signal(false);
-  private lastSheetScrollTop = 0;
 
   readonly search = signal('');
   readonly typeFilter = signal<ListingType | 'all'>('sale');
@@ -1661,60 +1660,84 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // Resets the collapse-on-scroll state whenever a panel (re)opens, so it always starts expanded
-  // rather than carrying over whatever scroll position collapsed the previous panel.
+  // Resets the collapse state whenever a panel (re)opens, so it always starts expanded rather
+  // than carrying over whatever drag collapsed the previous panel.
   private resetSheetCollapse(): void {
     this.sheetCollapsed.set(false);
-    this.lastSheetScrollTop = 0;
   }
 
-  // Bound to (scroll) on each panel's scrollable body. Scrolling its content down past a small
-  // threshold collapses the sheet to just its header (more map visible on a phone); scrolling
-  // back up restores it. Reads scrollTop directly off the event target rather than a signal —
-  // this fires on every scroll tick and doesn't need to trigger change detection on its own.
-  onSheetScroll(event: Event): void {
-    const scrollTop = (event.target as HTMLElement).scrollTop;
-    const delta = scrollTop - this.lastSheetScrollTop;
-    this.applySheetScrollDelta(delta);
-    this.lastSheetScrollTop = scrollTop;
-  }
-
-  // Once collapsed, the body is hidden (max-height: 0) and isn't a touchable surface any more, so
-  // the body's own (scroll) binding above can never fire again to bring it back — there'd be no
-  // way to re-expand a collapsed sheet. The header stays visible in every state, so it carries its
-  // own swipe/wheel tracking for the "scroll back up to restore" half of the gesture (and, for the
-  // opportunity panel whose short body never actually overflows/scrolls, this is also its only way
-  // to collapse at all).
-  private headerTouchY = 0;
+  // Drag-based, matching how a native bottom sheet actually behaves: the finger's own direction
+  // decides collapse/expand, not whether the list under it happens to scroll (a (scroll)-event
+  // version of this — collapsing only once the list content itself scrolled — turned out to do
+  // nothing on a real phone: dragging down from the top of an already-at-top list can't scroll
+  // past 0, so no scroll event ever fired). Dragging down collapses the sheet to just its header;
+  // dragging up restores it. The header (always visible, in every state) carries this for its own
+  // surface; the body also gets it, but only once already scrolled to its own top — below that, a
+  // downward drag is just the user scrolling through the category list, and must not also
+  // collapse the sheet out from under them.
+  // Pointer events rather than raw touch events — they unify mouse/touch/pen behind one API, so
+  // this works the same way whether it's a finger on a phone or a mouse/trackpad on desktop,
+  // without a separate touches[0]/touches.length dance.
+  private pointerY = 0;
+  // Touch (and some mouse) drags that pass the collapse/expand threshold still fire a trailing
+  // `click` once the finger lifts — browsers don't suppress it just because touchmove happened.
+  // Without this flag, a successful drag would immediately get undone by onSheetHeaderClick
+  // reading it as a fresh tap and toggling back. Set once a drag actually crosses the threshold,
+  // cleared by the next click it suppresses (or the next pointerdown, if no click follows).
+  private sheetDragged = false;
 
   onSheetHeaderWheel(event: WheelEvent): void {
-    this.applySheetScrollDelta(event.deltaY);
+    this.applySheetDragDelta(event.deltaY);
   }
 
-  onSheetHeaderTouchStart(event: TouchEvent): void {
-    if (event.touches.length === 0) {
+  // Belt-and-suspenders alongside the drag gesture above: tapping anywhere on the header other
+  // than the close button also toggles collapsed/expanded. A plain click is the most basic,
+  // universally reliable interaction there is — this guarantees the sheet is never stuck
+  // collapsed (or impossible to collapse) on a device/browser combination where the drag tracking
+  // above doesn't behave the way it does here.
+  onSheetHeaderClick(event: MouseEvent): void {
+    if (this.sheetDragged) {
+      this.sheetDragged = false;
       return;
     }
-    this.headerTouchY = event.touches[0].clientY;
-  }
-
-  onSheetHeaderTouchMove(event: TouchEvent): void {
-    if (event.touches.length === 0) {
+    if ((event.target as HTMLElement).closest('.map-sheet-close')) {
       return;
     }
-    const y = event.touches[0].clientY;
-    // Finger moving up (y decreasing) reads as a positive "scrolled down" delta here, matching
-    // onSheetScroll's sign convention (content scrolling down = positive delta) with the same
-    // applySheetScrollDelta threshold/logic.
-    this.applySheetScrollDelta(this.headerTouchY - y);
-    this.headerTouchY = y;
+    this.sheetCollapsed.update((collapsed) => !collapsed);
   }
 
-  private applySheetScrollDelta(delta: number): void {
+  onSheetPointerDown(event: PointerEvent): void {
+    this.pointerY = event.clientY;
+    this.sheetDragged = false;
+  }
+
+  onSheetHeaderPointerMove(event: PointerEvent): void {
+    if (event.buttons === 0 && event.pointerType === 'mouse') {
+      return;
+    }
+    this.applySheetDragDelta(event.clientY - this.pointerY);
+    this.pointerY = event.clientY;
+  }
+
+  onSheetBodyPointerMove(event: PointerEvent): void {
+    if (event.buttons === 0 && event.pointerType === 'mouse') {
+      return;
+    }
+    const scrollTop = (event.currentTarget as HTMLElement).scrollTop;
+    if (scrollTop <= 0) {
+      this.applySheetDragDelta(event.clientY - this.pointerY);
+    }
+    this.pointerY = event.clientY;
+  }
+
+  // delta > 0: finger moved down since the last sample (collapse). delta < 0: moved up (expand).
+  private applySheetDragDelta(delta: number): void {
     const threshold = 6;
     if (delta > threshold) {
+      this.sheetDragged = true;
       this.sheetCollapsed.set(true);
     } else if (delta < -threshold) {
+      this.sheetDragged = true;
       this.sheetCollapsed.set(false);
     }
   }
