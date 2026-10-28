@@ -195,25 +195,41 @@
                   </svg>
                 </button>
                 @if (showPoiChecklist()) {
-                  <div class="poi-checklist">
-                    @for (category of poiCategories; track category.key) {
-                      <label class="poi-checklist-item">
-                        <input
-                          [attr.id]="'map-poi-category-' + category.key"
-                          type="checkbox"
-                          [checked]="checkedPoiCategories().has(category.key)"
-                          (change)="togglePoiCategory(category.key, $any($event.target).checked)"
-                        />
-                        {{ category.labelKey | translate }}
-                        @if (loadingPoiCategories().has(category.key)) {
-                          <span class="poi-loading">…</span>
+                  <div class="map-sheet poi-checklist">
+                    <div class="map-sheet-header">
+                      <span class="map-sheet-title">{{ 'map.poiLayersTitle' | translate }}</span>
+                      <button type="button" class="map-sheet-close" (click)="togglePoiChecklist()" [attr.aria-label]="'map.close' | translate">
+                        <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+                      </button>
+                    </div>
+                    <div class="map-sheet-body">
+                      <div class="map-sheet-grid">
+                        @for (category of poiCategories; track category.key) {
+                          <label class="map-sheet-pill poi-checklist-item">
+                            <img class="map-sheet-pill-icon" [src]="category.icon.url" alt="" />
+                            <span class="map-sheet-pill-label">
+                              {{ category.labelKey | translate }}
+                              @if (loadingPoiCategories().has(category.key)) {
+                                <span class="poi-loading">…</span>
+                              }
+                            </span>
+                            <input
+                              [attr.id]="'map-poi-category-' + category.key"
+                              type="checkbox"
+                              [checked]="checkedPoiCategories().has(category.key)"
+                              (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                            />
+                          </label>
                         }
+                      </div>
+                      <label class="map-sheet-switch-row ageb-checklist-item">
+                        <span>{{ 'map.agebLayer' | translate }}</span>
+                        <span class="map-sheet-switch">
+                          <input id="map-ageb-layer-toggle" type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
+                          <span class="map-sheet-switch-track"></span>
+                        </span>
                       </label>
-                    }
-                    <label class="poi-checklist-item ageb-checklist-item">
-                      <input id="map-ageb-layer-toggle" type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
-                      {{ 'map.agebLayer' | translate }}
-                    </label>
+                    </div>
                   </div>
                 }
               </div>
@@ -251,40 +267,52 @@
                 </svg>
               </button>
               @if (showOpportunityChecklist()) {
-                <div class="opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
-                  <button type="button" class="opportunity-checklist-close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
-                    <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
-                  </button>
-                  @for (category of opportunityCategories; track category.key) {
-                    <label class="opportunity-checklist-item">
-                      <input
-                        [attr.id]="'map-opportunity-category-' + category.key"
-                        type="radio"
-                        name="opportunity-category"
-                        [checked]="selectedOpportunityCategory() === category.key"
-                        (change)="selectOpportunityCategory(category.key)"
-                      />
-                      {{ category.labelKey | translate }}
-                    </label>
-                  }
-                  <!-- Inside the (position: absolute) panel rather than a sibling of the button
-                       like it used to be: that made it a normal-flow child of .picker-anchor, so
-                       picking a category widened the button's own flex item and shifted which
-                       row of the toolbar it wrapped to — the same bug fixed twice before for
-                       other siblings, this time from content inside the button's own anchor. An
-                       absolutely-positioned panel never affects its anchor's layout size, so
-                       nothing about this button's own slot in the toolbar can change again. -->
-                  @if (selectedOpportunityCategory()) {
-                    @if (competitorDensityActive()) {
-                      <button id="map-competitor-density-clear-btn" type="button" class="competitor-density-btn" (click)="clearCompetitorDensity()">
-                        {{ 'map.competitorDensityClear' | translate }}
-                      </button>
-                    } @else {
-                      <button id="map-competitor-density-load-btn" type="button" class="competitor-density-btn" [disabled]="loadingCompetitorDensity()" (click)="loadCompetitorDensity()">
-                        {{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}
-                      </button>
+                <div class="map-sheet opportunity-checklist" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
+                  <div class="map-sheet-header">
+                    <span class="map-sheet-title">{{ 'map.analyzeOpportunity' | translate }}</span>
+                    <button type="button" class="map-sheet-close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
+                      <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+                    </button>
+                  </div>
+                  <div class="map-sheet-body">
+                    <div class="map-sheet-grid">
+                      @for (category of opportunityCategories; track category.key) {
+                        <label class="map-sheet-pill opportunity-checklist-item">
+                          <img class="map-sheet-pill-icon" [src]="category.icon" alt="" />
+                          <span class="map-sheet-pill-label">{{ category.labelKey | translate }}</span>
+                          <input
+                            [attr.id]="'map-opportunity-category-' + category.key"
+                            type="radio"
+                            name="opportunity-category"
+                            [checked]="selectedOpportunityCategory() === category.key"
+                            (change)="selectOpportunityCategory(category.key)"
+                          />
+                        </label>
+                      }
+                    </div>
+                    <!-- Inside the (position: absolute) panel rather than a sibling of the button
+                         like it used to be: that made it a normal-flow child of .picker-anchor, so
+                         picking a category widened the button's own flex item and shifted which
+                         row of the toolbar it wrapped to — the same bug fixed twice before for
+                         other siblings, this time from content inside the button's own anchor. An
+                         absolutely-positioned panel never affects its anchor's layout size, so
+                         nothing about this button's own slot in the toolbar can change again. -->
+                    @if (selectedOpportunityCategory()) {
+                      <label class="map-sheet-switch-row">
+                        <span>{{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}</span>
+                        <span class="map-sheet-switch">
+                          <input
+                            id="map-competitor-density-toggle"
+                            type="checkbox"
+                            [checked]="competitorDensityActive()"
+                            [disabled]="loadingCompetitorDensity()"
+                            (change)="$any($event.target).checked ? loadCompetitorDensity() : clearCompetitorDensity()"
+                          />
+                          <span class="map-sheet-switch-track"></span>
+                        </span>
+                      </label>
                     }
-                  }
+                  </div>
                 </div>
               }
             </div>

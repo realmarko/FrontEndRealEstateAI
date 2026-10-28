@@ -568,6 +568,7 @@ export const en: Record<string, string> = {
   'map.viewDetails': 'View details',
   'map.myListings': 'My listings',
   'map.togglePoi': 'Show map layers',
+  'map.poiLayersTitle': 'Layers of interest',
   'map.poiSchools': 'Schools',
   'map.poiPharmacies': 'Pharmacies',
   'map.poiMalls': 'Shopping centers',
