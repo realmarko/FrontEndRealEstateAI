@@ -7,7 +7,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
   border-radius: 999px;
   padding: 0.65rem 0.75rem 0.65rem 1.25rem;
@@ -32,7 +32,7 @@
 
 .compare-go {
   background: #c6a15b;
-  color: #14263f;
+  color: #000000;
   border: none;
   border-radius: 999px;
   padding: 0.5rem 1.1rem;

@@ -14,7 +14,7 @@
 .search-card h1 {
   margin: 0 0 1rem;
   font-size: 1.3rem;
-  color: #1e3a5f;
+  color: #000000;
 }
 
 .search-row {
@@ -101,7 +101,7 @@
 }
 
 .pagination button {
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
   border: none;
   border-radius: 6px;

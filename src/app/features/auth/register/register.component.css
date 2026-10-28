@@ -81,12 +81,12 @@
   width: 1.05rem;
   height: 1.05rem;
   margin: 0.15rem 0 0;
-  accent-color: var(--navy, #1e3a5f);
+  accent-color: var(--navy, #000000);
   cursor: pointer;
 }
 
 .terms-checkbox a {
-  color: var(--navy, #1e3a5f);
+  color: var(--navy, #000000);
   font-weight: 600;
   text-decoration: none;
 }

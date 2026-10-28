@@ -76,7 +76,7 @@
 }
 
 .modal .primary {
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
   border: none;
 }
@@ -88,8 +88,8 @@
 
 .modal .secondary {
   background: none;
-  color: #1e3a5f;
-  border: 1px solid #1e3a5f;
+  color: #000000;
+  border: 1px solid #000000;
 }
 
 .modal-close {

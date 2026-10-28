@@ -8,9 +8,13 @@
 :root {
   --gold: #c6a15b;
   --gold-hover: #d4b273;
-  --on-gold: #14263f;
-  --navy: #1e3a5f;
-  --navy-deep: #16304d;
+  --on-gold: #000000;
+  /* Kept as --navy for now (renaming would mean touching every file below instead of just this
+     token) but the brand's dark color is pure black, not navy blue — --navy-deep is a slightly
+     lighter near-black so a hover/pressed state still reads as visually distinct from #000. */
+  --navy: #000000;
+  --navy-deep: #1a1a1a;
+  --silver: #c0c0c0;
   --ink: #1f2937;
   --ink-soft: #6b7280;
   --hairline: #e5e7eb;

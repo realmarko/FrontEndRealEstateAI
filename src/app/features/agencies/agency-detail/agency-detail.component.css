@@ -237,9 +237,9 @@ a.contact-line:hover {
 }
 
 .type-toggle button.active {
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
-  border-color: #1e3a5f;
+  border-color: #000000;
 }
 
 .results-count {

@@ -10,7 +10,7 @@
 .page h1 {
   margin: 0 0 1.25rem;
   font-size: 1.3rem;
-  color: #1e3a5f;
+  color: #000000;
 }
 
 form {
@@ -65,7 +65,7 @@ textarea {
 
 button[type='submit'] {
   align-self: flex-start;
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
   border: none;
   border-radius: 6px;

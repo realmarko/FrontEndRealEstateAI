@@ -59,7 +59,7 @@ h1 {
 .spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid rgba(30, 58, 95, 0.15);
+  border: 3px solid rgba(0, 0, 0, 0.15);
   border-top-color: var(--navy);
   border-radius: 50%;
   animation: viability-spin 0.8s linear infinite;

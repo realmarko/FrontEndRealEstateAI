@@ -31,7 +31,7 @@
 .id-card {
   display: flex;
   gap: 1.85rem;
-  background: linear-gradient(155deg, #14263f, #0d1b30);
+  background: linear-gradient(155deg, #000000, #0d0d0d);
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 2rem;

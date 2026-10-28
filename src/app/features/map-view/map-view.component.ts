@@ -873,7 +873,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.listingClusterer = new MarkerClusterer({
       map: this.map,
       algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
-      renderer: createClusterRenderer('#1e3a5f')
+      renderer: createClusterRenderer('#000000')
     });
 
     this.map.addListener('click', (event: google.maps.MapMouseEvent) => {
@@ -1964,7 +1964,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         this.freehandPolyline = new google.maps.Polyline({
           map,
           path: this.freehandPath,
-          strokeColor: '#1e3a5f',
+          strokeColor: '#000000',
           strokeWeight: 2,
           clickable: false
         });
@@ -2001,9 +2001,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const polygon = new google.maps.Polygon({
       map: this.map,
       paths: path,
-      fillColor: '#1e3a5f',
+      fillColor: '#000000',
       fillOpacity: 0.12,
-      strokeColor: '#1e3a5f',
+      strokeColor: '#000000',
       strokeWeight: 2,
       clickable: false
     });

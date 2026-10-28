@@ -15,9 +15,9 @@
 }
 
 .filters button.active {
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
-  border-color: #1e3a5f;
+  border-color: #000000;
 }
 
 .error-list {
@@ -63,7 +63,7 @@
 .severity-critical { background: #dc2626; color: #fff; }
 
 .count-badge {
-  background: #1e3a5f;
+  background: #000000;
   color: #fff;
   text-transform: none;
   font-variant-numeric: tabular-nums;
@@ -128,7 +128,7 @@
 .link-btn {
   background: none;
   border: none;
-  color: #1e3a5f;
+  color: #000000;
   cursor: pointer;
   font-size: 0.85rem;
   padding: 0;
