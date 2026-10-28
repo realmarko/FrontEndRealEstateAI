@@ -30,12 +30,19 @@ import { ListingCardComponent } from '../listings/components/listing-card.compon
 import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
 import {
+  BANK_GLYPH,
+  BUS_GLYPH,
+  CHILDCARE_GLYPH,
   CONVENIENCE_STORE_GLYPH,
+  GAS_STATION_GLYPH,
   GYM_GLYPH,
+  HOSPITAL_GLYPH,
   MALL_GLYPH,
   PARK_GLYPH,
   PHARMACY_GLYPH,
   SCHOOL_GLYPH,
+  SHOPPING_CART_GLYPH,
+  SPORTS_CENTER_GLYPH,
   createPoiIcon
 } from '../../core/utils/map-icons';
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
@@ -77,10 +84,38 @@ const FRACCIONAMIENTOS_MAP_PAGE_SIZE = 100;
 // default zoom (16-18, street level) — raised so nearby markers still group up there too.
 const CLUSTER_ALGORITHM_OPTIONS = { maxZoom: 20 };
 
-export type PoiCategoryKey = 'schools' | 'pharmacies' | 'malls' | 'parks' | 'gyms' | 'oxxo';
+export type PoiCategoryKey =
+  | 'schools'
+  | 'daycare'
+  | 'pharmacies'
+  | 'gyms'
+  | 'hospitals'
+  | 'sportsCenters'
+  | 'malls'
+  | 'oxxo'
+  | 'parks'
+  | 'walmart'
+  | 'chedraui'
+  | 'aurrera'
+  | 'tiendas3b'
+  | 'banks'
+  | 'gasStations'
+  | 'transitStops';
+
+// The POI checklist panel renders categories under these section headers instead of one flat
+// list — order here is the order the groups render in.
+export type PoiGroupKey = 'education' | 'health' | 'services' | 'transport';
+
+export const POI_GROUPS: { key: PoiGroupKey; labelKey: string }[] = [
+  { key: 'education', labelKey: 'map.poiGroupEducation' },
+  { key: 'health', labelKey: 'map.poiGroupHealth' },
+  { key: 'services', labelKey: 'map.poiGroupServices' },
+  { key: 'transport', labelKey: 'map.poiGroupTransport' }
+];
 
 interface PoiCategoryConfig {
   key: PoiCategoryKey;
+  group: PoiGroupKey;
   labelKey: string;
   // Google Places "type" filter — see https://developers.google.com/maps/documentation/places/web-service/supported_types
   placeType: string;
@@ -98,13 +133,26 @@ interface PoiCategoryConfig {
 const POI_CATEGORIES: PoiCategoryConfig[] = [
   {
     key: 'schools',
+    group: 'education',
     labelKey: 'map.poiSchools',
     placeType: 'school',
     icon: createPoiIcon('#15803d', SCHOOL_GLYPH),
     clusterColor: '#15803d'
   },
   {
+    key: 'daycare',
+    group: 'education',
+    labelKey: 'map.poiDaycare',
+    // Places has no dedicated "daycare" type — most guarderías are tagged 'school', so the
+    // keyword narrows that down the same way OXXO narrows 'convenience_store'.
+    placeType: 'school',
+    keyword: 'guardería',
+    icon: createPoiIcon('#db2777', CHILDCARE_GLYPH),
+    clusterColor: '#db2777'
+  },
+  {
     key: 'pharmacies',
+    group: 'health',
     labelKey: 'map.poiPharmacies',
     placeType: 'pharmacy',
     // A shade apart from oxxo's red (#dc2626) so the two stay distinguishable when both layers
@@ -113,14 +161,53 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     clusterColor: '#b91c1c'
   },
   {
+    key: 'gyms',
+    group: 'health',
+    labelKey: 'map.poiGyms',
+    placeType: 'gym',
+    icon: createPoiIcon('#2563eb', GYM_GLYPH),
+    clusterColor: '#2563eb'
+  },
+  {
+    key: 'hospitals',
+    group: 'health',
+    labelKey: 'map.poiHospitals',
+    placeType: 'hospital',
+    // A shade apart from pharmacies' red (#b91c1c) and oxxo's (#dc2626).
+    icon: createPoiIcon('#be123c', HOSPITAL_GLYPH),
+    clusterColor: '#be123c'
+  },
+  {
+    key: 'sportsCenters',
+    group: 'health',
+    labelKey: 'map.poiSportsCenters',
+    // Places has no "sports complex" type of its own — narrows 'gym' results to ones actually
+    // named as a club/centro deportivo instead of a plain gym (already its own category above).
+    placeType: 'gym',
+    keyword: 'deportivo',
+    icon: createPoiIcon('#0891b2', SPORTS_CENTER_GLYPH),
+    clusterColor: '#0891b2'
+  },
+  {
     key: 'malls',
+    group: 'services',
     labelKey: 'map.poiMalls',
     placeType: 'shopping_mall',
     icon: createPoiIcon('#c2410c', MALL_GLYPH),
     clusterColor: '#c2410c'
   },
   {
+    key: 'oxxo',
+    group: 'services',
+    labelKey: 'map.poiOxxo',
+    placeType: 'convenience_store',
+    keyword: 'OXXO',
+    icon: createPoiIcon('#dc2626', CONVENIENCE_STORE_GLYPH),
+    clusterColor: '#dc2626'
+  },
+  {
     key: 'parks',
+    group: 'services',
     labelKey: 'map.poiParks',
     placeType: 'park',
     // A shade apart from schools' green (#15803d) so the two stay distinguishable when both
@@ -129,19 +216,69 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     clusterColor: '#16a34a'
   },
   {
-    key: 'gyms',
-    labelKey: 'map.poiGyms',
-    placeType: 'gym',
-    icon: createPoiIcon('#2563eb', GYM_GLYPH),
-    clusterColor: '#2563eb'
+    key: 'walmart',
+    group: 'services',
+    labelKey: 'map.poiWalmart',
+    // Reuses the same generic shopping-cart glyph as the other grocery chains below — they're
+    // told apart by badge color, not by reproducing each chain's own trademarked logo.
+    placeType: 'supermarket',
+    keyword: 'Walmart',
+    icon: createPoiIcon('#0369a1', SHOPPING_CART_GLYPH),
+    clusterColor: '#0369a1'
   },
   {
-    key: 'oxxo',
-    labelKey: 'map.poiOxxo',
+    key: 'chedraui',
+    group: 'services',
+    labelKey: 'map.poiChedraui',
+    placeType: 'supermarket',
+    keyword: 'Chedraui',
+    icon: createPoiIcon('#0d9488', SHOPPING_CART_GLYPH),
+    clusterColor: '#0d9488'
+  },
+  {
+    key: 'aurrera',
+    group: 'services',
+    labelKey: 'map.poiAurrera',
+    // Covers both "Bodega Aurrera" and "Mi Bodega Aurrera" — both contain "Aurrera".
+    placeType: 'supermarket',
+    keyword: 'Aurrera',
+    icon: createPoiIcon('#d97706', SHOPPING_CART_GLYPH),
+    clusterColor: '#d97706'
+  },
+  {
+    key: 'tiendas3b',
+    group: 'services',
+    labelKey: 'map.poiTiendas3b',
     placeType: 'convenience_store',
-    keyword: 'OXXO',
-    icon: createPoiIcon('#dc2626', CONVENIENCE_STORE_GLYPH),
-    clusterColor: '#dc2626'
+    keyword: '3B',
+    icon: createPoiIcon('#9333ea', SHOPPING_CART_GLYPH),
+    clusterColor: '#9333ea'
+  },
+  {
+    key: 'banks',
+    group: 'services',
+    labelKey: 'map.poiBanks',
+    // 'bank' is the closer single Places type for a visual landmark; most bank branches also
+    // have an on-site ATM, which is what "Bancos y ATM" is after as one combined layer.
+    placeType: 'bank',
+    icon: createPoiIcon('#475569', BANK_GLYPH),
+    clusterColor: '#475569'
+  },
+  {
+    key: 'gasStations',
+    group: 'transport',
+    labelKey: 'map.poiGasStations',
+    placeType: 'gas_station',
+    icon: createPoiIcon('#ea580c', GAS_STATION_GLYPH),
+    clusterColor: '#ea580c'
+  },
+  {
+    key: 'transitStops',
+    group: 'transport',
+    labelKey: 'map.poiTransitStops',
+    placeType: 'transit_station',
+    icon: createPoiIcon('#4338ca', BUS_GLYPH),
+    clusterColor: '#4338ca'
   }
 ];
 
@@ -354,6 +491,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly selectedOpportunityCategory = signal<OpportunityCategoryKey | null>(null);
 
   readonly poiCategories = POI_CATEGORIES;
+  readonly poiGroups = POI_GROUPS;
   readonly showPoiChecklist = signal(false);
   readonly checkedPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
   readonly loadingPoiCategories = signal<Set<PoiCategoryKey>>(new Set());
@@ -1500,6 +1638,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  // Splits poiCategories by section for the grouped checklist template — a plain array filter,
+  // not a signal/computed, since poiCategories itself is static (never reassigned after init).
+  poiCategoriesInGroup(group: PoiGroupKey): PoiCategoryConfig[] {
+    return this.poiCategories.filter((category) => category.group === group);
+  }
+
   togglePoiChecklist(): void {
     this.showPoiChecklist.update((visible) => !visible);
     // Both picker panels are positioned near the same corner of the toolbar — having both open
@@ -1521,12 +1665,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  // The panel's own close (X) button — unlike closeOpportunityPicker above, this only collapses
-  // the category list. A visible radius/result stays exactly as it is: closing the list to see
-  // the map better isn't the same as canceling the tool, and re-opening it (the chart icon
-  // itself still toggles the panel) shouldn't have lost the analysis in the meantime.
+  // The panel's own close (X) button — same full reset as closeOpportunityPicker above (panel
+  // closes, tool disarms, radius/marker/result clear from the map). Kept as its own method since
+  // the template calls it from the panel itself rather than the toolbar toggle button.
   closeOpportunityChecklistPanel(): void {
-    this.showOpportunityChecklist.set(false);
+    this.closeOpportunityPicker();
   }
 
   // Searches once per check, not on every pan/zoom — each search is a billed Places API call,

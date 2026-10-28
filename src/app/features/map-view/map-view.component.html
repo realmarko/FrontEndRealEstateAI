@@ -202,26 +202,31 @@
                         <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
                       </button>
                     </div>
-                    <div class="map-sheet-body">
-                      <div class="map-sheet-grid">
-                        @for (category of poiCategories; track category.key) {
-                          <label class="map-sheet-pill poi-checklist-item">
-                            <img class="map-sheet-pill-icon" [src]="category.icon.url" alt="" />
-                            <span class="map-sheet-pill-label">
-                              {{ category.labelKey | translate }}
-                              @if (loadingPoiCategories().has(category.key)) {
-                                <span class="poi-loading">…</span>
-                              }
-                            </span>
-                            <input
-                              [attr.id]="'map-poi-category-' + category.key"
-                              type="checkbox"
-                              [checked]="checkedPoiCategories().has(category.key)"
-                              (change)="togglePoiCategory(category.key, $any($event.target).checked)"
-                            />
-                          </label>
-                        }
-                      </div>
+                    <div class="map-sheet-body map-sheet-body-scroll">
+                      @for (group of poiGroups; track group.key) {
+                        <div class="map-sheet-group">
+                          <span class="map-sheet-group-title">{{ group.labelKey | translate }}</span>
+                          <div class="map-sheet-grid">
+                            @for (category of poiCategoriesInGroup(group.key); track category.key) {
+                              <label class="map-sheet-pill poi-checklist-item">
+                                <img class="map-sheet-pill-icon" [src]="category.icon.url" alt="" />
+                                <span class="map-sheet-pill-label">
+                                  {{ category.labelKey | translate }}
+                                  @if (loadingPoiCategories().has(category.key)) {
+                                    <span class="poi-loading">…</span>
+                                  }
+                                </span>
+                                <input
+                                  [attr.id]="'map-poi-category-' + category.key"
+                                  type="checkbox"
+                                  [checked]="checkedPoiCategories().has(category.key)"
+                                  (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                                />
+                              </label>
+                            }
+                          </div>
+                        </div>
+                      }
                       <label class="map-sheet-switch-row ageb-checklist-item">
                         <span>{{ 'map.agebLayer' | translate }}</span>
                         <span class="map-sheet-switch">
@@ -329,7 +334,7 @@
       <!-- Its own corner, not the toolbar: a static legend doesn't compete with any tool for
            attention the way the toolbar's buttons do, so it doesn't need to hide/reflow with
            them — anchoring it separately keeps it out of that reflow entirely. -->
-      <div class="map-legend" *ngIf="!streetViewActive() && auth.isAuthenticated() && selectedLat === null && selectedLng === null && !opportunityMode">
+      <div class="map-legend" *ngIf="!streetViewActive() && auth.isAuthenticated() && selectedLat === null && selectedLng === null && !opportunityMode && !showOpportunityChecklist()">
         <span class="dot mine"></span>{{ 'map.myListings' | translate }}
         <span class="dot other"></span>{{ 'map.otherListings' | translate }}
       </div>

@@ -20,7 +20,8 @@
   gap: 0.6rem;
   padding: 0.75rem 1rem;
   background: #fff;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--hairline);
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
   position: relative;
   z-index: 3;
 }
@@ -35,18 +36,30 @@
   flex: 0 1 390px;
   min-width: 160px;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   font-size: 0.9rem;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.search-input:focus,
+.filter-select:focus,
+.price-input:focus,
+.more-filters-btn:focus-visible {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.2);
 }
 
 .filter-select {
   padding: 0.5rem 0.6rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   font-size: 0.9rem;
   background: #fff;
-  color: #1f2937;
+  color: var(--ink);
 }
 
 .price-group {
@@ -58,13 +71,14 @@
 .price-input {
   width: 92px;
   padding: 0.5rem 0.6rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   font-size: 0.9rem;
+  color: var(--ink);
 }
 
 .price-sep {
-  color: #9ca3af;
+  color: var(--ink-soft);
 }
 
 .price-mask {
@@ -75,12 +89,18 @@
 
 .more-filters-btn {
   padding: 0.5rem 0.8rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
   background: #fff;
   font-size: 0.9rem;
   cursor: pointer;
-  color: #1f2937;
+  color: var(--navy);
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.more-filters-btn:hover {
+  border-color: var(--gold);
+  color: var(--navy-deep);
 }
 
 .more-filters-panel {
@@ -88,7 +108,7 @@
   gap: 0.6rem;
   width: 100%;
   padding-top: 0.6rem;
-  border-top: 1px dashed #e5e7eb;
+  border-top: 1px dashed var(--hairline);
   margin-top: 0.4rem;
 }
 
@@ -191,12 +211,13 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  background: #fff;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(6px);
+  border-radius: 8px;
   padding: 0.5rem 0.9rem;
   font-size: 0.82rem;
-  color: #1f2937;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgba(17, 24, 39, 0.15);
 }
 
 .map-legend .dot {
@@ -536,6 +557,7 @@
   flex-direction: column;
   gap: 0.15rem;
   background: #f9fafb;
+  border-left: 3px solid var(--gold);
   border-radius: 6px;
   padding: 0.6rem 0.8rem;
 }
@@ -543,12 +565,12 @@
 .cma-stat-value {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #1f2937;
+  color: var(--ink);
 }
 
 .cma-stat-label {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--ink-soft);
 }
 
 .cma-comparables-title {
@@ -734,6 +756,33 @@
   flex-direction: column;
   gap: 0.4rem;
   padding: 0.9rem 1rem 1rem;
+}
+
+/* The POI panel groups 16 categories into 4 sections — too tall to fit the viewport on a phone,
+   so the body scrolls internally instead of pushing the sheet (and the switch row below it) past
+   the bottom of the screen. The opportunity panel's own 4-category body stays short enough that
+   this scroll area is simply never triggered there. */
+.map-sheet-body-scroll {
+  overflow-y: auto;
+  max-height: min(60vh, 26rem);
+}
+
+.map-sheet-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.map-sheet-group + .map-sheet-group {
+  margin-top: 0.5rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.map-sheet-group-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--navy);
 }
 
 .map-sheet-grid {

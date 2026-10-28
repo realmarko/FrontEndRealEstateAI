@@ -53,3 +53,37 @@ export const GAS_STATION_GLYPH =
   '<rect x="9" y="11" width="10" height="15" rx="1.2" fill="#fff"/>' +
   '<rect x="11.5" y="13.5" width="5" height="5" fill="rgba(0,0,0,0.25)"/>' +
   '<path d="M19,15 L22,15 L22,22.5 Q22,24 23.5,24 Q25,24 25,22.5 L25,13" fill="none" stroke="#fff" stroke-width="1.6"/>';
+
+// Three stacked toy blocks of different heights — a generic "kids/childcare" pictogram rather
+// than anything tied to a specific daycare brand.
+export const CHILDCARE_GLYPH =
+  '<rect x="8" y="18" width="6" height="6" rx="1" fill="#fff"/>' +
+  '<rect x="15.5" y="12.5" width="6" height="11.5" rx="1" fill="#fff"/>' +
+  '<rect x="23" y="16" width="5.5" height="8" rx="1" fill="#fff"/>';
+
+// A trophy silhouette — generic "sports/athletics" pictogram, distinct from GYM_GLYPH's dumbbell
+// so a "centro deportivo" (sports complex) reads as its own category rather than a second gym.
+export const SPORTS_CENTER_GLYPH =
+  '<path d="M12,9 L22,9 L22,14 Q22,19 17,19 Q12,19 12,14 Z" fill="#fff"/>' +
+  '<path d="M12,10 Q8,10 8,13.5 Q8,17 12.5,17" fill="none" stroke="#fff" stroke-width="1.4"/>' +
+  '<path d="M22,10 Q26,10 26,13.5 Q26,17 21.5,17" fill="none" stroke="#fff" stroke-width="1.4"/>' +
+  '<rect x="15.5" y="19" width="3" height="4" fill="#fff"/>' +
+  '<rect x="12.5" y="23.5" width="9" height="2" rx="1" fill="#fff"/>';
+
+// A shopping-cart silhouette — shared by every grocery-chain category (Walmart, Chedraui, Bodega
+// Aurrera, Tiendas 3B); they're distinguished from each other by badge color alone rather than by
+// reproducing each chain's own trademarked logo, same as how OXXO already gets a generic
+// convenience-store glyph instead of its real storefront branding.
+export const SHOPPING_CART_GLYPH =
+  '<path d="M8,9 L11,9 L14,20 L24,20 L26.5,12.5 L12.5,12.5" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>' +
+  '<circle cx="15.5" cy="24.5" r="1.8" fill="#fff"/><circle cx="22" cy="24.5" r="1.8" fill="#fff"/>';
+
+// A classic bank-building silhouette (pediment + columns) — reads as "bank/ATM" without tying the
+// icon to any one institution's branding.
+export const BANK_GLYPH =
+  '<polygon points="17,8 27,13 7,13" fill="#fff"/>' +
+  '<rect x="8.5" y="14" width="2.6" height="10" fill="#fff"/>' +
+  '<rect x="13.7" y="14" width="2.6" height="10" fill="#fff"/>' +
+  '<rect x="18.9" y="14" width="2.6" height="10" fill="#fff"/>' +
+  '<rect x="24.1" y="14" width="2.6" height="10" fill="#fff"/>' +
+  '<rect x="7" y="25" width="20" height="2" rx="0.5" fill="#fff"/>';
