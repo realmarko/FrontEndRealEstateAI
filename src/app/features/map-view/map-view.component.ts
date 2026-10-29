@@ -704,6 +704,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // auto-zoom-and-retry loop in loadAppreciationForCurrentBounds's 400 handler.
   private appreciationZoomRetries = 0;
   private static readonly MaxAppreciationZoomRetries = 6;
+  // Same auto-zoom-and-retry idea, for loadCompetitorDensity's own "too many zones" 400 — reset
+  // to 0 only on a fresh (checkbox-triggered) call, not on the retries themselves.
+  private competitorDensityZoomRetries = 0;
+  private static readonly MaxCompetitorDensityZoomRetries = 6;
   // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
   // this feature's own search) — an async opportunity search checks it against the value it
   // captured when the search started, so a slow response can't steal focus back from a listing
@@ -2559,6 +2563,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // socioeconomic layer does). Requires a selected opportunity category, since the competitor
   // count is always for one specific business type.
   loadCompetitorDensity(): void {
+    this.competitorDensityZoomRetries = 0;
+    this.fetchCompetitorDensity();
+  }
+
+  private fetchCompetitorDensity(): void {
     if (!this.map) return;
     const categoryKey = this.selectedOpportunityCategory();
     if (!categoryKey) return;
@@ -2580,6 +2589,19 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
           }),
         error: (err: { status?: number }) =>
           this.zone.run(() => {
+            // A 400 here specifically means the viewport has too many AGEBs for this layer's own
+            // cap (GeomarketingController.MaxCompetitorDensityAgebs) — same fix as the
+            // appreciation-potential layer's own 400 handler: zoom in one level toward the map's
+            // current center and retry automatically instead of just erroring, bounded by
+            // MaxCompetitorDensityZoomRetries so a pathologically AGEB-dense area can't loop
+            // forever.
+            if (err?.status === 400 && this.map && this.competitorDensityZoomRetries < MapViewComponent.MaxCompetitorDensityZoomRetries) {
+              this.competitorDensityZoomRetries++;
+              this.map.setZoom((this.map.getZoom() ?? 12) + 1);
+              this.fetchCompetitorDensity();
+              return;
+            }
+
             this.loadingCompetitorDensity.set(false);
             this.notification.error(err?.status === 400 ? 'map.competitorDensityTooManyZones' : 'map.competitorDensityError');
           })
