@@ -507,6 +507,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // whenever the results panel isn't open.
   readonly loadingCma = signal(false);
   readonly cmaResult = signal<CmaResult | null>(null);
+
+  // Shared by the toolbar's own ng-container/*ngIf chain (around the POI/opportunity toggle
+  // buttons) AND each picker panel's own @if (the panels are now siblings of the toolbar inside
+  // .map-pane, not DOM descendants of it, so they can no longer just inherit these ancestor
+  // conditions — see map-view.component.html). One method, not a computed(): selectedLat/selectedLng
+  // are plain class properties, not signals, so a computed() wouldn't re-run when they change.
+  pickerPanelsAllowed(): boolean {
+    return !this.streetViewActive() && (this.selectedLat === null || this.selectedLng === null) && !this.addMode && !this.addBrokerageMode;
+  }
+
   readonly opportunityCategories = OPPORTUNITY_CATEGORIES;
   readonly showOpportunityChecklist = signal(false);
   // null until the user picks one from the radio buttons — there's no sensible default business
@@ -1739,9 +1749,21 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.sheetDragged = false;
       return;
     }
-    if ((event.target as HTMLElement).closest('.map-sheet-close')) {
+    // .map-sheet-minimize has its own (click)="toggleSheetCollapse()" — without this exclusion,
+    // the click would bubble up to this handler too and immediately toggle back, same reasoning
+    // as the .map-sheet-close exclusion below.
+    if ((event.target as HTMLElement).closest('.map-sheet-close, .map-sheet-minimize')) {
       return;
     }
+    this.toggleSheetCollapse();
+  }
+
+  // Explicit minimize/maximize button in the header — belt-and-suspenders alongside the
+  // drag-to-collapse gesture and the "click anywhere on the header" fallback above: neither of
+  // those is discoverable without already knowing the sheet collapses, especially with a mouse on
+  // desktop/tablet where there's no native "this is a draggable sheet" convention the way there is
+  // on a phone.
+  toggleSheetCollapse(): void {
     this.sheetCollapsed.update((collapsed) => !collapsed);
   }
 

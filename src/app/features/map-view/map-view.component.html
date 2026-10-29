@@ -194,74 +194,6 @@
                     <path d="M2 16l10 5 10-5" />
                   </svg>
                 </button>
-                @if (showPoiChecklist()) {
-                  <div class="map-sheet poi-checklist" [class.sheet-collapsed]="sheetCollapsed()">
-                    <div
-                      class="map-sheet-header"
-                      (click)="onSheetHeaderClick($event)"
-                      (wheel)="onSheetHeaderWheel($event)"
-                      (pointerdown)="onSheetPointerDown($event)"
-                      (pointermove)="onSheetHeaderPointerMove($event)"
-                    >
-                      <span class="map-sheet-title">{{ 'map.poiLayersTitle' | translate }}</span>
-                      <button type="button" class="map-sheet-close" (click)="togglePoiChecklist()" [attr.aria-label]="'map.close' | translate">
-                        <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
-                      </button>
-                    </div>
-                    <div
-                      class="map-sheet-body map-sheet-body-scroll"
-                      (pointerdown)="onSheetPointerDown($event)"
-                      (pointermove)="onSheetBodyPointerMove($event)"
-                    >
-                      @for (group of poiGroups; track group.key) {
-                        <div class="map-sheet-group">
-                          <span class="map-sheet-group-title">{{ group.labelKey | translate }}</span>
-                          <div class="map-sheet-grid">
-                            @for (category of poiCategoriesInGroup(group.key); track category.key) {
-                              <label class="map-sheet-pill poi-checklist-item">
-                                <img class="map-sheet-pill-icon" [src]="category.icon.url" alt="" />
-                                <span class="map-sheet-pill-label">
-                                  {{ category.labelKey | translate }}
-                                  @if (loadingPoiCategories().has(category.key)) {
-                                    <span class="poi-loading">…</span>
-                                  }
-                                </span>
-                                <input
-                                  [attr.id]="'map-poi-category-' + category.key"
-                                  type="checkbox"
-                                  [checked]="checkedPoiCategories().has(category.key)"
-                                  (change)="togglePoiCategory(category.key, $any($event.target).checked)"
-                                />
-                              </label>
-                            }
-                          </div>
-                        </div>
-                      }
-                      <label class="map-sheet-switch-row ageb-checklist-item">
-                        <span>{{ 'map.agebLayer' | translate }}</span>
-                        <span class="map-sheet-switch">
-                          <input id="map-ageb-layer-toggle" type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
-                          <span class="map-sheet-switch-track"></span>
-                        </span>
-                      </label>
-                      <label class="map-sheet-switch-row ageb-checklist-item">
-                        <span>{{ 'map.appreciationLayer' | translate }}</span>
-                        <span class="map-sheet-switch">
-                          <input
-                            id="map-appreciation-layer-toggle"
-                            type="checkbox"
-                            [checked]="showAppreciationLayer()"
-                            (change)="toggleAppreciationLayer($any($event.target).checked)"
-                          />
-                          <span class="map-sheet-switch-track"></span>
-                        </span>
-                      </label>
-                      @if (showAppreciationLayer()) {
-                        <p class="map-sheet-hint">{{ 'map.appreciationDisclaimer' | translate }}</p>
-                      }
-                    </div>
-                  </div>
-                }
               </div>
               <button
                 id="map-freehand-btn"
@@ -296,65 +228,6 @@
                   <path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" />
                 </svg>
               </button>
-              @if (showOpportunityChecklist()) {
-                <div class="map-sheet opportunity-checklist" [class.sheet-collapsed]="sheetCollapsed()" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
-                  <div
-                    class="map-sheet-header"
-                    (click)="onSheetHeaderClick($event)"
-                    (wheel)="onSheetHeaderWheel($event)"
-                    (pointerdown)="onSheetPointerDown($event)"
-                    (pointermove)="onSheetHeaderPointerMove($event)"
-                  >
-                    <span class="map-sheet-title">{{ 'map.analyzeOpportunity' | translate }}</span>
-                    <button type="button" class="map-sheet-close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
-                      <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
-                    </button>
-                  </div>
-                  <div
-                    class="map-sheet-body"
-                    (pointerdown)="onSheetPointerDown($event)"
-                    (pointermove)="onSheetBodyPointerMove($event)"
-                  >
-                    <div class="map-sheet-grid">
-                      @for (category of opportunityCategories; track category.key) {
-                        <label class="map-sheet-pill opportunity-checklist-item">
-                          <img class="map-sheet-pill-icon" [src]="category.icon" alt="" />
-                          <span class="map-sheet-pill-label">{{ category.labelKey | translate }}</span>
-                          <input
-                            [attr.id]="'map-opportunity-category-' + category.key"
-                            type="radio"
-                            name="opportunity-category"
-                            [checked]="selectedOpportunityCategory() === category.key"
-                            (change)="selectOpportunityCategory(category.key)"
-                          />
-                        </label>
-                      }
-                    </div>
-                    <!-- Inside the (position: absolute) panel rather than a sibling of the button
-                         like it used to be: that made it a normal-flow child of .picker-anchor, so
-                         picking a category widened the button's own flex item and shifted which
-                         row of the toolbar it wrapped to — the same bug fixed twice before for
-                         other siblings, this time from content inside the button's own anchor. An
-                         absolutely-positioned panel never affects its anchor's layout size, so
-                         nothing about this button's own slot in the toolbar can change again. -->
-                    @if (selectedOpportunityCategory()) {
-                      <label class="map-sheet-switch-row">
-                        <span>{{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}</span>
-                        <span class="map-sheet-switch">
-                          <input
-                            id="map-competitor-density-toggle"
-                            type="checkbox"
-                            [checked]="competitorDensityActive()"
-                            [disabled]="loadingCompetitorDensity()"
-                            (change)="$any($event.target).checked ? loadCompetitorDensity() : clearCompetitorDensity()"
-                          />
-                          <span class="map-sheet-switch-track"></span>
-                        </span>
-                      </label>
-                    }
-                  </div>
-                </div>
-              }
             </div>
             <!-- No persistent "armed" banner or loading text here (unlike add-property/
                  add-brokerage's in-place button text) — selectOpportunityCategory and
@@ -366,6 +239,157 @@
         </div>
       </div>
       }
+
+      <!-- Both panels below are direct children of .map-pane (not nested under their toggle
+           button's .picker-anchor like before) so they size against the MAP's own box — full
+           width of it, at every breakpoint — via position: absolute, not a .picker-anchor sized to
+           just the button. Each uses pickerPanelsAllowed() (component) for the same
+           streetViewActive/selectedLat-Lng/addMode/addBrokerageMode guard its button sits behind
+           above, since it no longer inherits those ancestor conditions structurally — one shared
+           method instead of restating the 4-condition expression in two more places. -->
+      @if (pickerPanelsAllowed() && showPoiChecklist()) {
+        <div class="map-sheet poi-checklist" [class.sheet-collapsed]="sheetCollapsed()">
+          <div
+            class="map-sheet-header"
+            (click)="onSheetHeaderClick($event)"
+            (wheel)="onSheetHeaderWheel($event)"
+            (pointerdown)="onSheetPointerDown($event)"
+            (pointermove)="onSheetHeaderPointerMove($event)"
+          >
+            <span class="map-sheet-title">{{ 'map.poiLayersTitle' | translate }}</span>
+            <div class="map-sheet-header-actions">
+              <button
+                type="button"
+                class="map-sheet-minimize"
+                [class.is-collapsed]="sheetCollapsed()"
+                (click)="toggleSheetCollapse()"
+                [attr.aria-label]="(sheetCollapsed() ? 'map.maximize' : 'map.minimize') | translate"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              <button type="button" class="map-sheet-close" (click)="togglePoiChecklist()" [attr.aria-label]="'map.close' | translate">
+                <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+              </button>
+            </div>
+          </div>
+          <div
+            class="map-sheet-body map-sheet-body-scroll"
+            (pointerdown)="onSheetPointerDown($event)"
+            (pointermove)="onSheetBodyPointerMove($event)"
+          >
+            @for (group of poiGroups; track group.key) {
+              <div class="map-sheet-group">
+                <span class="map-sheet-group-title">{{ group.labelKey | translate }}</span>
+                <div class="map-sheet-grid">
+                  @for (category of poiCategoriesInGroup(group.key); track category.key) {
+                    <label class="map-sheet-pill poi-checklist-item">
+                      <img class="map-sheet-pill-icon" [src]="category.icon.url" alt="" />
+                      <span class="map-sheet-pill-label">
+                        {{ category.labelKey | translate }}
+                        @if (loadingPoiCategories().has(category.key)) {
+                          <span class="poi-loading">…</span>
+                        }
+                      </span>
+                      <input
+                        [attr.id]="'map-poi-category-' + category.key"
+                        type="checkbox"
+                        [checked]="checkedPoiCategories().has(category.key)"
+                        (change)="togglePoiCategory(category.key, $any($event.target).checked)"
+                      />
+                    </label>
+                  }
+                </div>
+              </div>
+            }
+            <label class="map-sheet-switch-row ageb-checklist-item">
+              <span>{{ 'map.agebLayer' | translate }}</span>
+              <span class="map-sheet-switch">
+                <input id="map-ageb-layer-toggle" type="checkbox" [checked]="showAgebLayer()" (change)="toggleAgebLayer($any($event.target).checked)" />
+                <span class="map-sheet-switch-track"></span>
+              </span>
+            </label>
+            <label class="map-sheet-switch-row ageb-checklist-item">
+              <span>{{ 'map.appreciationLayer' | translate }}</span>
+              <span class="map-sheet-switch">
+                <input
+                  id="map-appreciation-layer-toggle"
+                  type="checkbox"
+                  [checked]="showAppreciationLayer()"
+                  (change)="toggleAppreciationLayer($any($event.target).checked)"
+                />
+                <span class="map-sheet-switch-track"></span>
+              </span>
+            </label>
+            @if (showAppreciationLayer()) {
+              <p class="map-sheet-hint">{{ 'map.appreciationDisclaimer' | translate }}</p>
+            }
+          </div>
+        </div>
+      }
+      @if (pickerPanelsAllowed() && showOpportunityChecklist()) {
+        <div class="map-sheet opportunity-checklist" [class.sheet-collapsed]="sheetCollapsed()" role="radiogroup" [attr.aria-label]="'map.analyzeOpportunity' | translate">
+          <div
+            class="map-sheet-header"
+            (click)="onSheetHeaderClick($event)"
+            (wheel)="onSheetHeaderWheel($event)"
+            (pointerdown)="onSheetPointerDown($event)"
+            (pointermove)="onSheetHeaderPointerMove($event)"
+          >
+            <span class="map-sheet-title">{{ 'map.analyzeOpportunity' | translate }}</span>
+            <div class="map-sheet-header-actions">
+              <button
+                type="button"
+                class="map-sheet-minimize"
+                [class.is-collapsed]="sheetCollapsed()"
+                (click)="toggleSheetCollapse()"
+                [attr.aria-label]="(sheetCollapsed() ? 'map.maximize' : 'map.minimize') | translate"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              <button type="button" class="map-sheet-close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
+                <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+              </button>
+            </div>
+          </div>
+          <div
+            class="map-sheet-body"
+            (pointerdown)="onSheetPointerDown($event)"
+            (pointermove)="onSheetBodyPointerMove($event)"
+          >
+            <div class="map-sheet-grid">
+              @for (category of opportunityCategories; track category.key) {
+                <label class="map-sheet-pill opportunity-checklist-item">
+                  <img class="map-sheet-pill-icon" [src]="category.icon" alt="" />
+                  <span class="map-sheet-pill-label">{{ category.labelKey | translate }}</span>
+                  <input
+                    [attr.id]="'map-opportunity-category-' + category.key"
+                    type="radio"
+                    name="opportunity-category"
+                    [checked]="selectedOpportunityCategory() === category.key"
+                    (change)="selectOpportunityCategory(category.key)"
+                  />
+                </label>
+              }
+            </div>
+            @if (selectedOpportunityCategory()) {
+              <label class="map-sheet-switch-row">
+                <span>{{ (loadingCompetitorDensity() ? 'map.competitorDensityLoading' : 'map.competitorDensityButton') | translate }}</span>
+                <span class="map-sheet-switch">
+                  <input
+                    id="map-competitor-density-toggle"
+                    type="checkbox"
+                    [checked]="competitorDensityActive()"
+                    [disabled]="loadingCompetitorDensity()"
+                    (change)="$any($event.target).checked ? loadCompetitorDensity() : clearCompetitorDensity()"
+                  />
+                  <span class="map-sheet-switch-track"></span>
+                </span>
+              </label>
+            }
+          </div>
+        </div>
+      }
+
       <!-- Its own corner, not the toolbar: a static legend doesn't compete with any tool for
            attention the way the toolbar's buttons do, so it doesn't need to hide/reflow with
            them — anchoring it separately keeps it out of that reflow entirely. -->

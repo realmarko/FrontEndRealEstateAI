@@ -637,10 +637,10 @@
 }
 
 /* Historically anchored the panel under its own toggle button (position: relative + the panel's
-   own position: absolute) — the panel is position: fixed now at every breakpoint (see .map-sheet
-   below), so this wrapper no longer affects its position. Left in place since it still groups the
-   button with the panel it opens in the DOM/template, and removing it would be a template change
-   for zero visual effect. */
+   own position: absolute against THIS element) — the panel is now a direct child of .map-pane
+   instead (see map-view.component.html), positioned against the map's own box so it can span the
+   map's full width rather than just the button's. Left in place since it still groups the button
+   with the toolbar row around it, with no positioning role left. */
 .picker-anchor {
   position: relative;
   display: flex;
@@ -648,54 +648,37 @@
 
 /* Shared by both toolbar picker panels — the POI checklist and the opportunity-category panel are
    the same "native sheet" shape (title bar + content), just with different controls inside. Docks
-   to the bottom of the viewport like a native action sheet at EVERY screen size, not just mobile —
-   a drag/click to collapse it to just its header (see .sheet-collapsed below) works identically
-   with mouse or touch, since the gesture is PointerEvent-driven (see onSheetPointerDown in the
-   component), so there's no reason desktop/tablet should get a different, dropdown-style
-   interaction. Only the WIDTH changes by breakpoint: edge-to-edge on a phone (see the @media rule
-   below), but a deliberately bounded floating card everywhere else — a sheet stretched across an
-   entire desktop monitor would read as a mobile layout left unstyled, not a considered choice. */
+   to the bottom of the MAP (not the toggle button, not the viewport) and spans its full width, at
+   every screen size — a drag/click to collapse it to just its header (see .sheet-collapsed below)
+   works identically with mouse or touch, since the gesture is PointerEvent-driven (see
+   onSheetPointerDown in the component), so there's no reason desktop/tablet should get a
+   different interaction than mobile. Positioned absolute against .map-pane (position: relative —
+   see map-view.component.css), which is why this is now a sibling of .map-toolbar-wrap in the
+   template rather than nested inside a button's .picker-anchor: an element positioned against a
+   small anchor can't also span that anchor's much larger container. */
 .map-sheet {
-  position: fixed;
+  position: absolute;
   z-index: 20;
   display: flex;
   flex-direction: column;
-  left: 1rem;
-  bottom: 1rem;
-  top: auto;
-  width: max-content;
-  min-width: 17rem;
-  max-width: min(23rem, calc(100vw - 2rem));
+  inset: auto 0 0 0;
+  width: auto;
   /* Same frosted-glass treatment as .map-legend below — translucent over the map instead of a
      flat opaque card, so the panel reads as floating native chrome rather than a popup sheet. */
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-radius: 20px;
+  border-radius: 20px 20px 0 0;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22), 0 2px 8px rgba(15, 23, 42, 0.1);
   font-size: 0.85rem;
   color: #1f2937;
-  animation: map-sheet-rise 0.18s ease-out;
-}
-
-@media (max-width: 640px) {
-  .map-sheet {
-    inset: auto 0 0 0;
-    left: 0;
-    bottom: 0;
-    width: auto;
-    min-width: 0;
-    max-width: none;
-    border-radius: 20px 20px 0 0;
-    animation: map-sheet-slide-up 0.18s ease-out;
-  }
+  animation: map-sheet-slide-up 0.18s ease-out;
 }
 
 /* Scrolling a panel's body down (onSheetScroll) adds this class, shrinking the sheet to just its
    header so more of the map is visible underneath; scrolling back up removes it. Applies at every
-   breakpoint now that the sheet itself is the same fixed, bottom-docked shape everywhere — see
-   .map-sheet above. */
+   breakpoint — see .map-sheet above. */
 .map-sheet.sheet-collapsed .map-sheet-body {
   max-height: 0;
   opacity: 0;
@@ -703,19 +686,6 @@
   padding-bottom: 0;
   overflow: hidden;
   pointer-events: none;
-}
-
-/* The floating desktop/tablet card's own entrance — rises in place rather than sliding up from
-   fully off-screen, since it's not docked flush to the viewport edge the way the phone sheet is. */
-@keyframes map-sheet-rise {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @keyframes map-sheet-slide-up {
@@ -753,7 +723,18 @@
   letter-spacing: 0.04em;
 }
 
-.map-sheet-close {
+/* Keeps the minimize and close buttons next to each other as one group — without this, the
+   header's own justify-content: space-between would spread all three children (title included)
+   evenly instead of just pushing the button group to the right edge. */
+.map-sheet-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.map-sheet-close,
+.map-sheet-minimize {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -768,12 +749,27 @@
   transition: background-color 0.12s ease, transform 0.12s ease;
 }
 
-.map-sheet-close:hover {
+.map-sheet-close:hover,
+.map-sheet-minimize:hover {
   background: rgba(255, 255, 255, 0.22);
 }
 
-.map-sheet-close:active {
+.map-sheet-close:active,
+.map-sheet-minimize:active {
   transform: scale(0.9);
+}
+
+.map-sheet-minimize svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+/* Chevron points down (collapse affordance) while expanded, flips to point up (expand/"maximize"
+   affordance) once collapsed — the icon itself communicates what the next click does, rather than
+   staying static while only the tooltip/aria-label changes. */
+.map-sheet-minimize.is-collapsed svg {
+  transform: rotate(180deg);
 }
 
 .map-sheet-body {
