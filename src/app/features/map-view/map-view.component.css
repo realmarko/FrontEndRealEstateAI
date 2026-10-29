@@ -665,9 +665,10 @@
   width: auto;
   /* Same frosted-glass idea as .map-legend below, but visibly more translucent — this panel is a
      large surface, not a small badge, so .map-legend's 0.95 opacity (already barely translucent on
-     a compact chip) would read as a flat opaque card here, not glass. Low enough that the map's
-     own colors tint through the blur, high enough that the pill/switch-row text stays legible. */
-  background: rgba(255, 255, 255, 0.68);
+     a compact chip) would read as a flat opaque card here, not glass. Pushed lower than a first
+     pass (0.68) per explicit feedback that it still wasn't translucent enough; the 14px blur is
+     what keeps text legible at this opacity, not the fill itself. */
+  background: rgba(255, 255, 255, 0.45);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-radius: 20px 20px 0 0;
@@ -707,9 +708,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  /* Lower opacity than the earlier 0.92 so the header reads as tinted glass too, not a solid bar —
-     white text on map-tinted near-black still holds plenty of contrast at this level. */
-  background: rgba(0, 0, 0, 0.72);
+  /* Pushed lower than a first pass (0.72) per explicit feedback — white text still reads fine at
+     this level since dark backgrounds hold contrast better than light ones as opacity drops. */
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: #fff;
