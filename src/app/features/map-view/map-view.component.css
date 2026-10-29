@@ -636,83 +636,85 @@
   color: #fff;
 }
 
-/* Wraps a toggle button together with the panel it opens, so the panel can be positioned
-   relative to that specific button (below it) instead of the whole toolbar row. */
+/* Historically anchored the panel under its own toggle button (position: relative + the panel's
+   own position: absolute) — the panel is position: fixed now at every breakpoint (see .map-sheet
+   below), so this wrapper no longer affects its position. Left in place since it still groups the
+   button with the panel it opens in the DOM/template, and removing it would be a template change
+   for zero visual effect. */
 .picker-anchor {
   position: relative;
   display: flex;
 }
 
-/* Shared by both toolbar picker panels — the POI checklist and the opportunity-category panel
-   are the same "native sheet" shape (title bar + content), just with different controls inside.
-   Anchored to its own button via .picker-anchor on larger screens, so the panel opens directly
-   under the button that toggled it; on a phone it instead docks to the bottom of the screen like
-   a native action sheet — easier to reach with a thumb than a small dropdown pinned to a toolbar
-   icon, and it can't run off the top/side edges the way an anchored panel could. */
+/* Shared by both toolbar picker panels — the POI checklist and the opportunity-category panel are
+   the same "native sheet" shape (title bar + content), just with different controls inside. Docks
+   to the bottom of the viewport like a native action sheet at EVERY screen size, not just mobile —
+   a drag/click to collapse it to just its header (see .sheet-collapsed below) works identically
+   with mouse or touch, since the gesture is PointerEvent-driven (see onSheetPointerDown in the
+   component), so there's no reason desktop/tablet should get a different, dropdown-style
+   interaction. Only the WIDTH changes by breakpoint: edge-to-edge on a phone (see the @media rule
+   below), but a deliberately bounded floating card everywhere else — a sheet stretched across an
+   entire desktop monitor would read as a mobile layout left unstyled, not a considered choice. */
 .map-sheet {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  left: 0;
-  z-index: 3;
+  position: fixed;
+  z-index: 20;
   display: flex;
   flex-direction: column;
+  left: 1rem;
+  bottom: 1rem;
+  top: auto;
   width: max-content;
   min-width: 17rem;
+  max-width: min(23rem, calc(100vw - 2rem));
   /* Same frosted-glass treatment as .map-legend below — translucent over the map instead of a
      flat opaque card, so the panel reads as floating native chrome rather than a popup sheet. */
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.22), 0 2px 8px rgba(15, 23, 42, 0.1);
   font-size: 0.85rem;
   color: #1f2937;
-  /* On a narrow viewport this can still run past the right edge (anchored via `left: 0` to
-     whichever button opened it, with no clamp) — capped here so it's never wider than the
-     screen; the opportunity button sits near the right end of the toolbar, so its own panel
-     additionally flips to grow leftward below (see the @media rule) instead of off-screen. */
-  max-width: calc(100vw - 2rem);
-}
-
-/* Only flips to right-anchored (grow leftward from the button) under the same breakpoint this
-   flip originally shipped at (see git history) — the opportunity button sits near the right end
-   of the toolbar, so left-anchoring overflows the right edge once the viewport gets narrow
-   enough. Applying this unconditionally instead pushed the panel's left edge into negative
-   coordinates (off-screen) on an ~1100px-wide desktop viewport, since min-width: 17rem grown
-   leftward from a button only ~110px from the left edge doesn't fit; above this breakpoint,
-   left-anchoring (the same as .poi-checklist) always has enough room. */
-@media (max-width: 480px) {
-  .opportunity-checklist {
-    right: 0;
-    left: auto;
-  }
+  animation: map-sheet-rise 0.18s ease-out;
 }
 
 @media (max-width: 640px) {
   .map-sheet {
-    position: fixed;
     inset: auto 0 0 0;
-    top: auto;
-    z-index: 20;
+    left: 0;
+    bottom: 0;
     width: auto;
     min-width: 0;
     max-width: none;
     border-radius: 20px 20px 0 0;
     animation: map-sheet-slide-up 0.18s ease-out;
   }
+}
 
-  /* Scrolling a panel's body down (onSheetScroll) adds this class, shrinking the sheet to just
-     its header so more of the map is visible underneath; scrolling back up removes it. Desktop's
-     anchored dropdown never gets this class's visual effect since it's scoped to this breakpoint
-     (see the resetSheetCollapse comment in the component for why the signal itself isn't gated). */
-  .map-sheet.sheet-collapsed .map-sheet-body {
-    max-height: 0;
+/* Scrolling a panel's body down (onSheetScroll) adds this class, shrinking the sheet to just its
+   header so more of the map is visible underneath; scrolling back up removes it. Applies at every
+   breakpoint now that the sheet itself is the same fixed, bottom-docked shape everywhere — see
+   .map-sheet above. */
+.map-sheet.sheet-collapsed .map-sheet-body {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* The floating desktop/tablet card's own entrance — rises in place rather than sliding up from
+   fully off-screen, since it's not docked flush to the viewport edge the way the phone sheet is. */
+@keyframes map-sheet-rise {
+  from {
     opacity: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    overflow: hidden;
-    pointer-events: none;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
