@@ -649,6 +649,7 @@ export const en: Record<string, string> = {
   'map.agebLoadError': "Couldn't load census zones for this area.",
   'map.appreciationLayer': 'Appreciation potential (2 years)',
   'map.appreciationLoadError': "Couldn't load appreciation potential for this area.",
+  'map.appreciationTooManyZones': 'Too many zones in view — zoom in further to use this layer.',
   'map.appreciationDisclaimer': 'Estimated from public indicators (new developments, connectivity, nearby socioeconomic level, and local prices). Not an investment guarantee.',
   'map.appreciationScore': 'Appreciation potential: {{score}}/100',
   'map.appreciationUnavailable': 'Not enough data to estimate this zone\'s potential.',

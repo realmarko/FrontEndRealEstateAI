@@ -2455,9 +2455,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         if (requestId !== this.appreciationRequestId) return;
         this.renderAppreciationLayer(agebs);
       }),
-      error: () => {
+      error: (err: { status?: number }) => {
         if (requestId !== this.appreciationRequestId) return;
-        this.notification.error('map.appreciationLoadError');
+        // A 400 here specifically means the viewport has too many AGEBs for the layer's own cap
+        // (GeomarketingController.MaxAppreciationPotentialAgebs) — same distinction
+        // loadCompetitorDensity already makes for its own too-many-zones case, so the visitor
+        // gets "zoom in" instead of a generic failure message for the one error they can fix.
+        this.notification.error(err?.status === 400 ? 'map.appreciationTooManyZones' : 'map.appreciationLoadError');
       }
     });
   }

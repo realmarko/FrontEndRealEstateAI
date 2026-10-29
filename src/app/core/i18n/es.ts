@@ -649,6 +649,7 @@ export const es: Record<string, string> = {
   'map.agebLoadError': 'No se pudieron cargar las zonas censales de esta área.',
   'map.appreciationLayer': 'Potencial de plusvalía (2 años)',
   'map.appreciationLoadError': 'No se pudo cargar el potencial de plusvalía de esta área.',
+  'map.appreciationTooManyZones': 'Demasiadas zonas en esta vista — acércate más en el mapa para usar esta capa.',
   'map.appreciationDisclaimer': 'Estimado a partir de indicadores públicos (desarrollos nuevos, conectividad, nivel socioeconómico vecino y precios propios). No es una garantía de inversión.',
   'map.appreciationScore': 'Potencial de plusvalía: {{score}}/100',
   'map.appreciationUnavailable': 'Sin datos suficientes para estimar el potencial de esta zona.',
