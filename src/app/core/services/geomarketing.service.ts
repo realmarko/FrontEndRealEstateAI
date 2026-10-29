@@ -68,6 +68,16 @@ export interface AgebCompetitorDensity {
   competitorCount: number | null;
 }
 
+export interface AppreciationPotential {
+  cvegeo: string;
+  boundary: GeoJsonGeometry;
+  // null means no signal had enough data for this AGEB — distinct from a genuine low score.
+  score: number | null;
+  // One human-readable line per signal that contributed to score — shown in the info window so
+  // the number is never a black box.
+  explanations: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class GeomarketingService {
   private readonly http = inject(HttpClient);
@@ -148,6 +158,15 @@ export class GeomarketingService {
         neLat: String(neLat),
         neLng: String(neLng)
       }
+    });
+  }
+
+  // Same AGEBs as agebsInBounds, each scored for 2-year appreciation potential instead of a
+  // socioeconomic level — see GeomarketingController.GetAppreciationPotential. Opt-in layer, not
+  // refetched on every pan (same reasoning as competitorDensity above).
+  appreciationPotential(swLat: number, swLng: number, neLat: number, neLng: number): Observable<AppreciationPotential[]> {
+    return this.http.get<AppreciationPotential[]>(`${this.apiUrl}/appreciation-potential`, {
+      params: { swLat: String(swLat), swLng: String(swLng), neLat: String(neLat), neLng: String(neLng) }
     });
   }
 }

@@ -244,6 +244,21 @@
                           <span class="map-sheet-switch-track"></span>
                         </span>
                       </label>
+                      <label class="map-sheet-switch-row ageb-checklist-item">
+                        <span>{{ 'map.appreciationLayer' | translate }}</span>
+                        <span class="map-sheet-switch">
+                          <input
+                            id="map-appreciation-layer-toggle"
+                            type="checkbox"
+                            [checked]="showAppreciationLayer()"
+                            (change)="toggleAppreciationLayer($any($event.target).checked)"
+                          />
+                          <span class="map-sheet-switch-track"></span>
+                        </span>
+                      </label>
+                      @if (showAppreciationLayer()) {
+                        <p class="map-sheet-hint">{{ 'map.appreciationDisclaimer' | translate }}</p>
+                      }
                     </div>
                   </div>
                 }

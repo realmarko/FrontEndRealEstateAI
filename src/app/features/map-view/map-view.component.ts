@@ -14,6 +14,7 @@ import { SavedSearchService } from '../../core/services/saved-search.service';
 import {
   AgebBoundary,
   AgebCompetitorDensity,
+  AppreciationPotential,
   GeoJsonGeometry,
   GeomarketingService,
   MunicipalityListItem,
@@ -318,6 +319,28 @@ const SOCIOECONOMIC_LEVEL_COLORS: Record<SocioeconomicLevel, string> = {
 };
 const AGEB_UNSCORED_COLOR = '#9ca3af';
 
+// Continuous low->high scale for the appreciation-potential layer (score 0-100), distinct from
+// SOCIOECONOMIC_LEVEL_COLORS' discrete reds since this is a different metric shown as an
+// alternative to that layer, never at the same time (see showAppreciationLayer/showAgebLayer
+// mutual exclusion in toggleAppreciationLayer). Grey (AGEB_UNSCORED_COLOR) still means "no data".
+// Explanations embed admin-entered free text (a Fraccionamiento's Name — see
+// AppreciationPotentialService.AddNewDevelopmentSignalAsync) into an HTML string passed to
+// infoWindow.setContent, unlike every other dynamic label on this map, which is set via
+// .textContent on a real DOM node (see e.g. the POI-name container above). Escaped here instead,
+// since building this particular info-window content as DOM nodes would be a bigger restructure
+// than the fix warrants right now.
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]!);
+}
+
+function appreciationColor(score: number): string {
+  if (score < 20) return '#fef3c7';
+  if (score < 40) return '#fde68a';
+  if (score < 60) return '#86efac';
+  if (score < 80) return '#22c55e';
+  return '#15803d';
+}
+
 export type OpportunityCategoryKey = 'pharmacy' | 'gym' | 'oxxo' | 'gasStation';
 
 interface OpportunityCategoryConfig {
@@ -537,6 +560,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private searchMunicipalityRequestId = 0;
 
   readonly showAgebLayer = signal(false);
+  // "Potencial de plusvalía (2 años)" layer — same on-pan refetch behavior as showAgebLayer, but
+  // mutually exclusive with it (see toggleAppreciationLayer): both paint AGEB polygons, so
+  // showing both at once would just overdraw one with the other.
+  readonly showAppreciationLayer = signal(false);
   // The opt-in "mapa de color competitivo" layer — fetched once per click (not on every pan,
   // unlike showAgebLayer above) for whichever opportunity category is currently selected. See
   // loadCompetitorDensity.
@@ -645,6 +672,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private opportunityMarker?: google.maps.Marker;
   private agebDataLayer?: google.maps.Data;
   private competitorDensityLayer?: google.maps.Data;
+  private appreciationDataLayer?: google.maps.Data;
   // Freehand drawing is hand-rolled from the map's own mousedown/mousemove/mouseup events rather
   // than the Maps JS API's old Drawing library — that library (google.maps.drawing.DrawingManager)
   // was removed from the API as of version 3.65 (its type is still shipped, but empty/deprecated;
@@ -658,6 +686,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // uncheck — same shape as poiRequestIds, one counter since only one AGEB fetch is ever in
   // flight (unlike POI's one-counter-per-category).
   private agebRequestId = 0;
+  private appreciationRequestId = 0;
   // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
   // this feature's own search) — an async opportunity search checks it against the value it
   // captured when the search started, so a slow response can't steal focus back from a listing
@@ -898,6 +927,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         // see togglePoiCategory), AGEBs are our own indexed Postgres query, cheap enough to
         // refetch on every pan/zoom so the layer actually follows the viewport.
         if (this.showAgebLayer()) this.loadAgebsForCurrentBounds();
+        // Appreciation potential does NOT auto-refetch on pan/zoom like the AGEB layer above —
+        // unlike that one, each AGEB here can trigger up to 2 live Overpass HTTP calls
+        // (AppreciationPotentialService's connectivity signal), so an automatic on-pan layer
+        // would repeat that fan-out on every tick of normal map exploration. Same one-shot,
+        // caller-triggered shape as loadCompetitorDensity below instead — see
+        // toggleAppreciationLayer.
       });
     });
 
@@ -2328,6 +2363,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.showAgebLayer.set(checked);
 
     if (checked) {
+      // Both this layer and the appreciation one paint AGEB polygons over the same area — showing
+      // both at once would just have one overdraw the other, so turning one on clears the other.
+      if (this.showAppreciationLayer()) this.toggleAppreciationLayer(false);
       this.loadAgebsForCurrentBounds();
       return;
     }
@@ -2385,6 +2423,89 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         properties: { cvegeo: ageb.cvegeo, estimatedSocioeconomicLevel: ageb.estimatedSocioeconomicLevel }
       });
     }
+  }
+
+  // "Potencial de plusvalía (2 años)" layer — one-shot, caller-triggered fetch like
+  // loadCompetitorDensity below, NOT auto-refetched on pan/zoom like showAgebLayer: each AGEB can
+  // trigger up to 2 live Overpass HTTP calls server-side (AppreciationPotentialService's
+  // connectivity signal), so this follows the "opt-in, bounded cost" shape instead.
+  toggleAppreciationLayer(checked: boolean): void {
+    this.showAppreciationLayer.set(checked);
+
+    if (checked) {
+      if (this.showAgebLayer()) this.toggleAgebLayer(false);
+      this.loadAppreciationForCurrentBounds();
+      return;
+    }
+
+    this.appreciationRequestId++;
+    this.appreciationDataLayer?.forEach((feature) => this.appreciationDataLayer!.remove(feature));
+  }
+
+  private loadAppreciationForCurrentBounds(): void {
+    const bounds = this.map?.getBounds();
+    if (!bounds) return;
+
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    const requestId = ++this.appreciationRequestId;
+
+    this.geomarketingService.appreciationPotential(sw.lat(), sw.lng(), ne.lat(), ne.lng()).subscribe({
+      next: (agebs) => this.zone.run(() => {
+        if (requestId !== this.appreciationRequestId) return;
+        this.renderAppreciationLayer(agebs);
+      }),
+      error: () => {
+        if (requestId !== this.appreciationRequestId) return;
+        this.notification.error('map.appreciationLoadError');
+      }
+    });
+  }
+
+  private renderAppreciationLayer(agebs: AppreciationPotential[]): void {
+    if (!this.map) return;
+
+    if (!this.appreciationDataLayer) {
+      this.appreciationDataLayer = new google.maps.Data({ map: this.map });
+      this.appreciationDataLayer.setStyle((feature) => {
+        const score = feature.getProperty('score') as number | null;
+        const color = score === null ? AGEB_UNSCORED_COLOR : appreciationColor(score);
+        return { fillColor: color, fillOpacity: 0.45, strokeColor: color, strokeWeight: 1 };
+      });
+      this.appreciationDataLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
+        this.zone.run(() => this.openAppreciationInfo(event));
+      });
+    }
+
+    this.appreciationDataLayer.forEach((feature) => this.appreciationDataLayer!.remove(feature));
+    for (const ageb of agebs) {
+      this.appreciationDataLayer.addGeoJson({
+        type: 'Feature',
+        geometry: ageb.boundary,
+        properties: { cvegeo: ageb.cvegeo, score: ageb.score, explanations: ageb.explanations }
+      });
+    }
+  }
+
+  // Shows the score + per-signal breakdown (never just the bare number) — the whole point of
+  // AppreciationPotentialDto.Explanations is that this heuristic is never a black box.
+  private openAppreciationInfo(event: google.maps.Data.MouseEvent): void {
+    if (!this.infoWindow || !event.latLng) return;
+
+    const score = event.feature.getProperty('score') as number | null;
+    const explanations = (event.feature.getProperty('explanations') as string[] | null) ?? [];
+
+    const scoreLine =
+      score === null
+        ? this.translation.t('map.appreciationUnavailable')
+        : this.translation.t('map.appreciationScore', { score: String(Math.round(score)) });
+    const explanationLines = explanations.map((line) => `<li>${escapeHtml(line)}</li>`).join('');
+
+    this.infoWindow.setContent(
+      `<div class="appreciation-info"><strong>${scoreLine}</strong>${explanationLines ? `<ul>${explanationLines}</ul>` : ''}</div>`
+    );
+    this.infoWindow.setPosition(event.latLng);
+    this.infoWindow.open(this.map);
   }
 
   // One-shot, caller-triggered fetch for the opt-in competitor-density layer — unlike
