@@ -687,6 +687,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // flight (unlike POI's one-counter-per-category).
   private agebRequestId = 0;
   private appreciationRequestId = 0;
+  // Reset to 0 each time the layer is turned on (see toggleAppreciationLayer) — caps the
+  // auto-zoom-and-retry loop in loadAppreciationForCurrentBounds's 400 handler.
+  private appreciationZoomRetries = 0;
+  private static readonly MaxAppreciationZoomRetries = 6;
   // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
   // this feature's own search) — an async opportunity search checks it against the value it
   // captured when the search started, so a slow response can't steal focus back from a listing
@@ -2434,6 +2438,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     if (checked) {
       if (this.showAgebLayer()) this.toggleAgebLayer(false);
+      this.appreciationZoomRetries = 0;
       this.loadAppreciationForCurrentBounds();
       return;
     }
@@ -2455,14 +2460,24 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         if (requestId !== this.appreciationRequestId) return;
         this.renderAppreciationLayer(agebs);
       }),
-      error: (err: { status?: number }) => {
+      error: (err: { status?: number }) => this.zone.run(() => {
         if (requestId !== this.appreciationRequestId) return;
+
         // A 400 here specifically means the viewport has too many AGEBs for the layer's own cap
-        // (GeomarketingController.MaxAppreciationPotentialAgebs) — same distinction
-        // loadCompetitorDensity already makes for its own too-many-zones case, so the visitor
-        // gets "zoom in" instead of a generic failure message for the one error they can fix.
+        // (GeomarketingController.MaxAppreciationPotentialAgebs). Rather than making the visitor
+        // zoom in by hand, zoom in one level toward the map's current center ourselves and retry
+        // — same center the visitor was already looking at, just tighter. Bounded by
+        // MaxAppreciationZoomRetries so a pathologically AGEB-dense area can't loop forever; that
+        // case still falls back to the explicit "zoom in" message below.
+        if (err?.status === 400 && this.map && this.appreciationZoomRetries < MapViewComponent.MaxAppreciationZoomRetries) {
+          this.appreciationZoomRetries++;
+          this.map.setZoom((this.map.getZoom() ?? 12) + 1);
+          this.loadAppreciationForCurrentBounds();
+          return;
+        }
+
         this.notification.error(err?.status === 400 ? 'map.appreciationTooManyZones' : 'map.appreciationLoadError');
-      }
+      })
     });
   }
 
