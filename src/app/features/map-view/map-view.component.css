@@ -772,6 +772,18 @@
   transform: rotate(180deg);
 }
 
+/* Desktop-only affordance — tablet and phone already have the native drag-to-collapse gesture
+   (onSheetPointerDown/onSheetHeaderPointerMove) plus the "tap anywhere on the header" fallback,
+   both far more natural with a touchscreen than hunting for a small button; a mouse has neither of
+   those conventions, which is the actual reason this button exists. Same breakpoint the map's own
+   mobile/tablet single-pane layout switches at (map-view-mobile.component.css), so "desktop" here
+   matches what the rest of this page already calls desktop. */
+@media (max-width: 860px) {
+  .map-sheet-minimize {
+    display: none;
+  }
+}
+
 .map-sheet-body {
   display: flex;
   flex-direction: column;
