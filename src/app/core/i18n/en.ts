@@ -602,7 +602,7 @@ export const en: Record<string, string> = {
   'map.editLocationSaving': 'Saving…',
   'map.editLocationSaved': 'Location updated.',
   'map.editLocationError': "Couldn't update the location. Please try again.",
-  'map.analyzeOpportunity': 'Everyday lifestyle',
+  'map.analyzeOpportunity': 'Business opportunity',
   'map.clickToAnalyze': 'Click on the map to analyze that spot',
   'map.analyzing': 'Analyzing…',
   'map.opportunityPharmacy': 'Pharmacy',

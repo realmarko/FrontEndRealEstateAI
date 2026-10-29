@@ -350,12 +350,15 @@ interface OpportunityCategoryConfig {
   // labelKey (the radio button's own label) since "OXXO"/"gyms" read naturally in that sentence
   // but "Pharmacy" (singular, capitalized) does not.
   pluralLabelKey: string;
-  // Its own Google Places "type" and marker icon — not borrowed from POI_CATEGORIES via a
-  // poiKey lookup, since that coupling only existed because pharmacy happened to already be a
-  // POI checklist entry. The opportunity tool and the POI checklist are separate features that
-  // shouldn't have to share category definitions.
+  // Its own Google Places "type" — not borrowed from POI_CATEGORIES via a poiKey lookup, since
+  // that coupling only existed because pharmacy happened to already be a POI checklist entry.
+  // The opportunity tool and the POI checklist are separate features that shouldn't have to
+  // share category definitions. The icon itself is a deliberate exception to that: it reuses the
+  // exact same createPoiIcon(color, glyph) pair POI_CATEGORIES already defines for the same
+  // real-world category (pharmacy/gym/oxxo/gas station both exist in both lists), so the same
+  // business type doesn't show two different icons depending on which panel it's picked from.
   placeType: string;
-  icon: string;
+  icon: google.maps.Icon;
   radiusMeters: number;
   // Competitor count at/below which the area still counts as "good"/"moderate" — above the
   // second threshold it's "saturated". Each category is tuned to its own typical density
@@ -377,7 +380,7 @@ const OPPORTUNITY_CATEGORIES: OpportunityCategoryConfig[] = [
     labelKey: 'map.opportunityPharmacy',
     pluralLabelKey: 'map.opportunityPharmacyPlural',
     placeType: 'pharmacy',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/purple-dot.png',
+    icon: createPoiIcon('#b91c1c', PHARMACY_GLYPH),
     radiusMeters: 1000,
     goodMaxCount: 2,
     moderateMaxCount: 5,
@@ -388,7 +391,7 @@ const OPPORTUNITY_CATEGORIES: OpportunityCategoryConfig[] = [
     labelKey: 'map.opportunityGym',
     pluralLabelKey: 'map.opportunityGymPlural',
     placeType: 'gym',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+    icon: createPoiIcon('#2563eb', GYM_GLYPH),
     radiusMeters: 1000,
     goodMaxCount: 2,
     moderateMaxCount: 4,
@@ -399,7 +402,7 @@ const OPPORTUNITY_CATEGORIES: OpportunityCategoryConfig[] = [
     labelKey: 'map.opportunityOxxo',
     pluralLabelKey: 'map.opportunityOxxoPlural',
     placeType: 'convenience_store',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+    icon: createPoiIcon('#dc2626', CONVENIENCE_STORE_GLYPH),
     radiusMeters: 500,
     goodMaxCount: 1,
     moderateMaxCount: 3,
@@ -410,7 +413,7 @@ const OPPORTUNITY_CATEGORIES: OpportunityCategoryConfig[] = [
     labelKey: 'map.opportunityGasStation',
     pluralLabelKey: 'map.opportunityGasStationPlural',
     placeType: 'gas_station',
-    icon: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+    icon: createPoiIcon('#ea580c', GAS_STATION_GLYPH),
     radiusMeters: 1500,
     goodMaxCount: 1,
     moderateMaxCount: 3,
@@ -1600,7 +1603,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     position: google.maps.LatLngLiteral,
     result: OpportunityAnalysisResult,
     radiusMeters: number,
-    icon: string,
+    icon: google.maps.Icon,
     categoryPluralLabel: string
   ): void {
     if (!this.map) return;

@@ -359,7 +359,7 @@
             <div class="map-sheet-grid">
               @for (category of opportunityCategories; track category.key) {
                 <label class="map-sheet-pill opportunity-checklist-item">
-                  <img class="map-sheet-pill-icon" [src]="category.icon" alt="" />
+                  <img class="map-sheet-pill-icon" [src]="category.icon.url" alt="" />
                   <span class="map-sheet-pill-label">{{ category.labelKey | translate }}</span>
                   <input
                     [attr.id]="'map-opportunity-category-' + category.key"
