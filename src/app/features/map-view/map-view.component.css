@@ -739,6 +739,7 @@
 }
 
 .map-sheet-close,
+.map-sheet-clear,
 .map-sheet-minimize {
   display: flex;
   align-items: center;
@@ -755,15 +756,18 @@
 }
 
 .map-sheet-close:hover,
+.map-sheet-clear:hover,
 .map-sheet-minimize:hover {
   background: rgba(255, 255, 255, 0.22);
 }
 
 .map-sheet-close:active,
+.map-sheet-clear:active,
 .map-sheet-minimize:active {
   transform: scale(0.9);
 }
 
+.map-sheet-clear svg,
 .map-sheet-minimize svg {
   width: 16px;
   height: 16px;

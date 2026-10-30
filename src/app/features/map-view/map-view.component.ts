@@ -1708,12 +1708,28 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   togglePoiChecklist(): void {
     this.showPoiChecklist.update((visible) => !visible);
-    // Both picker panels are positioned near the same corner of the toolbar — having both open
-    // at once visually overlaps them, so opening one closes the other.
     if (this.showPoiChecklist()) {
+      // Both picker panels are positioned near the same corner of the toolbar — having both open
+      // at once visually overlaps them, so opening one closes the other.
       this.closeOpportunityPicker();
       this.resetSheetCollapse();
+    } else {
+      // Closing clears everything this panel controls, same as its own "Clear" button — a
+      // closed panel showing no selected options but still leaving POI markers/AGEB/appreciation
+      // layers on the map would be a silent mismatch between what the UI shows and what's drawn.
+      this.resetPoiChecklist();
     }
+  }
+
+  // Shared by togglePoiChecklist's own close path and the panel's explicit "Clear" button — reset
+  // to the same empty state either way, not just hide the panel while leaving everything it
+  // turned on still active underneath.
+  resetPoiChecklist(): void {
+    for (const key of Array.from(this.checkedPoiCategories())) {
+      this.togglePoiCategory(key, false);
+    }
+    if (this.showAgebLayer()) this.toggleAgebLayer(false);
+    if (this.showAppreciationLayer()) this.toggleAppreciationLayer(false);
   }
 
   // Resets the collapse state whenever a panel (re)opens, so it always starts expanded rather
@@ -1816,10 +1832,19 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // still armed to run an analysis on the next click.
   private closeOpportunityPicker(): void {
     this.showOpportunityChecklist.set(false);
-    if (this.opportunityMode) {
-      this.opportunityMode = false;
-      this.clearOpportunityOverlay();
-    }
+    this.resetOpportunityChecklist();
+  }
+
+  // Shared by closeOpportunityPicker above and the panel's own explicit "Clear" button — same
+  // reset either way: disarm click-to-analyze, clear any drawn radius/marker/result, drop the
+  // selected category, and turn off the competitor-density overlay if it was on. Unconditional
+  // (not gated on opportunityMode) since closing the panel after a completed analysis — not just
+  // while still armed — should also clear what that analysis drew on the map.
+  resetOpportunityChecklist(): void {
+    this.opportunityMode = false;
+    this.clearOpportunityOverlay();
+    this.selectedOpportunityCategory.set(null);
+    if (this.competitorDensityActive()) this.clearCompetitorDensity();
   }
 
   // The panel's own close (X) button — same full reset as closeOpportunityPicker above (panel
@@ -1986,7 +2011,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.addBrokerageMode = false;
     this.clearPendingLocation();
     this.closeOpportunityPicker();
-    this.showPoiChecklist.set(false);
+    if (this.showPoiChecklist()) {
+      this.showPoiChecklist.set(false);
+      this.resetPoiChecklist();
+    }
     this.setFreehandMode(true);
     // Same toast treatment as selectOpportunityCategory's own hint — was a persistent toolbar
     // paragraph before, which (like that hint) only ever needed to say it once.
@@ -2146,7 +2174,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.showOpportunityChecklist.set(true);
     // Both picker panels are positioned near the same corner of the toolbar — having both
     // open at once visually overlaps them, so opening one closes the other.
-    this.showPoiChecklist.set(false);
+    if (this.showPoiChecklist()) {
+      this.showPoiChecklist.set(false);
+      this.resetPoiChecklist();
+    }
     this.resetSheetCollapse();
   }
 

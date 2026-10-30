@@ -681,6 +681,7 @@ export const es: Record<string, string> = {
   'map.cmaTitle': 'Análisis de mercado',
   'map.close': 'Cerrar',
   'map.minimize': 'Minimizar',
+  'map.clearFilters': 'Limpiar',
   'map.maximize': 'Maximizar',
   'map.cmaNoData': 'No hay suficientes propiedades con precio en esta zona para calcular un análisis.',
   'map.cmaSale': 'Venta',
