@@ -21,6 +21,15 @@
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   color: #f6f5f3;
   position: relative;
+  /* backdrop-filter above already makes this a stacking context, but with no z-index of its own
+     it's painted in that context's z-index:auto layer — which sits BELOW any sibling page content
+     that sets an explicit z-index, however small (e.g. /map's .search-bar at z-index: 3). That let
+     a page's own content paint over the account dropdown (z-index: 20, but scoped inside this
+     element's own context) even though 20 > 3. An explicit z-index here promotes the whole navbar,
+     dropdown included, into the positive-z-index layer where magnitude comparisons actually apply
+     — picked above every "normal" in-page z-index seen in the app (sheets/toolbars top out at 20)
+     but below the full-screen modal/overlay tier (900+), which should still cover the navbar. */
+  z-index: 30;
   flex-wrap: wrap;
   /* A soft shadow reads as a scroll edge where content meets this floating bar, instead of the
      hard 1px rule this replaced. */
