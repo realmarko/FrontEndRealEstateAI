@@ -268,6 +268,20 @@
   text-align: right;
 }
 
+/* A plain "Sí"/"No" pair reads as a form field, not a feature list — a check mark for the
+   present case reads faster at a glance and matches how amenity checklists are usually shown
+   elsewhere (e.g. fact-sheet PDF). "No" stays as text: there's no meaningful icon for absence
+   that isn't just a different kind of clutter. */
+.spec-row dd .yes-check {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.15em;
+  background: #16a34a;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
 @media (max-width: 640px) {
   .spec-list {
     grid-template-columns: 1fr;

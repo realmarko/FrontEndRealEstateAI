@@ -261,52 +261,52 @@
           <h2 class="section-title">{{ 'listingDetail.amenityDetailsTitle' | translate }}</h2>
           <dl class="spec-list">
             @if (listing.hasKitchen != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasKitchen' | translate }}</dt><dd>{{ (listing.hasKitchen ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasKitchen' | translate }}</dt><dd>@if (listing.hasKitchen) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasLivingRoom != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasLivingRoom' | translate }}</dt><dd>{{ (listing.hasLivingRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasLivingRoom' | translate }}</dt><dd>@if (listing.hasLivingRoom) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasDiningRoom != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasDiningRoom' | translate }}</dt><dd>{{ (listing.hasDiningRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasDiningRoom' | translate }}</dt><dd>@if (listing.hasDiningRoom) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasPotableWater != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasPotableWater' | translate }}</dt><dd>{{ (listing.hasPotableWater ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasPotableWater' | translate }}</dt><dd>@if (listing.hasPotableWater) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasDrainage != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>{{ (listing.hasDrainage ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>@if (listing.hasDrainage) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasElectricity != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasElectricity' | translate }}</dt><dd>{{ (listing.hasElectricity ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasElectricity' | translate }}</dt><dd>@if (listing.hasElectricity) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasPool != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasPool' | translate }}</dt><dd>{{ (listing.hasPool ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasPool' | translate }}</dt><dd>@if (listing.hasPool) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasTerrace != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasTerrace' | translate }}</dt><dd>{{ (listing.hasTerrace ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasTerrace' | translate }}</dt><dd>@if (listing.hasTerrace) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasBalcony != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasBalcony' | translate }}</dt><dd>{{ (listing.hasBalcony ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasBalcony' | translate }}</dt><dd>@if (listing.hasBalcony) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasServiceRoom != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasServiceRoom' | translate }}</dt><dd>{{ (listing.hasServiceRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasServiceRoom' | translate }}</dt><dd>@if (listing.hasServiceRoom) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasLaundryArea != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasLaundryArea' | translate }}</dt><dd>{{ (listing.hasLaundryArea ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasLaundryArea' | translate }}</dt><dd>@if (listing.hasLaundryArea) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasStorageRoom != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasStorageRoom' | translate }}</dt><dd>{{ (listing.hasStorageRoom ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasStorageRoom' | translate }}</dt><dd>@if (listing.hasStorageRoom) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasGym != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasGym' | translate }}</dt><dd>{{ (listing.hasGym ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasGym' | translate }}</dt><dd>@if (listing.hasGym) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasSecurity != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasSecurity' | translate }}</dt><dd>{{ (listing.hasSecurity ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasSecurity' | translate }}</dt><dd>@if (listing.hasSecurity) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasElevator != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasElevator' | translate }}</dt><dd>{{ (listing.hasElevator ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasElevator' | translate }}</dt><dd>@if (listing.hasElevator) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasBbqArea != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasBbqArea' | translate }}</dt><dd>{{ (listing.hasBbqArea ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasBbqArea' | translate }}</dt><dd>@if (listing.hasBbqArea) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
           </dl>
         }
@@ -318,7 +318,7 @@
               <div class="spec-row"><dt>{{ 'listingForm.commercialUnitCount' | translate }}</dt><dd>{{ listing.commercialUnitCount }}</dd></div>
             }
             @if (listing.hasApartmentUnit != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasApartmentUnit' | translate }}</dt><dd>{{ (listing.hasApartmentUnit ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasApartmentUnit' | translate }}</dt><dd>@if (listing.hasApartmentUnit) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.landUseZoning) {
               <div class="spec-row"><dt>{{ 'listingDetail.specZoning' | translate }}</dt><dd>{{ listing.landUseZoning }}</dd></div>
@@ -327,7 +327,7 @@
               <div class="spec-row"><dt>{{ 'listingDetail.specTenure' | translate }}</dt><dd>{{ key | translate }}</dd></div>
             }
             @if (listing.hasEjidalCertificate != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasEjidalCertificate' | translate }}</dt><dd>{{ (listing.hasEjidalCertificate ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasEjidalCertificate' | translate }}</dt><dd>@if (listing.hasEjidalCertificate) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.frontageWidthMeters != null) {
               <div class="spec-row"><dt>{{ 'listingDetail.specFrontage' | translate }}</dt><dd>{{ listing.frontageWidthMeters }} m</dd></div>
@@ -347,17 +347,17 @@
             @if (listing.cusCoefficient != null) {
               <div class="spec-row"><dt>{{ 'listingDetail.specCus' | translate }}</dt><dd>{{ listing.cusCoefficient }}</dd></div>
             }
-            <div class="spec-row"><dt>{{ 'listingForm.hasPotableWater' | translate }}</dt><dd>{{ (listing.hasPotableWater == null ? 'listingDetail.notAvailable' : listing.hasPotableWater ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
-            <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>{{ (listing.hasDrainage == null ? 'listingDetail.notAvailable' : listing.hasDrainage ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
-            <div class="spec-row"><dt>{{ 'listingForm.hasElectricity' | translate }}</dt><dd>{{ (listing.hasElectricity == null ? 'listingDetail.notAvailable' : listing.hasElectricity ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+            <div class="spec-row"><dt>{{ 'listingForm.hasPotableWater' | translate }}</dt><dd>@if (listing.hasPotableWater == null) {{{ 'listingDetail.notAvailable' | translate }}} @else if (listing.hasPotableWater) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
+            <div class="spec-row"><dt>{{ 'listingForm.hasDrainage' | translate }}</dt><dd>@if (listing.hasDrainage == null) {{{ 'listingDetail.notAvailable' | translate }}} @else if (listing.hasDrainage) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
+            <div class="spec-row"><dt>{{ 'listingForm.hasElectricity' | translate }}</dt><dd>@if (listing.hasElectricity == null) {{{ 'listingDetail.notAvailable' | translate }}} @else if (listing.hasElectricity) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             @if (listing.hasTelecomService != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasTelecomService' | translate }}</dt><dd>{{ (listing.hasTelecomService ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasTelecomService' | translate }}</dt><dd>@if (listing.hasTelecomService) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasPavedStreet != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.hasPavedStreet' | translate }}</dt><dd>{{ (listing.hasPavedStreet ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.hasPavedStreet' | translate }}</dt><dd>@if (listing.hasPavedStreet) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.isFreeOfLiens != null) {
-              <div class="spec-row"><dt>{{ 'listingForm.isFreeOfLiens' | translate }}</dt><dd>{{ (listing.isFreeOfLiens ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
+              <div class="spec-row"><dt>{{ 'listingForm.isFreeOfLiens' | translate }}</dt><dd>@if (listing.isFreeOfLiens) {<span class="yes-check" [attr.aria-label]="'listingDetail.yes' | translate"></span>} @else {{{ 'listingDetail.no' | translate }}}</dd></div>
             }
             @if (listing.hasPropertyTaxDebt != null) {
               <div class="spec-row"><dt>{{ 'listingForm.hasPropertyTaxDebt' | translate }}</dt><dd>{{ (listing.hasPropertyTaxDebt ? 'listingDetail.yes' : 'listingDetail.no') | translate }}</dd></div>
