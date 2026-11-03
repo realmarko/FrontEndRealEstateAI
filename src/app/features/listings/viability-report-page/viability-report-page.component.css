@@ -257,6 +257,18 @@ h1 {
     flex-direction: column;
   }
 
+  .location-map {
+    /* .location-map's own `flex: 1` (flex-basis 0%) sizes against the CROSS axis in the row
+       layout above, but once .map-row switches to column here that same flex-basis applies to
+       height instead — with no explicit height left to fall back on, and .map-row itself having
+       no intrinsic height of its own to grow into, the map collapses to 0×0 instead of just
+       losing its "fill the remaining row width" behavior. Pin an explicit height back the same
+       way .map-legend gets an explicit width swap below. */
+    flex: none;
+    width: 100%;
+    height: 280px;
+  }
+
   .map-legend {
     flex: 1 1 auto;
     width: 100%;
