@@ -66,23 +66,53 @@ describe('ListingCardComponent', () => {
     expect(component.activeImageIndex()).toBe(1);
   });
 
+  // Real-device swipes drift diagonally, so touchmove — which is what actually classifies and
+  // locks the gesture as horizontal — has to fire before touchend for a swipe to register at all.
+  function touch(clientX: number, clientY = 100): Touch {
+    return { clientX, clientY } as unknown as Touch;
+  }
+
+  function swipe(component: ListingCardComponent, fromX: number, toX: number): void {
+    component.onGalleryTouchStart({ touches: [touch(fromX)] } as unknown as TouchEvent);
+    component.onGalleryTouchMove({ touches: [touch(toX)], preventDefault: () => {} } as unknown as TouchEvent);
+    component.onGalleryTouchEnd({ changedTouches: [touch(toX)] } as unknown as TouchEvent);
+  }
+
   it('a leftward swipe advances to the next image, a rightward swipe goes back', () => {
     const component = createComponent();
 
-    component.onGalleryTouchStart({ touches: [{ clientX: 200 }] } as unknown as TouchEvent);
-    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 120 }] } as unknown as TouchEvent);
+    swipe(component, 200, 120);
     expect(component.activeImageIndex()).toBe(1);
 
-    component.onGalleryTouchStart({ touches: [{ clientX: 120 }] } as unknown as TouchEvent);
-    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 200 }] } as unknown as TouchEvent);
+    swipe(component, 120, 200);
     expect(component.activeImageIndex()).toBe(0);
   });
 
   it('a short drag below the swipe threshold does not change the image', () => {
     const component = createComponent();
 
-    component.onGalleryTouchStart({ touches: [{ clientX: 200 }] } as unknown as TouchEvent);
-    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 185 }] } as unknown as TouchEvent);
+    swipe(component, 200, 185);
+
+    expect(component.activeImageIndex()).toBe(0);
+  });
+
+  it('a mostly-vertical drag is treated as page scroll and does not change the image', () => {
+    const component = createComponent();
+
+    component.onGalleryTouchStart({ touches: [{ clientX: 200, clientY: 100 }] } as unknown as TouchEvent);
+    component.onGalleryTouchMove({ touches: [{ clientX: 150, clientY: 250 }], preventDefault: () => {} } as unknown as TouchEvent);
+    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 100, clientY: 400 }] } as unknown as TouchEvent);
+
+    expect(component.activeImageIndex()).toBe(0);
+  });
+
+  it('a touchcancel (e.g. the browser taking over for a native scroll) discards the swipe', () => {
+    const component = createComponent();
+
+    component.onGalleryTouchStart({ touches: [touch(200)] } as unknown as TouchEvent);
+    component.onGalleryTouchMove({ touches: [touch(120)], preventDefault: () => {} } as unknown as TouchEvent);
+    component.onGalleryTouchCancel();
+    component.onGalleryTouchEnd({ changedTouches: [touch(80)] } as unknown as TouchEvent);
 
     expect(component.activeImageIndex()).toBe(0);
   });

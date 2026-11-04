@@ -48,28 +48,62 @@ export class ListingCardComponent {
     this.activeImageIndex.set(index);
   }
 
-  // Minimum horizontal travel (px) before a touch is treated as a swipe rather than a tap/scroll
-  // jitter. No vertical-dominance check needed: .card-media has no vertical scroll of its own, so
-  // a mostly-vertical drag here is just the page scrolling and never reaches touchend with enough
-  // horizontal delta to cross this threshold.
+  // Minimum horizontal travel (px) before a touch is treated as a swipe rather than a tap.
   private static readonly SWIPE_THRESHOLD_PX = 40;
+  // Minimum travel (either axis) before we commit to a direction. Below this a diagonal finger
+  // wobble can't yet be classified, so we just wait for more movement.
+  private static readonly DIRECTION_LOCK_PX = 10;
+
   private touchStartX: number | null = null;
+  private touchStartY: number | null = null;
+  // Real swipes are rarely perfectly horizontal. Once a few px of movement reveal the gesture is
+  // more horizontal than vertical, this locks 'horizontal' and we preventDefault() on further
+  // touchmove — otherwise the browser's own scroll-gesture recognizer takes over on the first bit
+  // of vertical drift, firing touchcancel instead of touchend, and the photo never changes.
+  private swipeDirection: 'horizontal' | 'vertical' | null = null;
 
   onGalleryTouchStart(event: TouchEvent): void {
     this.touchStartX = event.touches[0].clientX;
+    this.touchStartY = event.touches[0].clientY;
+    this.swipeDirection = null;
+  }
+
+  onGalleryTouchMove(event: TouchEvent): void {
+    if (this.touchStartX == null || this.touchStartY == null) return;
+    const deltaX = event.touches[0].clientX - this.touchStartX;
+    const deltaY = event.touches[0].clientY - this.touchStartY;
+
+    if (this.swipeDirection == null && (Math.abs(deltaX) > ListingCardComponent.DIRECTION_LOCK_PX || Math.abs(deltaY) > ListingCardComponent.DIRECTION_LOCK_PX)) {
+      this.swipeDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
+    }
+    // Stop the page from scrolling while the user is mid-swipe through the gallery; a vertical
+    // drag is left alone so the page scrolls normally.
+    if (this.swipeDirection === 'horizontal') event.preventDefault();
   }
 
   onGalleryTouchEnd(event: TouchEvent): void {
-    if (this.touchStartX == null) return;
-    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-    this.touchStartX = null;
+    const startX = this.touchStartX;
+    const wasHorizontal = this.swipeDirection === 'horizontal';
+    this.resetSwipeTracking();
+    if (startX == null || !wasHorizontal) return;
 
+    const deltaX = event.changedTouches[0].clientX - startX;
     const count = this.listing.imageUrls.length;
     if (count < 2 || Math.abs(deltaX) < ListingCardComponent.SWIPE_THRESHOLD_PX) return;
 
     const current = this.activeImageIndex();
     const next = deltaX < 0 ? (current + 1) % count : (current - 1 + count) % count;
     this.activeImageIndex.set(next);
+  }
+
+  onGalleryTouchCancel(): void {
+    this.resetSwipeTracking();
+  }
+
+  private resetSwipeTracking(): void {
+    this.touchStartX = null;
+    this.touchStartY = null;
+    this.swipeDirection = null;
   }
 
   // Same default assumptions as MortgageCalculatorComponent (20% down, 10.5%, 30yr) — this

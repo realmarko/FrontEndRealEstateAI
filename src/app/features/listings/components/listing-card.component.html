@@ -1,5 +1,11 @@
 <article class="card">
-  <div class="card-media" (touchstart)="onGalleryTouchStart($event)" (touchend)="onGalleryTouchEnd($event)">
+  <div
+    class="card-media"
+    (touchstart)="onGalleryTouchStart($event)"
+    (touchmove)="onGalleryTouchMove($event)"
+    (touchend)="onGalleryTouchEnd($event)"
+    (touchcancel)="onGalleryTouchCancel()"
+  >
     <a [routerLink]="['/listings', listing.id]">
       <img [src]="listing.imageUrls[activeImageIndex()] ?? defaultImage" [alt]="listing.title" />
     </a>
