@@ -87,3 +87,26 @@ export const BANK_GLYPH =
   '<rect x="18.9" y="14" width="2.6" height="10" fill="#fff"/>' +
   '<rect x="24.1" y="14" width="2.6" height="10" fill="#fff"/>' +
   '<rect x="7" y="25" width="20" height="2" rx="0.5" fill="#fff"/>';
+
+// A road receding into the distance (converging edges + dashed centerline) — reads as "highway/
+// road project" rather than a generic pin, for InfrastructureProjectType HighwayExpansion/NewRoad.
+export const ROAD_GLYPH =
+  '<polygon points="12,26 22,26 19,8 15,8" fill="#fff"/>' +
+  '<line x1="17" y1="11" x2="17" y2="14.5" stroke="#000" stroke-opacity="0.3" stroke-width="1.4"/>' +
+  '<line x1="17" y1="17" x2="17" y2="20.5" stroke="#000" stroke-opacity="0.3" stroke-width="1.4"/>' +
+  '<line x1="17" y1="23" x2="17" y2="25" stroke="#000" stroke-opacity="0.3" stroke-width="1.4"/>';
+
+// A factory silhouette (sawtooth roofline + smokestack) — InfrastructureProjectType
+// IndustrialPark.
+export const FACTORY_GLYPH =
+  '<rect x="8" y="18" width="18" height="8" fill="#fff"/>' +
+  '<polygon points="8,18 12,13 12,18" fill="#fff"/>' +
+  '<polygon points="14,18 18,13 18,18" fill="#fff"/>' +
+  '<polygon points="20,18 24,13 24,18" fill="#fff"/>' +
+  '<rect x="21.5" y="7" width="3" height="7" fill="#fff"/>';
+
+// A plain flag on a pole — InfrastructureProjectType Other, when none of the more specific
+// glyphs above fit.
+export const FLAG_GLYPH =
+  '<line x1="12" y1="8" x2="12" y2="26" stroke="#fff" stroke-width="2"/>' +
+  '<path d="M12,9 L24,12.5 L12,16 Z" fill="#fff"/>';

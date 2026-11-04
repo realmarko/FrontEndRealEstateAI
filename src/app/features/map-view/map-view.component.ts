@@ -31,18 +31,21 @@ import { ListingCardComponent } from '../listings/components/listing-card.compon
 import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
 import { InfrastructureProjectService } from '../../core/services/infrastructure-project.service';
-import { InfrastructureProjectPublic, InfrastructureProjectStatus } from '../../core/models/infrastructure-project.model';
+import { InfrastructureProjectPublic, InfrastructureProjectStatus, InfrastructureProjectType } from '../../core/models/infrastructure-project.model';
 import {
   BANK_GLYPH,
   BUS_GLYPH,
   CHILDCARE_GLYPH,
   CONVENIENCE_STORE_GLYPH,
+  FACTORY_GLYPH,
+  FLAG_GLYPH,
   GAS_STATION_GLYPH,
   GYM_GLYPH,
   HOSPITAL_GLYPH,
   MALL_GLYPH,
   PARK_GLYPH,
   PHARMACY_GLYPH,
+  ROAD_GLYPH,
   SCHOOL_GLYPH,
   SHOPPING_CART_GLYPH,
   SPORTS_CENTER_GLYPH,
@@ -83,15 +86,29 @@ const BROKERAGE_CLUSTER_COLOR = '#7c3aed';
 // more than that wouldn't get more back, just silently look like it did.
 const FRACCIONAMIENTOS_MAP_PAGE_SIZE = 100;
 
-// One icon per status so a viewer can tell "already happening" from "just announced" at a
-// glance, without opening the popup — same reasoning as the per-status colors already used
-// elsewhere in this app (e.g. Fraccionamiento's Stage badge).
-const INFRASTRUCTURE_PROJECT_ICONS: Record<InfrastructureProjectStatus, string> = {
-  announced: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
-  inProgress: 'https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png',
-  completed: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-  cancelled: 'https://maps.google.com/mapfiles/ms/icons/grey-dot.png'
+// Color still encodes status (so a viewer can tell "already happening" from "just announced" at
+// a glance, same reasoning as Fraccionamiento's Stage badge) — but the shape inside the badge now
+// encodes the project TYPE (highway, industrial park, transit, hospital, school), reusing the
+// same createPoiIcon badge language the POI/traffic-generator layers already use, instead of a
+// generic colored dot that looks identical regardless of what kind of project it is.
+const INFRASTRUCTURE_PROJECT_STATUS_COLORS: Record<InfrastructureProjectStatus, string> = {
+  announced: '#d97706',
+  inProgress: '#0284c7',
+  completed: '#16a34a',
+  cancelled: '#6b7280'
 };
+const INFRASTRUCTURE_PROJECT_TYPE_GLYPHS: Record<InfrastructureProjectType, string> = {
+  highwayExpansion: ROAD_GLYPH,
+  newRoad: ROAD_GLYPH,
+  industrialPark: FACTORY_GLYPH,
+  publicTransit: BUS_GLYPH,
+  hospital: HOSPITAL_GLYPH,
+  school: SCHOOL_GLYPH,
+  other: FLAG_GLYPH
+};
+function infrastructureProjectIcon(project: InfrastructureProjectPublic): google.maps.Icon {
+  return createPoiIcon(INFRASTRUCTURE_PROJECT_STATUS_COLORS[project.status], INFRASTRUCTURE_PROJECT_TYPE_GLYPHS[project.type]);
+}
 const INFRASTRUCTURE_PROJECT_CLUSTER_COLOR = '#dc6803';
 const INFRASTRUCTURE_PROJECT_TYPE_LABELS: Record<string, string> = {
   highwayExpansion: 'Ampliación de carretera',
@@ -1013,7 +1030,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const marker = new google.maps.Marker({
         position: { lat: project.latitude, lng: project.longitude },
         title: project.name,
-        icon: INFRASTRUCTURE_PROJECT_ICONS[project.status]
+        icon: infrastructureProjectIcon(project)
       });
 
       marker.addListener('click', () => {
