@@ -4,7 +4,7 @@
 
     <div class="layout">
       <div class="gallery">
-        <div class="main-photo" (touchstart)="onPhotoTouchStart($event)" (touchend)="onPhotoTouchEnd($event)">
+        <div class="main-photo" (touchstart)="onPhotoTouchStart($event)" (touchend)="onPhotoTouchEnd($event)" (wheel)="onPhotoWheel($event)">
           @if (previousPhotoUrl(); as prevUrl) {
             <img class="photo-layer prev" [src]="prevUrl" [alt]="listing.title" />
           }
@@ -692,7 +692,7 @@
   }
 
   @if (showLightbox()) {
-    <div class="lightbox-backdrop" (click)="closeLightbox()" (touchstart)="onPhotoTouchStart($event)" (touchend)="onPhotoTouchEnd($event)">
+    <div class="lightbox-backdrop" (click)="closeLightbox()" (touchstart)="onPhotoTouchStart($event)" (touchend)="onPhotoTouchEnd($event)" (wheel)="onPhotoWheel($event)">
       <button type="button" class="lightbox-close" (click)="closeLightbox()" [attr.aria-label]="'listingDetail.closeLightbox' | translate">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 6 6 18M6 6l12 12" />

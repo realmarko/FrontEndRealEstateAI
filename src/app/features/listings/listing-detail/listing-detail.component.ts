@@ -614,6 +614,23 @@ export class ListingDetailComponent {
     this.changePhoto((this.activePhotoIndex() - 1 + count) % count);
   }
 
+  // Debounces trackpad/mouse wheel horizontal scroll so one gesture advances one photo instead
+  // of firing on every wheel tick.
+  private wheelLocked = false;
+
+  onPhotoWheel(event: WheelEvent): void {
+    if (Math.abs(event.deltaX) < Math.abs(event.deltaY) || Math.abs(event.deltaX) < 10) return;
+    event.preventDefault();
+    if (this.wheelLocked) return;
+    this.wheelLocked = true;
+    setTimeout(() => (this.wheelLocked = false), 300);
+    if (event.deltaX > 0) {
+      this.nextPhoto();
+    } else {
+      this.previousPhoto();
+    }
+  }
+
   private touchStartX = 0;
   private touchStartY = 0;
 
