@@ -57,14 +57,16 @@ describe('ListingCardComponent', () => {
     return fixture.componentInstance;
   }
 
-  it('starts on the first image and showImage() switches the active index', () => {
+  it('starts on the first image and showImage() switches the active index', fakeAsync(() => {
     const component = createComponent();
     expect(component.activeImageIndex()).toBe(0);
 
     component.showImage(1);
+    tick(16);
+    tick(component.FADE_DURATION_MS);
 
     expect(component.activeImageIndex()).toBe(1);
-  });
+  }));
 
   // Real-device swipes drift diagonally, so touchmove — which is what actually classifies and
   // locks the gesture as horizontal — has to fire before touchend for a swipe to register at all.
@@ -82,53 +84,48 @@ describe('ListingCardComponent', () => {
     const component = createComponent();
 
     swipe(component, 200, 120);
-    tick(component.SNAP_DURATION_MS);
+    tick(16);
+    tick(component.FADE_DURATION_MS);
     expect(component.activeImageIndex()).toBe(1);
 
     swipe(component, 120, 200);
-    tick(component.SNAP_DURATION_MS);
+    tick(16);
+    tick(component.FADE_DURATION_MS);
     expect(component.activeImageIndex()).toBe(0);
   }));
 
-  it('mid-drag, the photo track follows the finger and previews the next image', () => {
-    const component = createComponent();
-
-    component.onGalleryTouchStart({ touches: [touch(200)], currentTarget: { getBoundingClientRect: () => ({ width: 300 }) } } as unknown as TouchEvent);
-    component.onGalleryTouchMove({ touches: [touch(150)], preventDefault: () => {} } as unknown as TouchEvent);
-
-    expect(component.dragOffsetPx()).toBe(-50);
-    expect(component.dragNeighborIndex()).toBe(1);
-    expect(component.isSnapping()).toBe(false);
-  });
-
-  it('a new swipe starting mid-snap settles the previous one immediately instead of it firing later on stale state', fakeAsync(() => {
-    const component = createComponent();
-
-    swipe(component, 200, 120); // crosses the threshold, schedules the snap to index 1
-    expect(component.activeImageIndex()).toBe(0); // not settled yet — still mid-animation
-
-    component.onGalleryTouchStart({ touches: [touch(200)] } as unknown as TouchEvent);
-    expect(component.activeImageIndex()).toBe(1); // settled immediately, not left dangling
-    expect(component.isSnapping()).toBe(false);
-
-    // fakeAsync fails the test if any timer is still queued at the end — this also proves the
-    // first gesture's timer didn't survive to fire a second time on top of the new one.
-    tick(component.SNAP_DURATION_MS);
-    expect(component.activeImageIndex()).toBe(1);
-  }));
-
-  it('a swipe that clears the threshold settles onto the neighbor only after the snap finishes', fakeAsync(() => {
+  it('a swipe crossfades: the index switches immediately while the outgoing photo fades out on top', fakeAsync(() => {
     const component = createComponent();
 
     swipe(component, 200, 120);
-    expect(component.activeImageIndex()).toBe(0); // still the old image mid-animation
-    expect(component.isSnapping()).toBe(true);
+    expect(component.activeImageIndex()).toBe(1); // switches right away, not after the fade
+    expect(component.fadeFromIndex()).toBe(0); // the old photo stays mounted...
+    expect(component.fadeOutActive()).toBe(false); // ...at full opacity for this first frame
 
-    tick(component.SNAP_DURATION_MS);
+    tick(16); // flush the requestAnimationFrame that kicks off the opacity transition
+    expect(component.fadeOutActive()).toBe(true);
+
+    tick(component.FADE_DURATION_MS);
+    expect(component.fadeFromIndex()).toBeNull(); // outgoing layer unmounted once it's done
+    expect(component.fadeOutActive()).toBe(false);
+  }));
+
+  it('a new swipe starting mid-fade settles the previous crossfade immediately instead of leaving its timer queued', fakeAsync(() => {
+    const component = createComponent();
+
+    swipe(component, 200, 120); // 0 -> 1, fade-out of image 0 still playing
     expect(component.activeImageIndex()).toBe(1);
-    expect(component.isSnapping()).toBe(false);
-    expect(component.dragOffsetPx()).toBe(0);
-    expect(component.dragNeighborIndex()).toBeNull();
+    expect(component.fadeFromIndex()).toBe(0);
+
+    swipe(component, 120, 40); // another swipe before the first fade's timer has fired
+    expect(component.activeImageIndex()).toBe(0); // 1 -> 0 (wraps, since there are only 2 photos)
+    expect(component.fadeFromIndex()).toBe(1); // now fading the correct outgoing photo, not a stale one
+
+    // fakeAsync fails the test if any timer is still queued at the end — this also proves the
+    // first swipe's cleanup timer didn't survive to fire a second time on top of the new one.
+    tick(16);
+    tick(component.FADE_DURATION_MS);
+    expect(component.fadeFromIndex()).toBeNull();
   }));
 
   it('a short drag below the swipe threshold does not change the image', () => {

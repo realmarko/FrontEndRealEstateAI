@@ -7,20 +7,14 @@
     (touchcancel)="onGalleryTouchCancel()"
   >
     <a [routerLink]="['/listings', listing.id]">
-      <div
-        class="photo-track"
-        [class.dragging]="dragNeighborIndex() !== null"
-        [class.snapping]="isSnapping()"
-        [style.transition-duration.ms]="SNAP_DURATION_MS"
-        [style.transform]="'translateX(' + dragOffsetPx() + 'px)'"
-      >
+      <div class="photo-stack">
         <img class="photo" [src]="listing.imageUrls[activeImageIndex()] ?? defaultImage" [alt]="listing.title" />
-        @if (dragNeighborIndex(); as neighborIndex) {
+        @if (fadeFromIndex(); as fromIndex) {
           <img
-            class="photo"
-            [class.photo-next]="dragOffsetPx() < 0"
-            [class.photo-prev]="dragOffsetPx() >= 0"
-            [src]="listing.imageUrls[neighborIndex] ?? defaultImage"
+            class="photo photo-fade-out"
+            [class.fading]="fadeOutActive()"
+            [style.transition-duration.ms]="FADE_DURATION_MS"
+            [src]="listing.imageUrls[fromIndex] ?? defaultImage"
             [alt]="listing.title"
           />
         }

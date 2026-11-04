@@ -29,25 +29,10 @@
   overflow: hidden;
 }
 
-.photo-track {
+.photo-stack {
   position: relative;
   width: 100%;
   height: 100%;
-}
-
-/* will-change promotes the track to its own compositor layer — reserved for the card actually
-   being touched (dragging or mid-snap), not applied to .photo-track unconditionally, or every
-   card in a results grid of dozens would hold a GPU layer it never animates. */
-.photo-track.dragging {
-  will-change: transform;
-}
-
-/* Only transitions during the post-release snap-to-neighbor / spring-back — while the finger is
-   still down, the track has to track it 1:1 with no easing lag, so the transition stays off
-   until .snapping is added in onGalleryTouchEnd/onGalleryTouchCancel. */
-.photo-track.snapping {
-  transition-property: transform;
-  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .photo {
@@ -59,12 +44,18 @@
   display: block;
 }
 
-.photo-next {
-  transform: translateX(100%);
+/* The outgoing photo sits on top of the (already-swapped-in) current one, at full opacity, then
+   fades away once .fading is added a frame later — see crossfadeTo for why that two-step delay is
+   needed for the transition to actually animate instead of mounting pre-faded. */
+.photo-fade-out {
+  z-index: 1;
+  opacity: 1;
+  transition-property: opacity;
+  transition-timing-function: ease-out;
 }
 
-.photo-prev {
-  transform: translateX(-100%);
+.photo-fade-out.fading {
+  opacity: 0;
 }
 
 .badge {
