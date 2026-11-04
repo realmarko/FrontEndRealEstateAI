@@ -48,6 +48,30 @@ export class ListingCardComponent {
     this.activeImageIndex.set(index);
   }
 
+  // Minimum horizontal travel (px) before a touch is treated as a swipe rather than a tap/scroll
+  // jitter. No vertical-dominance check needed: .card-media has no vertical scroll of its own, so
+  // a mostly-vertical drag here is just the page scrolling and never reaches touchend with enough
+  // horizontal delta to cross this threshold.
+  private static readonly SWIPE_THRESHOLD_PX = 40;
+  private touchStartX: number | null = null;
+
+  onGalleryTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  onGalleryTouchEnd(event: TouchEvent): void {
+    if (this.touchStartX == null) return;
+    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
+    this.touchStartX = null;
+
+    const count = this.listing.imageUrls.length;
+    if (count < 2 || Math.abs(deltaX) < ListingCardComponent.SWIPE_THRESHOLD_PX) return;
+
+    const current = this.activeImageIndex();
+    const next = deltaX < 0 ? (current + 1) % count : (current - 1 + count) % count;
+    this.activeImageIndex.set(next);
+  }
+
   // Same default assumptions as MortgageCalculatorComponent (20% down, 10.5%, 30yr) — this
   // is a quick informational estimate on the card, not an editable calculator.
   get estimatedMonthlyPayment(): number {

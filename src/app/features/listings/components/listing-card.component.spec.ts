@@ -66,6 +66,27 @@ describe('ListingCardComponent', () => {
     expect(component.activeImageIndex()).toBe(1);
   });
 
+  it('a leftward swipe advances to the next image, a rightward swipe goes back', () => {
+    const component = createComponent();
+
+    component.onGalleryTouchStart({ touches: [{ clientX: 200 }] } as unknown as TouchEvent);
+    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 120 }] } as unknown as TouchEvent);
+    expect(component.activeImageIndex()).toBe(1);
+
+    component.onGalleryTouchStart({ touches: [{ clientX: 120 }] } as unknown as TouchEvent);
+    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 200 }] } as unknown as TouchEvent);
+    expect(component.activeImageIndex()).toBe(0);
+  });
+
+  it('a short drag below the swipe threshold does not change the image', () => {
+    const component = createComponent();
+
+    component.onGalleryTouchStart({ touches: [{ clientX: 200 }] } as unknown as TouchEvent);
+    component.onGalleryTouchEnd({ changedTouches: [{ clientX: 185 }] } as unknown as TouchEvent);
+
+    expect(component.activeImageIndex()).toBe(0);
+  });
+
   it('estimatedMonthlyPayment matches the shared calculator with the card default assumptions', () => {
     const component = createComponent();
 
