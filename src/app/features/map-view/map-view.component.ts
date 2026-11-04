@@ -30,6 +30,8 @@ import { SeoService } from '../../core/services/seo.service';
 import { ListingCardComponent } from '../listings/components/listing-card.component';
 import { CmaResult, DEFAULT_LISTING_IMAGE, Listing, ListingType, PROPERTY_TYPE_FILTER_OPTIONS, PropertyType } from '../../core/models/listing.model';
 import { FraccionamientoService } from '../../core/services/fraccionamiento.service';
+import { InfrastructureProjectService } from '../../core/services/infrastructure-project.service';
+import { InfrastructureProjectPublic, InfrastructureProjectStatus } from '../../core/models/infrastructure-project.model';
 import {
   BANK_GLYPH,
   BUS_GLYPH,
@@ -80,6 +82,32 @@ const BROKERAGE_CLUSTER_COLOR = '#7c3aed';
 // GET /api/fraccionamientos/published's own Math.Clamp(pageSize, 1, 100) ceiling — asking for
 // more than that wouldn't get more back, just silently look like it did.
 const FRACCIONAMIENTOS_MAP_PAGE_SIZE = 100;
+
+// One icon per status so a viewer can tell "already happening" from "just announced" at a
+// glance, without opening the popup — same reasoning as the per-status colors already used
+// elsewhere in this app (e.g. Fraccionamiento's Stage badge).
+const INFRASTRUCTURE_PROJECT_ICONS: Record<InfrastructureProjectStatus, string> = {
+  announced: 'https://maps.google.com/mapfiles/ms/icons/orange-dot.png',
+  inProgress: 'https://maps.google.com/mapfiles/ms/icons/ltblue-dot.png',
+  completed: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+  cancelled: 'https://maps.google.com/mapfiles/ms/icons/grey-dot.png'
+};
+const INFRASTRUCTURE_PROJECT_CLUSTER_COLOR = '#dc6803';
+const INFRASTRUCTURE_PROJECT_TYPE_LABELS: Record<string, string> = {
+  highwayExpansion: 'Ampliación de carretera',
+  newRoad: 'Nueva vialidad',
+  industrialPark: 'Parque industrial',
+  publicTransit: 'Transporte público',
+  hospital: 'Hospital',
+  school: 'Escuela',
+  other: 'Otro'
+};
+const INFRASTRUCTURE_PROJECT_STATUS_LABELS: Record<InfrastructureProjectStatus, string> = {
+  announced: 'Anunciado',
+  inProgress: 'En construcción',
+  completed: 'Completado',
+  cancelled: 'Cancelado'
+};
 
 // The clustering algorithm's default maxZoom (16) stops clustering well before this app's own
 // default zoom (16-18, street level) — raised so nearby markers still group up there too.
@@ -724,12 +752,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
   private readonly fraccionamientoMarkers = new Map<string, google.maps.Marker>();
   private readonly brokerageMarkers = new Map<number, google.maps.Marker>();
-  // One clusterer per marker type (listings + fraccionamientos + brokerages + one per POI
-  // category) so a cluster icon never mixes categories together, keeping each type's color
-  // meaningful when markers group up.
+  private readonly infrastructureProjectMarkers = new Map<string, google.maps.Marker>();
+  // One clusterer per marker type (listings + fraccionamientos + brokerages + infrastructure
+  // projects + one per POI category) so a cluster icon never mixes categories together, keeping
+  // each type's color meaningful when markers group up.
   private listingClusterer?: MarkerClusterer;
   private fraccionamientoClusterer?: MarkerClusterer;
   private brokerageClusterer?: MarkerClusterer;
+  private infrastructureProjectClusterer?: MarkerClusterer;
   private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
   private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
@@ -749,6 +779,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     private readonly savedSearchService: SavedSearchService,
     private readonly geomarketingService: GeomarketingService,
     private readonly fraccionamientoService: FraccionamientoService,
+    private readonly infrastructureProjectService: InfrastructureProjectService,
     seo: SeoService
   ) {
     seo.set({
@@ -960,6 +991,93 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.renderListingMarkers();
     this.loadFraccionamientos();
     this.loadBrokerages();
+    this.loadInfrastructureProjects();
+  }
+
+  // Fetched once per map load, same reasoning as loadBrokerages — admin-curated and small, so
+  // every announced project should show regardless of the current viewport.
+  private loadInfrastructureProjects(): void {
+    this.infrastructureProjectService.listPublished().subscribe({
+      next: (items) => this.zone.run(() => this.renderInfrastructureProjectMarkers(items)),
+      // Silent failure, same reasoning as loadFraccionamientos/loadBrokerages — an extra layer on
+      // top of the map's core purpose, not something that should surface a toast over the page.
+      error: () => {}
+    });
+  }
+
+  private renderInfrastructureProjectMarkers(items: InfrastructureProjectPublic[]): void {
+    this.infrastructureProjectClusterer?.clearMarkers();
+    this.infrastructureProjectMarkers.clear();
+
+    const markers = items.map((project) => {
+      const marker = new google.maps.Marker({
+        position: { lat: project.latitude, lng: project.longitude },
+        title: project.name,
+        icon: INFRASTRUCTURE_PROJECT_ICONS[project.status]
+      });
+
+      marker.addListener('click', () => {
+        this.zone.run(() => this.handleMarkerClick(marker.getPosition(), () => this.openInfrastructureProjectInfo(project, marker)));
+      });
+
+      this.infrastructureProjectMarkers.set(project.id, marker);
+      return marker;
+    });
+
+    if (!this.infrastructureProjectClusterer) {
+      this.infrastructureProjectClusterer = new MarkerClusterer({
+        map: this.map,
+        algorithmOptions: CLUSTER_ALGORITHM_OPTIONS,
+        renderer: createClusterRenderer(INFRASTRUCTURE_PROJECT_CLUSTER_COLOR)
+      });
+    }
+    this.infrastructureProjectClusterer.addMarkers(markers);
+  }
+
+  private openInfrastructureProjectInfo(project: InfrastructureProjectPublic, marker: google.maps.Marker): void {
+    if (!this.infoWindow) return;
+    this.infoWindowGeneration++;
+    this.infoWindowShowsOpportunity = false;
+
+    const container = document.createElement('div');
+    container.className = 'map-info-card';
+
+    const body = document.createElement('div');
+    body.className = 'map-info-body';
+
+    const titleEl = document.createElement('p');
+    titleEl.className = 'map-info-title';
+    titleEl.textContent = project.name;
+    body.appendChild(titleEl);
+
+    const metaEl = document.createElement('p');
+    metaEl.className = 'map-info-address';
+    const typeLabel = INFRASTRUCTURE_PROJECT_TYPE_LABELS[project.type] ?? project.type;
+    const statusLabel = INFRASTRUCTURE_PROJECT_STATUS_LABELS[project.status];
+    metaEl.textContent = `${typeLabel} · ${statusLabel}`;
+    body.appendChild(metaEl);
+
+    if (project.description) {
+      const descEl = document.createElement('p');
+      descEl.className = 'map-info-address';
+      descEl.textContent = project.description;
+      body.appendChild(descEl);
+    }
+
+    if (project.sourceUrl) {
+      const linkEl = document.createElement('a');
+      linkEl.className = 'map-info-address';
+      linkEl.href = project.sourceUrl;
+      linkEl.target = '_blank';
+      linkEl.rel = 'noopener noreferrer';
+      linkEl.textContent = 'Ver fuente';
+      body.appendChild(linkEl);
+    }
+
+    container.appendChild(body);
+
+    this.infoWindow.setContent(container);
+    this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
   // Fetched once per map load (not bounds-driven like listings) and rendered as their own

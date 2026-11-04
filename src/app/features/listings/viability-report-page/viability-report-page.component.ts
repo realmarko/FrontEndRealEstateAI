@@ -85,6 +85,33 @@ export class ViabilityReportPageComponent {
     return level === null ? null : ViabilityReportPageComponent.TRAFFIC_LEVEL_KEYS[level];
   }
 
+  // Backend sends the raw .ToString() enum name (see NearbyInfrastructureProjectDto) — mapped to
+  // a Spanish label here rather than through the translate pipe, same as TrafficGenerator's own
+  // `category` field (e.g. "Centro comercial"), which the backend already sends pre-labeled.
+  private static readonly INFRASTRUCTURE_PROJECT_TYPE_LABELS: Record<string, string> = {
+    HighwayExpansion: 'Ampliación de carretera',
+    NewRoad: 'Nueva vialidad',
+    IndustrialPark: 'Parque industrial',
+    PublicTransit: 'Transporte público',
+    Hospital: 'Hospital',
+    School: 'Escuela',
+    Other: 'Otro'
+  };
+  private static readonly INFRASTRUCTURE_PROJECT_STATUS_LABELS: Record<string, string> = {
+    Announced: 'Anunciado',
+    InProgress: 'En construcción',
+    Completed: 'Completado',
+    Cancelled: 'Cancelado'
+  };
+
+  protected infrastructureProjectTypeLabel(type: string): string {
+    return ViabilityReportPageComponent.INFRASTRUCTURE_PROJECT_TYPE_LABELS[type] ?? type;
+  }
+
+  protected infrastructureProjectStatusLabel(status: string): string {
+    return ViabilityReportPageComponent.INFRASTRUCTURE_PROJECT_STATUS_LABELS[status] ?? status;
+  }
+
   private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
 
   readonly listing = signal<Listing | null>(null);

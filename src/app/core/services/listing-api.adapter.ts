@@ -288,6 +288,20 @@ export interface TrafficGeneratorDto extends NearbyBusinessDto {
   category: string;
 }
 
+// Kept as the backend's raw .ToString() strings (Type/Status), same reasoning as
+// listingDraftFromDto's enum fields below — not mapped to a camelCase union here since this DTO
+// is only ever read, never sent back.
+export interface NearbyInfrastructureProjectDto {
+  name: string;
+  description: string | null;
+  type: string;
+  status: string;
+  distanceMeters: number;
+  announcedDate: string;
+  expectedCompletionDate: string | null;
+  sourceUrl: string | null;
+}
+
 export interface LatLngDto {
   lat: number;
   lng: number;
@@ -320,6 +334,7 @@ export interface ViabilityAnalysisDto {
   businesses: BusinessViabilityDto[];
   trafficGenerators: TrafficGeneratorDto[];
   nearbyRoads: NearbyRoadDto[];
+  nearbyInfrastructureProjects: NearbyInfrastructureProjectDto[];
   roadsDataUnavailable: boolean;
   trafficGeneratorsDataUnavailable: boolean;
   trafficCongestionLevel: 0 | 1 | 2 | null;
@@ -350,6 +365,16 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
       lat: r.lat,
       lng: r.lng,
       geometry: r.geometry.map((p) => ({ lat: p.lat, lng: p.lng }))
+    })),
+    nearbyInfrastructureProjects: dto.nearbyInfrastructureProjects.map((p) => ({
+      name: p.name,
+      description: p.description,
+      type: p.type,
+      status: p.status,
+      distanceMeters: p.distanceMeters,
+      announcedDate: p.announcedDate,
+      expectedCompletionDate: p.expectedCompletionDate,
+      sourceUrl: p.sourceUrl
     })),
     roadsDataUnavailable: dto.roadsDataUnavailable,
     trafficGeneratorsDataUnavailable: dto.trafficGeneratorsDataUnavailable,

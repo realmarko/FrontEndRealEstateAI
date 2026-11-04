@@ -1,0 +1,172 @@
+<div class="page">
+  <div class="page-header">
+    <h1>{{ 'adminInfrastructureProjects.title' | translate }}</h1>
+    <button type="button" class="add-toggle-btn" (click)="toggleAddForm()">
+      {{ (showAddForm() ? 'adminInfrastructureProjects.addCancel' : 'adminInfrastructureProjects.addManually') | translate }}
+    </button>
+  </div>
+
+  @if (showAddForm()) {
+    <form class="add-form" (submit)="$event.preventDefault(); submitAdd()">
+      <div class="form-grid">
+        <label>
+          {{ 'adminInfrastructureProjects.formName' | translate }}
+          <input type="text" [value]="addForm().name" (input)="updateAddForm('name', $any($event.target).value)" required />
+        </label>
+        <label>
+          {{ 'adminInfrastructureProjects.formType' | translate }}
+          <select [value]="addForm().type" (change)="updateAddForm('type', $any($event.target).value)">
+            @for (type of types; track type) {
+              <option [value]="type">{{ translationKey('type', type) | translate }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          {{ 'adminInfrastructureProjects.formCoordinates' | translate }}
+          <input
+            type="text"
+            [value]="addForm().coordinates"
+            (input)="updateAddForm('coordinates', $any($event.target).value)"
+            placeholder="19.04, -98.20"
+            required
+          />
+        </label>
+        <label>
+          {{ 'adminInfrastructureProjects.formRadius' | translate }}
+          <input type="number" min="1" [value]="addForm().affectedRadiusMeters" (input)="updateAddForm('affectedRadiusMeters', $any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'adminInfrastructureProjects.formAnnouncedDate' | translate }}
+          <input type="date" [value]="addForm().announcedDate" (input)="updateAddForm('announcedDate', $any($event.target).value)" required />
+        </label>
+        <label>
+          {{ 'adminInfrastructureProjects.formExpectedCompletionDate' | translate }}
+          <input type="date" [value]="addForm().expectedCompletionDate" (input)="updateAddForm('expectedCompletionDate', $any($event.target).value)" />
+        </label>
+        <label>
+          {{ 'adminInfrastructureProjects.formSourceUrl' | translate }}
+          <input type="url" [value]="addForm().sourceUrl" (input)="updateAddForm('sourceUrl', $any($event.target).value)" />
+        </label>
+      </div>
+
+      <label class="full-width">
+        {{ 'adminInfrastructureProjects.formDescription' | translate }}
+        <textarea rows="2" [value]="addForm().description" (input)="updateAddForm('description', $any($event.target).value)"></textarea>
+      </label>
+
+      <p class="add-form-hint">{{ 'adminInfrastructureProjects.addFormHint' | translate }}</p>
+
+      <div class="actions">
+        <button type="submit" class="approve-btn" [disabled]="creating()">
+          {{ 'adminInfrastructureProjects.addSubmit' | translate }}
+        </button>
+      </div>
+    </form>
+  }
+
+  @if (loading()) {
+    <p class="loading">{{ 'adminInfrastructureProjects.loading' | translate }}</p>
+  } @else if (items().length) {
+    <div class="item-list">
+      @for (item of items(); track item.id) {
+        <div class="item-card">
+          <div class="item-summary" (click)="toggleExpanded(item)">
+            <span class="badge" [class]="'status-' + item.status.toLowerCase()">
+              {{ translationKey('status', item.status) | translate }}
+            </span>
+            <span class="name">{{ item.name }}</span>
+            <span class="location">{{ translationKey('type', item.type) | translate }}</span>
+            <span class="date">{{ item.announcedDate | date: 'shortDate' }}</span>
+          </div>
+
+          @if (expandedId() === item.id) {
+            <div class="detail">
+              <form class="approve-form" (submit)="$event.preventDefault(); save(item.id)">
+                <div class="form-grid">
+                  <label>
+                    {{ 'adminInfrastructureProjects.formName' | translate }}
+                    <input type="text" [value]="editForm().name" (input)="updateEditForm('name', $any($event.target).value)" required />
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formType' | translate }}
+                    <select [value]="editForm().type" (change)="updateEditForm('type', $any($event.target).value)">
+                      @for (type of types; track type) {
+                        <option [value]="type">{{ translationKey('type', type) | translate }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formStatus' | translate }}
+                    <select [value]="editForm().status" (change)="updateEditForm('status', $any($event.target).value)">
+                      @for (status of statuses; track status) {
+                        <option [value]="status">{{ translationKey('status', status) | translate }}</option>
+                      }
+                    </select>
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formCoordinates' | translate }}
+                    <input type="text" [value]="editForm().coordinates" (input)="updateEditForm('coordinates', $any($event.target).value)" required />
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formRadius' | translate }}
+                    <input type="number" min="1" [value]="editForm().affectedRadiusMeters" (input)="updateEditForm('affectedRadiusMeters', $any($event.target).value)" />
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formAnnouncedDate' | translate }}
+                    <input type="date" [value]="editForm().announcedDate" (input)="updateEditForm('announcedDate', $any($event.target).value)" required />
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formExpectedCompletionDate' | translate }}
+                    <input type="date" [value]="editForm().expectedCompletionDate" (input)="updateEditForm('expectedCompletionDate', $any($event.target).value)" />
+                  </label>
+                  <label>
+                    {{ 'adminInfrastructureProjects.formSourceUrl' | translate }}
+                    <input type="url" [value]="editForm().sourceUrl" (input)="updateEditForm('sourceUrl', $any($event.target).value)" />
+                  </label>
+                </div>
+
+                <label class="full-width">
+                  {{ 'adminInfrastructureProjects.formDescription' | translate }}
+                  <textarea rows="2" [value]="editForm().description" (input)="updateEditForm('description', $any($event.target).value)"></textarea>
+                </label>
+
+                <div class="actions">
+                  <button type="submit" class="approve-btn" [disabled]="saving()">
+                    {{ 'adminInfrastructureProjects.saveChanges' | translate }}
+                  </button>
+
+                  @if (item.status !== 'cancelled') {
+                    <button type="button" class="reject-btn" [disabled]="cancelling()" (click)="cancelProject(item.id)">
+                      {{ 'adminInfrastructureProjects.cancel' | translate }}
+                    </button>
+                  }
+                </div>
+              </form>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="list-footer">
+      <label class="page-size">
+        {{ 'adminInfrastructureProjects.pageSize' | translate }}
+        <select [value]="pageSize()" (change)="setPageSize(+$any($event.target).value)">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+
+      @if (totalPages() > 1) {
+        <div class="pagination">
+          <button type="button" [disabled]="page() === 1" (click)="goToPage(page() - 1)">{{ 'adminInfrastructureProjects.prevPage' | translate }}</button>
+          <span>{{ 'adminInfrastructureProjects.pageOf' | translate: { page: page(), total: totalPages() } }}</span>
+          <button type="button" [disabled]="page() === totalPages()" (click)="goToPage(page() + 1)">{{ 'adminInfrastructureProjects.nextPage' | translate }}</button>
+        </div>
+      }
+    </div>
+  } @else {
+    <p class="empty">{{ 'adminInfrastructureProjects.empty' | translate }}</p>
+  }
+</div>

@@ -301,6 +301,20 @@ export interface TrafficGenerator extends NearbyBusiness {
   category: string;
 }
 
+// An admin-captured announced infrastructure project near this point (see
+// InfrastructureProject on the backend) — type/status kept as the backend's raw .ToString()
+// strings since this is read-only, never sent back.
+export interface NearbyInfrastructureProject {
+  name: string;
+  description: string | null;
+  type: string;
+  status: string;
+  distanceMeters: number;
+  announcedDate: string;
+  expectedCompletionDate: string | null;
+  sourceUrl: string | null;
+}
+
 export interface NearbyRoad {
   name: string | null;
   classification: string;
@@ -332,6 +346,7 @@ export interface ViabilityAnalysis {
   businesses: BusinessViability[];
   trafficGenerators: TrafficGenerator[];
   nearbyRoads: NearbyRoad[];
+  nearbyInfrastructureProjects: NearbyInfrastructureProject[];
   // True when the lookup itself failed (e.g. OpenStreetMap/Overpass down) rather than genuinely
   // finding nothing nearby — an empty list looks identical either way otherwise.
   roadsDataUnavailable: boolean;

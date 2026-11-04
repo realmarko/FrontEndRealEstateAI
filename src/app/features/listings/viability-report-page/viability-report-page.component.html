@@ -193,6 +193,21 @@
         </div>
       }
 
+      @if (analysisValue.nearbyInfrastructureProjects.length) {
+        <div class="card">
+          <h3 class="card-title">{{ 'viabilityPage.infrastructureProjectsTitle' | translate }}</h3>
+          <ul class="traffic-list">
+            @for (project of analysisValue.nearbyInfrastructureProjects; track project.name) {
+              <li>
+                <span class="traffic-name">{{ project.name }}</span>
+                <span class="traffic-category">{{ infrastructureProjectTypeLabel(project.type) }} · {{ infrastructureProjectStatusLabel(project.status) }}</span>
+                <span class="traffic-distance">{{ project.distanceMeters | number }} m</span>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+
       <div class="business-list">
         @for (business of rankedBusinesses(); track business.key) {
           <div class="business-card">

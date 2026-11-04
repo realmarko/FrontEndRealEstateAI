@@ -252,6 +252,14 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'admin/infrastructure-projects',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-infrastructure-projects/admin-infrastructure-projects.component').then(
+        (m) => m.AdminInfrastructureProjectsComponent
+      )
+  },
+  {
     path: 'admin/estadisticas',
     canActivate: [authGuard, roleGuard('Admin')],
     loadComponent: () =>
