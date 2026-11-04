@@ -49,23 +49,48 @@ export class ListingCardComponent {
   }
 
   // Minimum horizontal travel (px) before a touch is treated as a swipe rather than a tap.
-  private static readonly SWIPE_THRESHOLD_PX = 40;
+  readonly SWIPE_THRESHOLD_PX = 40;
   // Minimum travel (either axis) before we commit to a direction. Below this a diagonal finger
   // wobble can't yet be classified, so we just wait for more movement.
-  private static readonly DIRECTION_LOCK_PX = 10;
+  readonly DIRECTION_LOCK_PX = 10;
+  // How long the snap-to-neighbor / spring-back transition takes. Bound into the template's
+  // transition-duration too, so the CSS curve and the setTimeout that swaps the index afterward
+  // can never drift out of sync with each other. Public (not protected) so the spec can tick()
+  // this exact duration instead of guessing/duplicating a magic number.
+  readonly SNAP_DURATION_MS = 240;
 
   private touchStartX: number | null = null;
   private touchStartY: number | null = null;
+  private cardMediaWidthPx = 0;
+  // The pending snap/spring-back timer plus the work it'll do when it fires. If a new drag starts
+  // before a previous one has finished settling, settlePendingSnap() below runs that work
+  // immediately instead of leaving it to fire mid-gesture on a stale `activeImageIndex()` — a fast
+  // double-swipe (flicking through several photos quickly) would otherwise glitch: the earlier
+  // timer finalizing after the new drag has already moved the track for a second time.
+  private pendingSnapTimeout: ReturnType<typeof setTimeout> | null = null;
+  private pendingSnapSettle: (() => void) | null = null;
   // Real swipes are rarely perfectly horizontal. Once a few px of movement reveal the gesture is
   // more horizontal than vertical, this locks 'horizontal' and we preventDefault() on further
   // touchmove — otherwise the browser's own scroll-gesture recognizer takes over on the first bit
   // of vertical drift, firing touchcancel instead of touchend, and the photo never changes.
   private swipeDirection: 'horizontal' | 'vertical' | null = null;
 
+  // Live horizontal offset (px) of the photo track: 1:1 with the finger while dragging, then
+  // animated to ±cardMediaWidthPx (snap) or back to 0 (spring-back) once the finger lifts.
+  readonly dragOffsetPx = signal(0);
+  // The next/prev image, rendered one card-width off-screen only while a horizontal drag is in
+  // progress — not preloaded for every card up front, only once the user actually swipes.
+  readonly dragNeighborIndex = signal<number | null>(null);
+  // True only during the post-release snap/spring-back transition — off during the drag itself,
+  // so the track tracks the finger without any easing lag.
+  readonly isSnapping = signal(false);
+
   onGalleryTouchStart(event: TouchEvent): void {
+    this.settlePendingSnap();
     this.touchStartX = event.touches[0].clientX;
     this.touchStartY = event.touches[0].clientY;
     this.swipeDirection = null;
+    this.cardMediaWidthPx = (event.currentTarget as HTMLElement | null)?.getBoundingClientRect().width ?? 0;
   }
 
   onGalleryTouchMove(event: TouchEvent): void {
@@ -73,31 +98,93 @@ export class ListingCardComponent {
     const deltaX = event.touches[0].clientX - this.touchStartX;
     const deltaY = event.touches[0].clientY - this.touchStartY;
 
-    if (this.swipeDirection == null && (Math.abs(deltaX) > ListingCardComponent.DIRECTION_LOCK_PX || Math.abs(deltaY) > ListingCardComponent.DIRECTION_LOCK_PX)) {
+    if (this.swipeDirection == null && (Math.abs(deltaX) > this.DIRECTION_LOCK_PX || Math.abs(deltaY) > this.DIRECTION_LOCK_PX)) {
       this.swipeDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
     }
+    if (this.swipeDirection !== 'horizontal') return;
     // Stop the page from scrolling while the user is mid-swipe through the gallery; a vertical
     // drag is left alone so the page scrolls normally.
-    if (this.swipeDirection === 'horizontal') event.preventDefault();
+    event.preventDefault();
+
+    const count = this.listing.imageUrls.length;
+    if (count < 2) return;
+    const current = this.activeImageIndex();
+    this.dragNeighborIndex.set(deltaX < 0 ? (current + 1) % count : (current - 1 + count) % count);
+    this.dragOffsetPx.set(Math.max(-this.cardMediaWidthPx, Math.min(this.cardMediaWidthPx, deltaX)));
   }
 
   onGalleryTouchEnd(event: TouchEvent): void {
     const startX = this.touchStartX;
     const wasHorizontal = this.swipeDirection === 'horizontal';
+    const neighbor = this.dragNeighborIndex();
     this.resetSwipeTracking();
-    if (startX == null || !wasHorizontal) return;
+    if (startX == null || !wasHorizontal || neighbor == null) {
+      this.springBack();
+      return;
+    }
 
     const deltaX = event.changedTouches[0].clientX - startX;
-    const count = this.listing.imageUrls.length;
-    if (count < 2 || Math.abs(deltaX) < ListingCardComponent.SWIPE_THRESHOLD_PX) return;
-
-    const current = this.activeImageIndex();
-    const next = deltaX < 0 ? (current + 1) % count : (current - 1 + count) % count;
-    this.activeImageIndex.set(next);
+    if (Math.abs(deltaX) < this.SWIPE_THRESHOLD_PX) {
+      this.springBack();
+      return;
+    }
+    this.snapToNeighbor(neighbor, deltaX < 0 ? -this.cardMediaWidthPx : this.cardMediaWidthPx);
   }
 
   onGalleryTouchCancel(): void {
     this.resetSwipeTracking();
+    this.springBack();
+  }
+
+  // Finishes the drag by sliding the rest of the way onto the neighbor photo, then — once the
+  // transition has had time to play — swaps it in as the active image and resets the track
+  // instantly (transition off) so the swap itself is invisible: the neighbor was already sitting
+  // exactly where the now-current photo snaps back to.
+  private snapToNeighbor(neighborIndex: number, settledOffsetPx: number): void {
+    this.isSnapping.set(true);
+    this.dragOffsetPx.set(settledOffsetPx);
+    this.scheduleSnapSettle(() => {
+      this.activeImageIndex.set(neighborIndex);
+      this.isSnapping.set(false);
+      this.dragOffsetPx.set(0);
+      this.dragNeighborIndex.set(null);
+    });
+  }
+
+  // A swipe that didn't clear the threshold (or was cancelled) eases back to center instead of
+  // jumping, so it reads as "not quite enough" rather than the gesture being silently ignored.
+  private springBack(): void {
+    if (this.dragOffsetPx() === 0) {
+      this.dragNeighborIndex.set(null);
+      return;
+    }
+    this.isSnapping.set(true);
+    this.dragOffsetPx.set(0);
+    this.scheduleSnapSettle(() => {
+      this.isSnapping.set(false);
+      this.dragNeighborIndex.set(null);
+    });
+  }
+
+  private scheduleSnapSettle(settle: () => void): void {
+    this.pendingSnapSettle = settle;
+    this.pendingSnapTimeout = setTimeout(() => {
+      this.pendingSnapTimeout = null;
+      this.pendingSnapSettle = null;
+      settle();
+    }, this.SNAP_DURATION_MS);
+  }
+
+  // Runs an in-flight snap/spring-back's end state immediately instead of leaving its timer to
+  // fire later — called before a new drag starts, so that drag never computes its neighbor or
+  // offset against state the previous gesture hadn't actually settled into yet.
+  private settlePendingSnap(): void {
+    if (this.pendingSnapTimeout == null) return;
+    clearTimeout(this.pendingSnapTimeout);
+    this.pendingSnapTimeout = null;
+    const settle = this.pendingSnapSettle;
+    this.pendingSnapSettle = null;
+    settle?.();
   }
 
   private resetSwipeTracking(): void {

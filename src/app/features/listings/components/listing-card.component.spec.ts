@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
@@ -78,15 +78,58 @@ describe('ListingCardComponent', () => {
     component.onGalleryTouchEnd({ changedTouches: [touch(toX)] } as unknown as TouchEvent);
   }
 
-  it('a leftward swipe advances to the next image, a rightward swipe goes back', () => {
+  it('a leftward swipe advances to the next image, a rightward swipe goes back', fakeAsync(() => {
     const component = createComponent();
 
     swipe(component, 200, 120);
+    tick(component.SNAP_DURATION_MS);
     expect(component.activeImageIndex()).toBe(1);
 
     swipe(component, 120, 200);
+    tick(component.SNAP_DURATION_MS);
     expect(component.activeImageIndex()).toBe(0);
+  }));
+
+  it('mid-drag, the photo track follows the finger and previews the next image', () => {
+    const component = createComponent();
+
+    component.onGalleryTouchStart({ touches: [touch(200)], currentTarget: { getBoundingClientRect: () => ({ width: 300 }) } } as unknown as TouchEvent);
+    component.onGalleryTouchMove({ touches: [touch(150)], preventDefault: () => {} } as unknown as TouchEvent);
+
+    expect(component.dragOffsetPx()).toBe(-50);
+    expect(component.dragNeighborIndex()).toBe(1);
+    expect(component.isSnapping()).toBe(false);
   });
+
+  it('a new swipe starting mid-snap settles the previous one immediately instead of it firing later on stale state', fakeAsync(() => {
+    const component = createComponent();
+
+    swipe(component, 200, 120); // crosses the threshold, schedules the snap to index 1
+    expect(component.activeImageIndex()).toBe(0); // not settled yet — still mid-animation
+
+    component.onGalleryTouchStart({ touches: [touch(200)] } as unknown as TouchEvent);
+    expect(component.activeImageIndex()).toBe(1); // settled immediately, not left dangling
+    expect(component.isSnapping()).toBe(false);
+
+    // fakeAsync fails the test if any timer is still queued at the end — this also proves the
+    // first gesture's timer didn't survive to fire a second time on top of the new one.
+    tick(component.SNAP_DURATION_MS);
+    expect(component.activeImageIndex()).toBe(1);
+  }));
+
+  it('a swipe that clears the threshold settles onto the neighbor only after the snap finishes', fakeAsync(() => {
+    const component = createComponent();
+
+    swipe(component, 200, 120);
+    expect(component.activeImageIndex()).toBe(0); // still the old image mid-animation
+    expect(component.isSnapping()).toBe(true);
+
+    tick(component.SNAP_DURATION_MS);
+    expect(component.activeImageIndex()).toBe(1);
+    expect(component.isSnapping()).toBe(false);
+    expect(component.dragOffsetPx()).toBe(0);
+    expect(component.dragNeighborIndex()).toBeNull();
+  }));
 
   it('a short drag below the swipe threshold does not change the image', () => {
     const component = createComponent();
