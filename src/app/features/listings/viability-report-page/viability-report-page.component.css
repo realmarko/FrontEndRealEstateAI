@@ -79,48 +79,23 @@ h1 {
   }
 }
 
-/* The page's single headline verdict — one score, stated plainly, the way a feasibility report
-   opens with its conclusion before the supporting detail. Left-aligned with everything else
-   (this is a report to scan line by line, not a marketing hero to center). */
-.verdict {
-  margin: var(--space-5) 0 var(--space-4);
-  padding-top: var(--space-3);
-  border-top: 2px solid var(--gold);
-}
-
-.verdict-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ink-soft);
-  margin-bottom: var(--space-1);
-}
-
-.verdict-row {
+.report-header {
   display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
-.verdict-score {
+.best-fit-badge {
+  flex-shrink: 0;
+  background: rgba(21, 128, 61, 0.1);
+  color: #15803d;
   font-weight: 700;
-  font-size: 3rem;
-  line-height: 1;
-  color: var(--navy);
-}
-
-.verdict-name {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--ink);
-}
-
-.verdict-score--loading {
-  color: var(--ink-soft);
-  font-weight: 400;
+  font-size: 0.85rem;
+  border-radius: 999px;
+  padding: var(--space-1) var(--space-3);
+  white-space: nowrap;
 }
 
 /* Only shown to the listing's own owner/agent or an Admin (see canEditListing) — a prompt to go
@@ -147,18 +122,17 @@ h1 {
 
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-4);
-  margin-bottom: var(--space-6);
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
-/* A thin top rule instead of a boxed/filled tile (the old #eff6ff blue had no relationship to
-   the site's black-and-gold identity) — quiet supporting stats sitting under the one bold
-   verdict number above, not a second competing "hero" treatment. */
 .kpi {
-  border-top: 1px solid var(--hairline);
-  padding-top: var(--space-2);
-  text-align: left;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: var(--space-3);
+  text-align: center;
 }
 
 .kpi-label {
@@ -166,7 +140,7 @@ h1 {
   font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   color: var(--ink-soft);
   margin-bottom: var(--space-1);
 }
