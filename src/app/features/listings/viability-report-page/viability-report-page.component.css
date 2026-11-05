@@ -24,14 +24,9 @@
   text-decoration: underline;
 }
 
-/* Spectral (preconnected + loaded in index.html) is reserved for this page's one headline
-   moment — the title and the verdict score below — everything else (card titles, the 22
-   business-card headings, body text) stays in the site's plain system-ui so a page with this
-   much repeating content remains fast to scan rather than heavy throughout. */
 h1 {
   margin: 0 0 var(--space-1);
-  font-family: 'Spectral', Georgia, serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.9rem;
   letter-spacing: -0.01em;
   color: var(--navy);
@@ -111,7 +106,6 @@ h1 {
 }
 
 .verdict-score {
-  font-family: 'Spectral', Georgia, serif;
   font-weight: 700;
   font-size: 3rem;
   line-height: 1;
