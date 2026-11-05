@@ -269,6 +269,8 @@ export const es: Record<string, string> = {
   'viabilityPage.trafficDataUnavailable': 'No pudimos consultar el tráfico en tiempo real para esta ubicación en este momento.',
   'viabilityPage.trafficGeneratorsDataUnavailable': 'Esta lista puede estar incompleta: no pudimos consultar alguna de nuestras fuentes de datos en este momento.',
   'viabilityPage.infrastructureProjectsTitle': 'Proyectos de infraestructura cercanos',
+  'viabilityPage.trafficCountTitle': 'Tráfico vehicular medido (SICT)',
+  'viabilityPage.trafficCountTdpa': 'vehículos/día en promedio ({{period}})',
   'viabilityPage.mapListingMarker': 'Este predio',
   'viabilityPage.legendTitle': 'Simbología',
   'viabilityPage.legendSchool': 'Escuela',

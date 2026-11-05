@@ -302,6 +302,15 @@ export interface NearbyInfrastructureProjectDto {
   sourceUrl: string | null;
 }
 
+export interface NearbyTrafficCountStationDto {
+  routeName: string;
+  routeKey: string | null;
+  state: string;
+  tdpa: number;
+  period: string;
+  distanceMeters: number;
+}
+
 export interface LatLngDto {
   lat: number;
   lng: number;
@@ -335,6 +344,7 @@ export interface ViabilityAnalysisDto {
   trafficGenerators: TrafficGeneratorDto[];
   nearbyRoads: NearbyRoadDto[];
   nearbyInfrastructureProjects: NearbyInfrastructureProjectDto[];
+  nearbyTrafficCountStation: NearbyTrafficCountStationDto | null;
   roadsDataUnavailable: boolean;
   trafficGeneratorsDataUnavailable: boolean;
   trafficCongestionLevel: 0 | 1 | 2 | null;
@@ -376,6 +386,16 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
       expectedCompletionDate: p.expectedCompletionDate,
       sourceUrl: p.sourceUrl
     })),
+    nearbyTrafficCountStation: dto.nearbyTrafficCountStation
+      ? {
+          routeName: dto.nearbyTrafficCountStation.routeName,
+          routeKey: dto.nearbyTrafficCountStation.routeKey,
+          state: dto.nearbyTrafficCountStation.state,
+          tdpa: dto.nearbyTrafficCountStation.tdpa,
+          period: dto.nearbyTrafficCountStation.period,
+          distanceMeters: dto.nearbyTrafficCountStation.distanceMeters
+        }
+      : null,
     roadsDataUnavailable: dto.roadsDataUnavailable,
     trafficGeneratorsDataUnavailable: dto.trafficGeneratorsDataUnavailable,
     trafficCongestionLevel: dto.trafficCongestionLevel,

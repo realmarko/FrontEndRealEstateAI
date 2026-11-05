@@ -208,6 +208,19 @@
         </div>
       }
 
+      @if (analysisValue.nearbyTrafficCountStation; as station) {
+        <div class="card">
+          <h3 class="card-title">{{ 'viabilityPage.trafficCountTitle' | translate }}</h3>
+          <ul class="traffic-list">
+            <li>
+              <span class="traffic-name">{{ station.routeName }}{{ station.routeKey ? ' (' + station.routeKey + ')' : '' }}</span>
+              <span class="traffic-category">{{ station.tdpa | number }} {{ 'viabilityPage.trafficCountTdpa' | translate:{ period: station.period } }}</span>
+              <span class="traffic-distance">{{ station.distanceMeters | number }} m</span>
+            </li>
+          </ul>
+        </div>
+      }
+
       <div class="business-list">
         @for (business of rankedBusinesses(); track business.key) {
           <div class="business-card">

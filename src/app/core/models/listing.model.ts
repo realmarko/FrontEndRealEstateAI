@@ -315,6 +315,19 @@ export interface NearbyInfrastructureProject {
   sourceUrl: string | null;
 }
 
+// The nearest SICT federal-highway traffic-count station (see TrafficCountStation on the backend)
+// — real measured TDPA (vehicles/day average), shown as informational context only, never a
+// pass/fail criterion. null when no station is within reach (most listings aren't near a federal
+// highway counting station — that's expected, not a data failure).
+export interface NearbyTrafficCountStation {
+  routeName: string;
+  routeKey: string | null;
+  state: string;
+  tdpa: number;
+  period: string;
+  distanceMeters: number;
+}
+
 export interface NearbyRoad {
   name: string | null;
   classification: string;
@@ -347,6 +360,7 @@ export interface ViabilityAnalysis {
   trafficGenerators: TrafficGenerator[];
   nearbyRoads: NearbyRoad[];
   nearbyInfrastructureProjects: NearbyInfrastructureProject[];
+  nearbyTrafficCountStation: NearbyTrafficCountStation | null;
   // True when the lookup itself failed (e.g. OpenStreetMap/Overpass down) rather than genuinely
   // finding nothing nearby — an empty list looks identical either way otherwise.
   roadsDataUnavailable: boolean;
