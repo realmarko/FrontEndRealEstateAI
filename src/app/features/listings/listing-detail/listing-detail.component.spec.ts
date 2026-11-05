@@ -73,7 +73,15 @@ describe('ListingDetailComponent', () => {
     favoritesServiceSpy.isFavorite.and.returnValue(false);
 
     currentUser = signal<User | null>(null);
-    authServiceSpy = jasmine.createSpyObj('AuthService', [], { currentUser, isAuthenticated: () => currentUser() !== null });
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['isOwnerOf'], {
+      currentUser,
+      isAuthenticated: () => currentUser() !== null,
+      isAdmin: () => currentUser()?.roles.includes('Admin') ?? false
+    });
+    authServiceSpy.isOwnerOf.and.callFake((ownerId: string | null | undefined) => {
+      const userId = currentUser()?.id;
+      return userId != null && userId === ownerId;
+    });
 
     inquiryServiceSpy = jasmine.createSpyObj('InquiryService', ['create']);
     notificationSpy = jasmine.createSpyObj('NotificationService', ['success', 'error']);
@@ -219,6 +227,7 @@ describe('ListingDetailComponent', () => {
 
   it('deleteListing() notifies and navigates to /listings on success', () => {
     const component = createComponent();
+    spyOn(window, 'confirm').and.returnValue(true);
     listingServiceSpy.delete.and.returnValue(of(undefined));
 
     component.deleteListing();
@@ -229,12 +238,24 @@ describe('ListingDetailComponent', () => {
 
   it('deleteListing() shows an error notification on failure', () => {
     const component = createComponent();
+    spyOn(window, 'confirm').and.returnValue(true);
     listingServiceSpy.delete.and.returnValue(throwError(() => new Error('boom')));
 
     component.deleteListing();
 
     expect(notificationSpy.error).toHaveBeenCalledWith('listingDetail.deleteError');
     expect(router.navigate).not.toHaveBeenCalled();
+  });
+
+  it('deleteListing() does nothing if the confirmation is declined', () => {
+    const component = createComponent();
+    spyOn(window, 'confirm').and.returnValue(false);
+    listingServiceSpy.delete.and.returnValue(of(undefined));
+
+    component.deleteListing();
+
+    expect(listingServiceSpy.delete).not.toHaveBeenCalled();
+    expect(notificationSpy.success).not.toHaveBeenCalled();
   });
 
   it('sendContactAgentMessage() rejects an incomplete form without opening a request', () => {

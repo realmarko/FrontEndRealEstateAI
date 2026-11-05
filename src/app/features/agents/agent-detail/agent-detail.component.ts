@@ -214,6 +214,7 @@ export class AgentDetailComponent {
   }
 
   deleteAgent(): void {
+    if (!confirm(this.translation.t('agentDetail.deleteConfirm'))) return;
     this.agentService.delete(this.agentId).subscribe({
       next: () => {
         this.notification.success('agentDetail.deleteSuccess');

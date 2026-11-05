@@ -35,6 +35,17 @@ export class AuthService {
 
   readonly currentUser = this.currentUserSignal.asReadonly();
   readonly isAuthenticated = computed(() => this.currentUserSignal() !== null);
+  // Shared Admin check — was duplicated identically in listing-detail and viability-report-page
+  // (project convention: extract once a pattern repeats across 2+ pages).
+  readonly isAdmin = computed(() => this.currentUserSignal()?.roles.includes('Admin') ?? false);
+
+  // Whether the signed-in user owns the resource with this ownerId — a plain method (not a
+  // computed) since the id being compared against varies per caller/resource, not a fixed value
+  // this service already tracks. Same duplicated-pattern reasoning as isAdmin above.
+  isOwnerOf(ownerId: string | null | undefined): boolean {
+    const userId = this.currentUserSignal()?.id;
+    return userId != null && userId === ownerId;
+  }
 
   get token(): string | null {
     return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;

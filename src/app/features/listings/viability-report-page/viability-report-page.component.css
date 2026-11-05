@@ -96,6 +96,28 @@ h1 {
   white-space: nowrap;
 }
 
+/* Only shown to the listing's own owner/agent or an Admin (see canEditListing) — a prompt to go
+   fill in the missing fields this same report just flagged as "no se pudo evaluar", not a generic
+   banner every visitor sees. Gold-tinted like .primary-link (an available action) rather than
+   .data-source-warning's amber (reserved for "something failed"), since completing the listing's
+   data isn't a problem to warn about. */
+.complete-data-cta {
+  display: block;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: rgba(198, 161, 91, 0.12);
+  border: 1px solid rgba(198, 161, 91, 0.4);
+  border-radius: 8px;
+  color: var(--navy);
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+}
+
+.complete-data-cta:hover {
+  background: rgba(198, 161, 91, 0.2);
+}
+
 .kpi-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -396,6 +418,50 @@ h1 {
   font-size: 0.85rem;
   font-style: italic;
   color: #b91c1c;
+}
+
+/* Highlighted summary of just this giro's passing checks, shown before the full .checks list so
+   a reader starts with what's actually working in the property's favor — same green as .pass/
+   .best-fit-badge, since it's the same "this is good" signal, just surfaced up front instead of
+   buried in a longer pass/fail list. Deliberately per-card (see strengths() in the component):
+   the same attribute can be a strength for one giro and a weakness for another. */
+.strengths {
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  background: rgba(21, 128, 61, 0.08);
+  border-radius: 8px;
+}
+
+.strengths-label {
+  margin: 0 0 var(--space-1);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: #15803d;
+}
+
+.strengths-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.strengths-list li {
+  font-size: 0.88rem;
+  color: var(--ink);
+  line-height: 1.4;
+  padding-left: 1.3em;
+  position: relative;
+}
+
+.strengths-list li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #15803d;
+  font-weight: 700;
 }
 
 .checks {

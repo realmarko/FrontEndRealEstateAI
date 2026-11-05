@@ -140,6 +140,7 @@ export class OwnerDetailComponent {
   }
 
   deleteOwner(): void {
+    if (!confirm(this.translation.t('ownerDetail.deleteConfirm'))) return;
     this.ownerService.delete(this.ownerId).subscribe({
       next: () => {
         this.notification.success('ownerDetail.deleteSuccess');

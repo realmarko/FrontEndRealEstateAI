@@ -100,8 +100,8 @@ export class ListingDetailComponent {
   readonly listing = signal<Listing | undefined>(undefined);
   readonly loading = signal(true);
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
-  readonly isOwner = computed(() => this.listing()?.ownerId === this.auth.currentUser()?.id);
-  readonly isAdmin = computed(() => this.auth.currentUser()?.roles.includes('Admin') ?? false);
+  readonly isOwner = computed(() => this.auth.isOwnerOf(this.listing()?.ownerId));
+  readonly isAdmin = this.auth.isAdmin;
   readonly isAgent = computed(() => this.auth.currentUser()?.roles.includes('Agent') ?? false);
   // Only meaningful once pipeline.refresh() has populated processes() — triggered below, in the
   // listing-load success handler, but only for an owner who's also an Agent (the only case the
@@ -693,6 +693,7 @@ export class ListingDetailComponent {
   }
 
   deleteListing(): void {
+    if (!confirm(this.translation.t('listingDetail.deleteConfirm'))) return;
     this.listingService.delete(this.id).subscribe({
       next: () => {
         this.notification.success('listingDetail.deleteSuccess');

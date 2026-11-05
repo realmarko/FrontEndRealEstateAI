@@ -2,13 +2,14 @@ import { Component, DestroyRef, ElementRef, Injector, ViewChild, afterNextRender
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveToast } from 'ngx-toastr';
+import { AuthService } from '../../../core/services/auth.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { ViabilityReportModalComponent } from '../../../shared/components/viability-report-modal/viability-report-modal.component';
-import { Listing, NearbyRoad, ViabilityAnalysis, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
+import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
 
@@ -27,6 +28,7 @@ import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH,
 export class ViabilityReportPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly listingService = inject(ListingService);
+  private readonly auth = inject(AuthService);
   private readonly seo = inject(SeoService);
   private readonly notification = inject(NotificationService);
   private readonly injector = inject(Injector);
@@ -104,6 +106,14 @@ export class ViabilityReportPageComponent {
     Cancelled: 'Cancelado'
   };
 
+  // Per-giro, not global: the same attribute (e.g. low traffic) can be a strength for one business
+  // type and a weakness for another, so a single site-wide "strengths" summary would show
+  // contradictory claims side by side. Scoped to each business card instead, reusing checks the
+  // report already computed — no new data, just which of them happened to pass for this giro.
+  protected strengths(business: BusinessViability): ViabilityCheck[] {
+    return business.checks.filter((c) => c.passed === true);
+  }
+
   protected infrastructureProjectTypeLabel(type: string): string {
     return ViabilityReportPageComponent.INFRASTRUCTURE_PROJECT_TYPE_LABELS[type] ?? type;
   }
@@ -126,6 +136,13 @@ export class ViabilityReportPageComponent {
   // actually scouting this lot, not just the seller) see the strongest fits immediately.
   readonly rankedBusinesses = computed(() => [...(this.analysis()?.businesses ?? [])].sort((a, b) => b.score - a.score));
   readonly topBusiness = computed(() => this.rankedBusinesses()[0] ?? null);
+
+  // Gates the "complete your listing's data" CTA — this report page is public (anyone evaluating
+  // the property can open it), so the prompt to go fill in missing fields only makes sense for
+  // whoever can actually act on it: the listing's own owner (an Agent account that listed the
+  // property IS that ownerId, there's no separate "managing agent for someone else's listing"
+  // concept in this app) or an Admin.
+  readonly canEditListing = computed(() => this.auth.isAdmin() || this.auth.isOwnerOf(this.listing()?.ownerId));
 
   readonly showViabilityModal = signal(false);
   readonly submittingViabilityRequest = signal(false);

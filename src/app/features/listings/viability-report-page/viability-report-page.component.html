@@ -33,6 +33,12 @@
       }
     </div>
 
+    @if (canEditListing()) {
+      <a class="complete-data-cta" [routerLink]="['/listings', listingValue.id, 'edit']">
+        {{ 'viabilityPage.completeDataCta' | translate }}
+      </a>
+    }
+
     <div class="kpi-row">
       <div class="kpi">
         <span class="kpi-label">{{ 'viabilityPage.kpiLotSize' | translate }}</span>
@@ -231,6 +237,19 @@
 
             @if (business.scoreCapReason) {
               <p class="cap-reason">{{ business.scoreCapReason }}</p>
+            }
+
+            @if (strengths(business); as pros) {
+              @if (pros.length) {
+                <div class="strengths">
+                  <p class="strengths-label">{{ 'viabilityPage.strengthsLabel' | translate }}</p>
+                  <ul class="strengths-list">
+                    @for (check of pros; track check.label) {
+                      <li>{{ check.detail }}</li>
+                    }
+                  </ul>
+                </div>
+              }
             }
 
             <ul class="checks">
