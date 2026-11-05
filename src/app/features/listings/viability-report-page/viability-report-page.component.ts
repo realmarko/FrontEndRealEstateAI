@@ -1,4 +1,5 @@
 import { Component, DestroyRef, ElementRef, Injector, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveToast } from 'ngx-toastr';
@@ -110,8 +111,73 @@ export class ViabilityReportPageComponent {
   // type and a weakness for another, so a single site-wide "strengths" summary would show
   // contradictory claims side by side. Scoped to each business card instead, reusing checks the
   // report already computed — no new data, just which of them happened to pass for this giro.
+  // Backs the accordion's "Criterios Cumplidos" tab.
   protected strengths(business: BusinessViability): ViabilityCheck[] {
     return business.checks.filter((c) => c.passed === true);
+  }
+
+  // Backs the accordion's "Faltantes / Pendientes" tab. Only real, giro-specific failures
+  // (passed === false) — a check the backend couldn't evaluate at all (passed === null, e.g. no
+  // frontage reported) isn't a failure of THIS giro, it's a gap in the lot's own data, so it's
+  // pulled out of every card and shown once in missingDataNotices() instead of repeated 20+ times.
+  protected pendingChecks(business: BusinessViability): ViabilityCheck[] {
+    return business.checks.filter((c) => c.passed === false);
+  }
+
+  // One line for the collapsed card header: the cap reason if a hard-blocker capped the score
+  // (the strongest possible "why"), else the first real failure, else the first thing working in
+  // its favor — whichever exists first is the most informative single line available for this giro.
+  protected primaryReason(business: BusinessViability): string {
+    if (business.scoreCapReason) return business.scoreCapReason;
+    const failed = business.checks.find((c) => c.passed === false);
+    if (failed) return failed.detail;
+    const passed = business.checks.find((c) => c.passed === true);
+    if (passed) return passed.detail;
+    // A lot this sparse on data (every check for this giro landed as "no se pudo evaluar") has
+    // nothing to show in either direction — say so explicitly rather than leaving the reason
+    // line blank, which would read as a rendering bug rather than a genuine lack of data.
+    return this.translation.t('viabilityPage.noDataForBusiness');
+  }
+
+  // Deduped across every giro — the same lot-level gap (e.g. "no se reportó si está en esquina")
+  // shows up identically in most businesses' checks, so collecting it once here instead of
+  // rendering it inside each card avoids saying the same thing 20+ times on one page.
+  readonly missingDataNotices = computed(() => {
+    const messages = new Set<string>();
+    for (const business of this.rankedBusinesses()) {
+      for (const check of business.checks) {
+        if (check.passed === null) messages.add(check.detail);
+      }
+    }
+    return [...messages];
+  });
+
+  private readonly expandedBusinessKeys = signal<ReadonlySet<string>>(new Set());
+  private readonly activeTabs = signal<ReadonlyMap<string, 'passed' | 'pending'>>(new Map());
+
+  protected isExpanded(key: string): boolean {
+    return this.expandedBusinessKeys().has(key);
+  }
+
+  protected toggleBusinessCard(key: string): void {
+    const next = new Set(this.expandedBusinessKeys());
+    if (next.has(key)) {
+      next.delete(key);
+    } else {
+      next.add(key);
+    }
+    this.expandedBusinessKeys.set(next);
+  }
+
+  // Defaults to the "passed" tab every time a card is (re)opened, rather than remembering a
+  // collapsed card's last tab — a reader expects to land on what's working first, same as the
+  // page's own best-first business ranking.
+  protected activeTab(key: string): 'passed' | 'pending' {
+    return this.activeTabs().get(key) ?? 'passed';
+  }
+
+  protected setActiveTab(key: string, tab: 'passed' | 'pending'): void {
+    this.activeTabs.set(new Map(this.activeTabs()).set(key, tab));
   }
 
   protected infrastructureProjectTypeLabel(type: string): string {
@@ -122,7 +188,13 @@ export class ViabilityReportPageComponent {
     return ViabilityReportPageComponent.INFRASTRUCTURE_PROJECT_STATUS_LABELS[status] ?? status;
   }
 
-  private readonly id = this.route.snapshot.paramMap.get('id') ?? '';
+  // Mutable, not readonly: Angular's default RouteReuseStrategy reuses this component instance
+  // across navigations between two URLs matching this same route config (e.g. one listing's
+  // report to another's), so the id has to track route.paramMap rather than being read once from
+  // the snapshot — otherwise a client-side navigation between two reports would keep showing the
+  // first listing's data with no refetch.
+  private id = '';
+  private lastLoadedId: string | null = null;
 
   readonly listing = signal<Listing | null>(null);
   readonly loading = signal(true);
@@ -153,7 +225,21 @@ export class ViabilityReportPageComponent {
     // mid-request, on top of the two branches in loadAnalysis() that already dismiss it.
     inject(DestroyRef).onDestroy(() => this.dismissViabilityLoadingToast());
 
-    this.listingService.fetchById(this.id).subscribe({
+    // paramMap (not the snapshot) so a reused instance re-fetches when only the :id changes; it
+    // replays the current params on subscribe, so this also drives the very first load.
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const nextId = params.get('id') ?? '';
+      if (nextId === this.lastLoadedId) return;
+      this.lastLoadedId = nextId;
+      this.loadListing(nextId);
+    });
+  }
+
+  private loadListing(id: string): void {
+    this.id = id;
+    this.resetForNewListing();
+
+    this.listingService.fetchById(id).subscribe({
       next: (listing) => {
         this.listing.set(listing);
         this.loading.set(false);
@@ -182,6 +268,26 @@ export class ViabilityReportPageComponent {
       },
       error: () => this.loading.set(false)
     });
+  }
+
+  // Clears every piece of per-listing state before fetching the next id, so a reused instance
+  // (see loadListing) never shows a stale mix of the previous listing's data while the new one
+  // is loading — the old map's markers/polylines disappear too, since initLocationMap replaces
+  // the map div's content outright.
+  private resetForNewListing(): void {
+    this.dismissViabilityLoadingToast();
+    this.listing.set(null);
+    this.loading.set(true);
+    this.notEligible.set(false);
+    this.analysis.set(null);
+    this.loadingAnalysis.set(false);
+    this.analysisError.set(false);
+    this.expandedBusinessKeys.set(new Set());
+    this.activeTabs.set(new Map());
+
+    for (const polyline of this.polylines) polyline.setMap(null);
+    this.polylines.length = 0;
+    this.map = undefined;
   }
 
   private async initLocationMap(lat: number, lng: number): Promise<void> {

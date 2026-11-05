@@ -485,7 +485,7 @@
                 <div class="viability-card">
                   <div class="viability-card-head">
                     <span class="viability-name">{{ topBusiness.displayName }}</span>
-                    <span class="viability-score" [class.good]="topBusiness.score >= 70" [class.medium]="topBusiness.score >= 40 && topBusiness.score < 70" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
+                    <span class="viability-score" [class.good]="topBusiness.score > 80" [class.medium]="topBusiness.score >= 40 && topBusiness.score <= 80" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
                   </div>
                   <p class="viability-reason">{{ 'listingDetail.viabilityBestFit' | translate }}</p>
                 </div>
