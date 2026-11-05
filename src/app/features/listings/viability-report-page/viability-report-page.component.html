@@ -18,18 +18,32 @@
       {{ listingValue.title }}
     </a>
 
-    <div class="report-header">
-      <div>
-        <h1>{{ 'viabilityPage.title' | translate }}</h1>
-        <p class="subtitle">
-          {{ listingValue.title }} · {{ listingValue.address }}
-          @if (analysis(); as a) {
-            · <a class="coordinates-link" [href]="'https://www.google.com/maps?q=' + a.lat + ',' + a.lng" target="_blank" rel="noopener">{{ a.lat | number: '1.5-5' }}, {{ a.lng | number: '1.5-5' }}</a>
-          }
-        </p>
-      </div>
+    <h1>{{ 'viabilityPage.title' | translate }}</h1>
+    <p class="subtitle">
+      {{ listingValue.title }} · {{ listingValue.address }}
+      @if (analysis(); as a) {
+        · <a class="coordinates-link" [href]="'https://www.google.com/maps?q=' + a.lat + ',' + a.lng" target="_blank" rel="noopener">{{ a.lat | number: '1.5-5' }}, {{ a.lng | number: '1.5-5' }}</a>
+      }
+    </p>
+
+    <!-- The report's one headline verdict — everything below is supporting evidence for this
+         number, so it gets the page's only serif/large-scale treatment (see frontend-design
+         principle: spend boldness in one place). Replaces the old floating badge + a third,
+         redundant KPI tile that repeated the same top-business score twice. -->
+    <div class="verdict">
+      <span class="verdict-label">{{ 'viabilityPage.kpiBestFit' | translate }}</span>
       @if (topBusiness(); as top) {
-        <span class="best-fit-badge">{{ top.displayName }} {{ top.score }}%</span>
+        <div class="verdict-row">
+          <span class="verdict-score">{{ top.score }}%</span>
+          <span class="verdict-name">{{ top.displayName }}</span>
+        </div>
+      } @else {
+        <!-- Reserves the verdict's full height while analysis() is still loading, the same way
+             the KPI tiles below already show "…" instead of popping in once data arrives — avoids
+             a layout shift right under the title, the first thing a visitor's eye lands on. -->
+        <div class="verdict-row">
+          <span class="verdict-score verdict-score--loading">…</span>
+        </div>
       }
     </div>
 
@@ -61,15 +75,6 @@
             <span class="kpi-value kpi-unavailable">—</span>
             <span class="kpi-sub">{{ 'viabilityPage.populationUnavailable' | translate }}</span>
           }
-        } @else {
-          <span class="kpi-value kpi-unavailable">…</span>
-        }
-      </div>
-      <div class="kpi">
-        <span class="kpi-label">{{ 'viabilityPage.kpiBestFit' | translate }}</span>
-        @if (topBusiness(); as top) {
-          <span class="kpi-value">{{ top.score }}%</span>
-          <span class="kpi-sub">{{ top.displayName }}</span>
         } @else {
           <span class="kpi-value kpi-unavailable">…</span>
         }
@@ -228,8 +233,8 @@
       }
 
       <div class="business-list">
-        @for (business of rankedBusinesses(); track business.key) {
-          <div class="business-card">
+        @for (business of rankedBusinesses(); track business.key; let i = $index) {
+          <div class="business-card" [class.top-pick]="i === 0">
             <div class="business-head">
               <h2>{{ business.displayName }}</h2>
               <span class="score" [class.good]="business.score >= 70" [class.medium]="business.score >= 40 && business.score < 70" [class.low]="business.score < 40">{{ business.score }}%</span>
