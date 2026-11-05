@@ -252,6 +252,7 @@ export const es: Record<string, string> = {
   'viabilityPage.inhabitants': 'habitantes',
   'viabilityPage.populationUnavailable': 'No disponible (fuera de las zonas urbanas censadas que cubrimos hoy)',
   'viabilityPage.requestReportCta': 'Recibe este reporte en PDF por correo',
+  'viabilityPage.downloadPdfCta': 'Descargar Reporte PDF',
   'viabilityPage.badgeCorner': 'Esquina',
   'viabilityPage.badgeNotCorner': 'No es esquina',
   'viabilityPage.badgeFlat': 'Terreno plano',

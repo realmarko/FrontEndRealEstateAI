@@ -28,9 +28,6 @@
           }
         </p>
       </div>
-      @if (topBusiness(); as top) {
-        <span class="best-fit-badge">{{ top.displayName }} {{ top.score }}%</span>
-      }
     </div>
 
     @if (canEditListing()) {
@@ -40,6 +37,14 @@
     }
 
     <div class="kpi-row">
+      <div class="kpi kpi-hero">
+        <span class="kpi-label">{{ 'viabilityPage.kpiBestFit' | translate }}</span>
+        @if (topBusiness(); as top) {
+          <span class="kpi-best-fit-badge">{{ top.score }}% {{ top.displayName }}</span>
+        } @else {
+          <span class="kpi-value kpi-unavailable">…</span>
+        }
+      </div>
       <div class="kpi">
         <span class="kpi-label">{{ 'viabilityPage.kpiLotSize' | translate }}</span>
         @if (listingValue.lotSizeSqm) {
@@ -65,16 +70,11 @@
           <span class="kpi-value kpi-unavailable">…</span>
         }
       </div>
-      <div class="kpi">
-        <span class="kpi-label">{{ 'viabilityPage.kpiBestFit' | translate }}</span>
-        @if (topBusiness(); as top) {
-          <span class="kpi-value">{{ top.score }}%</span>
-          <span class="kpi-sub">{{ top.displayName }}</span>
-        } @else {
-          <span class="kpi-value kpi-unavailable">…</span>
-        }
-      </div>
     </div>
+
+    <button type="button" class="primary-link download-pdf-cta" (click)="downloadViabilityReportPdf()">
+      {{ 'viabilityPage.downloadPdfCta' | translate }}
+    </button>
 
     <div class="card">
       <h3 class="card-title">{{ 'viabilityPage.factSheetTitle' | translate }}</h3>
@@ -272,20 +272,6 @@
           </div>
         }
       </div>
-
-      <button type="button" class="primary-link viability-cta" (click)="openViabilityModal()">
-        {{ 'viabilityPage.requestReportCta' | translate }}
-      </button>
     }
   </div>
-
-  @if (showViabilityModal()) {
-    <app-viability-report-modal
-      [sending]="submittingViabilityRequest()"
-      [sent]="viabilityRequestSent()"
-      [downloadUrl]="viabilityReportUrl()"
-      (closed)="closeViabilityModal()"
-      (requested)="submitViabilityRequest($event)"
-    />
-  }
 }

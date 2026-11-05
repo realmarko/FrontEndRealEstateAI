@@ -1,8 +1,8 @@
 .card {
   background: #fff;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
   padding: 1.25rem;
   display: flex;
   gap: 1.1rem;

@@ -2,13 +2,13 @@ import { Component, DestroyRef, ElementRef, Injector, ViewChild, afterNextRender
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ActiveToast } from 'ngx-toastr';
+import { environment } from '../../../../environments/environment';
 import { AuthService } from '../../../core/services/auth.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { SeoService } from '../../../core/services/seo.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
-import { ViabilityReportModalComponent } from '../../../shared/components/viability-report-modal/viability-report-modal.component';
 import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
@@ -21,7 +21,7 @@ import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH,
 @Component({
   selector: 'app-viability-report-page',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, TranslatePipe, ViabilityReportModalComponent],
+  imports: [DecimalPipe, RouterLink, TranslatePipe],
   templateUrl: './viability-report-page.component.html',
   styleUrl: './viability-report-page.component.css'
 })
@@ -143,11 +143,6 @@ export class ViabilityReportPageComponent {
   // property IS that ownerId, there's no separate "managing agent for someone else's listing"
   // concept in this app) or an Admin.
   readonly canEditListing = computed(() => this.auth.isAdmin() || this.auth.isOwnerOf(this.listing()?.ownerId));
-
-  readonly showViabilityModal = signal(false);
-  readonly submittingViabilityRequest = signal(false);
-  readonly viabilityRequestSent = signal(false);
-  readonly viabilityReportUrl = signal<string | null>(null);
 
   private viabilityLoadingToast: ActiveToast<unknown> | null = null;
 
@@ -321,31 +316,11 @@ export class ViabilityReportPageComponent {
     this.viabilityLoadingToast = null;
   }
 
-  openViabilityModal(): void {
-    this.viabilityRequestSent.set(false);
-    const url = this.viabilityReportUrl();
-    if (url) URL.revokeObjectURL(url);
-    this.viabilityReportUrl.set(null);
-    this.showViabilityModal.set(true);
-  }
-
-  closeViabilityModal(): void {
-    if (this.submittingViabilityRequest()) return;
-    this.showViabilityModal.set(false);
-  }
-
-  submitViabilityRequest(input: { name: string; email: string; phone?: string }): void {
-    this.submittingViabilityRequest.set(true);
-    this.listingService.requestViabilityReport(this.id, input).subscribe({
-      next: (pdf) => {
-        this.submittingViabilityRequest.set(false);
-        this.viabilityRequestSent.set(true);
-        this.viabilityReportUrl.set(URL.createObjectURL(pdf));
-      },
-      error: () => {
-        this.submittingViabilityRequest.set(false);
-        this.notification.error('listingDetail.viabilityRequestError');
-      }
-    });
+  // Direct, ungated download — a plain GET the browser can navigate to on its own, same pattern
+  // as listing-detail's qrCodeUrl for the fact-sheet PDF. No Observable/blob juggling needed
+  // here since there's no request body to send (unlike the old lead-capture POST flow this
+  // button replaces).
+  downloadViabilityReportPdf(): void {
+    window.open(`${environment.apiUrl}/listings/${this.id}/viability-report-pdf`, '_blank');
   }
 }

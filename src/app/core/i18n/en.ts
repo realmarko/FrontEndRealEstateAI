@@ -252,6 +252,7 @@ export const en: Record<string, string> = {
   'viabilityPage.inhabitants': 'inhabitants',
   'viabilityPage.populationUnavailable': 'Not available (outside the urban census zones we cover today)',
   'viabilityPage.requestReportCta': 'Get this report as a PDF by email',
+  'viabilityPage.downloadPdfCta': 'Download PDF Report',
   'viabilityPage.badgeCorner': 'Corner lot',
   'viabilityPage.badgeNotCorner': 'Not a corner lot',
   'viabilityPage.badgeFlat': 'Flat lot',

@@ -19,6 +19,14 @@
   --ink-soft: #6b7280;
   --hairline: #e5e7eb;
 
+  /* Shared "boxed card" vocabulary — a mechanical extraction of the values already dominant
+     across listing/agent/agency/owner cards (box-shadow 0 1px 3px rgba(0,0,0,0.12), radius
+     8px), not new design decisions. --radius-md stays separate because listing-card is the one
+     existing outlier at 10px. */
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+
   /* Shared spacing scale, 4px grid (0.25rem steps) — every padding/margin/gap in the app should
      resolve to one of these instead of a one-off rem value picked per component. Before this,
      a single page's stylesheet could contain 15-20 near-miss values (0.72rem, 0.78rem, 0.88rem,

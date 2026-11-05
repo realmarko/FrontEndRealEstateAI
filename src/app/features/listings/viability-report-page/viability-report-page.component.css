@@ -80,22 +80,7 @@ h1 {
 }
 
 .report-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
   margin-bottom: var(--space-4);
-}
-
-.best-fit-badge {
-  flex-shrink: 0;
-  background: rgba(21, 128, 61, 0.1);
-  color: #15803d;
-  font-weight: 700;
-  font-size: 0.85rem;
-  border-radius: 999px;
-  padding: var(--space-1) var(--space-3);
-  white-space: nowrap;
 }
 
 /* Only shown to the listing's own owner/agent or an Admin (see canEditListing) — a prompt to go
@@ -128,26 +113,35 @@ h1 {
 }
 
 .kpi {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  padding: var(--space-3);
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
   text-align: center;
+}
+
+/* The hero metric this redesign is built around — the lightest possible green tint, since the
+   big pill badge below already carries the "this is good" color signal; a second, stronger
+   green here would compete with it instead of framing it. */
+.kpi-hero {
+  background: rgba(21, 128, 61, 0.05);
+  border-color: rgba(21, 128, 61, 0.25);
 }
 
 .kpi-label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   color: var(--ink-soft);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
 .kpi-value {
   display: block;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--navy);
 }
@@ -155,13 +149,38 @@ h1 {
 .kpi-value.kpi-unavailable {
   color: var(--ink-soft);
   font-weight: 400;
+  font-size: 1.3rem;
 }
 
 .kpi-sub {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   color: var(--ink-soft);
-  margin-top: 2px;
+  margin-top: var(--space-1);
+}
+
+/* Reuses the page's existing green "good" signal (rgba(21,128,61,0.1)/#15803d, same as
+   .score.good and .strengths-label below) scaled up into a large pill badge, rather than
+   inventing a new accent color for the one metric the brief asks to stand out. */
+.kpi-best-fit-badge {
+  display: inline-block;
+  background: rgba(21, 128, 61, 0.12);
+  color: #15803d;
+  font-weight: 800;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  border-radius: 999px;
+  padding: var(--space-2) var(--space-5);
+  margin-top: var(--space-1);
+}
+
+.download-pdf-cta {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-bottom: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
 }
 
 .detail-grid {
@@ -218,7 +237,15 @@ h1 {
   }
 
   .kpi-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .kpi-hero {
+    grid-column: 1 / -1;
+  }
+
+  .kpi-best-fit-badge {
+    font-size: 1.15rem;
   }
 }
 
@@ -528,8 +555,4 @@ h1 {
 
 .primary-link:hover {
   background: var(--gold-hover);
-}
-
-.viability-cta {
-  margin-top: var(--space-6);
 }
