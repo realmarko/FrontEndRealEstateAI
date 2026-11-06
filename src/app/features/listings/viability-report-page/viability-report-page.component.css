@@ -396,10 +396,17 @@ h1 {
   padding-left: var(--space-2);
 }
 
-.business-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+/* One giro on screen at a time, like a single photo in a gallery — see the component's
+   showBusiness()/nextBusiness()/previousBusiness(), which mirror listing-detail's own
+   changePhoto()/nextPhoto()/previousPhoto() shape. pan-y lets a horizontal swipe be read as a
+   deliberate gesture without blocking native vertical page scroll, same as .main-photo there. Side
+   padding (same rule as listing-detail's own .nav-arrow/.photo-count visual language) keeps the
+   card's own header text from ever running underneath the arrows. */
+.business-viewer {
+  position: relative;
+  touch-action: pan-y;
+  margin-bottom: var(--space-3);
+  padding: 0 44px;
 }
 
 .business-card {
@@ -549,6 +556,105 @@ h1 {
 
 .checks li.fail .mark {
   color: #b91c1c;
+}
+
+/* Same visual language as listing-detail's own .nav-arrow/.photo-count — a circular button
+   floating over the content, positioned on the header row so it stays put whether the card below
+   it is collapsed or expanded. */
+.business-nav-arrow {
+  position: absolute;
+  top: calc(var(--space-4) + 0.55em);
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--hairline, #e5e7eb);
+  background: #fff;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--navy);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.business-nav-arrow.prev {
+  left: 0;
+}
+
+.business-nav-arrow.next {
+  right: 0;
+}
+
+/* Deliberately NOT absolutely positioned over the card like listing-detail's own .photo-count is
+   over its photo — this card already has its own right-aligned chevron on that same corner, so
+   overlaying a second element there collided with it. Flows below the card instead. */
+.business-count {
+  display: block;
+  margin-top: var(--space-1);
+  text-align: right;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.business-thumbs {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+  margin-bottom: var(--space-4);
+}
+
+.business-thumb {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  background: #f9fafb;
+  border: 1px solid var(--hairline, #e5e7eb);
+  border-radius: 999px;
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.business-thumb.active {
+  border-color: var(--navy);
+  color: var(--navy);
+  font-weight: 600;
+}
+
+/* The score itself, not just a color dot — this strip is the only place a visitor can compare
+   every giro at a glance without swiping through them one at a time, so the exact % has to be
+   readable here too, not just in the single open card. */
+.thumb-score {
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.thumb-score.good {
+  color: #15803d;
+}
+
+.thumb-score.medium {
+  color: #b45309;
+}
+
+.thumb-score.low {
+  color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .business-viewer {
+    padding: 0 38px;
+  }
+
+  .business-nav-arrow {
+    width: 28px;
+    height: 28px;
+    font-size: 1.05rem;
+  }
 }
 
 /* Same amber language as .data-source-warning above (a gap in the data, not a failed check) —

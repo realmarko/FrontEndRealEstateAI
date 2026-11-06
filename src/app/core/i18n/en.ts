@@ -299,6 +299,8 @@ export const en: Record<string, string> = {
   'viabilityPage.noPendingChecks': 'No pending items for this business type.',
   'viabilityPage.missingDataTitle': 'Data not on file for this property (applies to every business type evaluated):',
   'viabilityPage.noDataForBusiness': 'Not enough property data on file to evaluate this business type.',
+  'viabilityPage.previousBusiness': 'Previous business type',
+  'viabilityPage.nextBusiness': 'Next business type',
   'listingDetail.delete': 'Delete',
   'listingDetail.deleteConfirm': 'Permanently delete this property? This action cannot be undone.',
   'listingDetail.adminDelete': 'Delete (admin)',

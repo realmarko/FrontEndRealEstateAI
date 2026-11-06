@@ -299,6 +299,8 @@ export const es: Record<string, string> = {
   'viabilityPage.noPendingChecks': 'Sin pendientes para este giro.',
   'viabilityPage.missingDataTitle': 'Datos no registrados de este predio (aplican a todos los giros evaluados):',
   'viabilityPage.noDataForBusiness': 'Sin datos suficientes del predio para evaluar este giro.',
+  'viabilityPage.previousBusiness': 'Giro anterior',
+  'viabilityPage.nextBusiness': 'Giro siguiente',
   'listingDetail.delete': 'Eliminar',
   'listingDetail.deleteConfirm': '¿Eliminar esta propiedad de forma permanente? Esta acción no se puede deshacer.',
   'listingDetail.adminDelete': 'Eliminar (administrador)',

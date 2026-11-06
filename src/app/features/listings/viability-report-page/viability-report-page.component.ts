@@ -12,6 +12,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
+import { SwipeNavigator } from '../../../shared/utils/swipe-navigation';
 import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
 
 // The full "Reporte de Viabilidad Comercial" — every business type, every check, not just the
@@ -152,33 +153,53 @@ export class ViabilityReportPageComponent {
     return [...messages];
   });
 
-  private readonly expandedBusinessKeys = signal<ReadonlySet<string>>(new Set());
-  private readonly activeTabs = signal<ReadonlyMap<string, 'passed' | 'pending'>>(new Map());
+  // Gallery-style: one giro visible at a time (like a single photo in listing-detail's own main
+  // gallery), navigated with prev/next arrows, a thumbnail strip, swipe, or trackpad scroll — see
+  // showBusiness()/nextBusiness()/previousBusiness() below, which mirror that gallery's
+  // changePhoto()/nextPhoto()/previousPhoto() shape.
+  readonly activeBusinessIndex = signal(0);
+  readonly activeBusiness = computed(() => this.rankedBusinesses()[this.activeBusinessIndex()] ?? null);
 
-  protected isExpanded(key: string): boolean {
-    return this.expandedBusinessKeys().has(key);
+  // Only one card can ever be on screen now, so expanded/activeTab don't need to be keyed per
+  // giro the way the previous vertical-list accordion did — they just describe the single active
+  // card, and reset every time showBusiness() moves to a different one.
+  protected readonly expanded = signal(false);
+  protected readonly activeTab = signal<'passed' | 'pending'>('passed');
+
+  protected toggleExpanded(): void {
+    this.expanded.set(!this.expanded());
   }
 
-  protected toggleBusinessCard(key: string): void {
-    const next = new Set(this.expandedBusinessKeys());
-    if (next.has(key)) {
-      next.delete(key);
-    } else {
-      next.add(key);
-    }
-    this.expandedBusinessKeys.set(next);
+  protected setActiveTab(tab: 'passed' | 'pending'): void {
+    this.activeTab.set(tab);
   }
 
-  // Defaults to the "passed" tab every time a card is (re)opened, rather than remembering a
-  // collapsed card's last tab — a reader expects to land on what's working first, same as the
-  // page's own best-first business ranking.
-  protected activeTab(key: string): 'passed' | 'pending' {
-    return this.activeTabs().get(key) ?? 'passed';
+  protected showBusiness(index: number): void {
+    if (index === this.activeBusinessIndex()) return;
+    this.activeBusinessIndex.set(index);
+    this.expanded.set(false);
+    this.activeTab.set('passed');
   }
 
-  protected setActiveTab(key: string, tab: 'passed' | 'pending'): void {
-    this.activeTabs.set(new Map(this.activeTabs()).set(key, tab));
+  protected nextBusiness(): void {
+    const count = this.rankedBusinesses().length;
+    if (count < 2) return;
+    this.showBusiness((this.activeBusinessIndex() + 1) % count);
   }
+
+  protected previousBusiness(): void {
+    const count = this.rankedBusinesses().length;
+    if (count < 2) return;
+    this.showBusiness((this.activeBusinessIndex() - 1 + count) % count);
+  }
+
+  // Same gesture logic as listing-detail's photo gallery (onPhotoWheel/onPhotoTouchStart/
+  // onPhotoTouchEnd) — shared via SwipeNavigator now that it has a second use, rather than a
+  // second hand-written copy of the same thresholds/debounce.
+  protected readonly businessSwipe = new SwipeNavigator(
+    () => this.nextBusiness(),
+    () => this.previousBusiness()
+  );
 
   protected infrastructureProjectTypeLabel(type: string): string {
     return ViabilityReportPageComponent.INFRASTRUCTURE_PROJECT_TYPE_LABELS[type] ?? type;
@@ -282,8 +303,9 @@ export class ViabilityReportPageComponent {
     this.analysis.set(null);
     this.loadingAnalysis.set(false);
     this.analysisError.set(false);
-    this.expandedBusinessKeys.set(new Set());
-    this.activeTabs.set(new Map());
+    this.activeBusinessIndex.set(0);
+    this.expanded.set(false);
+    this.activeTab.set('passed');
 
     for (const polyline of this.polylines) polyline.setMap(null);
     this.polylines.length = 0;
