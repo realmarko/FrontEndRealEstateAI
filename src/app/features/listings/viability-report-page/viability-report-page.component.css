@@ -396,39 +396,42 @@ h1 {
   padding-left: var(--space-2);
 }
 
-/* One giro on screen at a time, like a single photo in a gallery — see the component's
-   showBusiness()/nextBusiness()/previousBusiness(), which mirror listing-detail's own
-   changePhoto()/nextPhoto()/previousPhoto() shape. pan-y lets a horizontal swipe be read as a
-   deliberate gesture without blocking native vertical page scroll, same as .main-photo there. Side
-   padding (same rule as listing-detail's own .nav-arrow/.photo-count visual language) keeps the
-   card's own header text from ever running underneath the arrows. */
-.business-viewer {
-  position: relative;
-  touch-action: pan-y;
-  margin-bottom: var(--space-3);
-  padding: 0 44px;
+/* Vertical accordion — every giro listed at once, collapsed to just its name + score, each
+   expanding independently in place (see toggleBusiness()/isExpanded()) rather than one item
+   taking over the whole viewport like the previous gallery-style viewer did. */
+.business-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
-.business-card {
+.business-item {
   border: 1px solid var(--hairline, #e5e7eb);
   border-radius: 8px;
-  padding: var(--space-4);
+  overflow: hidden;
 }
 
-/* The #1-ranked card (rankedBusinesses() is already sorted by score) echoes the verdict's gold
-   rule, so the one business this report actually recommends stands apart from the other 20+ it
-   also scored — without repeating a loud badge on every single card. */
-.business-card.top-pick {
+/* The #1-ranked item (rankedBusinesses() is already sorted by score) echoes the verdict's gold
+   rule, so the one business this report actually recommends stands apart from the rest — without
+   repeating a loud badge on every single item. */
+.business-item.top-pick {
   border-color: var(--gold);
   border-width: 2px;
-  box-shadow: 0 1px 0 var(--gold);
 }
 
-.business-head {
+.business-item-head {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
+  background: none;
+  border: none;
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
 .business-name {
@@ -436,7 +439,8 @@ h1 {
   font-size: 1.1rem;
   font-weight: 700;
   color: var(--navy);
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
 }
 
 .score {
@@ -462,23 +466,36 @@ h1 {
   background: rgba(185, 28, 28, 0.1);
 }
 
-/* The one-line "why" in the header — truncated rather than wrapped, so the header stays one line
-   whether the reason is two words or two sentences; the full detail is already repeated below in
-   whichever of the two sections (passed/pending) it belongs to. */
-.business-reason {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.85rem;
+.chevron {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
   color: var(--ink-soft);
+  transition: transform 0.15s ease;
 }
 
-.business-body {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.business-item-body {
+  padding: 0 var(--space-4) var(--space-4);
   border-top: 1px solid var(--hairline, #e5e7eb);
+  padding-top: var(--space-3);
+}
+
+/* The single strongest "why" when a hard blocker or a size disqualifier caps this giro's score —
+   same amber language as .data-source-warning, since it's a reader-facing caveat on the score
+   itself, not just another pass/fail line item. */
+.score-cap-reason {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  color: #92400e;
+  font-size: 0.85rem;
+  font-weight: 600;
 }
 
 /* Both sections always visible, passed first — a reader shouldn't have to click to see why a
@@ -537,143 +554,6 @@ h1 {
 
 .checks li.fail .mark {
   color: #b91c1c;
-}
-
-/* Same visual language as listing-detail's own .nav-arrow/.photo-count — a circular button
-   floating over the content, positioned on the header row regardless of how tall the card's own
-   body grows below it. */
-.business-nav-arrow {
-  position: absolute;
-  top: calc(var(--space-4) + 0.55em);
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--hairline, #e5e7eb);
-  background: #fff;
-  font-size: 1.2rem;
-  line-height: 1;
-  color: var(--navy);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
-
-.business-nav-arrow.prev {
-  left: 0;
-}
-
-.business-nav-arrow.next {
-  right: 0;
-}
-
-/* Deliberately NOT absolutely positioned over the card like listing-detail's own .photo-count is
-   over its photo — this card's own header has text running the full width of that same corner, so
-   overlaying a second element there collided with it. Flows below the card instead. */
-.business-count {
-  display: block;
-  margin-top: var(--space-1);
-  text-align: right;
-  font-size: 0.75rem;
-  color: var(--ink-soft);
-}
-
-.business-thumbs {
-  display: flex;
-  gap: var(--space-2);
-  overflow-x: auto;
-  padding-bottom: var(--space-1);
-  margin-bottom: var(--space-4);
-}
-
-.business-thumb {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  background: #f9fafb;
-  border: 1px solid var(--hairline, #e5e7eb);
-  border-radius: 999px;
-  padding: var(--space-1) var(--space-3);
-  font-size: 0.78rem;
-  color: var(--ink-soft);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.business-thumb.active {
-  border-color: var(--navy);
-  color: var(--navy);
-  font-weight: 600;
-}
-
-/* The score itself, not just a color dot — this strip is the only place a visitor can compare
-   every giro at a glance without swiping through them one at a time, so the exact % has to be
-   readable here too, not just in the single open card. */
-.thumb-score {
-  flex-shrink: 0;
-  font-weight: 700;
-}
-
-.thumb-score.good {
-  color: #15803d;
-}
-
-.thumb-score.medium {
-  color: #b45309;
-}
-
-.thumb-score.low {
-  color: #b91c1c;
-}
-
-@media (max-width: 640px) {
-  .business-viewer {
-    padding: 0 38px;
-  }
-
-  .business-nav-arrow {
-    width: 28px;
-    height: 28px;
-    font-size: 1.05rem;
-  }
-}
-
-/* Same amber language as .data-source-warning above (a gap in the data, not a failed check) —
-   collected once for the whole report instead of repeated inside every giro's card. */
-.missing-data-notice {
-  margin: 0 0 var(--space-4);
-  padding: var(--space-3);
-  background: #fef3c7;
-  border: 1px solid #fde68a;
-  border-radius: 8px;
-  color: #92400e;
-  font-size: 0.85rem;
-}
-
-.missing-data-title {
-  margin: 0 0 var(--space-1);
-  font-weight: 700;
-}
-
-.missing-data-notice ul {
-  margin: 0;
-  padding-left: 1.2em;
-}
-
-.missing-data-notice li {
-  margin: 2px 0;
-}
-
-@media (max-width: 640px) {
-  .business-head {
-    flex-wrap: wrap;
-  }
-
-  .business-reason {
-    flex-basis: 100%;
-    white-space: normal;
-    order: 3;
-  }
 }
 
 .primary-link {

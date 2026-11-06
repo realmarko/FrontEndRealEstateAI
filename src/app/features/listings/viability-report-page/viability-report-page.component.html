@@ -227,77 +227,59 @@
         </div>
       }
 
-      @if (missingDataNotices(); as notices) {
-        @if (notices.length) {
-          <div class="missing-data-notice">
-            <p class="missing-data-title">{{ 'viabilityPage.missingDataTitle' | translate }}</p>
-            <ul>
-              @for (notice of notices; track notice) {
-                <li>{{ notice }}</li>
-              }
-            </ul>
-          </div>
-        }
-      }
-
       @if (rankedBusinesses().length) {
-        <div class="business-viewer" (touchstart)="businessSwipe.onTouchStart($event)" (touchend)="businessSwipe.onTouchEnd($event)" (wheel)="businessSwipe.onWheel($event)">
-          @if (activeBusiness(); as business) {
-            <div class="business-card" [class.top-pick]="activeBusinessIndex() === 0">
-              <div class="business-head">
+        <div class="business-accordion">
+          @for (business of rankedBusinesses(); track business.key; let i = $index) {
+            @let expanded = isExpanded(business);
+            <div class="business-item" [class.top-pick]="i === 0">
+              <button
+                type="button"
+                class="business-item-head"
+                (click)="toggleBusiness(business)"
+                [attr.aria-expanded]="expanded"
+              >
                 <span class="business-name">{{ business.displayName }}</span>
                 <span class="score" [class.good]="business.score > 80" [class.medium]="business.score >= 40 && business.score <= 80" [class.low]="business.score < 40">{{ business.score }}%</span>
-                <span class="business-reason">{{ primaryReason(business) }}</span>
-              </div>
+                <svg class="chevron" [class.open]="expanded" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
 
-              <div class="business-body">
-                <p class="checks-section-label good">{{ 'viabilityPage.tabPassed' | translate }} ({{ strengths(business).length }})</p>
-                <ul class="checks">
-                  @for (check of strengths(business); track check.label) {
-                    <li class="pass"><span class="mark">✓</span>{{ check.detail }}</li>
-                  } @empty {
-                    <li class="empty-state">{{ 'viabilityPage.noPassedChecks' | translate }}</li>
+              @if (expanded) {
+                <div class="business-item-body">
+                  @if (business.scoreCapReason) {
+                    <p class="score-cap-reason">{{ business.scoreCapReason }}</p>
                   }
-                </ul>
 
-                <p class="checks-section-label fail">{{ 'viabilityPage.tabPending' | translate }} ({{ pendingChecks(business).length }})</p>
-                <ul class="checks">
-                  @for (check of pendingChecks(business); track check.label) {
-                    <li class="fail"><span class="mark">✗</span>{{ check.detail }}</li>
-                  } @empty {
-                    <li class="empty-state">{{ 'viabilityPage.noPendingChecks' | translate }}</li>
-                  }
-                </ul>
-
-                @if (business.nearbyCompetitors.length) {
-                  <p class="competitors-label">{{ 'viabilityPage.nearbyCompetitorsLabel' | translate }}</p>
-                  <ul class="competitors-list">
-                    @for (competitor of business.nearbyCompetitors; track competitor.name) {
-                      <li>{{ competitor.name }} — {{ competitor.distanceMeters | number }} m</li>
+                  <p class="checks-section-label good">{{ 'viabilityPage.tabPassed' | translate }} ({{ strengths(business).length }})</p>
+                  <ul class="checks">
+                    @for (check of strengths(business); track check.label) {
+                      <li class="pass"><span class="mark">✓</span>{{ check.detail }}</li>
+                    } @empty {
+                      <li class="empty-state">{{ 'viabilityPage.noPassedChecks' | translate }}</li>
                     }
                   </ul>
-                }
-              </div>
+
+                  <p class="checks-section-label fail">{{ 'viabilityPage.tabPending' | translate }} ({{ pendingChecks(business).length }})</p>
+                  <ul class="checks">
+                    @for (check of pendingChecks(business); track check.label) {
+                      <li class="fail"><span class="mark">✗</span>{{ check.detail }}</li>
+                    } @empty {
+                      <li class="empty-state">{{ 'viabilityPage.noPendingChecks' | translate }}</li>
+                    }
+                  </ul>
+
+                  @if (business.nearbyCompetitors.length) {
+                    <p class="competitors-label">{{ 'viabilityPage.nearbyCompetitorsLabel' | translate }}</p>
+                    <ul class="competitors-list">
+                      @for (competitor of business.nearbyCompetitors; track competitor.name) {
+                        <li>{{ competitor.name }} — {{ competitor.distanceMeters | number }} m</li>
+                      }
+                    </ul>
+                  }
+                </div>
+              }
             </div>
           }
-
-          @if (rankedBusinesses().length > 1) {
-            <button type="button" class="business-nav-arrow prev" (click)="previousBusiness()" [attr.aria-label]="'viabilityPage.previousBusiness' | translate">‹</button>
-            <button type="button" class="business-nav-arrow next" (click)="nextBusiness()" [attr.aria-label]="'viabilityPage.nextBusiness' | translate">›</button>
-            <span class="business-count">{{ activeBusinessIndex() + 1 }} / {{ rankedBusinesses().length }}</span>
-          }
         </div>
-
-        @if (rankedBusinesses().length > 1) {
-          <div class="business-thumbs">
-            @for (business of rankedBusinesses(); track business.key; let i = $index) {
-              <button type="button" class="business-thumb" [class.active]="i === activeBusinessIndex()" (click)="showBusiness(i)">
-                <span class="thumb-score" [class.good]="business.score > 80" [class.medium]="business.score >= 40 && business.score <= 80" [class.low]="business.score < 40">{{ business.score }}%</span>
-                <span class="thumb-name">{{ business.displayName }}</span>
-              </button>
-            }
-          </div>
-        }
       }
     }
   </div>

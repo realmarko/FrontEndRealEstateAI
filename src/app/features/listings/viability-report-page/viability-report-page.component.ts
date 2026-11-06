@@ -12,7 +12,6 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
 import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
-import { SwipeNavigator } from '../../../shared/utils/swipe-navigation';
 import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
 
 // The full "Reporte de Viabilidad Comercial" — every business type, every check, not just the
@@ -117,73 +116,33 @@ export class ViabilityReportPageComponent {
     return business.checks.filter((c) => c.passed === true);
   }
 
-  // Backs the card's "Faltantes / Pendientes" section. Only real, giro-specific failures
-  // (passed === false) — a check the backend couldn't evaluate at all (passed === null, e.g. no
-  // frontage reported) isn't a failure of THIS giro, it's a gap in the lot's own data, so it's
-  // pulled out of every card and shown once in missingDataNotices() instead of repeated 20+ times.
+  // Backs the card's "Faltantes / Pendientes" section — both genuine failures (passed === false)
+  // and checks the backend couldn't evaluate at all (passed === null, e.g. no frontage reported)
+  // belong here: either way there's nothing to show in this giro's favor for that check, and
+  // surfacing the "no se pudo evaluar" gaps per-item means they no longer need a separate
+  // page-wide notice repeating them.
   protected pendingChecks(business: BusinessViability): ViabilityCheck[] {
-    return business.checks.filter((c) => c.passed === false);
+    return business.checks.filter((c) => c.passed !== true);
   }
 
-  // One line for the card header: the cap reason if a hard-blocker capped the score
-  // (the strongest possible "why"), else the first real failure, else the first thing working in
-  // its favor — whichever exists first is the most informative single line available for this giro.
-  protected primaryReason(business: BusinessViability): string {
-    if (business.scoreCapReason) return business.scoreCapReason;
-    const failed = business.checks.find((c) => c.passed === false);
-    if (failed) return failed.detail;
-    const passed = business.checks.find((c) => c.passed === true);
-    if (passed) return passed.detail;
-    // A lot this sparse on data (every check for this giro landed as "no se pudo evaluar") has
-    // nothing to show in either direction — say so explicitly rather than leaving the reason
-    // line blank, which would read as a rendering bug rather than a genuine lack of data.
-    return this.translation.t('viabilityPage.noDataForBusiness');
+  // Accordion: every giro is listed at once (collapsed to just name + score), and each expands
+  // independently to show its own passed/pending checks — not mutually exclusive like a tab set,
+  // since comparing two open cards side by side is a reasonable thing to want to do.
+  private readonly expandedBusinessKeys = signal(new Set<string>());
+
+  protected isExpanded(business: BusinessViability): boolean {
+    return this.expandedBusinessKeys().has(business.key);
   }
 
-  // Deduped across every giro — the same lot-level gap (e.g. "no se reportó si está en esquina")
-  // shows up identically in most businesses' checks, so collecting it once here instead of
-  // rendering it inside each card avoids saying the same thing 20+ times on one page.
-  readonly missingDataNotices = computed(() => {
-    const messages = new Set<string>();
-    for (const business of this.rankedBusinesses()) {
-      for (const check of business.checks) {
-        if (check.passed === null) messages.add(check.detail);
-      }
+  protected toggleBusiness(business: BusinessViability): void {
+    const next = new Set(this.expandedBusinessKeys());
+    if (next.has(business.key)) {
+      next.delete(business.key);
+    } else {
+      next.add(business.key);
     }
-    return [...messages];
-  });
-
-  // Gallery-style: one giro visible at a time (like a single photo in listing-detail's own main
-  // gallery), navigated with prev/next arrows, a thumbnail strip, swipe, or trackpad scroll — see
-  // showBusiness()/nextBusiness()/previousBusiness() below, which mirror that gallery's
-  // changePhoto()/nextPhoto()/previousPhoto() shape.
-  readonly activeBusinessIndex = signal(0);
-  readonly activeBusiness = computed(() => this.rankedBusinesses()[this.activeBusinessIndex()] ?? null);
-
-  protected showBusiness(index: number): void {
-    if (index === this.activeBusinessIndex()) return;
-    this.activeBusinessIndex.set(index);
+    this.expandedBusinessKeys.set(next);
   }
-
-  protected nextBusiness(): void {
-    const count = this.rankedBusinesses().length;
-    if (count < 2) return;
-    this.showBusiness((this.activeBusinessIndex() + 1) % count);
-  }
-
-  protected previousBusiness(): void {
-    const count = this.rankedBusinesses().length;
-    if (count < 2) return;
-    this.showBusiness((this.activeBusinessIndex() - 1 + count) % count);
-  }
-
-  // Same gesture logic as listing-detail's photo gallery (onPhotoWheel/onPhotoTouchStart/
-  // onPhotoTouchEnd) — shared via SwipeNavigator now that it has a second use, rather than a
-  // second hand-written copy of the same thresholds/debounce.
-  protected readonly businessSwipe = new SwipeNavigator(
-    () => this.nextBusiness(),
-    () => this.previousBusiness()
-  );
 
   protected infrastructureProjectTypeLabel(type: string): string {
     return ViabilityReportPageComponent.INFRASTRUCTURE_PROJECT_TYPE_LABELS[type] ?? type;
@@ -287,7 +246,7 @@ export class ViabilityReportPageComponent {
     this.analysis.set(null);
     this.loadingAnalysis.set(false);
     this.analysisError.set(false);
-    this.activeBusinessIndex.set(0);
+    this.expandedBusinessKeys.set(new Set());
 
     for (const polyline of this.polylines) polyline.setMap(null);
     this.polylines.length = 0;
