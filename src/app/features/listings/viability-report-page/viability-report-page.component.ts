@@ -112,12 +112,12 @@ export class ViabilityReportPageComponent {
   // type and a weakness for another, so a single site-wide "strengths" summary would show
   // contradictory claims side by side. Scoped to each business card instead, reusing checks the
   // report already computed — no new data, just which of them happened to pass for this giro.
-  // Backs the accordion's "Criterios Cumplidos" tab.
+  // Backs the card's "Criterios Cumplidos" section.
   protected strengths(business: BusinessViability): ViabilityCheck[] {
     return business.checks.filter((c) => c.passed === true);
   }
 
-  // Backs the accordion's "Faltantes / Pendientes" tab. Only real, giro-specific failures
+  // Backs the card's "Faltantes / Pendientes" section. Only real, giro-specific failures
   // (passed === false) — a check the backend couldn't evaluate at all (passed === null, e.g. no
   // frontage reported) isn't a failure of THIS giro, it's a gap in the lot's own data, so it's
   // pulled out of every card and shown once in missingDataNotices() instead of repeated 20+ times.
@@ -125,7 +125,7 @@ export class ViabilityReportPageComponent {
     return business.checks.filter((c) => c.passed === false);
   }
 
-  // One line for the collapsed card header: the cap reason if a hard-blocker capped the score
+  // One line for the card header: the cap reason if a hard-blocker capped the score
   // (the strongest possible "why"), else the first real failure, else the first thing working in
   // its favor — whichever exists first is the most informative single line available for this giro.
   protected primaryReason(business: BusinessViability): string {
@@ -160,25 +160,9 @@ export class ViabilityReportPageComponent {
   readonly activeBusinessIndex = signal(0);
   readonly activeBusiness = computed(() => this.rankedBusinesses()[this.activeBusinessIndex()] ?? null);
 
-  // Only one card can ever be on screen now, so expanded/activeTab don't need to be keyed per
-  // giro the way the previous vertical-list accordion did — they just describe the single active
-  // card, and reset every time showBusiness() moves to a different one.
-  protected readonly expanded = signal(false);
-  protected readonly activeTab = signal<'passed' | 'pending'>('passed');
-
-  protected toggleExpanded(): void {
-    this.expanded.set(!this.expanded());
-  }
-
-  protected setActiveTab(tab: 'passed' | 'pending'): void {
-    this.activeTab.set(tab);
-  }
-
   protected showBusiness(index: number): void {
     if (index === this.activeBusinessIndex()) return;
     this.activeBusinessIndex.set(index);
-    this.expanded.set(false);
-    this.activeTab.set('passed');
   }
 
   protected nextBusiness(): void {
@@ -304,8 +288,6 @@ export class ViabilityReportPageComponent {
     this.loadingAnalysis.set(false);
     this.analysisError.set(false);
     this.activeBusinessIndex.set(0);
-    this.expanded.set(false);
-    this.activeTab.set('passed');
 
     for (const polyline of this.polylines) polyline.setMap(null);
     this.polylines.length = 0;

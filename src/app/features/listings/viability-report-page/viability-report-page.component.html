@@ -244,57 +244,40 @@
         <div class="business-viewer" (touchstart)="businessSwipe.onTouchStart($event)" (touchend)="businessSwipe.onTouchEnd($event)" (wheel)="businessSwipe.onWheel($event)">
           @if (activeBusiness(); as business) {
             <div class="business-card" [class.top-pick]="activeBusinessIndex() === 0">
-              <button
-                type="button"
-                class="business-head"
-                (click)="toggleExpanded()"
-                [attr.aria-expanded]="expanded()"
-              >
+              <div class="business-head">
                 <span class="business-name">{{ business.displayName }}</span>
                 <span class="score" [class.good]="business.score > 80" [class.medium]="business.score >= 40 && business.score <= 80" [class.low]="business.score < 40">{{ business.score }}%</span>
                 <span class="business-reason">{{ primaryReason(business) }}</span>
-                <svg class="chevron" [class.open]="expanded()" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
-              </button>
+              </div>
 
-              @if (expanded()) {
-                <div class="business-body">
-                  <div class="tabs" role="tablist">
-                    <button type="button" class="tab" role="tab" [class.active]="activeTab() === 'passed'" (click)="setActiveTab('passed')">
-                      {{ 'viabilityPage.tabPassed' | translate }} ({{ strengths(business).length }})
-                    </button>
-                    <button type="button" class="tab" role="tab" [class.active]="activeTab() === 'pending'" (click)="setActiveTab('pending')">
-                      {{ 'viabilityPage.tabPending' | translate }} ({{ pendingChecks(business).length }})
-                    </button>
-                  </div>
-
-                  @if (activeTab() === 'passed') {
-                    <ul class="checks">
-                      @for (check of strengths(business); track check.label) {
-                        <li class="pass"><span class="mark">✓</span>{{ check.detail }}</li>
-                      } @empty {
-                        <li class="empty-state">{{ 'viabilityPage.noPassedChecks' | translate }}</li>
-                      }
-                    </ul>
-                  } @else {
-                    <ul class="checks">
-                      @for (check of pendingChecks(business); track check.label) {
-                        <li class="fail"><span class="mark">✗</span>{{ check.detail }}</li>
-                      } @empty {
-                        <li class="empty-state">{{ 'viabilityPage.noPendingChecks' | translate }}</li>
-                      }
-                    </ul>
+              <div class="business-body">
+                <p class="checks-section-label good">{{ 'viabilityPage.tabPassed' | translate }} ({{ strengths(business).length }})</p>
+                <ul class="checks">
+                  @for (check of strengths(business); track check.label) {
+                    <li class="pass"><span class="mark">✓</span>{{ check.detail }}</li>
+                  } @empty {
+                    <li class="empty-state">{{ 'viabilityPage.noPassedChecks' | translate }}</li>
                   }
+                </ul>
 
-                  @if (business.nearbyCompetitors.length) {
-                    <p class="competitors-label">{{ 'viabilityPage.nearbyCompetitorsLabel' | translate }}</p>
-                    <ul class="competitors-list">
-                      @for (competitor of business.nearbyCompetitors; track competitor.name) {
-                        <li>{{ competitor.name }} — {{ competitor.distanceMeters | number }} m</li>
-                      }
-                    </ul>
+                <p class="checks-section-label fail">{{ 'viabilityPage.tabPending' | translate }} ({{ pendingChecks(business).length }})</p>
+                <ul class="checks">
+                  @for (check of pendingChecks(business); track check.label) {
+                    <li class="fail"><span class="mark">✗</span>{{ check.detail }}</li>
+                  } @empty {
+                    <li class="empty-state">{{ 'viabilityPage.noPendingChecks' | translate }}</li>
                   }
-                </div>
-              }
+                </ul>
+
+                @if (business.nearbyCompetitors.length) {
+                  <p class="competitors-label">{{ 'viabilityPage.nearbyCompetitorsLabel' | translate }}</p>
+                  <ul class="competitors-list">
+                    @for (competitor of business.nearbyCompetitors; track competitor.name) {
+                      <li>{{ competitor.name }} — {{ competitor.distanceMeters | number }} m</li>
+                    }
+                  </ul>
+                }
+              </div>
             </div>
           }
 

@@ -429,13 +429,6 @@ h1 {
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  background: none;
-  border: none;
-  padding: 0;
-  text-align: left;
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
 }
 
 .business-name {
@@ -469,8 +462,9 @@ h1 {
   background: rgba(185, 28, 28, 0.1);
 }
 
-/* The one-line "why" in the collapsed header — truncated rather than wrapped, so every card in
-   the list stays the same height whether its reason is two words or two sentences. */
+/* The one-line "why" in the header — truncated rather than wrapped, so the header stays one line
+   whether the reason is two words or two sentences; the full detail is already repeated below in
+   whichever of the two sections (passed/pending) it belongs to. */
 .business-reason {
   flex: 1;
   min-width: 0;
@@ -481,44 +475,31 @@ h1 {
   color: var(--ink-soft);
 }
 
-.chevron {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  color: var(--ink-soft);
-  transition: transform 0.15s ease;
-}
-
-.chevron.open {
-  transform: rotate(180deg);
-}
-
 .business-body {
   margin-top: var(--space-3);
   padding-top: var(--space-3);
   border-top: 1px solid var(--hairline, #e5e7eb);
 }
 
-.tabs {
-  display: flex;
-  gap: var(--space-2);
-  margin-bottom: var(--space-3);
-}
-
-.tab {
-  background: #f3f4f6;
-  border: none;
-  border-radius: 999px;
-  padding: var(--space-1) var(--space-3);
+/* Both sections always visible, passed first — a reader shouldn't have to click to see why a
+   giro scored well, and the "what's missing" list reads better once you already know what's
+   working in the lot's favor. */
+.checks-section-label {
+  margin: 0 0 var(--space-2);
+  font-weight: 700;
   font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--ink-soft);
-  cursor: pointer;
 }
 
-.tab.active {
-  background: var(--navy);
-  color: #fff;
+.checks-section-label.good {
+  color: #15803d;
+}
+
+.checks-section-label.fail {
+  color: #b91c1c;
+}
+
+.checks + .checks-section-label {
+  margin-top: var(--space-4);
 }
 
 .checks {
@@ -559,8 +540,8 @@ h1 {
 }
 
 /* Same visual language as listing-detail's own .nav-arrow/.photo-count — a circular button
-   floating over the content, positioned on the header row so it stays put whether the card below
-   it is collapsed or expanded. */
+   floating over the content, positioned on the header row regardless of how tall the card's own
+   body grows below it. */
 .business-nav-arrow {
   position: absolute;
   top: calc(var(--space-4) + 0.55em);
@@ -586,7 +567,7 @@ h1 {
 }
 
 /* Deliberately NOT absolutely positioned over the card like listing-detail's own .photo-count is
-   over its photo — this card already has its own right-aligned chevron on that same corner, so
+   over its photo — this card's own header has text running the full width of that same corner, so
    overlaying a second element there collided with it. Flows below the card instead. */
 .business-count {
   display: block;
