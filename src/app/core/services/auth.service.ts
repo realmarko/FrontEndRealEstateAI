@@ -1,13 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { AuthCredentials, RegisterDetails, User, UserRole } from '../models/user.model';
 import { isBrowser } from '../utils/platform';
 
 const TOKEN_KEY = 'reapp_token';
 const USER_KEY = 'reapp_user';
+const REFRESH_TOKEN_KEY = 'reapp_refresh_token';
 
 interface UserDto {
   id: string;
@@ -20,6 +21,7 @@ interface UserDto {
 interface AuthResponseDto {
   token: string;
   expiresAt: string;
+  refreshToken: string;
   user: UserDto;
 }
 
@@ -46,6 +48,11 @@ export class AuthService {
     const userId = this.currentUserSignal()?.id;
     return userId != null && userId === ownerId;
   }
+
+  // Dedupes concurrent refresh attempts (e.g. several authenticated requests 401ing together
+  // right as the access token expires) into a single in-flight HTTP call/rotation instead of
+  // each one independently racing to redeem (and thereby revoking) the same refresh token.
+  private refreshInProgress$: Observable<User> | null = null;
 
   get token(): string | null {
     return this.isBrowser ? localStorage.getItem(TOKEN_KEY) : null;
@@ -124,9 +131,42 @@ export class AuthService {
     return this.http.post<void>(`${this.apiUrl}/reset-password`, { email, token, newPassword });
   }
 
+  // Silently exchanges the stored refresh token for a new access token — this is what keeps a
+  // session alive for weeks without ever showing a login screen (see auth.interceptor.ts, the
+  // only caller: it triggers this on a 401 from an authenticated request). Errors (refresh token
+  // itself expired/invalid/reused) propagate to the caller, which is responsible for the actual
+  // logout — this method only handles the happy path.
+  refresh(): Observable<User> {
+    if (this.refreshInProgress$) return this.refreshInProgress$;
+
+    const storedRefreshToken = this.isBrowser ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
+    if (!storedRefreshToken) return throwError(() => new Error('No refresh token stored'));
+
+    this.refreshInProgress$ = this.http
+      .post<AuthResponseDto>(`${this.apiUrl}/refresh`, { refreshToken: storedRefreshToken })
+      .pipe(
+        tap((res) => this.startSession(res)),
+        map((res) => this.toUser(res.user)),
+        // Runs once per shared execution (not once per subscriber) since it sits before
+        // shareReplay — clears the cache so the next 401 starts a fresh refresh instead of
+        // replaying this one's result/error forever.
+        finalize(() => { this.refreshInProgress$ = null; }),
+        shareReplay(1)
+      );
+    return this.refreshInProgress$;
+  }
+
   logout(): void {
+    const storedRefreshToken = this.isBrowser ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
+    if (storedRefreshToken) {
+      // Best-effort, self-subscribed here since logout() itself is synchronous void (unlike
+      // forgotPassword, which returns its Observable for the caller to subscribe) — an explicit
+      // logout should still clear the local session instantly even if this call is slow/offline.
+      this.http.post(`${this.apiUrl}/logout`, { refreshToken: storedRefreshToken }).subscribe({ error: () => {} });
+    }
     if (this.isBrowser) {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
     }
     this.currentUserSignal.set(null);
@@ -136,6 +176,7 @@ export class AuthService {
     const user = this.toUser(res.user);
     if (this.isBrowser) {
       localStorage.setItem(TOKEN_KEY, res.token);
+      localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
       localStorage.setItem(USER_KEY, JSON.stringify(user));
     }
     this.currentUserSignal.set(user);
