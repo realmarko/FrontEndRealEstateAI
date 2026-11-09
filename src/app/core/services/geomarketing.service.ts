@@ -78,6 +78,14 @@ export interface AppreciationPotential {
   explanations: string[];
 }
 
+// Single-point counterpart to AppreciationPotential — same score/explanations, no cvegeo/boundary
+// (a caller asking about one property's location, like the comparison page, doesn't need the
+// AGEB's own id or full polygon).
+export interface AppreciationPotentialAtPoint {
+  score: number | null;
+  explanations: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class GeomarketingService {
   private readonly http = inject(HttpClient);
@@ -167,6 +175,15 @@ export class GeomarketingService {
   appreciationPotential(swLat: number, swLng: number, neLat: number, neLng: number): Observable<AppreciationPotential[]> {
     return this.http.get<AppreciationPotential[]>(`${this.apiUrl}/appreciation-potential`, {
       params: { swLat: String(swLat), swLng: String(swLng), neLat: String(neLat), neLng: String(neLng) }
+    });
+  }
+
+  // Same score as appreciationPotential, for a single property's location instead of a map
+  // viewport — see GeomarketingController.GetAppreciationPotentialAtPoint. 404s outside imported
+  // AGEB coverage (today, outside Puebla/Tlaxcala); callers should treat that as "unavailable".
+  appreciationPotentialAtPoint(lat: number, lng: number): Observable<AppreciationPotentialAtPoint> {
+    return this.http.get<AppreciationPotentialAtPoint>(`${this.apiUrl}/appreciation-potential-at-point`, {
+      params: { lat: String(lat), lng: String(lng) }
     });
   }
 }

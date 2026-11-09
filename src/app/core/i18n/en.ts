@@ -143,6 +143,10 @@ export const en: Record<string, string> = {
   'comparison.parkingSpaces': 'Parking spaces',
   'comparison.yearBuilt': 'Year built',
   'comparison.hoaFee': 'HOA fee',
+  'comparison.populationDensity': 'Nearby population',
+  'comparison.socioeconomicLevel': 'Estimated socioeconomic level',
+  'comparison.appreciationPotential': 'Appreciation potential (2 years)',
+  'comparison.unavailableLocation': 'No data for this location',
 
   'listingDetail.back': '← Back to listings',
   'listingDetail.favorite': 'Favorite',

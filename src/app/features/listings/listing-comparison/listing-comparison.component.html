@@ -102,6 +102,46 @@
             }
           </tr>
           <tr>
+            <th class="row-label">{{ 'comparison.populationDensity' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              @let population = locationData().get(listing.id)?.population;
+              <td>
+                @if (population) {
+                  {{ population.population | number }} ({{ population.densityPerSqKm | number:'1.0-0' }}/km²)
+                } @else {
+                  —
+                }
+              </td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.socioeconomicLevel' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              @let level = locationData().get(listing.id)?.population?.estimatedSocioeconomicLevel;
+              <td>{{ level ? (socioeconomicLevelLabelKeys[level] | translate) : '—' }}</td>
+            }
+          </tr>
+          <tr>
+            <th class="row-label">{{ 'comparison.appreciationPotential' | translate }}</th>
+            @for (listing of listings(); track listing.id) {
+              @let appreciation = locationData().get(listing.id)?.appreciation;
+              <td>
+                @if (appreciation?.score != null) {
+                  <span class="appreciation-score">{{ appreciation!.score | number:'1.0-0' }}/100</span>
+                  @if (appreciation!.explanations.length) {
+                    <ul class="appreciation-explanations">
+                      @for (explanation of appreciation!.explanations; track explanation) {
+                        <li>{{ explanation }}</li>
+                      }
+                    </ul>
+                  }
+                } @else {
+                  —
+                }
+              </td>
+            }
+          </tr>
+          <tr>
             <th class="row-label"></th>
             @for (listing of listings(); track listing.id) {
               <td>

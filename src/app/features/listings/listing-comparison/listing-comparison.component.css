@@ -123,3 +123,22 @@ td {
   font-weight: 600;
   font-size: 0.85rem;
 }
+
+.appreciation-score {
+  font-weight: 600;
+  color: var(--navy);
+}
+
+/* Overrides td's white-space: nowrap — this is the one cell with multi-line content (the
+   "never a black box" explanation list, same principle the plusvalía feature uses elsewhere). */
+.appreciation-explanations {
+  white-space: normal;
+  margin: 0.35rem 0 0;
+  padding-left: 1rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.appreciation-explanations li {
+  margin-bottom: 0.2rem;
+}

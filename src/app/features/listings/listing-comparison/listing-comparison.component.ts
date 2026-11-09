@@ -1,28 +1,57 @@
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 import { ComparisonService } from '../../../core/services/comparison.service';
 import { ListingService } from '../../../core/services/listing.service';
 import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
+import {
+  AppreciationPotentialAtPoint,
+  GeomarketingService,
+  PopulationDensity,
+  SocioeconomicLevel
+} from '../../../core/services/geomarketing.service';
+
+export interface ListingLocationData {
+  population: PopulationDensity | null;
+  appreciation: AppreciationPotentialAtPoint | null;
+}
+
+// Same labels/levels as map-view.component.ts's SOCIOECONOMIC_LEVEL_LABEL_KEYS — kept as its own
+// copy here rather than extracted to a shared location for a second use (project convention:
+// extract once a pattern repeats across 3+ places, not 2).
+const SOCIOECONOMIC_LEVEL_LABEL_KEYS: Record<SocioeconomicLevel, string> = {
+  Bajo: 'map.socioeconomicBajo',
+  MedioBajo: 'map.socioeconomicMedioBajo',
+  Medio: 'map.socioeconomicMedio',
+  MedioAlto: 'map.socioeconomicMedioAlto',
+  Alto: 'map.socioeconomicAlto'
+};
 
 @Component({
   selector: 'app-listing-comparison',
   standalone: true,
-  imports: [RouterLink, CurrencyPipe, TranslatePipe],
+  imports: [RouterLink, CurrencyPipe, DecimalPipe, TranslatePipe],
   templateUrl: './listing-comparison.component.html',
   styleUrl: './listing-comparison.component.css'
 })
 export class ListingComparisonComponent {
   protected readonly comparison = inject(ComparisonService);
   private readonly listingService = inject(ListingService);
+  private readonly geomarketing = inject(GeomarketingService);
 
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
+  protected readonly socioeconomicLevelLabelKeys = SOCIOECONOMIC_LEVEL_LABEL_KEYS;
   readonly listings = signal<Listing[]>([]);
   readonly loading = signal(true);
   readonly loadedIds = computed(() => this.listings().map((l) => l.id));
+
+  // Keyed by listing id — a listing whose location falls outside today's imported AGEB coverage
+  // (anywhere but Puebla/Tlaxcala) simply has no entry, rendered as "—" per row, same spirit as
+  // every other optional field in this table.
+  readonly locationData = signal<Map<string, ListingLocationData>>(new Map());
 
   constructor() {
     inject(SeoService).set({
@@ -53,11 +82,35 @@ export class ListingComparisonComponent {
       next: (listings) => {
         this.listings.set(listings);
         this.loading.set(false);
+        this.fetchLocationData(listings);
       },
       error: () => {
         this.listings.set([]);
         this.loading.set(false);
       }
+    });
+  }
+
+  // Unlike fetchListings above, a 404 here is the expected/common case (today's AGEB coverage is
+  // only Puebla/Tlaxcala) rather than a real error — each listing's pair of calls is caught
+  // independently so one property with no coverage never blanks out the others' data.
+  private fetchLocationData(listings: Listing[]): void {
+    const withLocation = listings.filter((l) => l.lat != null && l.lng != null);
+    if (withLocation.length === 0) return;
+
+    forkJoin(
+      withLocation.map((listing) =>
+        // Each call already catches its own error into null, so this inner forkJoin itself can
+        // never error — no outer catchError needed on top of it.
+        forkJoin({
+          population: this.geomarketing.populationDensity(listing.lat!, listing.lng!).pipe(catchError(() => of(null))),
+          appreciation: this.geomarketing.appreciationPotentialAtPoint(listing.lat!, listing.lng!).pipe(catchError(() => of(null)))
+        })
+      )
+    ).subscribe((results) => {
+      const map = new Map<string, ListingLocationData>();
+      withLocation.forEach((listing, i) => map.set(listing.id, results[i]));
+      this.locationData.set(map);
     });
   }
 
