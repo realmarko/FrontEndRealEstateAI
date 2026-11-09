@@ -762,6 +762,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // to 0 only on a fresh (checkbox-triggered) call, not on the retries themselves.
   private competitorDensityZoomRetries = 0;
   private static readonly MaxCompetitorDensityZoomRetries = 6;
+  // Same stale-response guard as appreciationRequestId above, for the same reason: switching
+  // opportunity category re-fetches this layer automatically (see selectOpportunityCategory),
+  // so a slow response for an earlier category must not overwrite a newer one's render.
+  private competitorDensityRequestToken = 0;
   // Bumped by every code path that opens the shared infoWindow (a listing/POI marker click, or
   // this feature's own search) — an async opportunity search checks it against the value it
   // captured when the search started, so a slow response can't steal focus back from a listing
@@ -2337,6 +2341,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       this.setFreehandMode(false);
     }
 
+    // The competitor-density layer is for one specific business type — left stale otherwise, it
+    // would keep showing the previous category's zones (and, worse, color them against the new
+    // category's good/moderate thresholds once renderCompetitorDensityLayer's setStyle refresh
+    // below is applied) until the visitor manually toggled it off and back on.
+    if (this.competitorDensityActive()) {
+      this.loadCompetitorDensity();
+    }
+
     // A radius is already on the map (an earlier category was analyzed at some point) — switching
     // categories re-runs the analysis right there instead of asking the visitor to click the map
     // again for the exact same spot. Only when nothing's been analyzed yet does this still need a
@@ -2752,18 +2764,28 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
 
+    // Switching categories now re-fetches automatically (see selectOpportunityCategory) instead
+    // of requiring the visitor to toggle the layer off and on, so two requests can be in flight
+    // at once if they switch again before the first one lands. Without this token, whichever
+    // response arrives last wins the render — not necessarily the one for the category currently
+    // selected — so a stale response landing after a newer one must be dropped.
+    const requestToken = ++this.competitorDensityRequestToken;
+
     this.loadingCompetitorDensity.set(true);
     this.geomarketingService
       .competitorDensity(config.denueSearchTerm, config.radiusMeters, sw.lat(), sw.lng(), ne.lat(), ne.lng())
       .subscribe({
         next: (agebs) =>
           this.zone.run(() => {
+            if (requestToken !== this.competitorDensityRequestToken) return;
             this.loadingCompetitorDensity.set(false);
             this.competitorDensityActive.set(true);
             this.renderCompetitorDensityLayer(agebs, config.goodMaxCount, config.moderateMaxCount);
           }),
         error: (err: { status?: number }) =>
           this.zone.run(() => {
+            if (requestToken !== this.competitorDensityRequestToken) return;
+
             // A 400 here specifically means the viewport has too many AGEBs for this layer's own
             // cap (GeomarketingController.MaxCompetitorDensityAgebs) — same fix as the
             // appreciation-potential layer's own 400 handler: zoom in one level toward the map's
@@ -2793,12 +2815,6 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     if (!this.competitorDensityLayer) {
       this.competitorDensityLayer = new google.maps.Data({ map: this.map });
-      this.competitorDensityLayer.setStyle((feature) => {
-        const count = feature.getProperty('competitorCount') as number | null;
-        const color =
-          count === null ? AGEB_UNSCORED_COLOR : count <= goodMaxCount ? '#15803d' : count <= moderateMaxCount ? '#b45309' : '#b91c1c';
-        return { fillColor: color, fillOpacity: 0.45, strokeColor: color, strokeWeight: 1 };
-      });
       this.competitorDensityLayer.addListener('click', (event: google.maps.Data.MouseEvent) => {
         this.zone.run(() => {
           if (!this.infoWindow || !event.latLng) return;
@@ -2813,6 +2829,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         });
       });
     }
+
+    // Re-applied on every render (not just at creation) — each category has its own
+    // good/moderate thresholds, so switching categories must re-color the layer against the
+    // newly selected one, not keep whichever category first created it.
+    this.competitorDensityLayer.setStyle((feature) => {
+      const count = feature.getProperty('competitorCount') as number | null;
+      const color =
+        count === null ? AGEB_UNSCORED_COLOR : count <= goodMaxCount ? '#15803d' : count <= moderateMaxCount ? '#b45309' : '#b91c1c';
+      return { fillColor: color, fillOpacity: 0.45, strokeColor: color, strokeWeight: 1 };
+    });
 
     this.competitorDensityLayer.forEach((feature) => this.competitorDensityLayer!.remove(feature));
     for (const ageb of agebs) {
