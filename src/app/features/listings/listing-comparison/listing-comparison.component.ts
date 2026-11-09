@@ -1,5 +1,5 @@
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, ElementRef, ViewChild, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 import { ComparisonService } from '../../../core/services/comparison.service';
@@ -52,6 +52,11 @@ export class ListingComparisonComponent {
   // (anywhere but Puebla/Tlaxcala) simply has no entry, rendered as "—" per row, same spirit as
   // every other optional field in this table.
   readonly locationData = signal<Map<string, ListingLocationData>>(new Map());
+
+  // Mobile-only: which card the swipeable carousel (see the component's HTML) is currently
+  // centered on, so the dot indicator below it can highlight the right one.
+  @ViewChild('carouselTrack') private carouselTrack?: ElementRef<HTMLElement>;
+  readonly activeCardIndex = signal(0);
 
   constructor() {
     inject(SeoService).set({
@@ -114,9 +119,53 @@ export class ListingComparisonComponent {
     });
   }
 
+  // A touch-driven swipe fires this dozens of times a second — coalesce to one measurement per
+  // animation frame instead of running the distance calc (and the change detection it triggers)
+  // on every single scroll event.
+  private scrollUpdateQueued = false;
+
+  onCarouselScroll(): void {
+    if (this.scrollUpdateQueued) return;
+    this.scrollUpdateQueued = true;
+    requestAnimationFrame(() => {
+      this.scrollUpdateQueued = false;
+      this.updateActiveCardIndex();
+    });
+  }
+
+  private updateActiveCardIndex(): void {
+    const track = this.carouselTrack?.nativeElement;
+    if (!track) return;
+
+    const cards = Array.from(track.children) as HTMLElement[];
+    const viewportCenter = track.scrollLeft + track.clientWidth / 2;
+
+    let closestIndex = 0;
+    let closestDistance = Infinity;
+    cards.forEach((card, i) => {
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - viewportCenter);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = i;
+      }
+    });
+    this.activeCardIndex.set(closestIndex);
+  }
+
+  scrollToCard(index: number): void {
+    const track = this.carouselTrack?.nativeElement;
+    const card = track?.children[index] as HTMLElement | undefined;
+    card?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
   remove(listingId: string): void {
     this.comparison.remove(listingId);
     this.listings.update((list) => list.filter((l) => l.id !== listingId));
+    // Removing a card shifts every later index down — without this, activeCardIndex can point
+    // past the end of the shorter list (or at the wrong card), leaving the mobile carousel's dot
+    // indicator stuck on no dot or the wrong one until the user scrolls again.
+    this.activeCardIndex.update((i) => Math.min(i, Math.max(this.listings().length - 1, 0)));
   }
 
   pricePerSqm(listing: Listing): number {

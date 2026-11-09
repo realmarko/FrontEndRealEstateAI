@@ -9,7 +9,7 @@
       <a routerLink="/listings">{{ 'comparison.browseListings' | translate }}</a>
     </div>
   } @else {
-    <div class="table-scroll">
+    <div class="table-scroll desktop-table">
       <table class="compare-table">
         <thead>
           <tr>
@@ -151,6 +151,125 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- Mobile-only swipeable card deck — same data as the table above, re-flowed into one
+         property per screen so the user only ever scrolls one axis at a time. Hidden on desktop
+         via CSS rather than an @if, so both views share the same already-fetched signals. -->
+    <div class="mobile-cards">
+      <div class="carousel-track" #carouselTrack (scroll)="onCarouselScroll()">
+        @for (listing of listings(); track listing.id) {
+          <div class="compare-card">
+            <button type="button" class="remove-btn" [attr.aria-label]="'comparison.remove' | translate" (click)="remove(listing.id)">
+              <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
+            </button>
+            <a [routerLink]="['/listings', listing.id]" class="card-photo">
+              <img [src]="listing.imageUrls[0] ?? defaultImage" [alt]="listing.title" />
+            </a>
+            <a [routerLink]="['/listings', listing.id]" class="card-title">{{ listing.title }}</a>
+            <p class="card-address">{{ listing.address }}</p>
+
+            <dl class="card-specs">
+              <div class="spec-row">
+                <dt>{{ 'comparison.price' | translate }}</dt>
+                <dd>
+                  @if (listing.priceOnRequest || listing.price <= 0) {
+                    {{ 'listing.priceOnRequest' | translate }}
+                  } @else {
+                    {{ listing.price | currency:listing.currency }}{{ listing.type === 'rent' ? ('listing.perMonthSuffix' | translate) : '' }}
+                  }
+                </dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.pricePerSqm' | translate }}</dt>
+                <dd>
+                  @if (!listing.priceOnRequest && listing.price > 0 && listing.areaSqm > 0) {
+                    {{ pricePerSqm(listing) | currency:listing.currency:'symbol':'1.0-0' }}
+                  } @else {
+                    —
+                  }
+                </dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.operation' | translate }}</dt>
+                <dd>{{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.propertyType' | translate }}</dt>
+                <dd>{{ listing.propertyType ? (('listingForm.' + listing.propertyType) | translate) : '—' }}</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.bedrooms' | translate }}</dt>
+                <dd>{{ listing.bedrooms }}</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.bathrooms' | translate }}</dt>
+                <dd>{{ listing.bathrooms }}</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.areaSqm' | translate }}</dt>
+                <dd>{{ listing.areaSqm }} m²</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.parkingSpaces' | translate }}</dt>
+                <dd>{{ listing.parkingSpaces ?? '—' }}</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.yearBuilt' | translate }}</dt>
+                <dd>{{ listing.yearBuilt ?? '—' }}</dd>
+              </div>
+              <div class="spec-row">
+                <dt>{{ 'comparison.hoaFee' | translate }}</dt>
+                <dd>{{ listing.hoaFee ? (listing.hoaFee | currency:listing.currency:'symbol':'1.0-0') : '—' }}</dd>
+              </div>
+              @let population = locationData().get(listing.id)?.population;
+              <div class="spec-row">
+                <dt>{{ 'comparison.populationDensity' | translate }}</dt>
+                <dd>
+                  @if (population) {
+                    {{ population.population | number }} ({{ population.densityPerSqKm | number:'1.0-0' }}/km²)
+                  } @else {
+                    —
+                  }
+                </dd>
+              </div>
+              @let level = population?.estimatedSocioeconomicLevel;
+              <div class="spec-row">
+                <dt>{{ 'comparison.socioeconomicLevel' | translate }}</dt>
+                <dd>{{ level ? (socioeconomicLevelLabelKeys[level] | translate) : '—' }}</dd>
+              </div>
+              @let appreciation = locationData().get(listing.id)?.appreciation;
+              <div class="spec-row appreciation-row">
+                <dt>{{ 'comparison.appreciationPotential' | translate }}</dt>
+                <dd>
+                  @if (appreciation?.score != null) {
+                    <span class="appreciation-score">{{ appreciation!.score | number:'1.0-0' }}/100</span>
+                    @if (appreciation!.explanations.length) {
+                      <ul class="appreciation-explanations">
+                        @for (explanation of appreciation!.explanations; track explanation) {
+                          <li>{{ explanation }}</li>
+                        }
+                      </ul>
+                    }
+                  } @else {
+                    —
+                  }
+                </dd>
+              </div>
+            </dl>
+
+            <a class="view-link" [routerLink]="['/listings', listing.id]">{{ 'listing.viewProperty' | translate }}</a>
+          </div>
+        }
+      </div>
+
+      @if (listings().length > 1) {
+        <div class="carousel-dots">
+          @for (listing of listings(); track listing.id; let i = $index) {
+            <button type="button" class="dot" [class.active]="activeCardIndex() === i" [attr.aria-label]="'comparison.goToProperty' | translate:{ index: i + 1, total: listings().length }" (click)="scrollToCard(i)"></button>
+          }
+        </div>
+      }
     </div>
   }
 </div>

@@ -133,6 +133,7 @@ export const en: Record<string, string> = {
   'comparison.empty': "You haven't added any properties to compare.",
   'comparison.browseListings': 'Browse properties',
   'comparison.remove': 'Remove from comparison',
+  'comparison.goToProperty': 'Go to property {{index}} of {{total}}',
   'comparison.price': 'Price',
   'comparison.pricePerSqm': 'Price per m²',
   'comparison.operation': 'Operation',

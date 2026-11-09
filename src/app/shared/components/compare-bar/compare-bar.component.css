@@ -7,6 +7,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  max-width: calc(100vw - 2rem);
   background: #000000;
   color: #fff;
   border-radius: 999px;
@@ -14,13 +15,20 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* Only this label shrinks/truncates on narrow screens — the two buttons next to it (flex-shrink:
+   0 below) must always stay fully visible and tappable, so the count text is the one that gives
+   way first when there isn't room for all three at full width. */
 .compare-count {
   font-size: 0.9rem;
   font-weight: 600;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .compare-clear {
+  flex-shrink: 0;
   background: none;
   border: none;
   color: #cbd5e1;
@@ -31,6 +39,7 @@
 }
 
 .compare-go {
+  flex-shrink: 0;
   background: #c6a15b;
   color: #000000;
   border: none;
@@ -50,7 +59,18 @@
   .compare-bar {
     left: 1rem;
     right: 1rem;
+    max-width: none;
     transform: none;
+    gap: 0.6rem;
+    padding: 0.6rem 0.6rem 0.6rem 1rem;
     justify-content: space-between;
+  }
+
+  .compare-count {
+    font-size: 0.82rem;
+  }
+
+  .compare-clear {
+    font-size: 0.78rem;
   }
 }
