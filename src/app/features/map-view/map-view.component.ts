@@ -72,6 +72,15 @@ const GOOGLE_LOAD_POLL_MS = 100;
 // replaced had the same kind of bound for the same reason).
 const INITIAL_CENTER_TIMEOUT_MS = 5000;
 const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+// Google's stock icon set has no gold dot. createPoiIcon isn't reused here on purpose — its badge
+// fills almost the whole canvas (sized to carry a glyph), which would make this marker visibly
+// bigger than MY_LISTING_ICON's compact dot; this SVG is sized to match that dot look instead, so
+// "my listing" vs. "every other listing" differ only by color, not by size.
+const OTHER_LISTING_ICON: google.maps.Icon = {
+  url: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="#D4AF37" stroke="#fff" stroke-width="2.5"/></svg>')}`,
+  scaledSize: { width: 32, height: 32 } as google.maps.Size,
+  anchor: { x: 16, y: 16 } as google.maps.Point
+};
 // Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
 // "featured/special" — fitting for a whole development rather than a single unit.
 const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
@@ -1305,7 +1314,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       const marker = new google.maps.Marker({
         position: isEditing && editingPosition ? { lat: editingPosition.lat(), lng: editingPosition.lng() } : { lat: listing.lat!, lng: listing.lng! },
         title: listing.title,
-        icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : undefined,
+        icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : OTHER_LISTING_ICON,
         draggable: isEditing
       });
 
