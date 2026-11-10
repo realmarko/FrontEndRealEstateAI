@@ -4,6 +4,7 @@ import { Owner } from '../../../core/models/owner.model';
 import { toSlug } from '../../../core/services/owner-api.adapter';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-owner-card',
@@ -16,6 +17,7 @@ export class OwnerCardComponent {
   @Input({ required: true }) owner!: Owner;
 
   protected readonly auth = inject(AuthService);
+  protected readonly translation = inject(TranslationService);
 
   get slug(): string {
     return toSlug(this.owner.name);

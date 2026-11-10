@@ -1,6 +1,6 @@
 @if (owner(); as owner) {
   <div class="page detail">
-    <a class="back" routerLink="/owners">
+    <a class="back" [routerLink]="translation.path('owners')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12" />
         <polyline points="12 19 5 12 12 5" />
@@ -61,13 +61,13 @@
             </span>
             @if (!auth.isAuthenticated()) {
               <p class="contact-blur-hint">
-                <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'ownerDetail.loginToSeeContact' | translate }}
+                <a [routerLink]="translation.path('login')">{{ 'nav.logIn' | translate }}</a> {{ 'ownerDetail.loginToSeeContact' | translate }}
               </p>
             }
           </div>
 
           @if (isOwnProfile()) {
-            <a class="id-card-cta" routerLink="/owners/edit">{{ 'ownerDetail.editProfile' | translate }}</a>
+            <a class="id-card-cta" [routerLink]="translation.path('owners', 'edit')">{{ 'ownerDetail.editProfile' | translate }}</a>
           } @else {
             <button type="button" class="id-card-cta" (click)="openContactModal()">
               {{ 'ownerDetail.contact' | translate:{ name: owner.name } }}
@@ -111,6 +111,6 @@
 } @else if (!loading()) {
   <div class="page">
     <p>{{ 'ownerDetail.notFound' | translate }}</p>
-    <a routerLink="/owners">{{ 'ownerDetail.back' | translate }}</a>
+    <a [routerLink]="translation.path('owners')">{{ 'ownerDetail.back' | translate }}</a>
   </div>
 }

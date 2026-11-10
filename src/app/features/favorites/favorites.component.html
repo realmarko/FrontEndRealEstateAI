@@ -31,7 +31,7 @@
   } @else {
     <app-state-panel kind="empty">
       {{ 'favorites.emptyPrefix' | translate }}
-      <a routerLink="/listings">{{ 'favorites.browseLink' | translate }}</a>.
+      <a [routerLink]="translation.path('listings')">{{ 'favorites.browseLink' | translate }}</a>.
     </app-state-panel>
   }
 </div>

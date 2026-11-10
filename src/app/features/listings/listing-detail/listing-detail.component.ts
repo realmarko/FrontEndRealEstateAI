@@ -89,7 +89,7 @@ export class ListingDetailComponent {
   protected readonly auth = inject(AuthService);
   private readonly inquiryService = inject(InquiryService);
   private readonly notification = inject(NotificationService);
-  private readonly translation = inject(TranslationService);
+  protected readonly translation = inject(TranslationService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly seo = inject(SeoService);
   private readonly landUseCategoryService = inject(LandUseCategoryService);
@@ -329,7 +329,8 @@ export class ListingDetailComponent {
           description: listing.description
             ? listing.description
             : `${listing.title} en ${listing.type === 'rent' ? 'renta' : 'venta'} en ${listing.address}.`,
-          path: `/listings/${listing.id}`,
+          path: this.translation.path('listings', listing.id),
+          hreflang: this.translation.hreflangPaths('listings', listing.id),
           image: listing.imageUrls[0],
           type: 'article',
           structuredData: this.buildStructuredData(listing)
@@ -472,7 +473,7 @@ export class ListingDetailComponent {
   viewOnMap(): void {
     const listing = this.listing();
     if (!listing || listing.lat == null || listing.lng == null) return;
-    this.router.navigate(['/map'], {
+    this.router.navigate([this.translation.path('map')], {
       queryParams: { listingId: listing.id, lat: listing.lat, lng: listing.lng }
     });
   }
@@ -536,7 +537,7 @@ export class ListingDetailComponent {
       '@type': 'RealEstateListing',
       name: listing.title,
       description: listing.description || undefined,
-      url: `${this.seo.origin}/listings/${listing.id}`,
+      url: `${this.seo.origin}${this.translation.path('listings', listing.id)}`,
       image: listing.imageUrls.length ? listing.imageUrls : undefined,
       datePosted: listing.createdAt,
       address: {
@@ -697,7 +698,7 @@ export class ListingDetailComponent {
     this.listingService.delete(this.id).subscribe({
       next: () => {
         this.notification.success('listingDetail.deleteSuccess');
-        this.router.navigate(['/listings']);
+        this.router.navigateByUrl(this.translation.path('listings'));
       },
       error: () => this.notification.error('listingDetail.deleteError')
     });

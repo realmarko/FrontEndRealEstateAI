@@ -3,6 +3,7 @@ import { BrokerageService } from '../../../core/services/brokerage.service';
 import { AgencyCardComponent } from '../components/agency-card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -32,10 +33,12 @@ export class AgenciesListComponent {
     // can go stale after actions elsewhere, e.g. an agent editing their agency profile).
     this.refreshNow();
 
+    const translation = inject(TranslationService);
     inject(SeoService).set({
       title: 'Inmobiliarias',
       description: 'Directorio de inmobiliarias en México con propiedades en venta y renta.',
-      path: '/inmobiliarias'
+      path: translation.path('agencies'),
+      hreflang: translation.hreflangPaths('agencies')
     });
   }
 

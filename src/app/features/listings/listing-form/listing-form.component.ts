@@ -78,7 +78,7 @@ export class ListingFormComponent {
   private readonly auth = inject(AuthService);
   private readonly geomarketingService = inject(GeomarketingService);
   private readonly landUseCategoryService = inject(LandUseCategoryService);
-  private readonly translation = inject(TranslationService);
+  protected readonly translation = inject(TranslationService);
   private readonly notification = inject(NotificationService);
   private readonly errorReporting = inject(ErrorReportingService);
   private readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
@@ -287,7 +287,9 @@ export class ListingFormComponent {
     inject(SeoService).set({
       title: this.isEditMode ? 'Editar propiedad' : 'Publicar propiedad',
       description: 'Publica o edita una propiedad en Espacial.com.mx.',
-      path: this.isEditMode ? `/listings/${this.editingId}/edit` : '/listings/new'
+      path: this.editingId
+        ? this.translation.path('listings', this.editingId, 'edit')
+        : this.translation.path('listings', 'new')
     });
 
     // Recomputes whenever the shared municipalities signal (re)populates — covers both "data
@@ -653,7 +655,7 @@ export class ListingFormComponent {
       .subscribe({
         next: () => {
           this.notification.success('listingForm.ownerContactSaveSuccess');
-          if (!this.showMainForm()) this.router.navigate(['/listings', this.editingId]);
+          if (!this.showMainForm()) this.router.navigateByUrl(this.translation.path('listings', this.editingId!));
         },
         error: () => this.notification.error('listingForm.ownerContactSaveError')
       });
@@ -788,7 +790,7 @@ export class ListingFormComponent {
     request$.pipe(finalize(() => this.isSubmitting.set(false))).subscribe({
       next: (listing) => {
         this.notification.success(this.isEditMode ? 'listingForm.updateSuccess' : 'listingForm.createSuccess');
-        this.router.navigate(['/listings', listing.id]);
+        this.router.navigateByUrl(this.translation.path('listings', listing.id));
       },
       error: (err: HttpErrorResponse) => {
         // A 401 is handled globally by the auth interceptor (logout + redirect to /login), so

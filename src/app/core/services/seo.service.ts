@@ -15,6 +15,12 @@ export interface PageSeo {
   // 'website' for list/static pages, 'article' for a single entity's own detail page — the two
   // values Open Graph itself defines as meaningful for this kind of site.
   type?: 'website' | 'article';
+  // The SAME logical page's path in each language — present only for pages built from
+  // core/routing/route-slugs.ts's PUBLIC_SLUGS (see TranslationService.path()). Emits
+  // <link rel="alternate" hreflang="..."> pairs so search engines treat /listings and /propiedades
+  // as translations of each other rather than duplicate content. Omitted for pages with no public
+  // language pair (home, every authGuard-only admin/utility page).
+  hreflang?: { en: string; es: string };
   // A schema.org JSON-LD object (RealEstateListing, RealEstateAgent, Place, ...) — omitted for
   // every page except the dynamic entity-detail ones, which build and pass their own. Cleared
   // automatically on any set() call that doesn't pass one, so navigating away from a detail page
@@ -81,6 +87,7 @@ export class SeoService {
     this.meta.updateTag({ name: 'twitter:image', content: image });
 
     this.setCanonical(url);
+    this.setHreflang(page.hreflang);
     this.setStructuredData(page.structuredData ?? null);
   }
 
@@ -98,6 +105,28 @@ export class SeoService {
       this.document.head.appendChild(link);
     }
     link.setAttribute('href', url);
+  }
+
+  // Re-creates the full set every call (simpler than find-and-update per hreflang value, and this
+  // never runs often enough to matter) — cleared entirely when a page has no language pair, so
+  // navigating from a dual-registered page to a single-path one doesn't leave stale alternate tags.
+  private setHreflang(pair?: { en: string; es: string }): void {
+    this.document.querySelectorAll('link[rel="alternate"][hreflang]').forEach((el) => el.remove());
+    if (!pair) return;
+
+    // Spanish is the site's default language (see TranslationService) — x-default points there.
+    const entries: [string, string][] = [
+      ['en', pair.en],
+      ['es', pair.es],
+      ['x-default', pair.es]
+    ];
+    for (const [hreflang, path] of entries) {
+      const link = this.document.createElement('link');
+      link.setAttribute('rel', 'alternate');
+      link.setAttribute('hreflang', hreflang);
+      link.setAttribute('href', `${this.origin}${path}`);
+      this.document.head.appendChild(link);
+    }
   }
 
   // One <script type="application/ld+json"> per page, same find-or-create-then-update approach

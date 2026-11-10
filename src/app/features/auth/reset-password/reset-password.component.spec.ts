@@ -11,6 +11,10 @@ describe('ResetPasswordComponent', () => {
   let router: Router;
 
   function createComponent(queryParams: Record<string, string>): ResetPasswordComponent {
+    // No TranslationService override here — the real singleton is used, so pin its language
+    // deterministically (default 'es', no stored preference) rather than depend on whatever an
+    // earlier spec file left in this shared browser's localStorage.
+    localStorage.removeItem('reapp_lang');
     authServiceSpy = jasmine.createSpyObj('AuthService', ['resetPassword']);
     notificationSpy = jasmine.createSpyObj('NotificationService', ['error', 'success']);
 
@@ -29,6 +33,7 @@ describe('ResetPasswordComponent', () => {
 
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
+    spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
     const fixture = TestBed.createComponent(ResetPasswordComponent);
     fixture.detectChanges();
@@ -78,7 +83,7 @@ describe('ResetPasswordComponent', () => {
 
     expect(authServiceSpy.resetPassword).toHaveBeenCalledWith('user@example.com', 'the-token', 'NewPassw0rd!');
     expect(notificationSpy.success).toHaveBeenCalledWith('resetPassword.success');
-    expect(router.navigate).toHaveBeenCalledWith(['/login']);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/iniciar-sesion');
   });
 
   it('shows an error notification when the reset call fails (e.g. an expired token)', () => {
@@ -90,6 +95,6 @@ describe('ResetPasswordComponent', () => {
     component.submit();
 
     expect(notificationSpy.error).toHaveBeenCalledWith('auth.errors.resetPasswordFailed');
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 });

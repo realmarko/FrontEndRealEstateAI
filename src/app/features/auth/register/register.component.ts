@@ -11,6 +11,7 @@ import { loadGoogleIdentity, setGoogleCredentialHandler } from '../../../core/ut
 import { loadFacebookSdk, loginWithFacebookSdk } from '../../../core/utils/load-facebook-sdk';
 import { environment } from '../../../../environments/environment';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-register',
@@ -26,6 +27,7 @@ export class RegisterComponent implements AfterViewInit {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly notification = inject(NotificationService);
+  protected readonly translation = inject(TranslationService);
 
   readonly form = this.fb.nonNullable.group({
     firstName: ['', [Validators.required, Validators.minLength(2)]],
@@ -44,7 +46,8 @@ export class RegisterComponent implements AfterViewInit {
     inject(SeoService).set({
       title: 'Crear cuenta',
       description: 'Crea tu cuenta gratis en Espacial.com.mx para publicar propiedades, contactar agentes y guardar búsquedas.',
-      path: '/register'
+      path: this.translation.path('register'),
+      hreflang: this.translation.hreflangPaths('register')
     });
 
     // Lets a marketing CTA (e.g. the agents/agencies landing) deep-link straight into the right
@@ -80,7 +83,7 @@ export class RegisterComponent implements AfterViewInit {
 
     const role = this.form.controls.role.value;
     this.auth.loginWithGoogle(idToken, role).subscribe({
-      next: () => this.router.navigate(['/listings']),
+      next: () => this.router.navigateByUrl(this.translation.path('listings')),
       error: () => this.notification.error('auth.errors.googleSignInFailed')
     });
   }
@@ -95,7 +98,7 @@ export class RegisterComponent implements AfterViewInit {
       const accessToken = await loginWithFacebookSdk();
       const role = this.form.controls.role.value;
       this.auth.loginWithFacebook(accessToken, role).subscribe({
-        next: () => this.router.navigate(['/listings']),
+        next: () => this.router.navigateByUrl(this.translation.path('listings')),
         error: () => this.notification.error('auth.errors.facebookSignInFailed')
       });
     } catch {
@@ -127,7 +130,7 @@ export class RegisterComponent implements AfterViewInit {
         // No session yet — Register() no longer logs the visitor in (see AuthService.register).
         // The verify-email screen is where role-based routing (agents/new vs listings) actually
         // happens, once VerifyEmailComponent has a real logged-in user to read roles from.
-        this.router.navigate(['/verify-email'], { queryParams: { email: payload.email } });
+        this.router.navigate([this.translation.path('verifyEmail')], { queryParams: { email: payload.email } });
       },
       error: (err) => {
         // Identity validation failures (result.Errors.Select(e => e.Description) in

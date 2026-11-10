@@ -483,7 +483,7 @@
       <!-- Creating a listing only ever gets here from the map's "add property" flow (see
            hasCoordinatesGuard) — cancelling should return there, not to the unrelated /listings
            index. Editing isn't guarded that way, so /listings stays the right fallback there. -->
-      <a [routerLink]="isEditMode ? '/listings' : '/map'">{{ 'listingForm.cancel' | translate }}</a>
+      <a [routerLink]="isEditMode ? translation.path('listings') : translation.path('map')">{{ 'listingForm.cancel' | translate }}</a>
     </div>
   </form>
   }
@@ -524,7 +524,7 @@
           {{ (isSavingOwnerContact() ? 'listingForm.saving' : 'listingForm.ownerContactSave') | translate }}
         </button>
         @if (!showMainForm()) {
-          <a routerLink="/listings">{{ 'listingForm.cancel' | translate }}</a>
+          <a [routerLink]="translation.path('listings')">{{ 'listingForm.cancel' | translate }}</a>
         }
       </div>
     </form>

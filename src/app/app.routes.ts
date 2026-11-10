@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { hasCoordinatesGuard } from './core/guards/has-coordinates.guard';
 import { roleGuard } from './core/guards/role.guard';
+import { pairRoutes } from './core/routing/localized-route';
+import { slugFor } from './core/routing/route-slugs';
 
 export const routes: Routes = [
   {
@@ -9,196 +11,172 @@ export const routes: Routes = [
     pathMatch: 'full',
     loadComponent: () => import('./features/landing/landing.component').then((m) => m.LandingComponent)
   },
-  {
-    path: 'for-agents',
+  ...pairRoutes('forAgents', '', {
     loadComponent: () =>
       import('./features/landing/for-agents/for-agents-landing.component').then(
         (m) => m.ForAgentsLandingComponent
       )
-  },
-  {
-    path: 'login',
+  }),
+  ...pairRoutes('login', '', {
     loadComponent: () => import('./features/auth/login/login.component').then((m) => m.LoginComponent)
-  },
-  {
-    path: 'register',
+  }),
+  ...pairRoutes('register', '', {
     loadComponent: () =>
       import('./features/auth/register/register.component').then((m) => m.RegisterComponent)
-  },
-  {
-    path: 'forgot-password',
+  }),
+  ...pairRoutes('forgotPassword', '', {
     loadComponent: () =>
       import('./features/auth/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent)
-  },
-  {
-    path: 'reset-password',
+  }),
+  ...pairRoutes('resetPassword', '', {
     loadComponent: () =>
       import('./features/auth/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent)
-  },
-  {
-    path: 'verify-email',
+  }),
+  ...pairRoutes('verifyEmail', '', {
     loadComponent: () =>
       import('./features/auth/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent)
-  },
-  {
-    path: 'privacy',
+  }),
+  ...pairRoutes('privacy', '', {
     loadComponent: () => import('./features/legal/privacy/privacy.component').then((m) => m.PrivacyComponent)
-  },
-  {
-    path: 'terms',
+  }),
+  ...pairRoutes('terms', '', {
     loadComponent: () => import('./features/legal/terms/terms.component').then((m) => m.TermsComponent)
-  },
-  {
-    path: 'listings',
+  }),
+  ...pairRoutes('listings', '', {
     loadComponent: () =>
       import('./features/listings/listing-list/listing-list.component').then(
         (m) => m.ListingListComponent
       )
-  },
-  {
-    path: 'listings/new',
+  }),
+  ...pairRoutes('listings', 'new', {
     canActivate: [authGuard, hasCoordinatesGuard],
     loadComponent: () =>
       import('./features/listings/listing-form/listing-form.component').then(
         (m) => m.ListingFormComponent
       )
-  },
-  {
-    path: 'listings/:id/edit',
+  }),
+  ...pairRoutes('listings', ':id/edit', {
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/listings/listing-form/listing-form.component').then(
         (m) => m.ListingFormComponent
       )
-  },
+  }),
   {
+    // Deferred from the EN/ES slug pass (see route-slugs.ts) — low-traffic sub-page, kept as a
+    // single untouched path for now.
     path: 'listings/:id/viabilidad-comercial',
     loadComponent: () =>
       import('./features/listings/viability-report-page/viability-report-page.component').then(
         (m) => m.ViabilityReportPageComponent
       )
   },
-  {
-    path: 'listings/:id',
+  ...pairRoutes('listings', ':id', {
     loadComponent: () =>
       import('./features/listings/listing-detail/listing-detail.component').then(
         (m) => m.ListingDetailComponent
       )
-  },
-  {
-    path: 'map',
+  }),
+  ...pairRoutes('map', '', {
     loadComponent: () =>
       import('./features/map-view/map-view.component').then((m) => m.MapViewComponent)
-  },
-  {
-    path: 'agents',
+  }),
+  ...pairRoutes('agents', '', {
     loadComponent: () =>
       import('./features/agents/agents-list/agents-list.component').then(
         (m) => m.AgentsListComponent
       )
-  },
-  {
-    path: 'agents/new',
+  }),
+  ...pairRoutes('agents', 'new', {
     canActivate: [authGuard, roleGuard('Agent')],
     loadComponent: () =>
       import('./features/agents/agent-signup/agent-signup.component').then(
         (m) => m.AgentSignupComponent
       )
-  },
-  {
-    path: 'agents/edit',
+  }),
+  ...pairRoutes('agents', 'edit', {
     canActivate: [authGuard, roleGuard('Agent')],
     data: { editMode: true },
     loadComponent: () =>
       import('./features/agents/agent-signup/agent-signup.component').then(
         (m) => m.AgentSignupComponent
       )
-  },
-  {
-    path: 'agents/:id',
+  }),
+  ...pairRoutes('agents', ':id', {
     loadComponent: () =>
       import('./features/agents/agent-detail/agent-detail.component').then(
         (m) => m.AgentDetailComponent
       )
-  },
-  {
-    path: 'owners',
+  }),
+  ...pairRoutes('owners', '', {
     loadComponent: () =>
       import('./features/owners/owners-list/owners-list.component').then(
         (m) => m.OwnersListComponent
       )
-  },
-  {
-    path: 'owners/new',
+  }),
+  ...pairRoutes('owners', 'new', {
     canActivate: [authGuard, roleGuard('Owner')],
     loadComponent: () =>
       import('./features/owners/owner-signup/owner-signup.component').then(
         (m) => m.OwnerSignupComponent
       )
-  },
-  {
-    path: 'owners/edit',
+  }),
+  ...pairRoutes('owners', 'edit', {
     canActivate: [authGuard, roleGuard('Owner')],
     data: { editMode: true },
     loadComponent: () =>
       import('./features/owners/owner-signup/owner-signup.component').then(
         (m) => m.OwnerSignupComponent
       )
-  },
-  {
-    path: 'owners/:id',
+  }),
+  ...pairRoutes('owners', ':id', {
     loadComponent: () =>
       import('./features/owners/owner-detail/owner-detail.component').then(
         (m) => m.OwnerDetailComponent
       )
-  },
-  {
-    path: 'inmobiliarias',
+  }),
+  ...pairRoutes('agencies', '', {
     loadComponent: () =>
       import('./features/agencies/agencies-list/agencies-list.component').then(
         (m) => m.AgenciesListComponent
       )
-  },
-  {
-    path: 'inmobiliarias/edit',
+  }),
+  ...pairRoutes('agencies', 'edit', {
     canActivate: [authGuard, roleGuard('Agent')],
     loadComponent: () =>
       import('./features/agencies/agency-edit/agency-edit.component').then(
         (m) => m.AgencyEditComponent
       )
-  },
-  {
+  }),
+  ...pairRoutes('agencies', 'new', {
     // Reached from the map's "Agregar inmobiliaria" tool — same ?lat&lng contract as
-    // 'listings/new', must stay above 'inmobiliarias/:id' or ':id' would greedily match "new".
-    path: 'inmobiliarias/new',
+    // '.../new' above, must stay above the ':id' pair below or ':id' would greedily match "new".
     canActivate: [authGuard, roleGuard('Admin'), hasCoordinatesGuard],
     loadComponent: () =>
       import('./features/agencies/agency-create/agency-create.component').then(
         (m) => m.AgencyCreateComponent
       )
-  },
-  {
-    path: 'inmobiliarias/:id',
+  }),
+  ...pairRoutes('agencies', ':id', {
     loadComponent: () =>
       import('./features/agencies/agency-detail/agency-detail.component').then(
         (m) => m.AgencyDetailComponent
       )
-  },
+  }),
   {
     path: 'favorites',
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/favorites/favorites.component').then((m) => m.FavoritesComponent)
   },
-  {
+  ...pairRoutes('compare', '', {
     // No authGuard: ComparisonService's selection is anonymous-friendly (localStorage-backed,
     // no account needed), so the page itself shouldn't require signing in either.
-    path: 'comparar',
     loadComponent: () =>
       import('./features/listings/listing-comparison/listing-comparison.component').then(
         (m) => m.ListingComparisonComponent
       )
-  },
+  }),
   {
     path: 'messages',
     // Owner-role accounts (which Agent accounts also get) receive inquiries on their own
@@ -218,20 +196,18 @@ export const routes: Routes = [
         (m) => m.SavedSearchesComponent
       )
   },
-  {
-    path: 'fraccionamientos',
+  ...pairRoutes('developments', '', {
     loadComponent: () =>
       import('./features/fraccionamientos/fraccionamientos-list/fraccionamientos-list.component').then(
         (m) => m.FraccionamientosListComponent
       )
-  },
-  {
-    path: 'fraccionamientos/:id',
+  }),
+  ...pairRoutes('developments', ':id', {
     loadComponent: () =>
       import('./features/fraccionamientos/fraccionamientos-detail/fraccionamientos-detail.component').then(
         (m) => m.FraccionamientosDetailComponent
       )
-  },
+  }),
   {
     // Admin or Agent (matches SaleProcessesController's own [Authorize(Roles = "Admin,Agent")]) —
     // each caller sees/manages their own pipeline, not a cross-agent view of every agent's deals.
@@ -283,7 +259,7 @@ export const routes: Routes = [
       )
   },
   {
-    // Admin-only edit for any brokerage by id — distinct from 'inmobiliarias/edit' above, which
+    // Admin-only edit for any brokerage by id — distinct from 'agencies/edit' above, which
     // only a member agent can use on their own brokerage.
     path: 'admin/inmobiliarias/:id/edit',
     canActivate: [authGuard, roleGuard('Admin')],
@@ -292,5 +268,7 @@ export const routes: Routes = [
         (m) => m.AdminAgencyEditComponent
       )
   },
-  { path: '**', redirectTo: 'listings' }
+  // Spanish-default (see translation.service.ts) — an unmatched URL falls back to the ES listings
+  // slug rather than the English one.
+  { path: '**', redirectTo: slugFor('listings', 'es') }
 ];

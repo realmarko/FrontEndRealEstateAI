@@ -40,9 +40,9 @@
       <input type="checkbox" formControlName="acceptTerms" />
       <span>
         {{ 'register.acceptTermsPrefix' | translate }}
-        <a routerLink="/terms" target="_blank">{{ 'register.termsLink' | translate }}</a>
+        <a [routerLink]="translation.path('terms')" target="_blank">{{ 'register.termsLink' | translate }}</a>
         {{ 'register.acceptTermsAnd' | translate }}
-        <a routerLink="/privacy" target="_blank">{{ 'register.privacyLink' | translate }}</a>
+        <a [routerLink]="translation.path('privacy')" target="_blank">{{ 'register.privacyLink' | translate }}</a>
       </span>
     </label>
     <app-form-error [control]="form.controls.acceptTerms" />
@@ -61,5 +61,5 @@
     </button>
   </div>
 
-  <p class="switch">{{ 'register.haveAccount' | translate }} <a routerLink="/login">{{ 'register.loginLink' | translate }}</a></p>
+  <p class="switch">{{ 'register.haveAccount' | translate }} <a [routerLink]="translation.path('login')">{{ 'register.loginLink' | translate }}</a></p>
 </div>

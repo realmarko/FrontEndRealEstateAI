@@ -12,6 +12,23 @@ import { ErrorReportingService } from '../../../core/services/error-reporting.se
 import { AuthService } from '../../../core/services/auth.service';
 import { Listing } from '../../../core/models/listing.model';
 
+// path()/hreflangPaths() just echo back whatever key/segments they're called with, joined as a
+// path — good enough for assertions that only need a stable, predictable shape, not real slugs.
+function createTranslationSpy(): jasmine.SpyObj<TranslationService> {
+  const spy = jasmine.createSpyObj<TranslationService>(
+    'TranslationService',
+    ['t', 'setLang', 'path', 'hreflangPaths'],
+    { lang: (() => 'es') as unknown as TranslationService['lang'] }
+  );
+  spy.t.and.callFake((key: string) => key);
+  spy.path.and.callFake((key: string, ...segments: (string | number)[]) => '/' + [key, ...segments].join('/'));
+  spy.hreflangPaths.and.callFake((key: string, ...segments: (string | number)[]) => {
+    const path = '/' + [key, ...segments].join('/');
+    return { en: path, es: path };
+  });
+  return spy;
+}
+
 // Resolves on a microtask, like loadGoogleMaps()'s own already-loaded fast path — never
 // synchronously, so a test can grab the component reference and mutate the form (simulating the
 // visitor typing ahead of a slow network reply) before the callback actually fires.
@@ -109,10 +126,7 @@ describe('ListingFormComponent', () => {
         { provide: NotificationService, useValue: notificationSpy },
         { provide: ErrorReportingService, useValue: errorReportingSpy },
         { provide: AuthService, useValue: authServiceSpy },
-        {
-          provide: TranslationService,
-          useValue: jasmine.createSpyObj('TranslationService', [], { lang: () => 'es' })
-        },
+        { provide: TranslationService, useValue: createTranslationSpy() },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -127,6 +141,7 @@ describe('ListingFormComponent', () => {
 
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
+    spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
     return TestBed.createComponent(ListingFormComponent).componentInstance;
   }
@@ -337,7 +352,7 @@ describe('ListingFormComponent', () => {
       expect(listingServiceSpy.create).toHaveBeenCalled();
       expect(listingServiceSpy.update).not.toHaveBeenCalled();
       expect(notificationSpy.success).toHaveBeenCalledWith('listingForm.createSuccess');
-      expect(router.navigate).toHaveBeenCalledWith(['/listings', 'new-1']);
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/listings/new-1');
       expect(component.isSubmitting()).toBe(false);
     });
 

@@ -6,6 +6,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
 import { StatePanelComponent } from '../../shared/components/state-panel/state-panel.component';
 import { SeoService } from '../../core/services/seo.service';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-favorites',
@@ -15,7 +16,11 @@ import { SeoService } from '../../core/services/seo.service';
   styleUrl: './favorites.component.css'
 })
 export class FavoritesComponent {
-  constructor(protected readonly favorites: FavoritesService, seo: SeoService) {
+  constructor(
+    protected readonly favorites: FavoritesService,
+    protected readonly translation: TranslationService,
+    seo: SeoService
+  ) {
     seo.set({ title: 'Mis favoritos', description: 'Tus propiedades favoritas en Espacial.com.mx.', path: '/favorites' });
   }
 

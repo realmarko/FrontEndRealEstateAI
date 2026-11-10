@@ -37,7 +37,7 @@
     <div class="grid">
       @for (item of items(); track item.id) {
         <div class="card">
-          <a class="card-link" [routerLink]="['/fraccionamientos', item.id]">
+          <a class="card-link" [routerLink]="translation.path('developments', item.id)">
             <div class="photo">
               @if (item.masterPlanImageUrl) {
                 <img [src]="item.masterPlanImageUrl" [alt]="item.name" />

@@ -6,6 +6,7 @@ import { toSlug } from '../../../core/services/agent-api.adapter';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { RatingStarsComponent } from '../../../shared/components/rating-stars/rating-stars.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-agent-card',
@@ -18,6 +19,7 @@ export class AgentCardComponent {
   @Input({ required: true }) agent!: Agent;
 
   protected readonly auth = inject(AuthService);
+  protected readonly translation = inject(TranslationService);
 
   get slug(): string {
     return toSlug(this.agent.name);

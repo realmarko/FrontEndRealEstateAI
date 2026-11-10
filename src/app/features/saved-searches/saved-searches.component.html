@@ -41,7 +41,7 @@
   } @else {
     <p class="empty">
       {{ 'savedSearches.emptyPrefix' | translate }}
-      <a routerLink="/listings">{{ 'favorites.browseLink' | translate }}</a>.
+      <a [routerLink]="translation.path('listings')">{{ 'favorites.browseLink' | translate }}</a>.
     </p>
   }
 </div>

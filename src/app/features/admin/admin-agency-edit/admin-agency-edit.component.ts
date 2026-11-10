@@ -171,7 +171,7 @@ export class AdminAgencyEditComponent {
         next: (agency) => {
           this.submitting.set(false);
           this.notification.success('adminAgencyEdit.success');
-          this.router.navigate(['/inmobiliarias', toSlug(agency.name)]);
+          this.router.navigateByUrl(this.translation.path('agencies', toSlug(agency.name)));
         },
         error: () => {
           this.submitting.set(false);

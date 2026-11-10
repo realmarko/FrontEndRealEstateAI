@@ -66,7 +66,7 @@
 
         <div class="masthead-actions">
           @if (a.canEdit) {
-            <a class="edit-link" routerLink="/inmobiliarias/edit">{{ 'agencyDetail.editLink' | translate }}</a>
+            <a class="edit-link" [routerLink]="translation.path('agencies', 'edit')">{{ 'agencyDetail.editLink' | translate }}</a>
           } @else if (auth.currentUser()?.roles?.includes('Admin')) {
             <a class="edit-link" [routerLink]="['/admin/inmobiliarias', a.id, 'edit']">{{ 'agencyDetail.adminEditLink' | translate }}</a>
           }

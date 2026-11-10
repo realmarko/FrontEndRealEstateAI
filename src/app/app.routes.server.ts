@@ -1,5 +1,11 @@
 import { RenderMode, ServerRoute } from '@angular/ssr';
 import { environment } from '../environments/environment';
+import { slugFor } from './core/routing/route-slugs';
+
+// EN/ES path pair for a dual-registered resource, e.g. ['listings', 'propiedades'].
+function bothLangs(key: Parameters<typeof slugFor>[0]): [string, string] {
+  return [slugFor(key, 'en'), slugFor(key, 'es')];
+}
 
 const PAGE_SIZE = 100;
 
@@ -49,14 +55,9 @@ async function collectIds(listPath: string): Promise<{ id: string }[]> {
 // Routes guarded by authGuard have no meaningful server-rendered state (no auth session exists
 // during a build) — prerendering them would just bake in a logged-out redirect. Render them
 // client-side only, same as the two already-dynamic auth-gated edit routes below.
+// Single-path (not EN/ES dual-registered) guarded routes — unchanged from before the localization
+// pass, since none of them is reachable by an anonymous/SEO-relevant visitor.
 const clientOnlyPaths = [
-  'listings/new',
-  'agents/new',
-  'agents/edit',
-  'owners/new',
-  'owners/edit',
-  'inmobiliarias/edit',
-  'inmobiliarias/new',
   'favorites',
   'messages',
   'saved-searches',
@@ -67,40 +68,69 @@ const clientOnlyPaths = [
   'admin/inmobiliarias'
 ];
 
+// Guarded sub-routes nested under a dual-registered public resource (see
+// core/routing/localized-route.ts's pairRoutes()) — both language paths exist in app.routes.ts,
+// so both need an explicit Client entry here too, or the '**' catch-all would wrongly try to
+// prerender them. **Keep this list in sync with every guarded pairRoutes(key, suffix, ...) call in
+// app.routes.ts** — there's no automatic link between the two files.
+const dualLangGuardedSuffixes: [Parameters<typeof slugFor>[0], string][] = [
+  ['listings', 'new'],
+  ['agents', 'new'],
+  ['agents', 'edit'],
+  ['owners', 'new'],
+  ['owners', 'edit'],
+  ['agencies', 'edit'],
+  ['agencies', 'new']
+];
+
 export const serverRoutes: ServerRoute[] = [
   ...clientOnlyPaths.map((path): ServerRoute => ({ path, renderMode: RenderMode.Client })),
-  { path: 'listings/:id/edit', renderMode: RenderMode.Client },
+  ...dualLangGuardedSuffixes.flatMap(([key, suffix]) =>
+    bothLangs(key).map((slug): ServerRoute => ({ path: `${slug}/${suffix}`, renderMode: RenderMode.Client }))
+  ),
+  ...bothLangs('listings').map((slug): ServerRoute => ({ path: `${slug}/:id/edit`, renderMode: RenderMode.Client })),
   // Client-only, not prerendered: unlike the listing page itself, this calls the rate-limited
   // viability-preview endpoint (9 DENUE lookups) on load — prerendering it for every Land/
   // commercial listing at build time would burn that external quota on every deploy for a page
   // that doesn't need search-engine/link-preview treatment the way the listing page does.
+  // Deferred from the EN/ES slug pass (see route-slugs.ts) — single path, English segment only.
   { path: 'listings/:id/viabilidad-comercial', renderMode: RenderMode.Client },
   { path: 'admin/inmobiliarias/:id/edit', renderMode: RenderMode.Client },
-  {
-    path: 'listings/:id',
-    renderMode: RenderMode.Prerender,
-    getPrerenderParams: () => collectIds('/listings')
-  },
-  {
-    path: 'agents/:id',
-    renderMode: RenderMode.Prerender,
-    getPrerenderParams: () => collectIds('/agents')
-  },
-  {
-    path: 'owners/:id',
-    renderMode: RenderMode.Prerender,
-    getPrerenderParams: () => collectIds('/owners')
-  },
-  {
-    path: 'inmobiliarias/:id',
-    renderMode: RenderMode.Prerender,
-    getPrerenderParams: () => collectIds('/brokerages/directory')
-  },
-  {
-    path: 'fraccionamientos/:id',
-    renderMode: RenderMode.Prerender,
-    getPrerenderParams: () => collectIds('/fraccionamientos/published')
-  },
+  ...bothLangs('listings').map(
+    (slug): ServerRoute => ({
+      path: `${slug}/:id`,
+      renderMode: RenderMode.Prerender,
+      getPrerenderParams: () => collectIds('/listings')
+    })
+  ),
+  ...bothLangs('agents').map(
+    (slug): ServerRoute => ({
+      path: `${slug}/:id`,
+      renderMode: RenderMode.Prerender,
+      getPrerenderParams: () => collectIds('/agents')
+    })
+  ),
+  ...bothLangs('owners').map(
+    (slug): ServerRoute => ({
+      path: `${slug}/:id`,
+      renderMode: RenderMode.Prerender,
+      getPrerenderParams: () => collectIds('/owners')
+    })
+  ),
+  ...bothLangs('agencies').map(
+    (slug): ServerRoute => ({
+      path: `${slug}/:id`,
+      renderMode: RenderMode.Prerender,
+      getPrerenderParams: () => collectIds('/brokerages/directory')
+    })
+  ),
+  ...bothLangs('developments').map(
+    (slug): ServerRoute => ({
+      path: `${slug}/:id`,
+      renderMode: RenderMode.Prerender,
+      getPrerenderParams: () => collectIds('/fraccionamientos/published')
+    })
+  ),
   {
     path: '**',
     renderMode: RenderMode.Prerender

@@ -16,12 +16,12 @@
     <!-- Public discovery surfaces only — anything requiring a session lives in the account menu
          below, so an anonymous visitor and a logged-in one see the same primary nav. -->
     <div class="links">
-      <a routerLink="/listings" routerLinkActive="active">{{ 'nav.listings' | translate }}</a>
-      <a routerLink="/map" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
-      <a routerLink="/agents" routerLinkActive="active">{{ 'nav.agents' | translate }}</a>
-      <a routerLink="/owners" routerLinkActive="active">{{ 'nav.owners' | translate }}</a>
-      <a routerLink="/inmobiliarias" routerLinkActive="active">{{ 'nav.agencies' | translate }}</a>
-      <a routerLink="/fraccionamientos" routerLinkActive="active">{{ 'nav.fraccionamientos' | translate }}</a>
+      <a [routerLink]="translation.path('listings')" routerLinkActive="active">{{ 'nav.listings' | translate }}</a>
+      <a [routerLink]="translation.path('map')" routerLinkActive="active">{{ 'nav.map' | translate }}</a>
+      <a [routerLink]="translation.path('agents')" routerLinkActive="active">{{ 'nav.agents' | translate }}</a>
+      <a [routerLink]="translation.path('owners')" routerLinkActive="active">{{ 'nav.owners' | translate }}</a>
+      <a [routerLink]="translation.path('agencies')" routerLinkActive="active">{{ 'nav.agencies' | translate }}</a>
+      <a [routerLink]="translation.path('developments')" routerLinkActive="active">{{ 'nav.fraccionamientos' | translate }}</a>
     </div>
 
     <div class="session">
@@ -90,8 +90,8 @@
           </div>
         </div>
       } @else {
-        <a routerLink="/login" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>
-        <a routerLink="/register" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
+        <a [routerLink]="translation.path('login')" routerLinkActive="active">{{ 'nav.logIn' | translate }}</a>
+        <a [routerLink]="translation.path('register')" routerLinkActive="active">{{ 'nav.register' | translate }}</a>
       }
     </div>
   </div>

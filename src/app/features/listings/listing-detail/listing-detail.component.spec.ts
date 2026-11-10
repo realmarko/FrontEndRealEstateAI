@@ -14,6 +14,23 @@ import { PipelineService } from '../../../core/services/pipeline.service';
 import { Listing, PriceHistoryEntry } from '../../../core/models/listing.model';
 import { User } from '../../../core/models/user.model';
 
+// path()/hreflangPaths() just echo back whatever key/segments they're called with, joined as a
+// path — good enough for assertions that only need a stable, predictable shape, not real slugs.
+function createTranslationSpy(): jasmine.SpyObj<TranslationService> {
+  const spy = jasmine.createSpyObj<TranslationService>(
+    'TranslationService',
+    ['t', 'setLang', 'path', 'hreflangPaths'],
+    { lang: (() => 'es') as unknown as TranslationService['lang'] }
+  );
+  spy.t.and.callFake((key: string) => key);
+  spy.path.and.callFake((key: string, ...segments: (string | number)[]) => '/' + [key, ...segments].join('/'));
+  spy.hreflangPaths.and.callFake((key: string, ...segments: (string | number)[]) => {
+    const path = '/' + [key, ...segments].join('/');
+    return { en: path, es: path };
+  });
+  return spy;
+}
+
 describe('ListingDetailComponent', () => {
   let listingServiceSpy: jasmine.SpyObj<ListingService>;
   let favoritesServiceSpy: jasmine.SpyObj<FavoritesService>;
@@ -104,16 +121,14 @@ describe('ListingDetailComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: InquiryService, useValue: inquiryServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },
-        {
-          provide: TranslationService,
-          useValue: jasmine.createSpyObj('TranslationService', ['t'], { lang: () => 'es' })
-        },
+        { provide: TranslationService, useValue: createTranslationSpy() },
         { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ id: 'l1' }) } } }
       ]
     });
 
     router = TestBed.inject(Router);
     spyOn(router, 'navigate').and.resolveTo(true);
+    spyOn(router, 'navigateByUrl').and.resolveTo(true);
 
     const fixture = TestBed.createComponent(ListingDetailComponent);
     fixture.detectChanges();
@@ -233,7 +248,7 @@ describe('ListingDetailComponent', () => {
     component.deleteListing();
 
     expect(notificationSpy.success).toHaveBeenCalledWith('listingDetail.deleteSuccess');
-    expect(router.navigate).toHaveBeenCalledWith(['/listings']);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/listings');
   });
 
   it('deleteListing() shows an error notification on failure', () => {
@@ -244,7 +259,7 @@ describe('ListingDetailComponent', () => {
     component.deleteListing();
 
     expect(notificationSpy.error).toHaveBeenCalledWith('listingDetail.deleteError');
-    expect(router.navigate).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('deleteListing() does nothing if the confirmation is declined', () => {

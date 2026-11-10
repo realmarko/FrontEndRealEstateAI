@@ -6,6 +6,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SkeletonLoaderComponent } from '../../../shared/components/skeleton-loader/skeleton-loader.component';
 import { StatePanelComponent } from '../../../shared/components/state-panel/state-panel.component';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 const PAGE_SIZE = 12;
 
@@ -43,12 +44,14 @@ export class FraccionamientosListComponent implements OnInit {
   constructor(
     private readonly fraccionamientoService: FraccionamientoService,
     private readonly router: Router,
+    protected readonly translation: TranslationService,
     seo: SeoService
   ) {
     seo.set({
       title: 'Fraccionamientos',
       description: 'Explora fraccionamientos y desarrollos residenciales en México.',
-      path: '/fraccionamientos'
+      path: this.translation.path('developments'),
+      hreflang: this.translation.hreflangPaths('developments')
     });
   }
 
@@ -92,7 +95,7 @@ export class FraccionamientosListComponent implements OnInit {
   // Same shape as ListingDetailComponent.viewOnMap — centers /map on this development's own
   // marker (already plotted there via FraccionamientoService.listPublished), no listingId needed.
   viewOnMap(item: FraccionamientoPublicListItem): void {
-    this.router.navigate(['/map'], { queryParams: { lat: item.latitude, lng: item.longitude } });
+    this.router.navigate([this.translation.path('map')], { queryParams: { lat: item.latitude, lng: item.longitude } });
   }
 
   private load(): void {

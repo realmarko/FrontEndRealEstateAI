@@ -6,6 +6,7 @@ import { NotificationService } from '../../core/services/notification.service';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { CurrencyPipe } from '@angular/common';
 import { SeoService } from '../../core/services/seo.service';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-saved-searches',
@@ -17,6 +18,7 @@ import { SeoService } from '../../core/services/seo.service';
 export class SavedSearchesComponent implements OnInit {
   constructor(
     readonly savedSearchService: SavedSearchService,
+    protected readonly translation: TranslationService,
     private readonly notification: NotificationService,
     seo: SeoService
   ) {

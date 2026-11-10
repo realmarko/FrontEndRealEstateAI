@@ -34,7 +34,7 @@ export class FraccionamientosDetailComponent {
   private readonly router = inject(Router);
   private readonly fraccionamientoService = inject(FraccionamientoService);
   private readonly notification = inject(NotificationService);
-  private readonly translation = inject(TranslationService);
+  protected readonly translation = inject(TranslationService);
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
@@ -76,7 +76,7 @@ export class FraccionamientosDetailComponent {
   viewOnMap(): void {
     const frac = this.frac();
     if (!frac) return;
-    this.router.navigate(['/map'], { queryParams: { lat: frac.latitude, lng: frac.longitude } });
+    this.router.navigate([this.translation.path('map')], { queryParams: { lat: frac.latitude, lng: frac.longitude } });
   }
 
   openContactModal(): void {
@@ -125,12 +125,13 @@ export class FraccionamientosDetailComponent {
           description: detail.description
             ? detail.description
             : `${detail.name}, fraccionamiento en ${detail.city}, ${detail.state}. Consulta propiedades disponibles.`,
-          path: `/fraccionamientos/${detail.id}`,
+          path: this.translation.path('developments', detail.id),
+          hreflang: this.translation.hreflangPaths('developments', detail.id),
           image: detail.masterPlanImageUrl ?? undefined,
           structuredData: {
             '@type': 'Place',
             name: detail.name,
-            url: `${this.seo.origin}/fraccionamientos/${detail.id}`,
+            url: `${this.seo.origin}${this.translation.path('developments', detail.id)}`,
             address: { '@type': 'PostalAddress', addressLocality: detail.city, addressRegion: detail.state },
             geo: { '@type': 'GeoCoordinates', latitude: detail.latitude, longitude: detail.longitude }
           }

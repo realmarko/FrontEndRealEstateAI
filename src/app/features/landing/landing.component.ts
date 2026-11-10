@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-landing',
@@ -17,7 +18,7 @@ export class LandingComponent {
 
   private readonly zone = inject(NgZone);
 
-  constructor(protected readonly auth: AuthService, seo: SeoService) {
+  constructor(protected readonly auth: AuthService, protected readonly translation: TranslationService, seo: SeoService) {
     seo.set({
       title: 'Casas, departamentos y terrenos en venta y renta',
       description: 'Encuentra tu próxima propiedad en México: casas, departamentos y terrenos en venta y renta, con agentes e inmobiliarias verificadas.',

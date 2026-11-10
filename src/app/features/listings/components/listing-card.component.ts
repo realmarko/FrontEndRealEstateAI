@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output, inject, signal } from '@angular
 import { RouterLink } from '@angular/router';
 import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
+import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
@@ -30,6 +31,7 @@ export class ListingCardComponent {
   @Output() toggleCompare = new EventEmitter<string>();
 
   private readonly landUseCategoryService = inject(LandUseCategoryService);
+  protected readonly translation = inject(TranslationService);
 
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
   readonly activeImageIndex = signal(0);

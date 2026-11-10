@@ -9,7 +9,7 @@
       <h1>{{ 'forAgents.heroHeadline' | translate }}</h1>
       <p class="fa-hero-body">{{ 'forAgents.heroBody' | translate }}</p>
       <div class="fa-hero-ctas">
-        <a class="fa-btn fa-btn-primary" [routerLink]="['/register']" [queryParams]="{ role: 'Agent' }">
+        <a class="fa-btn fa-btn-primary" [routerLink]="translation.path('register')" [queryParams]="{ role: 'Agent' }">
           {{ 'forAgents.heroCtaPrimary' | translate }}
         </a>
         <a class="fa-btn fa-btn-ghost" href="#como-funciona">{{ 'forAgents.heroCtaSecondary' | translate }}</a>
@@ -110,7 +110,7 @@
         <p class="fa-eyebrow fa-eyebrow-light">{{ 'forAgents.agencyEyebrow' | translate }}</p>
         <h2>{{ 'forAgents.agencyHeadline' | translate }}</h2>
         <p>{{ 'forAgents.agencyBody' | translate }}</p>
-        <a class="fa-btn fa-btn-primary" [routerLink]="['/register']" [queryParams]="{ role: 'Agent' }">
+        <a class="fa-btn fa-btn-primary" [routerLink]="translation.path('register')" [queryParams]="{ role: 'Agent' }">
           {{ 'forAgents.agencyCta' | translate }}
         </a>
       </div>
@@ -120,7 +120,7 @@
   <section class="fa-final">
     <h2>{{ 'forAgents.finalHeadline' | translate }}</h2>
     <p>{{ 'forAgents.finalBody' | translate }}</p>
-    <a class="fa-btn fa-btn-primary fa-btn-lg" [routerLink]="['/register']" [queryParams]="{ role: 'Agent' }">
+    <a class="fa-btn fa-btn-primary fa-btn-lg" [routerLink]="translation.path('register')" [queryParams]="{ role: 'Agent' }">
       {{ 'forAgents.finalCta' | translate }}
     </a>
   </section>
@@ -129,9 +129,9 @@
     <span>{{ 'forAgents.footerNote' | translate }}</span>
     <nav class="fa-footer-links">
       <a routerLink="/">{{ 'forAgents.footerHome' | translate }}</a>
-      <a routerLink="/login">{{ 'landing.footerLogin' | translate }}</a>
-      <a routerLink="/privacy">{{ 'landing.footerPrivacy' | translate }}</a>
-      <a routerLink="/terms">{{ 'landing.footerTerms' | translate }}</a>
+      <a [routerLink]="translation.path('login')">{{ 'landing.footerLogin' | translate }}</a>
+      <a [routerLink]="translation.path('privacy')">{{ 'landing.footerPrivacy' | translate }}</a>
+      <a [routerLink]="translation.path('terms')">{{ 'landing.footerTerms' | translate }}</a>
     </nav>
   </footer>
 </main>

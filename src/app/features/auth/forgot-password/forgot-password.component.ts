@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-forgot-password',
@@ -19,6 +20,7 @@ export class ForgotPasswordComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly notification = inject(NotificationService);
+  protected readonly translation = inject(TranslationService);
 
   // The backend always returns 204 whether or not the email is registered (so this screen can't
   // be used to enumerate accounts) — this flips to a fixed confirmation message on ANY successful
@@ -33,7 +35,8 @@ export class ForgotPasswordComponent {
     inject(SeoService).set({
       title: 'Recuperar contraseña',
       description: 'Restablece la contraseña de tu cuenta en Espacial.com.mx.',
-      path: '/forgot-password'
+      path: this.translation.path('forgotPassword'),
+      hreflang: this.translation.hreflangPaths('forgotPassword')
     });
   }
 

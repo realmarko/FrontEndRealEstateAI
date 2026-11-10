@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Lang, TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { UserRole } from '../../../core/models/user.model';
+import { logicalKeyForSlug, slugFor } from '../../../core/routing/route-slugs';
 
 // Roles worth offering as a self-service upgrade — "Buyer" isn't here because it unlocks
 // nothing an authenticated visitor doesn't already have (browsing/favoriting/messaging), and
@@ -91,11 +92,27 @@ export class NavbarComponent {
     this.auth.logout();
     this.isMenuOpen.set(false);
     this.isAccountMenuOpen.set(false);
-    this.router.navigate(['/login']);
+    this.router.navigateByUrl(this.translation.path('login'));
   }
 
+  // If the current page belongs to a dual-registered public resource (core/routing/route-slugs.ts),
+  // rebuild its URL in the new language instead of just swapping the in-place dictionary — so the
+  // address bar always matches what's displayed, and the page can be shared/bookmarked correctly.
   setLang(lang: Lang): void {
+    const queryIndex = this.router.url.indexOf('?');
+    const pathname = queryIndex === -1 ? this.router.url : this.router.url.slice(0, queryIndex);
+    // Preserved as-is (not re-parsed/re-encoded) — e.g. /map?lat=..&lng=..&listingId=.. must
+    // survive a language switch untouched, or the visitor loses their map position/context.
+    const queryString = queryIndex === -1 ? '' : this.router.url.slice(queryIndex);
+    const [firstSegment, ...rest] = pathname.split('/').filter(Boolean);
+    const key = firstSegment ? logicalKeyForSlug(firstSegment) : undefined;
+
     this.translation.setLang(lang);
+
+    if (key) {
+      const newPath = '/' + [slugFor(key, lang), ...rest].join('/') + queryString;
+      this.router.navigateByUrl(newPath);
+    }
   }
 
   // No role param reset needed anymore (addRole is a direct button click, not a <select> that
@@ -114,9 +131,9 @@ export class NavbarComponent {
         // takes the agent-profile path — a plain Owner upgrade (and only that) goes to the
         // Propietarios profile form instead.
         if (role === 'Agent') {
-          this.router.navigate(['/agents/new']);
+          this.router.navigateByUrl(this.translation.path('agents', 'new'));
         } else if (role === 'Owner') {
-          this.router.navigate(['/owners/new']);
+          this.router.navigateByUrl(this.translation.path('owners', 'new'));
         }
       },
       error: () => {

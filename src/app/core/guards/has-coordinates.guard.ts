@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { NotificationService } from '../services/notification.service';
+import { TranslationService } from '../services/translation.service';
 
 // A new listing must come from the map's "add property" flow (click a spot, confirm, then land
 // on 'listings/new' with ?lat&lng) — never rendered without coordinates, so nothing ever gets
@@ -19,5 +20,5 @@ export const hasCoordinatesGuard: CanActivateFn = (route) => {
   }
 
   notification.error('listingForm.locationRequired');
-  return router.parseUrl('/map');
+  return router.parseUrl(inject(TranslationService).path('map'));
 };

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-for-agents-landing',
@@ -11,12 +12,13 @@ import { SeoService } from '../../../core/services/seo.service';
   styleUrl: './for-agents-landing.component.css'
 })
 export class ForAgentsLandingComponent {
-  constructor(seo: SeoService) {
+  constructor(protected readonly translation: TranslationService, seo: SeoService) {
     seo.set({
       title: 'Para agentes e inmobiliarias',
       description:
         'Publica tu cartera con datos reales de mercado (INEGI/DENUE) sobre el mapa, gestiona tu inmobiliaria y recibe contactos directos de compradores.',
-      path: '/for-agents'
+      path: translation.path('forAgents'),
+      hreflang: translation.hreflangPaths('forAgents')
     });
   }
 }

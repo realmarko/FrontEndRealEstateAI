@@ -27,7 +27,7 @@ export class OwnerDetailComponent {
   private readonly router = inject(Router);
   private readonly ownerService = inject(OwnerService);
   private readonly notification = inject(NotificationService);
-  private readonly translation = inject(TranslationService);
+  protected readonly translation = inject(TranslationService);
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
@@ -60,7 +60,8 @@ export class OwnerDetailComponent {
         this.seo.set({
           title: `${owner.name} - Propiedades`,
           description: `Propiedades en venta y renta publicadas por ${owner.name} en Espacial.com.mx.`,
-          path: `/owners/${toSlug(owner.name)}`,
+          path: this.translation.path('owners', toSlug(owner.name)),
+          hreflang: this.translation.hreflangPaths('owners', toSlug(owner.name)),
           image: owner.photoUrl,
           structuredData: {
             // Phone/email left out: both are redacted to "•••" server-side for an anonymous
@@ -68,7 +69,7 @@ export class OwnerDetailComponent {
             '@type': 'Person',
             name: owner.name,
             image: owner.photoUrl || undefined,
-            url: `${this.seo.origin}/owners/${toSlug(owner.name)}`
+            url: `${this.seo.origin}${this.translation.path('owners', toSlug(owner.name))}`
           }
         });
 
@@ -144,7 +145,7 @@ export class OwnerDetailComponent {
     this.ownerService.delete(this.ownerId).subscribe({
       next: () => {
         this.notification.success('ownerDetail.deleteSuccess');
-        this.router.navigate(['/owners']);
+        this.router.navigateByUrl(this.translation.path('owners'));
       },
       error: () => this.notification.error('ownerDetail.deleteError')
     });

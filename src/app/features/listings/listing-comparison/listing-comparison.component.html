@@ -6,7 +6,7 @@
   } @else if (listings().length === 0) {
     <div class="empty">
       <p>{{ 'comparison.empty' | translate }}</p>
-      <a routerLink="/listings">{{ 'comparison.browseListings' | translate }}</a>
+      <a [routerLink]="translation.path('listings')">{{ 'comparison.browseListings' | translate }}</a>
     </div>
   } @else {
     <div class="table-scroll desktop-table">
@@ -19,10 +19,10 @@
                 <button type="button" class="remove-btn" [attr.aria-label]="'comparison.remove' | translate" (click)="remove(listing.id)">
                   <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
                 </button>
-                <a [routerLink]="['/listings', listing.id]" class="listing-photo">
+                <a [routerLink]="translation.path('listings', listing.id)" class="listing-photo">
                   <img [src]="listing.imageUrls[0] ?? defaultImage" [alt]="listing.title" />
                 </a>
-                <a [routerLink]="['/listings', listing.id]" class="listing-title">{{ listing.title }}</a>
+                <a [routerLink]="translation.path('listings', listing.id)" class="listing-title">{{ listing.title }}</a>
                 <p class="listing-address">{{ listing.address }}</p>
               </th>
             }
@@ -145,7 +145,7 @@
             <th class="row-label"></th>
             @for (listing of listings(); track listing.id) {
               <td>
-                <a class="view-link" [routerLink]="['/listings', listing.id]">{{ 'listing.viewProperty' | translate }}</a>
+                <a class="view-link" [routerLink]="translation.path('listings', listing.id)">{{ 'listing.viewProperty' | translate }}</a>
               </td>
             }
           </tr>
@@ -163,10 +163,10 @@
             <button type="button" class="remove-btn" [attr.aria-label]="'comparison.remove' | translate" (click)="remove(listing.id)">
               <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
             </button>
-            <a [routerLink]="['/listings', listing.id]" class="card-photo">
+            <a [routerLink]="translation.path('listings', listing.id)" class="card-photo">
               <img [src]="listing.imageUrls[0] ?? defaultImage" [alt]="listing.title" />
             </a>
-            <a [routerLink]="['/listings', listing.id]" class="card-title">{{ listing.title }}</a>
+            <a [routerLink]="translation.path('listings', listing.id)" class="card-title">{{ listing.title }}</a>
             <p class="card-address">{{ listing.address }}</p>
 
             <dl class="card-specs">
@@ -258,7 +258,7 @@
               </div>
             </dl>
 
-            <a class="view-link" [routerLink]="['/listings', listing.id]">{{ 'listing.viewProperty' | translate }}</a>
+            <a class="view-link" [routerLink]="translation.path('listings', listing.id)">{{ 'listing.viewProperty' | translate }}</a>
           </div>
         }
       </div>

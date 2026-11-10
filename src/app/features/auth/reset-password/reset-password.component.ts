@@ -8,6 +8,7 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { passwordStrengthValidator } from '../../../shared/utils/password-strength';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 function passwordsMatch(control: AbstractControl): ValidationErrors | null {
   const password = control.get('newPassword')?.value;
@@ -28,6 +29,7 @@ export class ResetPasswordComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notification = inject(NotificationService);
+  protected readonly translation = inject(TranslationService);
 
   // Missing either param means the visitor didn't arrive via a real reset-password link (typed
   // the URL by hand, or an old/truncated link) — same "get a new link" dead end as an
@@ -48,7 +50,8 @@ export class ResetPasswordComponent {
     inject(SeoService).set({
       title: 'Restablecer contraseña',
       description: 'Elige una nueva contraseña para tu cuenta en Espacial.com.mx.',
-      path: '/reset-password'
+      path: this.translation.path('resetPassword'),
+      hreflang: this.translation.hreflangPaths('resetPassword')
     });
   }
 
@@ -61,7 +64,7 @@ export class ResetPasswordComponent {
     this.auth.resetPassword(this.email, this.token, this.form.getRawValue().newPassword).subscribe({
       next: () => {
         this.notification.success('resetPassword.success');
-        this.router.navigate(['/login']);
+        this.router.navigateByUrl(this.translation.path('login'));
       },
       // ResetPassword's 400 for an invalid/expired token (message: "Invalid or expired reset
       // link.") is common enough — the visitor clicked an old email — to get its own message

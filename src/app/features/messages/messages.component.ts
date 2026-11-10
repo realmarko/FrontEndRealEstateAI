@@ -9,6 +9,7 @@ import { TranslatePipe } from '../../shared/pipes/translate.pipe';
 import { SkeletonLoaderComponent } from '../../shared/components/skeleton-loader/skeleton-loader.component';
 import { StatePanelComponent } from '../../shared/components/state-panel/state-panel.component';
 import { SeoService } from '../../core/services/seo.service';
+import { TranslationService } from '../../core/services/translation.service';
 
 // Exact i18n key per value — a string-transform (e.g. camelCase -> "funding" + Titlecase)
 // would silently miss keys like fundingInfonavitFovissste or timelineOneToThreeMonths.
@@ -40,6 +41,7 @@ export class MessagesComponent implements OnInit {
 
   constructor(
     readonly inquiryService: InquiryService,
+    protected readonly translation: TranslationService,
     private readonly notification: NotificationService,
     seo: SeoService
   ) {

@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Agency } from '../../../core/models/agency.model';
 import { toSlug } from '../../../core/services/brokerage-api.adapter';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-agency-card',
@@ -13,6 +14,8 @@ import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 })
 export class AgencyCardComponent {
   @Input({ required: true }) agency!: Agency;
+
+  protected readonly translation = inject(TranslationService);
 
   get slug(): string {
     return toSlug(this.agency.name);

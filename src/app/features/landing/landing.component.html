@@ -51,8 +51,8 @@
         <h1>{{ 'landing.heroHeadline' | translate }}</h1>
         <p class="hero-body">{{ 'landing.heroBody' | translate }}</p>
         <div class="hero-ctas">
-          <a class="btn btn-primary" routerLink="/listings">{{ 'landing.heroSearchCta' | translate }}</a>
-          <a class="btn btn-ghost" [routerLink]="auth.isAuthenticated() ? '/map' : '/login'">
+          <a class="btn btn-primary" [routerLink]="translation.path('listings')">{{ 'landing.heroSearchCta' | translate }}</a>
+          <a class="btn btn-ghost" [routerLink]="auth.isAuthenticated() ? translation.path('map') : translation.path('login')">
             {{ 'landing.heroListCta' | translate }}
           </a>
         </div>
@@ -208,7 +208,7 @@
         <p class="geo-kicker">{{ 'landing.geoEyebrow' | translate }}</p>
         <h2>{{ 'landing.geoHeadline' | translate }}</h2>
         <p>{{ 'landing.geoBody' | translate }}</p>
-        <a class="btn btn-primary" routerLink="/map">{{ 'landing.geoCta' | translate }}</a>
+        <a class="btn btn-primary" [routerLink]="translation.path('map')">{{ 'landing.geoCta' | translate }}</a>
       </div>
       <div class="geo-stats">
         <div class="stat">
@@ -232,20 +232,20 @@
       <div class="footer-links">
         <div class="footer-col">
           <h4>{{ 'landing.footerBrowse' | translate }}</h4>
-          <a routerLink="/listings">{{ 'landing.footerSearch' | translate }}</a>
-          <a routerLink="/map">{{ 'landing.footerMap' | translate }}</a>
-          <a routerLink="/agents">{{ 'landing.footerAgents' | translate }}</a>
+          <a [routerLink]="translation.path('listings')">{{ 'landing.footerSearch' | translate }}</a>
+          <a [routerLink]="translation.path('map')">{{ 'landing.footerMap' | translate }}</a>
+          <a [routerLink]="translation.path('agents')">{{ 'landing.footerAgents' | translate }}</a>
         </div>
         <div class="footer-col">
           <h4>{{ 'landing.footerAccount' | translate }}</h4>
-          <a [routerLink]="auth.isAuthenticated() ? '/map' : '/login'">{{ 'landing.footerList' | translate }}</a>
-          <a routerLink="/login">{{ 'landing.footerLogin' | translate }}</a>
-          <a routerLink="/for-agents">{{ 'landing.footerForAgents' | translate }}</a>
+          <a [routerLink]="auth.isAuthenticated() ? translation.path('map') : translation.path('login')">{{ 'landing.footerList' | translate }}</a>
+          <a [routerLink]="translation.path('login')">{{ 'landing.footerLogin' | translate }}</a>
+          <a [routerLink]="translation.path('forAgents')">{{ 'landing.footerForAgents' | translate }}</a>
         </div>
         <div class="footer-col">
           <h4>{{ 'landing.footerLegal' | translate }}</h4>
-          <a routerLink="/privacy">{{ 'landing.footerPrivacy' | translate }}</a>
-          <a routerLink="/terms">{{ 'landing.footerTerms' | translate }}</a>
+          <a [routerLink]="translation.path('privacy')">{{ 'landing.footerPrivacy' | translate }}</a>
+          <a [routerLink]="translation.path('terms')">{{ 'landing.footerTerms' | translate }}</a>
         </div>
       </div>
     </div>

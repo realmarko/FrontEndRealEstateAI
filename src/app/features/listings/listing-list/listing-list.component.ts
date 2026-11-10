@@ -9,6 +9,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ListingType } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-listing-list',
@@ -47,13 +48,15 @@ export class ListingListComponent {
     private readonly savedSearchService: SavedSearchService,
     private readonly notification: NotificationService,
     protected readonly auth: AuthService,
+    protected readonly translation: TranslationService,
     seo: SeoService
   ) {
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
     seo.set({
       title: 'Propiedades en venta y renta',
       description: 'Busca casas, departamentos y terrenos en venta y renta en México, filtra por precio, tipo y ubicación.',
-      path: '/listings'
+      path: this.translation.path('listings'),
+      hreflang: this.translation.hreflangPaths('listings')
     });
   }
 

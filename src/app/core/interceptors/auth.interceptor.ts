@@ -4,11 +4,13 @@ import { Router } from '@angular/router';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
+import { TranslationService } from '../services/translation.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
   const notification = inject(NotificationService);
+  const translation = inject(TranslationService);
   const token = auth.token;
 
   const authedReq = token
@@ -35,7 +37,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             if (auth.token) {
               auth.logout();
               notification.error('auth.errors.sessionExpired');
-              router.navigate(['/login']);
+              router.navigateByUrl(translation.path('login'));
             }
             return throwError(() => err);
           }),

@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { TranslationService } from '../../core/services/translation.service';
 import { TranslatePipe } from './translate.pipe';
 
@@ -8,7 +9,7 @@ describe('TranslatePipe', () => {
 
   beforeEach(() => {
     localStorage.removeItem('reapp_lang');
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({ providers: [provideRouter([])] });
     translation = TestBed.inject(TranslationService);
     pipe = TestBed.runInInjectionContext(() => new TranslatePipe());
   });

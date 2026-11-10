@@ -56,7 +56,7 @@ export class AgentSignupComponent {
     inject(SeoService).set({
       title: this.isEditMode ? 'Editar perfil de agente' : 'Registrarse como agente',
       description: 'Crea o edita tu perfil de agente inmobiliario en Espacial.com.mx.',
-      path: this.isEditMode ? '/agents/edit' : '/agents/new'
+      path: this.isEditMode ? this.translation.path('agents', 'edit') : this.translation.path('agents', 'new')
     });
 
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
@@ -96,7 +96,7 @@ export class AgentSignupComponent {
       },
       error: (err) => {
         if (err.status === 404) {
-          this.router.navigate(['/agents/new']);
+          this.router.navigateByUrl(this.translation.path('agents', 'new'));
         } else {
           this.loading.set(false);
           this.loadError.set(true);
@@ -158,7 +158,7 @@ export class AgentSignupComponent {
     request.subscribe({
       next: (agent) => {
         this.notification.success(this.isEditMode ? 'agentSignup.updateSuccess' : 'agentSignup.success');
-        this.router.navigate(['/agents', toSlug(agent.name)]);
+        this.router.navigateByUrl(this.translation.path('agents', toSlug(agent.name)));
       },
       error: () => {
         this.submitting.set(false);

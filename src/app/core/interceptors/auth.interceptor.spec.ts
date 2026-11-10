@@ -6,6 +6,7 @@ import { Subject, defer, throwError } from 'rxjs';
 import { User } from '../models/user.model';
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
+import { TranslationService } from '../services/translation.service';
 import { authInterceptor } from './auth.interceptor';
 
 describe('authInterceptor', () => {
@@ -19,8 +20,11 @@ describe('authInterceptor', () => {
 
   beforeEach(() => {
     authSpy = jasmine.createSpyObj<AuthService>('AuthService', ['logout', 'refresh'], { token: 'jwt-abc' });
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate', 'navigateByUrl']);
     notificationSpy = jasmine.createSpyObj<NotificationService>('NotificationService', ['error']);
+    const translationSpy = jasmine.createSpyObj<TranslationService>('TranslationService', {
+      path: '/login'
+    });
 
     TestBed.configureTestingModule({
       providers: [
@@ -28,7 +32,8 @@ describe('authInterceptor', () => {
         provideHttpClientTesting(),
         { provide: AuthService, useValue: authSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: NotificationService, useValue: notificationSpy }
+        { provide: NotificationService, useValue: notificationSpy },
+        { provide: TranslationService, useValue: translationSpy }
       ]
     });
     http = TestBed.inject(HttpClient);
@@ -61,7 +66,7 @@ describe('authInterceptor', () => {
     retried.flush({});
 
     expect(authSpy.logout).not.toHaveBeenCalled();
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
+    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('logs out and redirects to /login when the refresh itself fails', () => {
@@ -74,7 +79,7 @@ describe('authInterceptor', () => {
 
     expect(authSpy.logout).toHaveBeenCalled();
     expect(notificationSpy.error).toHaveBeenCalledWith('auth.errors.sessionExpired');
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/login']);
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 
   it('does not log out on a 401 from /auth/login (wrong credentials, not an expired session)', () => {
@@ -84,7 +89,7 @@ describe('authInterceptor', () => {
 
     expect(authSpy.refresh).not.toHaveBeenCalled();
     expect(authSpy.logout).not.toHaveBeenCalled();
-    expect(routerSpy.navigate).not.toHaveBeenCalled();
+    expect(routerSpy.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('only logs out once when several authenticated requests 401 together and refresh fails', () => {
@@ -104,6 +109,6 @@ describe('authInterceptor', () => {
 
     expect(authSpy.logout).toHaveBeenCalledTimes(1);
     expect(notificationSpy.error).toHaveBeenCalledTimes(1);
-    expect(routerSpy.navigate).toHaveBeenCalledTimes(1);
+    expect(routerSpy.navigateByUrl).toHaveBeenCalledTimes(1);
   });
 });

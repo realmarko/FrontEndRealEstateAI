@@ -1,4 +1,4 @@
-<a class="card" [routerLink]="['/owners', slug]">
+<a class="card" [routerLink]="translation.path('owners', slug)">
   <div class="photo">
     @if (owner.photoUrl) {
       <img [src]="owner.photoUrl" [alt]="owner.name" />

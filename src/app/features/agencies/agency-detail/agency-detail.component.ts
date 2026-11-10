@@ -24,7 +24,7 @@ export class AgencyDetailComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly brokerageService = inject(BrokerageService);
   private readonly listingService = inject(ListingService);
-  private readonly translation = inject(TranslationService);
+  protected readonly translation = inject(TranslationService);
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
@@ -85,7 +85,8 @@ export class AgencyDetailComponent {
           description: agency.description
             ? agency.description
             : `Propiedades en venta y renta de ${agency.name} en Espacial.com.mx.`,
-          path: `/inmobiliarias/${toSlug(agency.name)}`,
+          path: this.translation.path('agencies', toSlug(agency.name)),
+          hreflang: this.translation.hreflangPaths('agencies', toSlug(agency.name)),
           image: agency.logoUrl,
           structuredData: this.buildStructuredData(agency)
         });
@@ -123,7 +124,7 @@ export class AgencyDetailComponent {
       '@type': 'RealEstateAgent',
       name: agency.name,
       image: agency.logoUrl || undefined,
-      url: `${this.seo.origin}/inmobiliarias/${toSlug(agency.name)}`,
+      url: `${this.seo.origin}${this.translation.path('agencies', toSlug(agency.name))}`,
       telephone: agency.phone || undefined,
       address:
         agency.city || agency.state

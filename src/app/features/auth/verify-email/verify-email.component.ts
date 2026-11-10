@@ -7,6 +7,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 @Component({
   selector: 'app-verify-email',
@@ -21,6 +22,7 @@ export class VerifyEmailComponent {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly notification = inject(NotificationService);
+  protected readonly translation = inject(TranslationService);
 
   // Missing email means the visitor didn't arrive via Register()'s redirect or a Login() 403 — the
   // form still renders (unlike ResetPasswordComponent's invalid-link screen) since typing the code
@@ -37,7 +39,8 @@ export class VerifyEmailComponent {
     inject(SeoService).set({
       title: 'Verificar correo',
       description: 'Verifica tu correo electrónico para activar tu cuenta en Espacial.com.mx.',
-      path: '/verify-email'
+      path: this.translation.path('verifyEmail'),
+      hreflang: this.translation.hreflangPaths('verifyEmail')
     });
   }
 
@@ -61,11 +64,11 @@ export class VerifyEmailComponent {
         // agent-profile path — a plain Owner registrant (and only that) goes to the Propietarios
         // profile form instead, same reasoning as navbar.component.ts's self-service upgrade.
         const destination = user.roles.includes('Agent')
-          ? '/agents/new'
+          ? this.translation.path('agents', 'new')
           : user.roles.includes('Owner')
-            ? '/owners/new'
-            : '/listings';
-        this.router.navigate([destination]);
+            ? this.translation.path('owners', 'new')
+            : this.translation.path('listings');
+        this.router.navigateByUrl(destination);
       },
       error: (err: HttpErrorResponse) => {
         this.verifying.set(false);
@@ -78,7 +81,7 @@ export class VerifyEmailComponent {
         // code that can never succeed anymore.
         if (typeof err.error?.message === 'string' && err.error.message.includes('already verified')) {
           this.notification.success('verifyEmail.alreadyVerified');
-          this.router.navigate(['/login']);
+          this.router.navigateByUrl(this.translation.path('login'));
           return;
         }
         this.notification.error('verifyEmail.invalidCode');

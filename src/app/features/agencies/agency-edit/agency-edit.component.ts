@@ -48,7 +48,7 @@ export class AgencyEditComponent {
     inject(SeoService).set({
       title: 'Editar mi inmobiliaria',
       description: 'Edita el perfil de tu inmobiliaria en Espacial.com.mx.',
-      path: '/inmobiliarias/edit'
+      path: this.translation.path('agencies', 'edit')
     });
 
     // No id route param on purpose: /brokerages/mine resolves it from the caller's own agent
@@ -118,7 +118,7 @@ export class AgencyEditComponent {
         next: (agency) => {
           this.submitting.set(false);
           this.notification.success('agencyEdit.success');
-          this.router.navigate(['/inmobiliarias', toSlug(agency.name)]);
+          this.router.navigateByUrl(this.translation.path('agencies', toSlug(agency.name)));
         },
         error: () => {
           this.submitting.set(false);

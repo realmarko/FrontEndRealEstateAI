@@ -1,47 +1,151 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://espacial.com.mx/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://espacial.com.mx/for-agents</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/for-agents" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/para-agentes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/para-agentes" />
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/para-agentes</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/for-agents" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/para-agentes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/para-agentes" />
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://espacial.com.mx/listings</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/listings" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/propiedades" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/propiedades" />
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/propiedades</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/listings" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/propiedades" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/propiedades" />
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/map</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/map" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/mapa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/mapa" />
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/mapa</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/map" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/mapa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/mapa" />
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/agents</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/agents" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/agentes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/agentes" />
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/agentes</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/agents" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/agentes" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/agentes" />
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/owners</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/owners" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/propietarios" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/propietarios" />
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/propietarios</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/owners" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/propietarios" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/propietarios" />
     <changefreq>daily</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/inmobiliarias</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/agencies" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/inmobiliarias" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/inmobiliarias" />
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/agencies</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/agencies" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/inmobiliarias" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/inmobiliarias" />
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/fraccionamientos</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/developments" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/fraccionamientos" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/fraccionamientos" />
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/developments</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/developments" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/fraccionamientos" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/fraccionamientos" />
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/privacy" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/privacidad" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/privacidad" />
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/privacidad</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/privacy" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/privacidad" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/privacidad" />
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
   <url>
     <loc>https://espacial.com.mx/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/terms" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/terminos" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/terminos" />
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/terminos</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/terms" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/terminos" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/terminos" />
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>

@@ -7,6 +7,7 @@ import { ListingService } from '../../../core/services/listing.service';
 import { DEFAULT_LISTING_IMAGE, Listing } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 import {
   AppreciationPotentialAtPoint,
   GeomarketingService,
@@ -41,6 +42,7 @@ export class ListingComparisonComponent {
   protected readonly comparison = inject(ComparisonService);
   private readonly listingService = inject(ListingService);
   private readonly geomarketing = inject(GeomarketingService);
+  protected readonly translation = inject(TranslationService);
 
   protected readonly defaultImage = DEFAULT_LISTING_IMAGE;
   protected readonly socioeconomicLevelLabelKeys = SOCIOECONOMIC_LEVEL_LABEL_KEYS;
@@ -62,7 +64,8 @@ export class ListingComparisonComponent {
     inject(SeoService).set({
       title: 'Comparar propiedades',
       description: 'Compara propiedades lado a lado en Espacial.com.mx.',
-      path: '/comparar'
+      path: this.translation.path('compare'),
+      hreflang: this.translation.hreflangPaths('compare')
     });
     this.fetchListings();
   }

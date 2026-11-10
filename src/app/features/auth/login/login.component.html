@@ -28,6 +28,6 @@
     </button>
   </div>
 
-  <p class="switch"><a routerLink="/forgot-password">{{ 'login.forgotPassword' | translate }}</a></p>
-  <p class="switch">{{ 'login.noAccount' | translate }} <a routerLink="/register">{{ 'login.registerLink' | translate }}</a></p>
+  <p class="switch"><a [routerLink]="translation.path('forgotPassword')">{{ 'login.forgotPassword' | translate }}</a></p>
+  <p class="switch">{{ 'login.noAccount' | translate }} <a [routerLink]="translation.path('register')">{{ 'login.registerLink' | translate }}</a></p>
 </div>

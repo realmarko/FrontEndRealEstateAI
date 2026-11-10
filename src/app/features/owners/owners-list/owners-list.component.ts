@@ -3,6 +3,7 @@ import { OwnerService } from '../../../core/services/owner.service';
 import { OwnerCardComponent } from '../components/owner-card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
+import { TranslationService } from '../../../core/services/translation.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -30,10 +31,12 @@ export class OwnersListComponent {
     // can go stale after actions elsewhere, same reasoning as AgentsListComponent.
     this.refreshNow();
 
+    const translation = inject(TranslationService);
     inject(SeoService).set({
       title: 'Directorio de propietarios',
       description: 'Directorio de propietarios con propiedades en venta y renta en México.',
-      path: '/owners'
+      path: translation.path('owners'),
+      hreflang: translation.hreflangPaths('owners')
     });
   }
 

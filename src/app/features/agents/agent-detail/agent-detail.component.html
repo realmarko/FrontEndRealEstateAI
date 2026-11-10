@@ -1,6 +1,6 @@
 @if (agent(); as agent) {
   <div class="page detail">
-    <a class="back" routerLink="/agents">
+    <a class="back" [routerLink]="translation.path('agents')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12" />
         <polyline points="12 19 5 12 12 5" />
@@ -73,14 +73,14 @@
             </span>
             @if (!auth.isAuthenticated()) {
               <p class="contact-blur-hint">
-                <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'agentDetail.loginToSeeContact' | translate }}
+                <a [routerLink]="translation.path('login')">{{ 'nav.logIn' | translate }}</a> {{ 'agentDetail.loginToSeeContact' | translate }}
               </p>
             }
           </div>
 
           <div class="id-card-actions">
             @if (isOwnProfile()) {
-              <a class="id-card-cta" routerLink="/agents/edit">{{ 'agentDetail.editProfile' | translate }}</a>
+              <a class="id-card-cta" [routerLink]="translation.path('agents', 'edit')">{{ 'agentDetail.editProfile' | translate }}</a>
             } @else {
               <button type="button" class="id-card-cta" (click)="openContactModal()">
                 {{ 'agentDetail.contact' | translate:{ name: agent.name } }}
@@ -162,7 +162,7 @@
           </button>
         </div>
       } @else {
-        <p class="login-prompt"><a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'agentDetail.loginToReview' | translate }}</p>
+        <p class="login-prompt"><a [routerLink]="translation.path('login')">{{ 'nav.logIn' | translate }}</a> {{ 'agentDetail.loginToReview' | translate }}</p>
       }
 
       @if (reviews().length) {
@@ -215,6 +215,6 @@
 } @else if (!loading()) {
   <div class="page">
     <p>{{ 'agentDetail.notFound' | translate }}</p>
-    <a routerLink="/agents">{{ 'agentDetail.back' | translate }}</a>
+    <a [routerLink]="translation.path('agents')">{{ 'agentDetail.back' | translate }}</a>
   </div>
 }

@@ -6,7 +6,7 @@
     (touchend)="onGalleryTouchEnd($event)"
     (touchcancel)="onGalleryTouchCancel()"
   >
-    <a [routerLink]="['/listings', listing.id]">
+    <a [routerLink]="translation.path('listings', listing.id)">
       <div class="photo-stack">
         <img class="photo" [src]="listing.imageUrls[activeImageIndex()] ?? defaultImage" [alt]="listing.title" />
         @if (fadeFromIndex(); as fromIndex) {
@@ -113,12 +113,12 @@
       </span>
     </p>
 
-    <h3><a [routerLink]="['/listings', listing.id]">{{ listing.title }}</a></h3>
+    <h3><a [routerLink]="translation.path('listings', listing.id)">{{ listing.title }}</a></h3>
     <p class="address">{{ listing.address }}</p>
     @if (landUseCategoryName; as categoryName) {
       <p class="land-use">{{ 'listingDetail.landUseAbbr' | translate:{ category: categoryName } }}</p>
     }
 
-    <a class="view-cta" [routerLink]="['/listings', listing.id]">{{ 'listing.viewProperty' | translate }}</a>
+    <a class="view-cta" [routerLink]="translation.path('listings', listing.id)">{{ 'listing.viewProperty' | translate }}</a>
   </div>
 </article>

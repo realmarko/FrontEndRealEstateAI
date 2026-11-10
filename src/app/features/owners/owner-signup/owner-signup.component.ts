@@ -49,7 +49,7 @@ export class OwnerSignupComponent {
     inject(SeoService).set({
       title: this.isEditMode ? 'Editar perfil de propietario' : 'Registrarse como propietario',
       description: 'Crea o edita tu perfil de propietario en Espacial.com.mx.',
-      path: this.isEditMode ? '/owners/edit' : '/owners/new'
+      path: this.isEditMode ? this.translation.path('owners', 'edit') : this.translation.path('owners', 'new')
     });
 
     if (this.isEditMode) {
@@ -72,7 +72,7 @@ export class OwnerSignupComponent {
       },
       error: (err) => {
         if (err.status === 404) {
-          this.router.navigate(['/owners/new']);
+          this.router.navigateByUrl(this.translation.path('owners', 'new'));
         } else {
           this.loading.set(false);
           this.loadError.set(true);
@@ -125,7 +125,7 @@ export class OwnerSignupComponent {
     request.subscribe({
       next: (owner) => {
         this.notification.success(this.isEditMode ? 'ownerSignup.updateSuccess' : 'ownerSignup.success');
-        this.router.navigate(['/owners', toSlug(owner.name)]);
+        this.router.navigateByUrl(this.translation.path('owners', toSlug(owner.name)));
       },
       error: (err) => {
         // Create specifically rejects an Agent-role user with its own 400 — a distinct message
@@ -146,7 +146,7 @@ export class OwnerSignupComponent {
             next: (owner) => {
               this.submitting.set(false);
               this.notification.success('ownerSignup.success');
-              this.router.navigate(['/owners', toSlug(owner.name)]);
+              this.router.navigateByUrl(this.translation.path('owners', toSlug(owner.name)));
             },
             error: () => {
               this.submitting.set(false);

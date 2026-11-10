@@ -30,7 +30,7 @@
       @for (inquiry of inquiryService.received(); track inquiry.id) {
         <li class="inquiry-card" [class.unread]="!inquiry.isRead" (click)="markRead(inquiry)">
           <div class="inquiry-header">
-            <a [routerLink]="['/listings', inquiry.listingId]" (click)="$event.stopPropagation()">{{ inquiry.listingTitle }}</a>
+            <a [routerLink]="translation.path('listings', inquiry.listingId)" (click)="$event.stopPropagation()">{{ inquiry.listingTitle }}</a>
             <span class="date">{{ inquiry.createdAt | date:'short' }}</span>
           </div>
 
@@ -106,7 +106,7 @@
   } @else {
     <app-state-panel kind="empty">
       {{ 'messages.emptyPrefix' | translate }}
-      <a routerLink="/listings">{{ 'messages.browseLink' | translate }}</a>
+      <a [routerLink]="translation.path('listings')">{{ 'messages.browseLink' | translate }}</a>
       {{ 'messages.emptySuffix' | translate }}
     </app-state-panel>
   }

@@ -1,6 +1,6 @@
 @if (listing(); as listing) {
   <div class="page detail">
-    <a class="back" routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>
+    <a class="back" [routerLink]="translation.path('listings')">{{ 'listingDetail.back' | translate }}</a>
 
     <div class="layout">
       <div class="gallery">
@@ -538,7 +538,7 @@
 
         @if (isOwner()) {
           <div class="owner-actions">
-            <a class="primary-link" [routerLink]="['/listings', listing.id, 'edit']">{{ 'listingDetail.edit' | translate }}</a>
+            <a class="primary-link" [routerLink]="translation.path('listings', listing.id, 'edit')">{{ 'listingDetail.edit' | translate }}</a>
             @if (isAgent()) {
               @if (inPipeline()) {
                 <a class="primary-link" routerLink="/pipeline">{{ 'listingDetail.viewInPipeline' | translate }}</a>
@@ -586,7 +586,7 @@
                 </button>
               } @else {
                 <p class="agent-login-prompt">
-                  <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
+                  <a [routerLink]="translation.path('login')">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
                 </p>
               }
             </div>
@@ -625,7 +625,7 @@
                   </button>
                 } @else {
                   <p class="agent-login-prompt">
-                    <a routerLink="/login">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
+                    <a [routerLink]="translation.path('login')">{{ 'nav.logIn' | translate }}</a> {{ 'listingDetail.loginToContact' | translate }}
                   </p>
                 }
               }
@@ -641,7 +641,7 @@
         }
 
         @if (isAdmin() && !isOwner()) {
-          <a class="primary-link admin-owner-contact-link" [routerLink]="['/listings', listing.id, 'edit']">
+          <a class="primary-link admin-owner-contact-link" [routerLink]="translation.path('listings', listing.id, 'edit')">
             {{ 'listingDetail.editOwnerContact' | translate }}
           </a>
         }
@@ -724,6 +724,6 @@
 } @else if (!loading()) {
   <div class="page">
     <p>{{ 'listingDetail.notFound' | translate }}</p>
-    <a routerLink="/listings">{{ 'listingDetail.back' | translate }}</a>
+    <a [routerLink]="translation.path('listings')">{{ 'listingDetail.back' | translate }}</a>
   </div>
 }

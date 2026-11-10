@@ -815,7 +815,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     seo.set({
       title: 'Mapa de propiedades',
       description: 'Explora propiedades en venta y renta en un mapa interactivo, filtra por zona, precio y tipo.',
-      path: '/map'
+      path: this.translation.path('map'),
+      hreflang: this.translation.hreflangPaths('map')
     });
 
     // Re-render markers whenever the filtered listings or the logged-in user change (so "my
@@ -1199,7 +1200,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     const navigate = (event: Event) => {
       event.preventDefault();
-      this.zone.run(() => this.router.navigate(['/inmobiliarias', toSlug(agency.name)]));
+      this.zone.run(() => this.router.navigateByUrl(this.translation.path('agencies', toSlug(agency.name))));
     };
 
     const container = document.createElement('div');
@@ -1242,7 +1243,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     const navigate = (event: Event) => {
       event.preventDefault();
-      this.zone.run(() => this.router.navigate(['/fraccionamientos', frac.id]));
+      this.zone.run(() => this.router.navigateByUrl(this.translation.path('developments', frac.id)));
     };
 
     const container = document.createElement('div');
@@ -1370,7 +1371,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     const navigate = (event: Event) => {
       event.preventDefault();
-      this.zone.run(() => this.router.navigate(['/listings', listing.id]));
+      this.zone.run(() => this.router.navigateByUrl(this.translation.path('listings', listing.id)));
     };
 
     const container = document.createElement('div');
@@ -2368,7 +2369,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   confirmLocation(): void {
     if (this.selectedLat === null || this.selectedLng === null) return;
 
-    const destination = this.addBrokerageMode ? '/inmobiliarias/new' : '/listings/new';
+    const destination = this.addBrokerageMode
+      ? this.translation.path('agencies', 'new')
+      : this.translation.path('listings', 'new');
     this.router.navigate([destination], {
       queryParams: { lat: this.selectedLat, lng: this.selectedLng }
     });

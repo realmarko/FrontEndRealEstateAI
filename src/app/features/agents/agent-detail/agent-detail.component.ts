@@ -29,7 +29,7 @@ export class AgentDetailComponent {
   private readonly router = inject(Router);
   private readonly agentService = inject(AgentService);
   private readonly notification = inject(NotificationService);
-  private readonly translation = inject(TranslationService);
+  protected readonly translation = inject(TranslationService);
   private readonly seo = inject(SeoService);
   protected readonly auth = inject(AuthService);
 
@@ -81,7 +81,8 @@ export class AgentDetailComponent {
           description: agent.bio
             ? agent.bio
             : `Perfil de ${agent.name}, agente inmobiliario en Espacial.com.mx. Consulta sus propiedades y reseñas.`,
-          path: `/agents/${toSlug(agent.name)}`,
+          path: this.translation.path('agents', toSlug(agent.name)),
+          hreflang: this.translation.hreflangPaths('agents', toSlug(agent.name)),
           image: agent.photoUrl,
           structuredData: this.buildStructuredData(agent)
         });
@@ -218,7 +219,7 @@ export class AgentDetailComponent {
     this.agentService.delete(this.agentId).subscribe({
       next: () => {
         this.notification.success('agentDetail.deleteSuccess');
-        this.router.navigate(['/agents']);
+        this.router.navigateByUrl(this.translation.path('agents'));
       },
       error: () => this.notification.error('agentDetail.deleteError')
     });
@@ -233,7 +234,7 @@ export class AgentDetailComponent {
       '@type': 'RealEstateAgent',
       name: agent.name,
       image: agent.photoUrl || undefined,
-      url: `${this.seo.origin}/agents/${toSlug(agent.name)}`,
+      url: `${this.seo.origin}${this.translation.path('agents', toSlug(agent.name))}`,
       worksFor: agent.company ? { '@type': 'Organization', name: agent.company } : undefined,
       aggregateRating:
         agent.reviewsCount > 0 && agent.averageRating != null

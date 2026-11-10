@@ -58,7 +58,7 @@ export class AgencyCreateComponent {
     inject(SeoService).set({
       title: 'Agregar inmobiliaria',
       description: 'Agrega una nueva inmobiliaria a Espacial.com.mx.',
-      path: '/inmobiliarias/new'
+      path: this.translation.path('agencies', 'new')
     });
 
     this.reverseGeocodeAddress(this.lat, this.lng);
@@ -130,7 +130,7 @@ export class AgencyCreateComponent {
         next: (agency) => {
           this.submitting.set(false);
           this.notification.success('agencyCreate.success');
-          this.router.navigate(['/inmobiliarias', toSlug(agency.name)]);
+          this.router.navigateByUrl(this.translation.path('agencies', toSlug(agency.name)));
         },
         error: () => {
           this.submitting.set(false);

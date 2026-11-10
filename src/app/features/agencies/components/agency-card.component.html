@@ -1,4 +1,4 @@
-<a class="card" [routerLink]="['/inmobiliarias', slug]">
+<a class="card" [routerLink]="translation.path('agencies', slug)">
   <div class="photo">
     @if (agency.logoUrl) {
       <img [src]="agency.logoUrl" [alt]="agency.name" />
