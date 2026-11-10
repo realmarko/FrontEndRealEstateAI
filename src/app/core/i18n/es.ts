@@ -990,7 +990,7 @@ export const es: Record<string, string> = {
   'landing.footerTerms': 'Términos y condiciones',
   'landing.footerForAgents': 'Para agentes e inmobiliarias',
 
-  'forAgents.heroEyebrow': 'Para agentes e inmobiliarias',
+  'forAgents.heroMapCaption': 'Zona analizada',
   'forAgents.heroHeadline': 'Capta más clientes con datos de mercado que tu competencia no tiene.',
   'forAgents.heroBody': 'Publica tu cartera sobre un mapa con población oficial del INEGI y densidad de negocios del DENUE por zona, y recibe contactos directos de quienes ya están buscando en tu área.',
   'forAgents.heroCtaPrimary': 'Crear cuenta gratis',

@@ -990,7 +990,7 @@ export const en: Record<string, string> = {
   'landing.footerTerms': 'Terms and conditions',
   'landing.footerForAgents': 'For agents and agencies',
 
-  'forAgents.heroEyebrow': 'For agents and agencies',
+  'forAgents.heroMapCaption': 'Analyzed zone',
   'forAgents.heroHeadline': 'Win more clients with market data your competitors don’t have.',
   'forAgents.heroBody': 'List your portfolio on a map with official INEGI population figures and DENUE business density by zone, and get direct contact from people already searching in your area.',
   'forAgents.heroCtaPrimary': 'Create a free account',
