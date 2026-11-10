@@ -13,7 +13,7 @@
           <a class="fa-btn fa-btn-primary" [routerLink]="translation.path('register')" [queryParams]="{ role: 'Agent' }">
             {{ 'forAgents.heroCtaPrimary' | translate }}
           </a>
-          <a class="fa-btn fa-btn-ghost" href="#como-funciona">{{ 'forAgents.heroCtaSecondary' | translate }}</a>
+          <button type="button" class="fa-btn fa-btn-ghost" (click)="scrollToHowItWorks()">{{ 'forAgents.heroCtaSecondary' | translate }}</button>
         </div>
         <p class="fa-hero-note">{{ 'forAgents.heroNote' | translate }}</p>
       </div>

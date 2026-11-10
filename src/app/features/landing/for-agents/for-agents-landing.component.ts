@@ -21,4 +21,17 @@ export class ForAgentsLandingComponent {
       hreflang: translation.hreflangPaths('forAgents')
     });
   }
+
+  // Deliberately a <button>, not an <a href="#id">: Angular's hydration event-dispatch queues the
+  // (click) handler for replay, which runs too late to preventDefault() the browser's own native
+  // anchor navigation — the href resolves against the app's base href ('/') and the visitor ends
+  // up on the HOME page's '#como-funciona' instead of scrolling down this one. A button has no
+  // navigation semantics to race against in the first place.
+  // Deliberately a <button>, not an <a href="#id">: a plain fragment href on this site's
+  // multi-page prerendered build resolves against the app's base href ('/') rather than the
+  // current page, so clicking it from /para-agentes landed on the HOME page's '#como-funciona'
+  // instead of scrolling down this one. A button has no navigation semantics to misfire.
+  scrollToHowItWorks(): void {
+    document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 }
