@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
@@ -46,6 +46,13 @@ export class RegisterComponent implements AfterViewInit {
       description: 'Crea tu cuenta gratis en Espacial.com.mx para publicar propiedades, contactar agentes y guardar búsquedas.',
       path: '/register'
     });
+
+    // Lets a marketing CTA (e.g. the agents/agencies landing) deep-link straight into the right
+    // role — snapshot only, since this component is never reused across a role-changing navigation.
+    const requestedRole = inject(ActivatedRoute).snapshot.queryParamMap.get('role');
+    if (requestedRole === 'Agent' || requestedRole === 'Owner' || requestedRole === 'Buyer') {
+      this.form.controls.role.setValue(requestedRole);
+    }
   }
 
   async ngAfterViewInit(): Promise<void> {

@@ -1,0 +1,137 @@
+<main class="fa">
+  <noscript>
+    <style>.fa-reveal { opacity: 1; transform: none; }</style>
+  </noscript>
+
+  <section class="fa-hero">
+    <div class="fa-hero-inner">
+      <p class="fa-eyebrow">{{ 'forAgents.heroEyebrow' | translate }}</p>
+      <h1>{{ 'forAgents.heroHeadline' | translate }}</h1>
+      <p class="fa-hero-body">{{ 'forAgents.heroBody' | translate }}</p>
+      <div class="fa-hero-ctas">
+        <a class="fa-btn fa-btn-primary" [routerLink]="['/register']" [queryParams]="{ role: 'Agent' }">
+          {{ 'forAgents.heroCtaPrimary' | translate }}
+        </a>
+        <a class="fa-btn fa-btn-ghost" href="#como-funciona">{{ 'forAgents.heroCtaSecondary' | translate }}</a>
+      </div>
+      <p class="fa-hero-note">{{ 'forAgents.heroNote' | translate }}</p>
+    </div>
+  </section>
+
+  <section class="fa-stats" aria-label="Datos de la plataforma">
+    <div class="fa-stats-inner">
+      <div class="fa-stat">
+        <span class="fa-stat-value">{{ 'forAgents.stat1Value' | translate }}</span>
+        <span class="fa-stat-label">{{ 'forAgents.stat1Label' | translate }}</span>
+      </div>
+      <div class="fa-stat">
+        <span class="fa-stat-value">{{ 'forAgents.stat2Value' | translate }}</span>
+        <span class="fa-stat-label">{{ 'forAgents.stat2Label' | translate }}</span>
+      </div>
+      <div class="fa-stat">
+        <span class="fa-stat-value">{{ 'forAgents.stat3Value' | translate }}</span>
+        <span class="fa-stat-label">{{ 'forAgents.stat3Label' | translate }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="fa-values" aria-label="Por qué usar la plataforma">
+    <h2>{{ 'forAgents.valuesHeadline' | translate }}</h2>
+    <div class="fa-values-grid">
+      <article class="fa-card">
+        <svg class="fa-card-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="3" fill="currentColor" />
+          <circle cx="20" cy="20" r="9" stroke="currentColor" stroke-width="2" />
+          <circle cx="20" cy="20" r="15" stroke="currentColor" stroke-width="2" opacity="0.5" />
+        </svg>
+        <h3>{{ 'forAgents.value1Title' | translate }}</h3>
+        <p>{{ 'forAgents.value1Body' | translate }}</p>
+      </article>
+      <article class="fa-card">
+        <svg class="fa-card-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 12h24v14H18l-6 5v-5H8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+          <path d="M14 19l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <h3>{{ 'forAgents.value2Title' | translate }}</h3>
+        <p>{{ 'forAgents.value2Body' | translate }}</p>
+      </article>
+      <article class="fa-card">
+        <svg class="fa-card-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14 14c0-4.4 3.6-8 8-8s8 3.6 8 8c0 6-8 15-8 15s-8-9-8-15Z" stroke="currentColor" stroke-width="2" />
+          <circle cx="22" cy="14" r="3" stroke="currentColor" stroke-width="2" />
+          <path d="M8 30c0-2.2 3.6-4 8-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <h3>{{ 'forAgents.value3Title' | translate }}</h3>
+        <p>{{ 'forAgents.value3Body' | translate }}</p>
+      </article>
+      <article class="fa-card">
+        <svg class="fa-card-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="8" width="28" height="24" rx="2" stroke="currentColor" stroke-width="2" />
+          <circle cx="14" cy="17" r="3" stroke="currentColor" stroke-width="2" />
+          <path d="M9 27c0-3 2.5-5 5-5s5 2 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <path d="M23 15h7M23 20h7M23 25h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <h3>{{ 'forAgents.value4Title' | translate }}</h3>
+        <p>{{ 'forAgents.value4Body' | translate }}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="fa-how" id="como-funciona">
+    <h2>{{ 'forAgents.howHeadline' | translate }}</h2>
+    <ol class="fa-steps">
+      <li>
+        <span class="fa-step-num">1</span>
+        <div>
+          <h3>{{ 'forAgents.howStep1Title' | translate }}</h3>
+          <p>{{ 'forAgents.howStep1Body' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="fa-step-num">2</span>
+        <div>
+          <h3>{{ 'forAgents.howStep2Title' | translate }}</h3>
+          <p>{{ 'forAgents.howStep2Body' | translate }}</p>
+        </div>
+      </li>
+      <li>
+        <span class="fa-step-num">3</span>
+        <div>
+          <h3>{{ 'forAgents.howStep3Title' | translate }}</h3>
+          <p>{{ 'forAgents.howStep3Body' | translate }}</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="fa-agency">
+    <div class="fa-agency-inner">
+      <div class="fa-agency-copy">
+        <p class="fa-eyebrow fa-eyebrow-light">{{ 'forAgents.agencyEyebrow' | translate }}</p>
+        <h2>{{ 'forAgents.agencyHeadline' | translate }}</h2>
+        <p>{{ 'forAgents.agencyBody' | translate }}</p>
+        <a class="fa-btn fa-btn-primary" [routerLink]="['/register']" [queryParams]="{ role: 'Agent' }">
+          {{ 'forAgents.agencyCta' | translate }}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="fa-final">
+    <h2>{{ 'forAgents.finalHeadline' | translate }}</h2>
+    <p>{{ 'forAgents.finalBody' | translate }}</p>
+    <a class="fa-btn fa-btn-primary fa-btn-lg" [routerLink]="['/register']" [queryParams]="{ role: 'Agent' }">
+      {{ 'forAgents.finalCta' | translate }}
+    </a>
+  </section>
+
+  <footer class="fa-footer">
+    <span>{{ 'forAgents.footerNote' | translate }}</span>
+    <nav class="fa-footer-links">
+      <a routerLink="/">{{ 'forAgents.footerHome' | translate }}</a>
+      <a routerLink="/login">{{ 'landing.footerLogin' | translate }}</a>
+      <a routerLink="/privacy">{{ 'landing.footerPrivacy' | translate }}</a>
+      <a routerLink="/terms">{{ 'landing.footerTerms' | translate }}</a>
+    </nav>
+  </footer>
+</main>

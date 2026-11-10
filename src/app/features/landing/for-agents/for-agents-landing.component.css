@@ -1,0 +1,361 @@
+:host {
+  display: block;
+  color: var(--ink);
+  background: #fff;
+}
+
+.fa h1,
+.fa h2,
+.fa h3 {
+  font-weight: 500;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.fa p {
+  margin: 0;
+}
+
+/* ---------- Buttons ---------- */
+.fa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  cursor: pointer;
+}
+
+.fa-btn-primary {
+  background: var(--gold);
+  color: var(--on-gold);
+}
+
+.fa-btn-primary:hover {
+  background: var(--gold-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(198, 161, 91, 0.3);
+}
+
+.fa-btn-ghost {
+  border-color: #fff;
+  color: #fff;
+  background: transparent;
+}
+
+.fa-btn-ghost:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.fa-btn-lg {
+  padding: var(--space-4) var(--space-8);
+  font-size: 1.05rem;
+}
+
+.fa-btn:active {
+  transform: scale(0.97);
+}
+
+.fa-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ---------- Hero ---------- */
+.fa-hero {
+  background: var(--navy);
+  padding: var(--space-20) var(--space-6) var(--space-16);
+}
+
+.fa-hero-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.fa-eyebrow {
+  display: inline-block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-5);
+}
+
+.fa-hero h1 {
+  font-size: clamp(2.1rem, 4.5vw, 3.1rem);
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.fa-hero-body {
+  margin-top: var(--space-5);
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--silver);
+  max-width: 56ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fa-hero-ctas {
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  margin-top: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.fa-hero-note {
+  margin-top: var(--space-6);
+  font-size: 0.85rem;
+  color: #8a8f98;
+}
+
+/* ---------- Stats ---------- */
+.fa-stats {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.fa-stats-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-6);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+  text-align: center;
+}
+
+.fa-stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.fa-stat-label {
+  display: block;
+  margin-top: var(--space-2);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+
+/* ---------- Value props ---------- */
+.fa-values {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-20) var(--space-6);
+}
+
+.fa-values h2 {
+  text-align: center;
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  margin-bottom: var(--space-12);
+}
+
+.fa-values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-6);
+}
+
+.fa-card {
+  padding: var(--space-6);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fa-card-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--gold);
+}
+
+.fa-card h3 {
+  font-size: 1.05rem;
+}
+
+.fa-card p {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ---------- How it works ---------- */
+.fa-how {
+  background: #faf9f7;
+  padding: var(--space-20) var(--space-6);
+  scroll-margin-top: var(--space-10);
+}
+
+.fa-how h2 {
+  text-align: center;
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  margin-bottom: var(--space-12);
+}
+
+.fa-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-8);
+}
+
+.fa-steps li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.fa-step-num {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.fa-steps h3 {
+  font-size: 1.05rem;
+}
+
+.fa-steps p {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* ---------- Agency callout ---------- */
+.fa-agency {
+  background: var(--navy);
+  padding: var(--space-20) var(--space-6);
+}
+
+.fa-agency-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.fa-eyebrow-light {
+  color: var(--gold);
+}
+
+.fa-agency h2 {
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  color: #fff;
+}
+
+.fa-agency p {
+  margin-top: var(--space-4);
+  line-height: 1.6;
+  color: var(--silver);
+}
+
+.fa-agency .fa-btn {
+  margin-top: var(--space-7);
+}
+
+/* ---------- Final CTA ---------- */
+.fa-final {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: var(--space-20) var(--space-6);
+  text-align: center;
+}
+
+.fa-final h2 {
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+}
+
+.fa-final p {
+  margin-top: var(--space-4);
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.fa-final .fa-btn {
+  margin-top: var(--space-7);
+}
+
+/* ---------- Footer ---------- */
+.fa-footer {
+  border-top: 1px solid var(--hairline);
+  padding: var(--space-8) var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.fa-footer-links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.fa-footer-links a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.fa-footer-links a:hover {
+  color: var(--gold);
+}
+
+.fa-footer-links a:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ---------- Tablet / mobile ---------- */
+@media (max-width: 900px) {
+  .fa-values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .fa-hero-ctas {
+    flex-direction: column;
+  }
+
+  .fa-hero-ctas .fa-btn {
+    width: 100%;
+  }
+
+  .fa-stats-inner {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  .fa-values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fa-steps {
+    grid-template-columns: 1fr;
+  }
+
+  .fa-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
