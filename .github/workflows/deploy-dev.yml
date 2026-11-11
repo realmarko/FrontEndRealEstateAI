@@ -100,6 +100,16 @@ jobs:
 
       - name: Invalidate CloudFront cache
         run: |
-          aws cloudfront create-invalidation \
+          id=$(aws cloudfront create-invalidation \
             --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" \
-            --paths '/*'
+            --paths '/*' \
+            --query 'Invalidation.Id' --output text)
+          aws cloudfront wait invalidation-completed \
+            --distribution-id "$CLOUDFRONT_DISTRIBUTION_ID" --id "$id"
+
+      # Catches, e.g., a CloudFront distribution missing its routing function (see
+      # infra/cloudfront-functions/spa-routing.js) — every non-root route silently serving the
+      # home page's HTML to anything that doesn't execute JS (Google, WhatsApp/Facebook link
+      # previews). A real incident (2026-11-10/11), invisible in a normal browser.
+      - name: Smoke test deployed site
+        run: bash scripts/smoke-test.sh https://dev.espacial.com.mx

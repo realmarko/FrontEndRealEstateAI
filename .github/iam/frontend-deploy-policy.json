@@ -15,7 +15,7 @@
     {
       "Sid": "InvalidateCloudFront",
       "Effect": "Allow",
-      "Action": ["cloudfront:CreateInvalidation"],
+      "Action": ["cloudfront:CreateInvalidation", "cloudfront:GetInvalidation"],
       "Resource": [
         "arn:aws:cloudfront::212901747626:distribution/E167T8J9F6YPOC",
         "arn:aws:cloudfront::212901747626:distribution/E24P5VX8CULI3A"
