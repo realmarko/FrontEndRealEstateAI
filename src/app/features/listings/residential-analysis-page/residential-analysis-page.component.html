@@ -1,0 +1,119 @@
+@if (loading()) {
+  <div class="page">
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>{{ 'residentialAnalysisPage.loadingListing' | translate }}</p>
+    </div>
+  </div>
+} @else if (notEligible() || !listing()) {
+  <div class="page">
+    <p>{{ 'listingDetail.notFound' | translate }}</p>
+    <a [routerLink]="translation.path('listings')">{{ 'listingDetail.back' | translate }}</a>
+  </div>
+} @else {
+  @let listingValue = listing()!;
+  <div class="page">
+    <a class="back" [routerLink]="translation.path('listings', listingValue.id)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+      {{ listingValue.title }}
+    </a>
+
+    <div class="report-header">
+      <h1>{{ 'residentialAnalysisPage.title' | translate }}</h1>
+      <p class="subtitle">
+        {{ listingValue.title }} · {{ listingValue.address }}
+        @if (analysis(); as a) {
+          · <a class="coordinates-link" [href]="'https://www.google.com/maps?q=' + a.lat + ',' + a.lng" target="_blank" rel="noopener">{{ a.lat | number: '1.5-5' }}, {{ a.lng | number: '1.5-5' }}</a>
+        }
+      </p>
+    </div>
+
+    @if (loadingAnalysis()) {
+      <div class="loading-state">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>{{ 'residentialAnalysisPage.loadingAnalysis' | translate }}</p>
+      </div>
+    } @else if (analysisError()) {
+      <p class="status">{{ 'residentialAnalysisPage.analysisError' | translate }}</p>
+    } @else if (analysis(); as a) {
+      <div class="kpi-row">
+        <div class="kpi kpi-hero">
+          <span class="kpi-label">{{ 'residentialAnalysisPage.kpiPricePerSqm' | translate }}</span>
+          @if (a.subjectPricePerSqm != null) {
+            <span class="kpi-value">${{ a.subjectPricePerSqm | number }}/m²</span>
+            @if (a.avgPricePerSqm != null) {
+              <span class="kpi-sub">{{ 'residentialAnalysisPage.marketAvg' | translate }}: ${{ a.avgPricePerSqm | number }}/m²</span>
+            }
+          } @else {
+            <span class="kpi-value kpi-unavailable">—</span>
+          }
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">{{ 'residentialAnalysisPage.kpiComparables' | translate }}</span>
+          <span class="kpi-value">{{ a.comparablesCount }}</span>
+          @if (a.percentileVsComparables != null) {
+            <span class="kpi-sub">{{ 'residentialAnalysisPage.percentileLabel' | translate }}: {{ a.percentileVsComparables }}</span>
+          }
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">{{ 'residentialAnalysisPage.populationLabel' | translate }}</span>
+          @if (a.populationDataAvailable) {
+            <span class="kpi-value">{{ a.populationInRadius | number }}</span>
+            <span class="kpi-sub">{{ 'residentialAnalysisPage.inhabitants' | translate }}</span>
+          } @else {
+            <span class="kpi-value kpi-unavailable">—</span>
+            <span class="kpi-sub">{{ 'residentialAnalysisPage.populationUnavailable' | translate }}</span>
+          }
+        </div>
+      </div>
+
+      <button type="button" class="primary-link download-pdf-cta" (click)="downloadResidentialAnalysisPdf()">
+        {{ 'residentialAnalysisPage.downloadPdfCta' | translate }}
+      </button>
+
+      @if (a.comparablesCount > 0) {
+        <div class="card">
+          <h3 class="card-title">{{ 'residentialAnalysisPage.comparablesTitle' | translate }}</h3>
+          <ul class="comparables-list">
+            @for (comparable of a.comparables; track comparable.id) {
+              <li>
+                <a class="comparable-link" [routerLink]="translation.path('listings', comparable.id)">{{ comparable.title }}</a>
+                <span class="comparable-price">${{ comparable.price | number }}</span>
+                <span class="comparable-area">{{ comparable.areaSqm | number }} m²</span>
+              </li>
+            }
+          </ul>
+        </div>
+      } @else {
+        <p class="status">{{ 'residentialAnalysisPage.noComparables' | translate }}</p>
+      }
+
+      @if (a.appreciationScore != null) {
+        <div class="card">
+          <h3 class="card-title">{{ 'residentialAnalysisPage.areaSignalsTitle' | translate }}</h3>
+          <p class="area-signal-line">
+            {{ 'residentialAnalysisPage.appreciationLabel' | translate }}: <strong>{{ a.appreciationScore | number: '1.0-0' }}/100</strong>
+          </p>
+          @if (a.appreciationExplanations.length) {
+            <ul class="explanations-list">
+              @for (explanation of a.appreciationExplanations; track explanation) {
+                <li>{{ explanation }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      @if (a.rentalYield; as yield) {
+        <div class="card">
+          <h3 class="card-title">{{ 'residentialAnalysisPage.rentalYieldTitle' | translate }}</h3>
+          <p class="area-signal-line">
+            {{ 'residentialAnalysisPage.rentalYieldDescription' | translate:{ count: yield.nearbyRentCount, avgRent: yield.avgMonthlyRent, pct: yield.estimatedAnnualYieldPct } }}
+          </p>
+        </div>
+      } @else {
+        <p class="status rental-yield-unavailable">{{ 'residentialAnalysisPage.rentalYieldUnavailable' | translate }}</p>
+      }
+    }
+  </div>
+}

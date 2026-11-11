@@ -12,6 +12,8 @@ import {
   LotShapeType,
   PriceHistoryEntry,
   PropertyType,
+  RentalYieldEstimate,
+  ResidentialAnalysis,
   TopographyType,
   VialidadType,
   ViabilityAnalysis
@@ -401,6 +403,54 @@ export function viabilityAnalysisFromDto(dto: ViabilityAnalysisDto): ViabilityAn
     trafficCongestionLevel: dto.trafficCongestionLevel,
     trafficCongestionRoadName: dto.trafficCongestionRoadName,
     trafficDataUnavailable: dto.trafficDataUnavailable
+  };
+}
+
+export interface RentalYieldEstimateDto {
+  nearbyRentCount: number;
+  avgMonthlyRent: number;
+  estimatedAnnualYieldPct: number;
+}
+
+export interface ResidentialAnalysisDto {
+  lat: number;
+  lng: number;
+  comparablesCount: number;
+  subjectPricePerSqm: number | null;
+  avgPricePerSqm: number | null;
+  medianPricePerSqm: number | null;
+  percentileVsComparables: number | null;
+  comparables: ListingDto[];
+  populationDataAvailable: boolean;
+  populationInRadius: number | null;
+  socioeconomicScore: number | null;
+  appreciationScore: number | null;
+  appreciationExplanations: string[];
+  rentalYield: RentalYieldEstimateDto | null;
+}
+
+export function residentialAnalysisFromDto(dto: ResidentialAnalysisDto): ResidentialAnalysis {
+  return {
+    lat: dto.lat,
+    lng: dto.lng,
+    comparablesCount: dto.comparablesCount,
+    subjectPricePerSqm: dto.subjectPricePerSqm,
+    avgPricePerSqm: dto.avgPricePerSqm,
+    medianPricePerSqm: dto.medianPricePerSqm,
+    percentileVsComparables: dto.percentileVsComparables,
+    comparables: dto.comparables.map(fromDto),
+    populationDataAvailable: dto.populationDataAvailable,
+    populationInRadius: dto.populationInRadius,
+    socioeconomicScore: dto.socioeconomicScore,
+    appreciationScore: dto.appreciationScore,
+    appreciationExplanations: dto.appreciationExplanations,
+    rentalYield: dto.rentalYield
+      ? {
+          nearbyRentCount: dto.rentalYield.nearbyRentCount,
+          avgMonthlyRent: dto.rentalYield.avgMonthlyRent,
+          estimatedAnnualYieldPct: dto.rentalYield.estimatedAnnualYieldPct
+        }
+      : null
   };
 }
 

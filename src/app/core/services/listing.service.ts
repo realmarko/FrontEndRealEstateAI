@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType, ViabilityAnalysis } from '../models/listing.model';
+import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType, ResidentialAnalysis, ViabilityAnalysis } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
@@ -12,11 +12,13 @@ import {
   ListingPriceHistoryDto,
   ListingQuotaDto,
   PROPERTY_TYPE_TO_NUMBER,
+  ResidentialAnalysisDto,
   ViabilityAnalysisDto,
   cmaResultFromDto,
   fromDto,
   listingDraftFromDto,
   priceHistoryFromDto,
+  residentialAnalysisFromDto,
   toFormData,
   viabilityAnalysisFromDto
 } from './listing-api.adapter';
@@ -116,6 +118,13 @@ export class ListingService {
   // the listing's own property type is eligible before calling this (404s otherwise).
   getViabilityPreview(id: string): Observable<ViabilityAnalysis> {
     return this.http.get<ViabilityAnalysisDto>(`${this.apiUrl}/${id}/viability-preview`).pipe(map(viabilityAnalysisFromDto));
+  }
+
+  // House/apartment counterpart to getViabilityPreview above — free, ungated.
+  getResidentialAnalysisPreview(id: string): Observable<ResidentialAnalysis> {
+    return this.http
+      .get<ResidentialAnalysisDto>(`${this.apiUrl}/${id}/residential-analysis-preview`)
+      .pipe(map(residentialAnalysisFromDto));
   }
 
   // Best-effort autofill for /listings/new: sends a pasted classified-ad text, gets back the

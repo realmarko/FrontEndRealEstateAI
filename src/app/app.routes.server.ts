@@ -95,6 +95,7 @@ export const serverRoutes: ServerRoute[] = [
   // that doesn't need search-engine/link-preview treatment the way the listing page does.
   // Deferred from the EN/ES slug pass (see route-slugs.ts) — single path, English segment only.
   { path: 'listings/:id/viabilidad-comercial', renderMode: RenderMode.Client },
+  { path: 'listings/:id/analisis-residencial', renderMode: RenderMode.Client },
   { path: 'admin/inmobiliarias/:id/edit', renderMode: RenderMode.Client },
   ...bothLangs('listings').map(
     (slug): ServerRoute => ({

@@ -498,6 +498,21 @@
           }
         </ng-template>
 
+        <!-- Mutually exclusive with viabilitySection above (isHouseOrApartment and
+             isLandOrCommercial can never both be true for the same listing) — same shared-between-
+             owner-and-visitor placement. -->
+        <ng-template #residentialAnalysisSection>
+          @if (isHouseOrApartment()) {
+            <div class="viability-section">
+              <h2 class="section-title">{{ 'listingDetail.residentialAnalysisTitle' | translate }}</h2>
+              <p class="viability-intro">{{ 'listingDetail.residentialAnalysisIntro' | translate }}</p>
+              <a class="primary-link viability-cta" [routerLink]="['/listings', listing.id, 'analisis-residencial']">
+                {{ 'listingDetail.residentialAnalysisCta' | translate }}
+              </a>
+            </div>
+          }
+        </ng-template>
+
         <div class="action-row">
           <button type="button" class="fav" [class.active]="isFavorite()" [attr.aria-pressed]="isFavorite()" (click)="toggleFavorite()">
             <svg class="btn-icon" viewBox="0 0 24 24" [attr.fill]="isFavorite() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -552,6 +567,7 @@
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
           <ng-container *ngTemplateOutlet="viabilitySection" />
+          <ng-container *ngTemplateOutlet="residentialAnalysisSection" />
         } @else {
           @if (isAdmin()) {
             <div class="owner-actions">
@@ -560,6 +576,7 @@
             </div>
           }
           <ng-container *ngTemplateOutlet="viabilitySection" />
+          <ng-container *ngTemplateOutlet="residentialAnalysisSection" />
 
           @if (!listing.hideAgentContact) {
             <div class="agent-card">

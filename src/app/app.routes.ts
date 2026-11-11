@@ -71,6 +71,15 @@ export const routes: Routes = [
         (m) => m.ViabilityReportPageComponent
       )
   },
+  {
+    // Same deferral as viabilidad-comercial above — single untouched path, not part of the
+    // EN/ES slug pass.
+    path: 'listings/:id/analisis-residencial',
+    loadComponent: () =>
+      import('./features/listings/residential-analysis-page/residential-analysis-page.component').then(
+        (m) => m.ResidentialAnalysisPageComponent
+      )
+  },
   ...pairRoutes('listings', ':id', {
     loadComponent: () =>
       import('./features/listings/listing-detail/listing-detail.component').then(

@@ -373,6 +373,35 @@ export interface ViabilityAnalysis {
   trafficDataUnavailable: boolean;
 }
 
+// House/apartment counterpart to ViabilityAnalysis — comparables-based pricing instead of
+// business-type scoring. See ResidentialAnalysisPageComponent / ListingService.getResidentialAnalysisPreview.
+export interface RentalYieldEstimate {
+  nearbyRentCount: number;
+  avgMonthlyRent: number;
+  estimatedAnnualYieldPct: number;
+}
+
+export interface ResidentialAnalysis {
+  lat: number;
+  lng: number;
+  comparablesCount: number;
+  subjectPricePerSqm: number | null;
+  avgPricePerSqm: number | null;
+  medianPricePerSqm: number | null;
+  // 0-100: share of comparables priced at or below the subject's price/m². Null when there
+  // aren't enough comparables with a known area to rank against.
+  percentileVsComparables: number | null;
+  comparables: Listing[];
+  populationDataAvailable: boolean;
+  populationInRadius: number | null;
+  socioeconomicScore: number | null;
+  appreciationScore: number | null;
+  appreciationExplanations: string[];
+  // Null (never a fabricated estimate) when too few real nearby rentals exist — see the
+  // backend's ResidentialAnalysisService.MinRentListingsForYield.
+  rentalYield: RentalYieldEstimate | null;
+}
+
 // Best-effort extraction from a pasted classified-ad text (/listings/new's "paste and
 // autofill"), used to patchValue() the form — every field nullable/absent by design, since this
 // is a draft the owner must still review, not a validated listing. See ListingDraftParsingService
