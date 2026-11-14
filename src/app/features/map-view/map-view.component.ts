@@ -55,6 +55,7 @@ import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
 import { normalizeText } from '../../shared/utils/normalize-text';
 import { parseCoordinates } from '../../shared/utils/parse-coordinates';
+import { loadGoogleMaps } from '../../core/utils/load-google-maps';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
   DEFAULT_INTEREST_RATE_PERCENT,
@@ -64,7 +65,6 @@ import {
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 16;
-const GOOGLE_LOAD_POLL_MS = 100;
 
 // Bounds how long the initial load waits on the "latest listing" fetch before giving up and
 // opening at DEFAULT_CENTER instead — without this, a slow/unresponsive backend would leave the
@@ -793,7 +793,6 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
   private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
-  private pollHandle?: ReturnType<typeof setInterval>;
 
   constructor(
     private readonly router: Router,
@@ -837,40 +836,43 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.waitForGoogleMaps();
   }
 
+  // Guards the loadGoogleMaps().then() below: if the visitor navigates away from /map before the
+  // (possibly slow) script finishes loading, this component is destroyed but the Promise still
+  // resolves later — without this flag, that stale callback would call initMap() on a torn-down
+  // instance (building a real google.maps.Map bound to an already-detached DOM node, left running
+  // with no way to ever get garbage-collected). The old setInterval-based poll this replaced had
+  // the same hazard and guarded it the same way, via ngOnDestroy clearing its interval handle.
+  private destroyed = false;
+
   ngOnDestroy(): void {
-    if (this.pollHandle) {
-      clearInterval(this.pollHandle);
-    }
+    this.destroyed = true;
     this.detachFreehandListeners();
   }
 
+  // Delegates to the same shared loader every other map-using page already awaits
+  // (listing-detail, viability-report-page, agency-create, listing-form) instead of hand-rolling
+  // a setInterval poll with its own fixed timeout — that poll previously declared `hasError =
+  // true` (and gave up for good, never retrying) whenever the script happened to take longer
+  // than its hardcoded 10s window, which real-world network variance hits intermittently. A
+  // Promise that resolves on the script's own 'load' event has no such arbitrary ceiling: it
+  // waits exactly as long as the script genuinely takes, and only errors if the script itself
+  // fails to load (see load-google-maps.ts's onerror).
   private waitForGoogleMaps(): void {
-    if (typeof google !== 'undefined' && google.maps) {
-      // Deferred a tick even on this already-loaded path (e.g. navigating back to /map with the
-      // script already cached): calling initMap synchronously here runs it inside the same
-      // change-detection pass as ngAfterViewInit itself, and initMap eventually sets `mapReady`
-      // — a value that pass already rendered — which trips Angular's dev-mode
-      // ExpressionChangedAfterItHasBeenCheckedError (NG0100). setTimeout hands it a fresh
-      // macrotask/CD cycle instead, matching how the polling branch below already behaves.
-      setTimeout(() => this.initMap());
-      return;
-    }
-
-    this.pollHandle = setInterval(() => {
-      if (typeof google !== 'undefined' && google.maps) {
-        clearInterval(this.pollHandle);
-        this.initMap();
-      }
-    }, GOOGLE_LOAD_POLL_MS);
-
-    setTimeout(() => {
-      if (this.pollHandle) {
-        clearInterval(this.pollHandle);
-        if (typeof google === 'undefined' || !google.maps) {
-          this.hasError = true;
-        }
-      }
-    }, 10000);
+    // Deferred a tick even on the already-loaded path (e.g. navigating back to /map with the
+    // script already cached): calling initMap synchronously here runs it inside the same
+    // change-detection pass as ngAfterViewInit itself, and initMap eventually sets `mapReady` —
+    // a value that pass already rendered — which trips Angular's dev-mode
+    // ExpressionChangedAfterItHasBeenCheckedError (NG0100).
+    loadGoogleMaps()
+      .then(() => {
+        if (this.destroyed) return;
+        setTimeout(() => {
+          if (!this.destroyed) this.initMap();
+        });
+      })
+      .catch(() => {
+        if (!this.destroyed) this.hasError = true;
+      });
   }
 
   // A /listings/{id} "view on map" link takes priority over the "most recent listing" default

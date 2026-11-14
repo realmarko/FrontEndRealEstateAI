@@ -733,8 +733,7 @@ export const en: Record<string, string> = {
   'map.cmaRange': 'Price range',
   'map.cmaAvgDaysOnMarket': 'Avg. days on market',
   'map.cmaComparables': 'Comparable listings',
-  'map.loadError':
-    'Could not load Google Maps. Check that the API key in index.html is valid and that the required APIs are enabled.',
+  'map.loadError': 'Could not load Google Maps. Check your internet connection and try reloading the page.',
 
   'agents.title': 'Find a real estate agent',
   'agents.searchPlaceholder': 'Search by agent name',

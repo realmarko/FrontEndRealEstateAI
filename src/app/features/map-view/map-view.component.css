@@ -232,8 +232,11 @@
   background: #4285f4;
 }
 
+/* Matches OTHER_LISTING_ICON's own fill (#D4AF37, map-view.component.ts) — this used to be
+   #ea4335 (red), a color no marker on the map actually uses, so the legend never matched what
+   was really on the map. */
 .map-legend .dot.other {
-  background: #ea4335;
+  background: #d4af37;
   margin-left: 0.7rem;
 }
 

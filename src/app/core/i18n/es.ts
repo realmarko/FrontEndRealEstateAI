@@ -733,8 +733,7 @@ export const es: Record<string, string> = {
   'map.cmaRange': 'Rango de precio',
   'map.cmaAvgDaysOnMarket': 'Días promedio en mercado',
   'map.cmaComparables': 'Propiedades comparables',
-  'map.loadError':
-    'No se pudo cargar Google Maps. Verifica que la API key en index.html sea válida y que las APIs estén habilitadas.',
+  'map.loadError': 'No se pudo cargar Google Maps. Revisa tu conexión a internet e intenta recargar la página.',
 
   'agents.title': 'Encuentra un agente inmobiliario',
   'agents.searchPlaceholder': 'Buscar por nombre del agente',
