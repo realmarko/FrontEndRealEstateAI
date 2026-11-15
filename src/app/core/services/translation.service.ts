@@ -9,7 +9,14 @@ import { LogicalKey, localizedPath } from '../routing/route-slugs';
 
 export type Lang = 'en' | 'es';
 
-const LANG_KEY = 'reapp_lang';
+// Renamed from the pre-Spanish-default 'reapp_lang' (one-time migration, not a cosmetic rename):
+// that key could hold 'en' for any returning visitor from before Spanish became the default —
+// written back then by the old navigator.language-detection logic, not necessarily an explicit
+// choice — and the home route carries no data.lang to correct it (see deepestRouteLang's own
+// comment: routes with no data.lang leave the signal untouched). Rotating the key makes every
+// such visitor re-evaluate under the new 'es'-by-default rule exactly once; an explicit toggle
+// click afterward writes to (and is then read back from) this new key as expected.
+const LANG_KEY = 'reapp_lang_v2';
 const DICTIONARIES: Record<Lang, Record<string, string>> = { en, es };
 
 @Injectable({ providedIn: 'root' })
