@@ -14,7 +14,7 @@ describe('ResetPasswordComponent', () => {
     // No TranslationService override here — the real singleton is used, so pin its language
     // deterministically (default 'es', no stored preference) rather than depend on whatever an
     // earlier spec file left in this shared browser's localStorage.
-    localStorage.removeItem('reapp_lang');
+    localStorage.removeItem('reapp_lang_v2');
     authServiceSpy = jasmine.createSpyObj('AuthService', ['resetPassword']);
     notificationSpy = jasmine.createSpyObj('NotificationService', ['error', 'success']);
 

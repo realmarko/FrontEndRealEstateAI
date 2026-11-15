@@ -8,7 +8,7 @@ describe('TranslatePipe', () => {
   let translation: TranslationService;
 
   beforeEach(() => {
-    localStorage.removeItem('reapp_lang');
+    localStorage.removeItem('reapp_lang_v2');
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     translation = TestBed.inject(TranslationService);
     pipe = TestBed.runInInjectionContext(() => new TranslatePipe());

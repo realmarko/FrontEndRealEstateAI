@@ -7,7 +7,7 @@ describe('TranslationService', () => {
   let service: TranslationService;
 
   beforeEach(() => {
-    localStorage.removeItem('reapp_lang');
+    localStorage.removeItem('reapp_lang_v2');
     TestBed.configureTestingModule({ providers: [provideRouter([])] });
     service = TestBed.inject(TranslationService);
   });
@@ -33,7 +33,7 @@ describe('TranslationService', () => {
 
   it('persists the selected language across instances via localStorage', () => {
     service.setLang('es');
-    expect(localStorage.getItem('reapp_lang')).toBe('es');
+    expect(localStorage.getItem('reapp_lang_v2')).toBe('es');
 
     // TranslationService now injects DOCUMENT/PLATFORM_ID (for SSR safety), so a fresh instance
     // must be constructed inside an injection context — a bare `new TranslationService()` throws
