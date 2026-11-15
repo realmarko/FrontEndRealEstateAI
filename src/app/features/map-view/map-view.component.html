@@ -138,6 +138,9 @@
 
   <div class="map-content">
     <div class="map-pane" [class.mobile-active]="mobileView() === 'map'">
+      @if (isOffline()) {
+        <div class="offline-banner" role="status">{{ 'map.offlineBanner' | translate }}</div>
+      }
       <div class="mobile-results-badge" *ngIf="mobileView() === 'map' && !freehandShape()">
         {{ 'map.resultsInView' | translate:{ count: visibleListings().length } }}
       </div>
@@ -183,6 +186,7 @@
                   id="map-poi-toggle-btn"
                   type="button"
                   class="poi-toggle-btn"
+                  appTooltip="map.togglePoi"
                   [class.active]="showPoiChecklist()"
                   [attr.aria-label]="'map.togglePoi' | translate"
                   [attr.aria-expanded]="showPoiChecklist()"
@@ -199,6 +203,7 @@
                 id="map-freehand-btn"
                 type="button"
                 class="freehand-btn"
+                appTooltip="map.freehandDraw"
                 [class.active]="freehandMode"
                 [attr.aria-label]="'map.freehandDraw' | translate"
                 [attr.aria-pressed]="freehandMode"
@@ -206,6 +211,20 @@
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 19l7-7 3 3-7 7-3-3z" /><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" /><path d="M2 2l7.586 7.586" /><circle cx="11" cy="11" r="2" />
+                </svg>
+              </button>
+              <button
+                id="map-fraccionamientos-toggle-btn"
+                type="button"
+                class="fraccionamiento-toggle-btn"
+                appTooltip="map.toggleFraccionamientos"
+                [class.active]="showFraccionamientos()"
+                [attr.aria-label]="'map.toggleFraccionamientos' | translate"
+                [attr.aria-pressed]="showFraccionamientos()"
+                (click)="toggleFraccionamientos()"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 10.5 12 3l9 7.5" /><path d="M5 9v11h14V9" /><path d="M9 20v-6h6v6" />
                 </svg>
               </button>
             </ng-container>
@@ -219,6 +238,7 @@
                 id="map-opportunity-btn"
                 type="button"
                 class="opportunity-btn"
+                appTooltip="map.analyzeOpportunity"
                 [class.active]="showOpportunityChecklist()"
                 [attr.aria-label]="'map.analyzeOpportunity' | translate"
                 [attr.aria-expanded]="showOpportunityChecklist()"
@@ -258,19 +278,20 @@
           >
             <span class="map-sheet-title">{{ 'map.poiLayersTitle' | translate }}</span>
             <div class="map-sheet-header-actions">
-              <button type="button" class="map-sheet-clear" (click)="resetPoiChecklist()" [attr.aria-label]="'map.clearFilters' | translate">
+              <button type="button" class="map-sheet-clear" appTooltip="map.clearFilters" (click)="resetPoiChecklist()" [attr.aria-label]="'map.clearFilters' | translate">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
               </button>
               <button
                 type="button"
                 class="map-sheet-minimize"
                 [class.is-collapsed]="sheetCollapsed()"
+                [appTooltip]="sheetCollapsed() ? 'map.maximize' : 'map.minimize'"
                 (click)="toggleSheetCollapse()"
                 [attr.aria-label]="(sheetCollapsed() ? 'map.maximize' : 'map.minimize') | translate"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
               </button>
-              <button type="button" class="map-sheet-close" (click)="togglePoiChecklist()" [attr.aria-label]="'map.close' | translate">
+              <button type="button" class="map-sheet-close" appTooltip="map.close" (click)="togglePoiChecklist()" [attr.aria-label]="'map.close' | translate">
                 <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
               </button>
             </div>
@@ -340,19 +361,20 @@
           >
             <span class="map-sheet-title">{{ 'map.analyzeOpportunity' | translate }}</span>
             <div class="map-sheet-header-actions">
-              <button type="button" class="map-sheet-clear" (click)="resetOpportunityChecklist()" [attr.aria-label]="'map.clearFilters' | translate">
+              <button type="button" class="map-sheet-clear" appTooltip="map.clearFilters" (click)="resetOpportunityChecklist()" [attr.aria-label]="'map.clearFilters' | translate">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
               </button>
               <button
                 type="button"
                 class="map-sheet-minimize"
                 [class.is-collapsed]="sheetCollapsed()"
+                [appTooltip]="sheetCollapsed() ? 'map.maximize' : 'map.minimize'"
                 (click)="toggleSheetCollapse()"
                 [attr.aria-label]="(sheetCollapsed() ? 'map.maximize' : 'map.minimize') | translate"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
               </button>
-              <button type="button" class="map-sheet-close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
+              <button type="button" class="map-sheet-close" appTooltip="map.close" (click)="closeOpportunityChecklistPanel()" [attr.aria-label]="'map.close' | translate">
                 <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
               </button>
             </div>
@@ -420,7 +442,7 @@
           <div class="cma-panel" (click)="$event.stopPropagation()">
             <div class="cma-header">
               <h2>{{ 'map.cmaTitle' | translate }}</h2>
-              <button id="map-cma-close-btn" type="button" class="cma-close" (click)="closeCma()" [attr.aria-label]="'map.close' | translate">
+              <button id="map-cma-close-btn" type="button" class="cma-close" appTooltip="map.close" (click)="closeCma()" [attr.aria-label]="'map.close' | translate">
                 <svg class="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18" /><line x1="18" y1="6" x2="6" y2="18" /></svg>
               </button>
             </div>
@@ -499,6 +521,7 @@
         id="map-locate-btn"
         type="button"
         class="locate-btn locate-btn-floating"
+        [appTooltip]="locatingMe ? 'map.locating' : 'map.myLocation'"
         [hidden]="streetViewActive() || selectedLat !== null || selectedLng !== null || addMode || addBrokerageMode || opportunityMode"
         [disabled]="locatingMe"
         [attr.aria-label]="(locatingMe ? 'map.locating' : 'map.myLocation') | translate"

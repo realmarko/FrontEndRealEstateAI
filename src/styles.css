@@ -403,3 +403,27 @@ body {
   font-weight: 600;
   color: #1f2937;
 }
+
+/* TooltipDirective's bubble — appended to document.body (not a component template), so it needs
+   a global rule rather than a component stylesheet. position: fixed + the directive's own
+   getBoundingClientRect math is what actually places it; these rules are just its look. */
+.app-tooltip-bubble {
+  position: fixed;
+  z-index: 1000;
+  background: var(--navy-deep);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  box-shadow: var(--shadow-sm);
+  pointer-events: none;
+  /* Wraps instead of a fixed nowrap — a longer translated label (e.g. "Mostrar/ocultar nuevos
+     fraccionamientos") is wider than this box, and nowrap + max-width with no overflow rule
+     would let that text visually spill out past the painted background rather than shrink to
+     fit it. */
+  max-width: 220px;
+  white-space: normal;
+  text-align: center;
+}

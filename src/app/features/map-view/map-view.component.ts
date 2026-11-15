@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, Signal, ViewChild, computed, effect, signal } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, NgZone, OnDestroy, PLATFORM_ID, Signal, ViewChild, computed, effect, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { ActiveToast } from 'ngx-toastr';
@@ -56,6 +56,7 @@ import { applyCurrencyMask } from '../../shared/utils/currency-input';
 import { normalizeText } from '../../shared/utils/normalize-text';
 import { parseCoordinates } from '../../shared/utils/parse-coordinates';
 import { loadGoogleMaps } from '../../core/utils/load-google-maps';
+import { TooltipDirective } from '../../shared/directives/tooltip.directive';
 import {
   DEFAULT_DOWN_PAYMENT_PERCENT,
   DEFAULT_INTEREST_RATE_PERCENT,
@@ -516,7 +517,7 @@ function createClusterRenderer(color: string): Renderer {
 @Component({
   selector: 'app-map-view',
   standalone: true,
-  imports: [CommonModule, TranslatePipe, ListingCardComponent],
+  imports: [CommonModule, TranslatePipe, ListingCardComponent, TooltipDirective],
   templateUrl: './map-view.component.html',
   // Split across two files so each stays under the production build's per-stylesheet budget
   // (angular.json's "anyComponentStyle" — see map-view-mobile.component.css's own header
@@ -626,6 +627,20 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private searchMunicipalityCvegeo: string | null = null;
   private searchMunicipalityRequestId = 0;
 
+  // Off by default: a visitor browsing listings doesn't necessarily want every published
+  // development cluttering the map on first load — this is an opt-in layer, same reasoning as
+  // showAgebLayer/showAppreciationLayer below, just toggled from the main toolbar instead of the
+  // POI sheet since it has no sub-options of its own.
+  readonly showFraccionamientos = signal(false);
+
+  // Connectivity — set up in the constructor below. isOffline mirrors navigator.onLine;
+  // effectiveListings below falls back to a localStorage cache when there's genuinely nothing
+  // live to show. In practice that's mainly a first visit with no connection at all —
+  // listingService.listings() itself is never cleared on a later failed refresh, so a listing
+  // already loaded before going offline keeps showing regardless of this cache.
+  readonly isOffline = signal(false);
+  private readonly cachedListings = signal<Listing[]>([]);
+  private static readonly LISTINGS_CACHE_KEY = 'map_listings_cache_v1';
   readonly showAgebLayer = signal(false);
   // "Potencial de plusvalía (2 años)" layer — same on-pan refetch behavior as showAgebLayer, but
   // mutually exclusive with it (see toggleAppreciationLayer): both paint AGEB polygons, so
@@ -662,6 +677,19 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     return count;
   });
 
+  // Falls back to the localStorage cache only when there's genuinely nothing live to show
+  // (listingService's own shared feed is empty AND either we're offline or that feed's last
+  // refresh failed) — a listing that's merely filtered down to zero results is NOT this case,
+  // which is why this reads listingService.listings() directly rather than filteredListings()
+  // itself (that would be circular, and would also treat "no matches for your filters" the same
+  // as "we have no data at all").
+  private readonly effectiveListings = computed(() => {
+    const live = this.listingService.listings();
+    if (live.length > 0) return live;
+    if (this.isOffline() || this.listingService.loadError()) return this.cachedListings();
+    return live;
+  });
+
   readonly filteredListings = computed(() => {
     const term = this.search().trim().toLowerCase();
     const type = this.typeFilter();
@@ -674,7 +702,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const polygon = this.municipalityPolygon();
     const searchShape = this.searchMunicipalityPolygon();
 
-    return this.listingService.listings().filter((listing) => {
+    return this.effectiveListings().filter((listing) => {
       const matchesTerm =
         !term ||
         listing.title.toLowerCase().includes(term) ||
@@ -781,6 +809,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private pendingFocusListingId: string | null = null;
   private readonly listingMarkers = new Map<string, google.maps.Marker>();
   private readonly fraccionamientoMarkers = new Map<string, google.maps.Marker>();
+  // Fetched once per map load regardless of showFraccionamientos (cheap, admin-curated list) so
+  // toggling the layer on later just re-renders from this cache instead of re-fetching.
+  private fraccionamientoItems: FraccionamientoPublicListItem[] = [];
   private readonly brokerageMarkers = new Map<number, google.maps.Marker>();
   private readonly infrastructureProjectMarkers = new Map<string, google.maps.Marker>();
   // One clusterer per marker type (listings + fraccionamientos + brokerages + infrastructure
@@ -793,6 +824,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   private readonly poiClusterers = new Map<PoiCategoryKey, MarkerClusterer>();
   private readonly poiRequestIds = new Map<PoiCategoryKey, number>();
   private infoWindow?: google.maps.InfoWindow;
+
+  // This page is prerendered (app.routes.server.ts's catch-all), where there's no real
+  // navigator/localStorage — every connectivity/cache access below is gated on this, same
+  // reasoning as every afterNextRender-guarded browser API elsewhere in the app.
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
+  private readonly handleOnline = () => this.isOffline.set(false);
+  private readonly handleOffline = () => this.isOffline.set(true);
 
   constructor(
     private readonly router: Router,
@@ -830,10 +868,56 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
     this.municipalities = this.geomarketingService.municipalities;
+
+    if (this.isBrowser) {
+      this.isOffline.set(!navigator.onLine);
+      window.addEventListener('online', this.handleOnline);
+      window.addEventListener('offline', this.handleOffline);
+      this.loadCachedListings();
+      this.checkSlowConnection();
+    }
+
+    // Writes every successful live fetch to the cache above, so the NEXT time this page loads
+    // with no connection at all, there's something real (if possibly a little stale) to fall
+    // back to instead of an empty map.
+    effect(() => {
+      const live = this.listingService.listings();
+      if (this.isBrowser && live.length > 0) this.cacheListings(live);
+    });
   }
 
   ngAfterViewInit(): void {
     this.waitForGoogleMaps();
+  }
+
+  private loadCachedListings(): void {
+    try {
+      const raw = localStorage.getItem(MapViewComponent.LISTINGS_CACHE_KEY);
+      if (raw) this.cachedListings.set(JSON.parse(raw) as Listing[]);
+    } catch {
+      // Corrupt/unreadable cache (private browsing, storage disabled) — just means no fallback
+      // is available; never worth failing the page load over.
+    }
+  }
+
+  private cacheListings(listings: Listing[]): void {
+    try {
+      localStorage.setItem(MapViewComponent.LISTINGS_CACHE_KEY, JSON.stringify(listings));
+    } catch {
+      // Storage full or disabled — caching is a nice-to-have, never fatal.
+    }
+  }
+
+  // Network Information API (Chrome/Android; unsupported in Safari/Firefox, where `connection`
+  // is simply undefined and this silently no-ops) — a one-time heads-up, not a persistent
+  // banner, since "slow" here is a snapshot at load time, not something this page keeps
+  // re-measuring.
+  private checkSlowConnection(): void {
+    const connection = (navigator as { connection?: { effectiveType?: string; saveData?: boolean } }).connection;
+    if (!connection) return;
+    if (connection.saveData || connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g') {
+      this.notification.info('map.slowConnection');
+    }
   }
 
   // Guards the loadGoogleMaps().then() below: if the visitor navigates away from /map before the
@@ -846,6 +930,10 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.destroyed = true;
+    if (this.isBrowser) {
+      window.removeEventListener('online', this.handleOnline);
+      window.removeEventListener('offline', this.handleOffline);
+    }
     this.detachFreehandListeners();
   }
 
@@ -1118,11 +1206,27 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // current viewport, same as they'd see it from the /fraccionamientos list page.
   private loadFraccionamientos(): void {
     this.fraccionamientoService.listPublished({ pageSize: FRACCIONAMIENTOS_MAP_PAGE_SIZE }).subscribe({
-      next: (result) => this.zone.run(() => this.renderFraccionamientoMarkers(result.items)),
+      next: (result) =>
+        this.zone.run(() => {
+          this.fraccionamientoItems = result.items;
+          if (this.showFraccionamientos()) this.renderFraccionamientoMarkers(result.items);
+        }),
       // Silent failure: the map's core purpose (browsing listings) still works without this
       // layer, so a fraccionamientos-fetch error shouldn't surface a toast over the whole page.
       error: () => {}
     });
+  }
+
+  // Toolbar toggle (off by default — see showFraccionamientos) — re-renders from the cache above
+  // instead of re-fetching when turning the layer back on.
+  toggleFraccionamientos(): void {
+    this.showFraccionamientos.update((visible) => !visible);
+    if (this.showFraccionamientos()) {
+      this.renderFraccionamientoMarkers(this.fraccionamientoItems);
+    } else {
+      this.fraccionamientoClusterer?.clearMarkers();
+      this.fraccionamientoMarkers.clear();
+    }
   }
 
   private renderFraccionamientoMarkers(items: FraccionamientoPublicListItem[]): void {

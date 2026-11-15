@@ -13,6 +13,24 @@
   overflow: hidden;
 }
 
+/* Same amber "something's off, here's why" language as viability-report-page's own
+   .data-source-warning — centered and full-width (unlike the corner-anchored toolbar/legend)
+   since this is about the whole map's data, not one tool. */
+.offline-banner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  text-align: center;
+  padding: 0.5rem 1rem;
+  background: #fef3c7;
+  border-bottom: 1px solid #fde68a;
+  color: #92400e;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .search-bar {
   display: flex;
   flex-wrap: wrap;
@@ -636,6 +654,33 @@
 
 .poi-toggle-btn.active {
   background: #000000;
+  color: #fff;
+}
+
+/* Same icon-button shape as .poi-toggle-btn — active-state color matches FRACCIONAMIENTO_ICON's
+   own marker color (map-view.component.ts) so the button reads as "this is the thing turning
+   gold dots on/off". */
+.fraccionamiento-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: none;
+  border-radius: 4px;
+  background: #fff;
+  color: #000000;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.fraccionamiento-toggle-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.fraccionamiento-toggle-btn.active {
+  background: #c6a15b;
   color: #fff;
 }
 
