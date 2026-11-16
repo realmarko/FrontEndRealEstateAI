@@ -1424,10 +1424,10 @@ export const en: Record<string, string> = {
 
   'landing.footerZoneAnalysis': 'Zone analysis',
 
-  'zoneAnalysisHub.seoTitle': 'Zone analysis in Puebla with INEGI data',
-  'zoneAnalysisHub.seoDescription': 'Population, density and business opportunity by municipality in Puebla, with official INEGI and DENUE data.',
-  'zoneAnalysisHub.title': 'Zone analysis in Puebla',
-  'zoneAnalysisHub.subtitle': 'Population, density and nearby businesses by municipality — with official INEGI and DENUE data, not estimates.',
+  'zoneAnalysisHub.seoTitle': 'Zone analysis in Puebla, Tlaxcala and Querétaro with INEGI data',
+  'zoneAnalysisHub.seoDescription': 'Population, density and business opportunity by municipality in Puebla, Tlaxcala and Querétaro, with official INEGI and DENUE data.',
+  'zoneAnalysisHub.title': 'Zone analysis in Mexico',
+  'zoneAnalysisHub.subtitle': 'Population, density and nearby businesses by municipality in Puebla, Tlaxcala and Querétaro — with official INEGI and DENUE data, not estimates.',
   'zoneAnalysisHub.sourceNote': 'Sources: 2020 Population and Housing Census and the National Statistical Directory of Economic Units (DENUE), both from INEGI.',
   'zoneAnalysisHub.cardCta': 'See analysis',
 

@@ -30,6 +30,23 @@ h1 {
   color: var(--ink-soft);
 }
 
+.state-group {
+  margin-bottom: var(--space-8);
+}
+
+.state-group:last-child {
+  margin-bottom: 0;
+}
+
+.state-heading {
+  margin: 0 0 var(--space-4);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  border-bottom: 1px solid var(--hairline);
+  padding-bottom: var(--space-2);
+}
+
 .zone-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -59,7 +76,7 @@ h1 {
   height: 28px;
 }
 
-.zone-card h2 {
+.zone-card h3 {
   margin: 0;
   font-size: 1.1rem;
   color: var(--navy);

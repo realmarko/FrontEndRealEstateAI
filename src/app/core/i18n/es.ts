@@ -1424,10 +1424,10 @@ export const es: Record<string, string> = {
 
   'landing.footerZoneAnalysis': 'Análisis por zona',
 
-  'zoneAnalysisHub.seoTitle': 'Análisis de zonas en Puebla con datos INEGI',
-  'zoneAnalysisHub.seoDescription': 'Población, densidad y oportunidad de negocio por municipio en Puebla, con datos oficiales de INEGI y DENUE.',
-  'zoneAnalysisHub.title': 'Análisis de zonas en Puebla',
-  'zoneAnalysisHub.subtitle': 'Población, densidad y negocios cercanos por municipio — con datos oficiales de INEGI y DENUE, no estimaciones.',
+  'zoneAnalysisHub.seoTitle': 'Análisis de zonas en Puebla, Tlaxcala y Querétaro con datos INEGI',
+  'zoneAnalysisHub.seoDescription': 'Población, densidad y oportunidad de negocio por municipio en Puebla, Tlaxcala y Querétaro, con datos oficiales de INEGI y DENUE.',
+  'zoneAnalysisHub.title': 'Análisis de zonas en México',
+  'zoneAnalysisHub.subtitle': 'Población, densidad y negocios cercanos por municipio en Puebla, Tlaxcala y Querétaro — con datos oficiales de INEGI y DENUE, no estimaciones.',
   'zoneAnalysisHub.sourceNote': 'Fuentes: Censo de Población y Vivienda 2020 y Directorio Estadístico Nacional de Unidades Económicas (DENUE), ambos del INEGI.',
   'zoneAnalysisHub.cardCta': 'Ver análisis',
 
