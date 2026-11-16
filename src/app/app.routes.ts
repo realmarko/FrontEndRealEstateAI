@@ -178,6 +178,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/favorites/favorites.component').then((m) => m.FavoritesComponent)
   },
+  ...pairRoutes('zoneAnalysis', '', {
+    loadComponent: () =>
+      import('./features/zone-analysis/zone-analysis-hub/zone-analysis-hub.component').then(
+        (m) => m.ZoneAnalysisHubComponent
+      )
+  }),
+  ...pairRoutes('zoneAnalysis', ':slug', {
+    loadComponent: () =>
+      import('./features/zone-analysis/zone-analysis-detail/zone-analysis-detail.component').then(
+        (m) => m.ZoneAnalysisDetailComponent
+      )
+  }),
   ...pairRoutes('compare', '', {
     // No authGuard: ComparisonService's selection is anonymous-friendly (localStorage-backed,
     // no account needed), so the page itself shouldn't require signing in either.

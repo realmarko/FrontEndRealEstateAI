@@ -118,6 +118,22 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://espacial.com.mx/zone-analysis</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/zone-analysis" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/analisis-de-zonas" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/analisis-de-zonas" />
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://espacial.com.mx/analisis-de-zonas</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/zone-analysis" />
+    <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/analisis-de-zonas" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://espacial.com.mx/analisis-de-zonas" />
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://espacial.com.mx/privacy</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://espacial.com.mx/privacy" />
     <xhtml:link rel="alternate" hreflang="es" href="https://espacial.com.mx/privacidad" />

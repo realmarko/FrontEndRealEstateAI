@@ -96,6 +96,12 @@ export const serverRoutes: ServerRoute[] = [
   // Deferred from the EN/ES slug pass (see route-slugs.ts) — single path, English segment only.
   { path: 'listings/:id/viabilidad-comercial', renderMode: RenderMode.Client },
   { path: 'listings/:id/analisis-residencial', renderMode: RenderMode.Client },
+  // Client-only for the same reason as the two routes above: each visit calls
+  // businessDensity (DENUE-backed) 3x for the zone's own niche-category counts — prerendering
+  // one of these per curated zone on every deploy would burn that quota for no SEO benefit (the
+  // hub page above already carries the crawlable copy/links; this route's own static
+  // title/description still come from SeoService on first client render).
+  ...bothLangs('zoneAnalysis').map((slug): ServerRoute => ({ path: `${slug}/:slug`, renderMode: RenderMode.Client })),
   { path: 'admin/inmobiliarias/:id/edit', renderMode: RenderMode.Client },
   ...bothLangs('listings').map(
     (slug): ServerRoute => ({

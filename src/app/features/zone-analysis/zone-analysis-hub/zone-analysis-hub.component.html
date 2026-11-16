@@ -1,0 +1,21 @@
+<div class="page">
+  <header class="hub-header">
+    <h1>{{ 'zoneAnalysisHub.title' | translate }}</h1>
+    <p class="subtitle">{{ 'zoneAnalysisHub.subtitle' | translate }}</p>
+    <p class="source-note">{{ 'zoneAnalysisHub.sourceNote' | translate }}</p>
+  </header>
+
+  <div class="zone-grid">
+    @for (zone of zones; track zone.slug) {
+      <a class="zone-card" [routerLink]="translation.path('zoneAnalysis', zone.slug)">
+        <svg class="zone-pin" viewBox="0 0 32 32" aria-hidden="true">
+          <path d="M 10.26 17 L 16 27.5 L 21.74 17 Z" fill="var(--gold)" />
+          <circle cx="16" cy="13" r="7" fill="var(--gold)" />
+          <circle cx="16" cy="13" r="3" fill="var(--navy)" />
+        </svg>
+        <h2>{{ zone.name }}</h2>
+        <span class="zone-cta">{{ 'zoneAnalysisHub.cardCta' | translate }}</span>
+      </a>
+    }
+  </div>
+</div>

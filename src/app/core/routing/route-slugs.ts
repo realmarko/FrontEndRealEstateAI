@@ -24,7 +24,8 @@ export const PUBLIC_SLUGS = {
   // ES was already live pre-existing; EN is the new alias.
   agencies: { en: 'agencies', es: 'inmobiliarias' },
   developments: { en: 'developments', es: 'fraccionamientos' },
-  compare: { en: 'compare', es: 'comparar' }
+  compare: { en: 'compare', es: 'comparar' },
+  zoneAnalysis: { en: 'zone-analysis', es: 'analisis-de-zonas' }
 } as const satisfies Record<string, Record<Lang, string>>;
 
 export type LogicalKey = keyof typeof PUBLIC_SLUGS;

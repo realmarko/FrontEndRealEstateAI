@@ -1,0 +1,85 @@
+@if (notFound()) {
+  <div class="page">
+    <p>{{ 'zoneAnalysisDetail.notFound' | translate }}</p>
+    <a [routerLink]="translation.path('zoneAnalysis')">{{ 'zoneAnalysisDetail.backToHub' | translate }}</a>
+  </div>
+} @else if (loading()) {
+  <div class="page">
+    <div class="loading-state">
+      <span class="spinner" aria-hidden="true"></span>
+      <p>{{ 'zoneAnalysisDetail.loading' | translate }}</p>
+    </div>
+  </div>
+} @else {
+  @let zoneValue = zone()!;
+  <div class="page">
+    <a class="back" [routerLink]="translation.path('zoneAnalysis')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>
+      {{ 'zoneAnalysisDetail.backToHub' | translate }}
+    </a>
+
+    <header class="report-header">
+      <h1>{{ 'zoneAnalysisDetail.titlePrefix' | translate }} {{ zoneValue.name }}</h1>
+      <p class="subtitle">{{ 'zoneAnalysisDetail.subtitle' | translate }}</p>
+    </header>
+
+    @if (dataError()) {
+      <app-state-panel kind="error" [retryLabel]="'zoneAnalysisDetail.retry' | translate" (retry)="retry()">
+        {{ 'zoneAnalysisDetail.dataError' | translate }}
+      </app-state-panel>
+    } @else {
+      <div class="kpi-row">
+        <div class="kpi kpi-hero">
+          <span class="kpi-label">{{ 'zoneAnalysisDetail.populationLabel' | translate }}</span>
+          @if (population(); as p) {
+            <span class="kpi-value">{{ p.population | number }}</span>
+            <span class="kpi-sub">{{ 'zoneAnalysisDetail.censusYear' | translate:{ year: p.censusYear } }}</span>
+          } @else {
+            <span class="kpi-value kpi-unavailable">—</span>
+            <span class="kpi-sub">{{ 'zoneAnalysisDetail.populationUnavailable' | translate }}</span>
+          }
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">{{ 'zoneAnalysisDetail.densityLabel' | translate }}</span>
+          @if (population(); as p) {
+            <span class="kpi-value">{{ p.densityPerSqKm | number: '1.0-0' }}</span>
+            <span class="kpi-sub">{{ 'zoneAnalysisDetail.densityUnit' | translate }}</span>
+          } @else {
+            <span class="kpi-value kpi-unavailable">—</span>
+          }
+        </div>
+        <div class="kpi">
+          <span class="kpi-label">{{ 'zoneAnalysisDetail.socioeconomicLabel' | translate }}</span>
+          @if (population()?.estimatedSocioeconomicLevel; as level) {
+            <span class="kpi-value">{{ socioeconomicLabelKey(level) | translate }}</span>
+          } @else {
+            <span class="kpi-value kpi-unavailable">—</span>
+          }
+        </div>
+      </div>
+
+      <section class="card">
+        <h2 class="card-title">{{ 'zoneAnalysisDetail.nicheTitle' | translate }}</h2>
+        <p class="niche-intro">{{ 'zoneAnalysisDetail.nicheIntro' | translate }}</p>
+        <ul class="niche-list">
+          @for (niche of niches(); track niche.labelKey) {
+            <li>
+              <span class="niche-label">{{ niche.labelKey | translate }}</span>
+              @if (niche.count !== null) {
+                <span class="niche-count">{{ niche.count }}</span>
+              } @else {
+                <span class="niche-count niche-count-unavailable">—</span>
+              }
+            </li>
+          }
+        </ul>
+      </section>
+
+      <button type="button" class="primary-link view-map-cta" (click)="viewListingsOnMap()">
+        {{ 'zoneAnalysisDetail.viewListingsCta' | translate }}
+      </button>
+
+      <p class="source-note">{{ 'zoneAnalysisDetail.sourceNote' | translate }}</p>
+    }
+  </div>
+}

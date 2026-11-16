@@ -1420,5 +1420,37 @@ export const en: Record<string, string> = {
   'pipeline.form.address': 'Property address',
   'pipeline.form.stage': 'Starting stage',
   'pipeline.form.cancel': 'Cancel',
-  'pipeline.form.save': 'Save'
+  'pipeline.form.save': 'Save',
+
+  'landing.footerZoneAnalysis': 'Zone analysis',
+
+  'zoneAnalysisHub.seoTitle': 'Zone analysis in Puebla with INEGI data',
+  'zoneAnalysisHub.seoDescription': 'Population, density and business opportunity by municipality in Puebla, with official INEGI and DENUE data.',
+  'zoneAnalysisHub.title': 'Zone analysis in Puebla',
+  'zoneAnalysisHub.subtitle': 'Population, density and nearby businesses by municipality — with official INEGI and DENUE data, not estimates.',
+  'zoneAnalysisHub.sourceNote': 'Sources: 2020 Population and Housing Census and the National Statistical Directory of Economic Units (DENUE), both from INEGI.',
+  'zoneAnalysisHub.cardCta': 'See analysis',
+
+  'zoneAnalysisDetail.notFound': "We couldn't find this zone.",
+  'zoneAnalysisDetail.backToHub': 'See all zones',
+  'zoneAnalysisDetail.loading': 'Fetching INEGI and DENUE data…',
+  'zoneAnalysisDetail.titlePrefix': 'Zone analysis:',
+  'zoneAnalysisDetail.subtitle': 'Population and nearby-business data, straight from official sources.',
+  'zoneAnalysisDetail.seoTitlePrefix': 'Zone analysis — {{zone}}',
+  'zoneAnalysisDetail.seoDescription': 'Population, density and nearby businesses in {{zone}}, Puebla, with official INEGI and DENUE data.',
+  'zoneAnalysisDetail.dataError': "We couldn't fetch this zone's data right now.",
+  'zoneAnalysisDetail.retry': 'Retry',
+  'zoneAnalysisDetail.populationLabel': 'Population',
+  'zoneAnalysisDetail.populationUnavailable': 'Unavailable',
+  'zoneAnalysisDetail.censusYear': '{{year}} Census',
+  'zoneAnalysisDetail.densityLabel': 'Population density',
+  'zoneAnalysisDetail.densityUnit': 'people/km²',
+  'zoneAnalysisDetail.socioeconomicLabel': 'Estimated socioeconomic level',
+  'zoneAnalysisDetail.nicheTitle': 'Where should you put your business?',
+  'zoneAnalysisDetail.nicheIntro': "Businesses of this kind already registered near the zone's center (source: DENUE).",
+  'zoneAnalysisDetail.categoryOxxo': 'Convenience stores (OXXO and similar) within 500 m',
+  'zoneAnalysisDetail.categoryFarmacia': 'Pharmacies within 1 km',
+  'zoneAnalysisDetail.categoryGasolinera': 'Gas stations within 1.5 km',
+  'zoneAnalysisDetail.viewListingsCta': 'See available properties on the map',
+  'zoneAnalysisDetail.sourceNote': 'Sources: 2020 Population and Housing Census and DENUE, both from INEGI.'
 };

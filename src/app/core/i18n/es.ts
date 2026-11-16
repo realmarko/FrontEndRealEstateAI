@@ -1420,5 +1420,37 @@ export const es: Record<string, string> = {
   'pipeline.form.address': 'Dirección del inmueble',
   'pipeline.form.stage': 'Etapa inicial',
   'pipeline.form.cancel': 'Cancelar',
-  'pipeline.form.save': 'Guardar'
+  'pipeline.form.save': 'Guardar',
+
+  'landing.footerZoneAnalysis': 'Análisis por zona',
+
+  'zoneAnalysisHub.seoTitle': 'Análisis de zonas en Puebla con datos INEGI',
+  'zoneAnalysisHub.seoDescription': 'Población, densidad y oportunidad de negocio por municipio en Puebla, con datos oficiales de INEGI y DENUE.',
+  'zoneAnalysisHub.title': 'Análisis de zonas en Puebla',
+  'zoneAnalysisHub.subtitle': 'Población, densidad y negocios cercanos por municipio — con datos oficiales de INEGI y DENUE, no estimaciones.',
+  'zoneAnalysisHub.sourceNote': 'Fuentes: Censo de Población y Vivienda 2020 y Directorio Estadístico Nacional de Unidades Económicas (DENUE), ambos del INEGI.',
+  'zoneAnalysisHub.cardCta': 'Ver análisis',
+
+  'zoneAnalysisDetail.notFound': 'No encontramos esta zona.',
+  'zoneAnalysisDetail.backToHub': 'Ver todas las zonas',
+  'zoneAnalysisDetail.loading': 'Consultando datos de INEGI y DENUE…',
+  'zoneAnalysisDetail.titlePrefix': 'Análisis de zona:',
+  'zoneAnalysisDetail.subtitle': 'Datos de población y negocios cercanos, directo de fuentes oficiales.',
+  'zoneAnalysisDetail.seoTitlePrefix': 'Análisis de zona — {{zone}}',
+  'zoneAnalysisDetail.seoDescription': 'Población, densidad y negocios cercanos en {{zone}}, Puebla, con datos oficiales de INEGI y DENUE.',
+  'zoneAnalysisDetail.dataError': 'No pudimos consultar los datos de esta zona en este momento.',
+  'zoneAnalysisDetail.retry': 'Reintentar',
+  'zoneAnalysisDetail.populationLabel': 'Población',
+  'zoneAnalysisDetail.populationUnavailable': 'No disponible',
+  'zoneAnalysisDetail.censusYear': 'Censo {{year}}',
+  'zoneAnalysisDetail.densityLabel': 'Densidad poblacional',
+  'zoneAnalysisDetail.densityUnit': 'hab/km²',
+  'zoneAnalysisDetail.socioeconomicLabel': 'Nivel socioeconómico estimado',
+  'zoneAnalysisDetail.nicheTitle': '¿Dónde conviene poner tu negocio?',
+  'zoneAnalysisDetail.nicheIntro': 'Negocios de este tipo ya registrados cerca del centro de la zona (fuente: DENUE).',
+  'zoneAnalysisDetail.categoryOxxo': 'Tiendas de conveniencia (OXXO y similares) en 500 m',
+  'zoneAnalysisDetail.categoryFarmacia': 'Farmacias en 1 km',
+  'zoneAnalysisDetail.categoryGasolinera': 'Gasolineras en 1.5 km',
+  'zoneAnalysisDetail.viewListingsCta': 'Ver propiedades disponibles en el mapa',
+  'zoneAnalysisDetail.sourceNote': 'Fuentes: Censo de Población y Vivienda 2020 y DENUE, ambos del INEGI.'
 };
