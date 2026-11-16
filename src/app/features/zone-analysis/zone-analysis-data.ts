@@ -48,10 +48,11 @@ export function findZoneBySlug(slug: string): ZoneAnalysisZone | undefined {
 
 // Businesses whose DENUE search term the backend already whitelists (AllowedSearchTerms — see
 // map-view.component.ts's OPPORTUNITY_CATEGORIES) and that double as the land-flipping niche's
-// own buyer list (selling vacant lots to OXXO/farmacias/gasolineras) — same term+radius pairing
-// used there, kept in sync rather than invented fresh for this page.
+// own buyer list (selling/renting vacant lots to OXXO, farmacias, gasolineras and gym chains like
+// Smart Fit) — same term+radius pairing used there, kept in sync rather than invented fresh for
+// this page.
 export interface NicheBusinessCategory {
-  denueSearchTerm: 'oxxo' | 'farmacia' | 'gasolinera';
+  denueSearchTerm: 'oxxo' | 'farmacia' | 'gasolinera' | 'gimnasio';
   radiusMeters: number;
   labelKey: string;
 }
@@ -59,5 +60,9 @@ export interface NicheBusinessCategory {
 export const NICHE_BUSINESS_CATEGORIES: readonly NicheBusinessCategory[] = [
   { denueSearchTerm: 'oxxo', radiusMeters: 500, labelKey: 'zoneAnalysisDetail.categoryOxxo' },
   { denueSearchTerm: 'farmacia', radiusMeters: 1000, labelKey: 'zoneAnalysisDetail.categoryFarmacia' },
-  { denueSearchTerm: 'gasolinera', radiusMeters: 1500, labelKey: 'zoneAnalysisDetail.categoryGasolinera' }
+  { denueSearchTerm: 'gasolinera', radiusMeters: 1500, labelKey: 'zoneAnalysisDetail.categoryGasolinera' },
+  // Same term + radius as map-view.component.ts's OPPORTUNITY_CATEGORIES 'gym' entry — Smart Fit's
+  // aggressive 2026 expansion (~70 new locations) makes this a live niche buyer too, not just OXXO/
+  // farmacia/gasolinera.
+  { denueSearchTerm: 'gimnasio', radiusMeters: 1000, labelKey: 'zoneAnalysisDetail.categoryGimnasio' }
 ];

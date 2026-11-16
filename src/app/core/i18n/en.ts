@@ -1451,6 +1451,7 @@ export const en: Record<string, string> = {
   'zoneAnalysisDetail.categoryOxxo': 'Convenience stores (OXXO and similar) within 500 m',
   'zoneAnalysisDetail.categoryFarmacia': 'Pharmacies within 1 km',
   'zoneAnalysisDetail.categoryGasolinera': 'Gas stations within 1.5 km',
+  'zoneAnalysisDetail.categoryGimnasio': 'Gyms within 1 km',
   'zoneAnalysisDetail.viewListingsCta': 'See available properties on the map',
   'zoneAnalysisDetail.sourceNote': 'Sources: 2020 Population and Housing Census and DENUE, both from INEGI.'
 };

@@ -1451,6 +1451,7 @@ export const es: Record<string, string> = {
   'zoneAnalysisDetail.categoryOxxo': 'Tiendas de conveniencia (OXXO y similares) en 500 m',
   'zoneAnalysisDetail.categoryFarmacia': 'Farmacias en 1 km',
   'zoneAnalysisDetail.categoryGasolinera': 'Gasolineras en 1.5 km',
+  'zoneAnalysisDetail.categoryGimnasio': 'Gimnasios en 1 km',
   'zoneAnalysisDetail.viewListingsCta': 'Ver propiedades disponibles en el mapa',
   'zoneAnalysisDetail.sourceNote': 'Fuentes: Censo de Población y Vivienda 2020 y DENUE, ambos del INEGI.'
 };
