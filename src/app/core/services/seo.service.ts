@@ -31,7 +31,9 @@ export interface PageSeo {
 const SITE_NAME = 'Espacial.com.mx';
 const DEFAULT_DESCRIPTION =
   'Encuentra casas, departamentos y terrenos en venta y renta en México. Propiedades verificadas, agentes e inmobiliarias.';
-const DEFAULT_IMAGE = '/favicon.svg';
+// A raster PNG, not favicon.svg — WhatsApp/Facebook/LinkedIn's link-preview bots don't reliably
+// render SVG for og:image, so pages with no own image fell back to a blank preview card.
+const DEFAULT_IMAGE = '/og-image.png';
 // A search snippet/social preview truncates well past this anyway — capping here means every
 // caller can pass a raw free-text field (a listing/agent/agency's own description or bio)
 // straight through instead of each remembering to slice it themselves.
