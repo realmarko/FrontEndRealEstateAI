@@ -69,7 +69,12 @@ import {
 const EMPTY_ID_SET: ReadonlySet<string> = new Set();
 
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
-const DEFAULT_ZOOM = 16;
+// Was 16 (street/building level) — with listings spread across several distant cities/states,
+// opening that tight around a single point (the latest listing, or DEFAULT_CENTER when there's no
+// listing yet) showed "0 propiedades" almost every time, since nothing else was within a few
+// blocks. 13 is a neighborhood/city-wide view — still centered on that one point, but wide enough
+// to likely catch other listings in the same metro area instead of just the one pixel it's on.
+const DEFAULT_ZOOM = 13;
 
 // Bounds how long the initial load waits on the "latest listing" fetch before giving up and
 // opening at DEFAULT_CENTER instead — without this, a slow/unresponsive backend would leave the
