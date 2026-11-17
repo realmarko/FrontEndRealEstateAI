@@ -104,6 +104,10 @@ export class ListingDetailComponent {
   readonly isFavorite = computed(() => this.favorites.isFavorite(this.id));
   readonly isOwner = computed(() => this.auth.isOwnerOf(this.listing()?.ownerId));
   readonly isAdmin = this.auth.isAdmin;
+  // "Enviar a producción" only makes sense on the dev deployment (sending TO prod) — see
+  // environment.isDevEnvironment's own doc comment for why prod-deploy always has this false.
+  readonly canSendToProd = computed(() => this.isAdmin() && environment.isDevEnvironment);
+  readonly sendingToProd = signal(false);
   readonly isAgent = computed(() => this.auth.currentUser()?.roles.includes('Agent') ?? false);
   // Only meaningful once pipeline.refresh() has populated processes() — triggered below, in the
   // listing-load success handler, but only for an owner who's also an Agent (the only case the
@@ -731,6 +735,24 @@ export class ListingDetailComponent {
         this.router.navigateByUrl(this.translation.path('listings'));
       },
       error: () => this.notification.error('listingDetail.deleteError')
+    });
+  }
+
+  sendToProd(): void {
+    const listing = this.listing();
+    if (!listing || this.sendingToProd()) return;
+    if (!confirm(this.translation.t('listingDetail.sendToProdConfirm', { title: listing.title }))) return;
+
+    this.sendingToProd.set(true);
+    this.listingService.sendToProd(listing.id).subscribe({
+      next: ({ alreadyExists }) => {
+        this.sendingToProd.set(false);
+        this.notification.success(alreadyExists ? 'listingDetail.sendToProdAlreadyExists' : 'listingDetail.sendToProdSuccess');
+      },
+      error: () => {
+        this.sendingToProd.set(false);
+        this.notification.error('listingDetail.sendToProdError');
+      }
     });
   }
 

@@ -4,6 +4,7 @@ export const environment = {
   production: true,
   apiUrl: '/api',
   siteUrl: 'https://espacial.com.mx',
+  isDevEnvironment: false,
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   googleClientId: GOOGLE_CLIENT_ID,
   facebookAppId: FACEBOOK_APP_ID,

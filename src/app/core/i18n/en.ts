@@ -351,6 +351,11 @@ export const en: Record<string, string> = {
   'listingDetail.deleteConfirm': 'Permanently delete this property? This action cannot be undone.',
   'listingDetail.adminDelete': 'Delete (admin)',
   'listingDetail.transferToAgent': 'Transfer to another agent',
+  'listingDetail.sendToProd': 'Send to production',
+  'listingDetail.sendToProdConfirm': 'Send "{{title}}" to production? This creates it on espacial.com.mx with its photos — if it already exists there, nothing will be changed.',
+  'listingDetail.sendToProdSuccess': 'Sent to production.',
+  'listingDetail.sendToProdAlreadyExists': 'This property already exists in production — nothing was changed.',
+  'listingDetail.sendToProdError': "Couldn't send to production. Try again.",
   'listingDetail.transferSuccess': 'Listing transferred to {{name}}.',
   'listingDetail.transferError': 'Could not transfer this listing. Please try again.',
 

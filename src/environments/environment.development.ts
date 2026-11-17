@@ -4,6 +4,11 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:5081/api',
   siteUrl: 'http://localhost:4200',
+  // Gates the admin-only "Enviar a producción" button on the listing detail page — true here and
+  // on dev-deploy, false on prod-deploy (see that file's own comment). Local dev against a local
+  // backend counts as "dev" too, since ProdSync:TargetApiUrl would only ever be configured there
+  // deliberately, never by accident.
+  isDevEnvironment: true,
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   googleClientId: GOOGLE_CLIENT_ID,
   facebookAppId: FACEBOOK_APP_ID,

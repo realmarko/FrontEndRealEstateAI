@@ -132,6 +132,12 @@ export class ListingService {
       .pipe(map((rows) => rows.map(pricePerSqmStatFromDto)));
   }
 
+  // "Enviar a producción" admin button (dev-only — see environment.isDevEnvironment). Create-only
+  // on the backend: alreadyExists=true means nothing was changed, in prod or here.
+  sendToProd(id: string): Observable<{ alreadyExists: boolean }> {
+    return this.http.post<{ alreadyExists: boolean }>(`${this.apiUrl}/${id}/send-to-prod`, {});
+  }
+
   // Admin-only, per-listing counterpart to getPricePerSqmStats above — this listing's own
   // price/m² against comparables at zip/colonia/city/state level. See ListingPriceComparison's
   // own doc comment for why this must never be shown outside the admin area.

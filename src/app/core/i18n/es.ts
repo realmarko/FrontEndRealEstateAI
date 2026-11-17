@@ -351,6 +351,11 @@ export const es: Record<string, string> = {
   'listingDetail.deleteConfirm': '¿Eliminar esta propiedad de forma permanente? Esta acción no se puede deshacer.',
   'listingDetail.adminDelete': 'Eliminar (administrador)',
   'listingDetail.transferToAgent': 'Transferir a otro agente',
+  'listingDetail.sendToProd': 'Enviar a producción',
+  'listingDetail.sendToProdConfirm': '¿Enviar "{{title}}" a producción? Esto la crea en espacial.com.mx con sus fotos — si ya existe ahí, no se modificará nada.',
+  'listingDetail.sendToProdSuccess': 'Enviada a producción.',
+  'listingDetail.sendToProdAlreadyExists': 'Esta propiedad ya existe en producción — no se modificó nada.',
+  'listingDetail.sendToProdError': 'No se pudo enviar a producción. Intenta de nuevo.',
   'listingDetail.transferSuccess': 'Propiedad transferida a {{name}}.',
   'listingDetail.transferError': 'No se pudo transferir la propiedad. Intenta de nuevo.',
 

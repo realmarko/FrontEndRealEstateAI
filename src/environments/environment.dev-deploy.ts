@@ -8,6 +8,9 @@ export const environment = {
   production: true,
   apiUrl: 'https://api-dev.espacial.com.mx/api',
   siteUrl: 'https://dev.espacial.com.mx',
+  // Gates the admin-only "Enviar a producción" button on the listing detail page — only this
+  // deployed environment can push a listing to prod; see environment.prod-deploy.ts.
+  isDevEnvironment: true,
   googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   googleClientId: GOOGLE_CLIENT_ID,
   facebookAppId: FACEBOOK_APP_ID,

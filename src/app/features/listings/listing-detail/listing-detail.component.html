@@ -564,6 +564,9 @@
             @if (isAdmin()) {
               <button type="button" class="primary-link" (click)="openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
             }
+            @if (canSendToProd()) {
+              <button type="button" class="primary-link" [disabled]="sendingToProd()" (click)="sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
+            }
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
           <ng-container *ngTemplateOutlet="viabilitySection" />
@@ -572,6 +575,9 @@
           @if (isAdmin()) {
             <div class="owner-actions">
               <button type="button" class="primary-link" (click)="openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
+              @if (canSendToProd()) {
+                <button type="button" class="primary-link" [disabled]="sendingToProd()" (click)="sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
+              }
               <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
             </div>
           }
