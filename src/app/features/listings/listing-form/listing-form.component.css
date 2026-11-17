@@ -280,4 +280,27 @@ select.ng-invalid.ng-touched {
   .grid-3 {
     grid-template-columns: 1fr;
   }
+
+  .photo-inputs {
+    gap: 1rem;
+  }
+
+  .take-photo-field {
+    display: flex;
+  }
+}
+
+/* Single field on desktop ("Elegir de la galería"), so this is a plain block, not a grid —
+   .grid-2 would reserve a second, empty-looking column once .take-photo-field below is hidden.
+   The mobile breakpoint above adds the gap back once both fields are visible. */
+.photo-inputs {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hidden by default (desktop): capture="environment" has no effect there, so showing this next
+   to "Elegir de la galería" was just a second, identically-behaving file dialog mislabeled as a
+   camera button. Restored to a visible field only inside the mobile breakpoint above. */
+.take-photo-field {
+  display: none;
 }

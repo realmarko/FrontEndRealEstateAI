@@ -447,16 +447,18 @@
     <!-- Two separate inputs, not one: capture="environment" reliably skips straight to the
          camera on mobile (confirmed, especially on Android) instead of falling back to the
          gallery/file chooser the way the old single-input comment here assumed — there was no
-         way to pick an existing photo without this split. Desktop ignores capture either way,
-         so both just open the normal file dialog there; harmless to show both. -->
-    <div class="grid-2">
-      <label>
-        {{ 'listingForm.takePhoto' | translate }}
-        <input type="file" accept="image/*" capture="environment" (change)="onFilesSelected($event)" />
-      </label>
+         way to pick an existing photo without this split. "Elegir de la galería" comes first
+         since it's the only option on desktop; "Tomar foto" is hidden there entirely (see
+         .take-photo-field in the CSS) instead of shown as a second, functionally-identical file
+         dialog with a misleading camera label. -->
+    <div class="photo-inputs">
       <label>
         {{ 'listingForm.choosePhotos' | translate }}
         <input type="file" accept="image/*" multiple (change)="onFilesSelected($event)" />
+      </label>
+      <label class="take-photo-field">
+        {{ 'listingForm.takePhoto' | translate }}
+        <input type="file" accept="image/*" capture="environment" (change)="onFilesSelected($event)" />
       </label>
     </div>
 
