@@ -48,7 +48,8 @@ const PAGE_LABELS: Record<string, string> = {
   'admin/errors': 'adminStats.pageAdminErrors',
   'admin/fraccionamientos': 'adminStats.pageAdminFraccionamientos',
   'admin/inmobiliarias': 'adminStats.pageAdminAgencies',
-  'admin/estadisticas': 'adminStats.pageAdminStats'
+  'admin/estadisticas': 'adminStats.pageAdminStats',
+  'admin/precio-m2': 'adminStats.pageAdminPriceStats'
 };
 
 export const WEEKS_OPTIONS = [4, 8, 12, 26] as const;

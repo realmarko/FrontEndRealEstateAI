@@ -11,6 +11,7 @@ import {
   LandTenureType,
   LotShapeType,
   PriceHistoryEntry,
+  PricePerSqmStat,
   PropertyType,
   RentalYieldEstimate,
   ResidentialAnalysis,
@@ -252,6 +253,28 @@ export interface CmaResultDto {
   sale: CmaStatsDto;
   rent: CmaStatsDto;
   comparables: ListingDto[];
+}
+
+export interface PricePerSqmStatDto {
+  state: string;
+  city: string;
+  colonia: string;
+  listingType: string;
+  count: number;
+  avgPricePerSqm: number;
+  medianPricePerSqm: number;
+}
+
+export function pricePerSqmStatFromDto(dto: PricePerSqmStatDto): PricePerSqmStat {
+  return {
+    state: dto.state,
+    city: dto.city,
+    colonia: dto.colonia,
+    listingType: LISTING_TYPE_FROM_STRING[dto.listingType] ?? 'sale',
+    count: dto.count,
+    avgPricePerSqm: dto.avgPricePerSqm,
+    medianPricePerSqm: dto.medianPricePerSqm
+  };
 }
 
 function cmaStatsFromDto(dto: CmaStatsDto): CmaStats {

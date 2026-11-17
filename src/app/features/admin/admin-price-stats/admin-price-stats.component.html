@@ -1,0 +1,91 @@
+<div class="page">
+  <h1>{{ 'adminPriceStats.title' | translate }}</h1>
+
+  <div class="admin-only-banner">
+    <strong>{{ 'adminPriceStats.adminOnlyLabel' | translate }}</strong>
+    {{ 'adminPriceStats.disclaimer' | translate }}
+  </div>
+
+  @if (stats().length) {
+    <section class="type-block">
+      <h2 class="type-title">{{ 'adminPriceStats.sale' | translate }}</h2>
+      @if (saleStats().length) {
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>{{ 'adminPriceStats.state' | translate }}</th>
+              <th>{{ 'adminPriceStats.city' | translate }}</th>
+              <th>{{ 'adminPriceStats.colonia' | translate }}</th>
+              <th>{{ 'adminPriceStats.count' | translate }}</th>
+              <th>{{ 'adminPriceStats.avg' | translate }}</th>
+              <th>{{ 'adminPriceStats.median' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of saleStats(); track row.state + row.city + row.colonia) {
+              <tr [class.low-sample]="isLowSample(row.count)">
+                <td>{{ row.state }}</td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.colonia }}</td>
+                <td class="num-cell">
+                  {{ row.count }}
+                  @if (isLowSample(row.count)) {
+                    <span class="low-sample-badge" [title]="'adminPriceStats.lowSampleHint' | translate">{{ 'adminPriceStats.lowSampleBadge' | translate }}</span>
+                  }
+                </td>
+                <td class="num-cell">{{ row.avgPricePerSqm | currency: 'MXN' : 'symbol' : '1.0-0' }}/m²</td>
+                <td class="num-cell">{{ row.medianPricePerSqm | currency: 'MXN' : 'symbol' : '1.0-0' }}/m²</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="empty">{{ 'adminPriceStats.empty' | translate }}</p>
+      }
+    </section>
+
+    <section class="type-block">
+      <h2 class="type-title">{{ 'adminPriceStats.rent' | translate }}</h2>
+      @if (rentStats().length) {
+        <table class="stats-table">
+          <thead>
+            <tr>
+              <th>{{ 'adminPriceStats.state' | translate }}</th>
+              <th>{{ 'adminPriceStats.city' | translate }}</th>
+              <th>{{ 'adminPriceStats.colonia' | translate }}</th>
+              <th>{{ 'adminPriceStats.count' | translate }}</th>
+              <th>{{ 'adminPriceStats.avg' | translate }}</th>
+              <th>{{ 'adminPriceStats.median' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rentStats(); track row.state + row.city + row.colonia) {
+              <tr [class.low-sample]="isLowSample(row.count)">
+                <td>{{ row.state }}</td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.colonia }}</td>
+                <td class="num-cell">
+                  {{ row.count }}
+                  @if (isLowSample(row.count)) {
+                    <span class="low-sample-badge" [title]="'adminPriceStats.lowSampleHint' | translate">{{ 'adminPriceStats.lowSampleBadge' | translate }}</span>
+                  }
+                </td>
+                <td class="num-cell">{{ row.avgPricePerSqm | currency: 'MXN' : 'symbol' : '1.0-0' }}/m²</td>
+                <td class="num-cell">{{ row.medianPricePerSqm | currency: 'MXN' : 'symbol' : '1.0-0' }}/m²</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="empty">{{ 'adminPriceStats.empty' | translate }}</p>
+      }
+    </section>
+  } @else if (loading()) {
+    <p class="loading">{{ 'adminPriceStats.loading' | translate }}</p>
+  } @else if (loadError()) {
+    <p class="error">{{ 'adminPriceStats.loadError' | translate }}</p>
+    <button type="button" class="retry-btn" (click)="load()">{{ 'adminPriceStats.retry' | translate }}</button>
+  } @else {
+    <p class="empty">{{ 'adminPriceStats.empty' | translate }}</p>
+  }
+</div>

@@ -64,6 +64,7 @@ const clientOnlyPaths = [
   'pipeline',
   'admin/errors',
   'admin/estadisticas',
+  'admin/precio-m2',
   'admin/fraccionamientos',
   'admin/inmobiliarias'
 ];

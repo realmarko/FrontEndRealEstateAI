@@ -272,6 +272,14 @@ export const routes: Routes = [
       )
   },
   {
+    path: 'admin/precio-m2',
+    canActivate: [authGuard, roleGuard('Admin')],
+    loadComponent: () =>
+      import('./features/admin/admin-price-stats/admin-price-stats.component').then(
+        (m) => m.AdminPriceStatsComponent
+      )
+  },
+  {
     path: 'admin/inmobiliarias',
     canActivate: [authGuard, roleGuard('Admin')],
     loadComponent: () =>

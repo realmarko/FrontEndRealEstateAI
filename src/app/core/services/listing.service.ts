@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PropertyType, ResidentialAnalysis, ViabilityAnalysis } from '../models/listing.model';
+import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PricePerSqmStat, PropertyType, ResidentialAnalysis, ViabilityAnalysis } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
@@ -12,12 +12,14 @@ import {
   ListingPriceHistoryDto,
   ListingQuotaDto,
   PROPERTY_TYPE_TO_NUMBER,
+  PricePerSqmStatDto,
   ResidentialAnalysisDto,
   ViabilityAnalysisDto,
   cmaResultFromDto,
   fromDto,
   listingDraftFromDto,
   priceHistoryFromDto,
+  pricePerSqmStatFromDto,
   residentialAnalysisFromDto,
   toFormData,
   viabilityAnalysisFromDto
@@ -118,6 +120,14 @@ export class ListingService {
   // the listing's own property type is eligible before calling this (404s otherwise).
   getViabilityPreview(id: string): Observable<ViabilityAnalysis> {
     return this.http.get<ViabilityAnalysisDto>(`${this.apiUrl}/${id}/viability-preview`).pipe(map(viabilityAnalysisFromDto));
+  }
+
+  // Admin-only price/m² roll-up by State/City/Colonia — see PricePerSqmStat's own doc comment
+  // for why this must never be shown outside the admin area.
+  getPricePerSqmStats(): Observable<PricePerSqmStat[]> {
+    return this.http
+      .get<PricePerSqmStatDto[]>(`${this.apiUrl}/price-per-sqm-stats`)
+      .pipe(map((rows) => rows.map(pricePerSqmStatFromDto)));
   }
 
   // House/apartment counterpart to getViabilityPreview above — free, ungated.
