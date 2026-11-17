@@ -49,7 +49,8 @@ import {
   SCHOOL_GLYPH,
   SHOPPING_CART_GLYPH,
   SPORTS_CENTER_GLYPH,
-  createPoiIcon
+  createPoiIcon,
+  createPriceMarkerIcon
 } from '../../core/utils/map-icons';
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
 import { applyCurrencyMask } from '../../shared/utils/currency-input';
@@ -81,21 +82,16 @@ const DEFAULT_ZOOM = 13;
 // map stuck on its loading overlay indefinitely (the old geolocation-based approach this
 // replaced had the same kind of bound for the same reason).
 const INITIAL_CENTER_TIMEOUT_MS = 5000;
-const MY_LISTING_ICON = 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png';
-// Google's stock icon set has no gold dot. createPoiIcon isn't reused here on purpose — its badge
-// fills almost the whole canvas (sized to carry a glyph), which would make this marker visibly
-// bigger than MY_LISTING_ICON's compact dot; this SVG is sized to match that dot look instead, so
-// "my listing" vs. "every other listing" differ only by color, not by size.
-const OTHER_LISTING_ICON: google.maps.Icon = {
-  url: `data:image/svg+xml;base64,${btoa('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="10" fill="#D4AF37" stroke="#fff" stroke-width="2.5"/></svg>')}`,
-  scaledSize: { width: 32, height: 32 } as google.maps.Size,
-  anchor: { x: 16, y: 16 } as google.maps.Point
-};
+// Colors for the price-pill marker (see createPriceMarkerIcon) — "my listing" vs. "everyone
+// else's" differ only by color, same distinction the plain dots these replaced used. Blue matches
+// placeMyLocationMarker's own "you are here" dot; gold is this app's brand accent (--gold token).
+const MY_LISTING_PRICE_COLOR = '#4285F4';
+const OTHER_LISTING_PRICE_COLOR = '#c6a15b';
 // How much a listing marker fades when a search is active and it isn't one of the matches (see
 // searchMatchIds) — dimmed, not hidden, since the viewport/list must still show every listing.
 const DIMMED_MARKER_OPACITY = 0.3;
-// Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
-// "featured/special" — fitting for a whole development rather than a single unit.
+// Yellow is otherwise unused by the price-pill colors above or any POI_CATEGORIES color below, and
+// reads as "featured/special" — fitting for a whole development rather than a single unit.
 const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
 const FRACCIONAMIENTO_CLUSTER_COLOR = '#c6a15b';
 // Purple is otherwise unused — a brokerage office is a different kind of pin from both a listing
@@ -1436,6 +1432,31 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.infoWindow.open({ map: this.map, anchor: marker });
   }
 
+  // Cached per currency (there are only ever a couple in play — MXN/USD) so renderListingMarkers
+  // isn't constructing a fresh Intl.NumberFormat for every single marker on every re-render.
+  private readonly compactPriceFormatters = new Map<string, Intl.NumberFormat>();
+
+  // The short price text a marker's pill shows — "$1.2M", "MX$615K" — via Intl's own compact
+  // notation rather than hand-rolling K/M suffix math. minimumFractionDigits: 0 drops the
+  // otherwise-always-present ".0" compact notation adds for round values (e.g. plain "615K", not
+  // "615.0K"); maximumFractionDigits: 1 keeps non-round values to one decimal ("$1.2M").
+  private formatMarkerPrice(listing: Listing): string {
+    if (listing.priceOnRequest || listing.price <= 0) return this.translation.t('listing.priceOnRequest');
+
+    let formatter = this.compactPriceFormatters.get(listing.currency);
+    if (!formatter) {
+      formatter = new Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: listing.currency,
+        notation: 'compact',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 1
+      });
+      this.compactPriceFormatters.set(listing.currency, formatter);
+    }
+    return formatter.format(listing.price);
+  }
+
   private renderListingMarkers(): void {
     // A filter/auth change re-renders every marker from scratch while a pin is mid-drag (see
     // the effect that calls this) — without carrying its current dragged position and
@@ -1460,10 +1481,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     for (const listing of listings) {
       const isEditing = listing.id === editingId;
+      const isMine = listing.ownerId === currentUserId;
       const marker = new google.maps.Marker({
         position: isEditing && editingPosition ? { lat: editingPosition.lat(), lng: editingPosition.lng() } : { lat: listing.lat!, lng: listing.lng! },
         title: listing.title,
-        icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : OTHER_LISTING_ICON,
+        icon: createPriceMarkerIcon(this.formatMarkerPrice(listing), isMine ? MY_LISTING_PRICE_COLOR : OTHER_LISTING_PRICE_COLOR),
         opacity: searchActive && !matchIds.has(listing.id) ? DIMMED_MARKER_OPACITY : 1,
         draggable: isEditing
       });

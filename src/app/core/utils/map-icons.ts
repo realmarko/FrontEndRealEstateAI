@@ -15,6 +15,44 @@ export function createPoiIcon(color: string, glyph: string): google.maps.Icon {
   };
 }
 
+// Estimated width of one character of the price pill's bold 12px label, in px — there's no DOM
+// (and so no canvas measureText) available where icons are built, since this runs outside any
+// component's render cycle; a flat per-character estimate is close enough to size the pill without
+// visibly clipping or leaving excess padding for the short strings compact currency formatting
+// produces (e.g. "$1.2M", "MX$615K").
+const PRICE_PILL_CHAR_WIDTH = 7.2;
+const PRICE_PILL_HEIGHT = 22;
+const PRICE_PILL_PADDING_X = 10;
+const PRICE_PILL_POINTER_HEIGHT = 6;
+
+// A Zillow/Redfin-style price pill for a listing marker (map-view.component.ts) — replaces a
+// plain colored dot with the actual price, so a visitor can judge listings at a glance without
+// clicking each one. color distinguishes "my listings" from everyone else's, same as the plain
+// dots this replaces. Sized dynamically per price string (see PRICE_PILL_CHAR_WIDTH above) since a
+// fixed-width pill would either clip "MX$70.0M" or waste space around "$12K".
+export function createPriceMarkerIcon(priceText: string, color: string): google.maps.Icon {
+  const escaped = priceText.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const width = Math.round(priceText.length * PRICE_PILL_CHAR_WIDTH + PRICE_PILL_PADDING_X * 2);
+  const height = PRICE_PILL_HEIGHT;
+  const radius = height / 2;
+  const totalHeight = height + PRICE_PILL_POINTER_HEIGHT;
+  const centerX = width / 2;
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${totalHeight}" viewBox="0 0 ${width} ${totalHeight}">` +
+    `<path d="M ${centerX - 5} ${height} L ${centerX} ${totalHeight} L ${centerX + 5} ${height} Z" fill="${color}"/>` +
+    `<rect x="0" y="0" width="${width}" height="${height}" rx="${radius}" fill="${color}" stroke="#fff" stroke-width="1.5"/>` +
+    `<text x="${centerX}" y="${height / 2}" text-anchor="middle" dominant-baseline="central" ` +
+    `font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#fff">${escaped}</text>` +
+    `</svg>`;
+
+  return {
+    url: `data:image/svg+xml;base64,${btoa(svg)}`,
+    scaledSize: { width, height: totalHeight } as google.maps.Size,
+    anchor: { x: centerX, y: totalHeight } as google.maps.Point
+  };
+}
+
 export const SCHOOL_GLYPH =
   '<polygon points="17,10 26,14 17,18 8,14" fill="#fff"/>' +
   '<path d="M12,15.5 L12,20.5 Q17,23.5 22,20.5 L22,15.5" fill="none" stroke="#fff" stroke-width="1.6"/>' +
