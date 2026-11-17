@@ -846,3 +846,96 @@
     font-size: 1.5rem;
   }
 }
+
+.price-comparison-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.admin-only-banner {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-sm);
+  background: rgba(198, 161, 91, 0.08);
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.admin-only-banner strong {
+  color: var(--navy);
+  margin-right: var(--space-2);
+}
+
+.price-comparison-subject {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+
+.price-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.price-comparison-table th,
+.price-comparison-table td {
+  text-align: left;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--hairline);
+  font-size: 0.85rem;
+}
+
+.price-comparison-table th {
+  background: #f9fafb;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.price-comparison-table tr:last-child td {
+  border-bottom: none;
+}
+
+.price-comparison-table .num-cell {
+  font-variant-numeric: tabular-nums;
+}
+
+.low-sample-badge {
+  display: inline-block;
+  margin-left: var(--space-2);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--on-gold);
+  font-size: 0.7rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.comparison-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.comparison-badge.above {
+  background: rgba(185, 28, 28, 0.1);
+  color: #b91c1c;
+}
+
+.comparison-badge.below {
+  background: rgba(21, 128, 61, 0.1);
+  color: #15803d;
+}
+
+.comparison-badge.equal {
+  background: rgba(107, 114, 128, 0.12);
+  color: var(--ink-soft);
+}

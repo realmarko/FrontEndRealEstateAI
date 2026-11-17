@@ -14,8 +14,10 @@ import {
   CardinalOrientationType,
   ConstructionConditionType,
   DEFAULT_LISTING_IMAGE,
+  LOW_SAMPLE_PRICE_COUNT_THRESHOLD,
   LandTenureType,
   Listing,
+  ListingPriceComparison,
   LotShapeType,
   PriceHistoryEntry,
   TopographyType,
@@ -166,6 +168,26 @@ export class ListingDetailComponent {
   readonly viabilityAnalysis = signal<ViabilityAnalysis | null>(null);
   readonly loadingViability = signal(false);
   readonly viabilityError = signal(false);
+
+  // Admin-only price/m² vs. zone comparison (see ListingPriceComparison's doc comment) — loaded
+  // only for an admin viewer (loadPriceComparison, called from the constructor below), never for
+  // the owner/agent/visitor this same page serves.
+  readonly priceComparison = signal<ListingPriceComparison | null>(null);
+  readonly loadingPriceComparison = signal(false);
+  readonly priceComparisonError = signal(false);
+  // Broadest-to-narrowest order in the UI reads zip -> colonia -> city -> state; this is that
+  // same order, paired with each row's i18n label key, built once per priceComparison() change
+  // instead of as an inline array literal re-created every template check.
+  readonly priceComparisonRows = computed(() => {
+    const comparison = this.priceComparison();
+    if (!comparison) return [];
+    return [
+      { labelKey: 'listingDetail.priceComparisonZip', zone: comparison.zipCode },
+      { labelKey: 'listingDetail.priceComparisonColonia', zone: comparison.colonia },
+      { labelKey: 'listingDetail.priceComparisonCity', zone: comparison.city },
+      { labelKey: 'listingDetail.priceComparisonState', zone: comparison.state }
+    ];
+  });
   readonly viabilityTopBusiness = computed(() => {
     const businesses = this.viabilityAnalysis()?.businesses ?? [];
     return businesses.reduce<(typeof businesses)[number] | null>((best, b) => (!best || b.score > best.score ? b : best), null);
@@ -369,6 +391,10 @@ export class ListingDetailComponent {
         if (isLandOrCommercialPropertyType(listing.propertyType) && this.isBrowser) {
           this.loadViabilityPreview();
         }
+
+        if (this.isAdmin()) {
+          this.loadPriceComparison();
+        }
       },
       error: () => {
         this.listing.set(undefined);
@@ -526,6 +552,10 @@ export class ListingDetailComponent {
 
   pricePerSqm(listing: Listing): number {
     return listing.areaSqm > 0 ? listing.price / listing.areaSqm : 0;
+  }
+
+  isLowSampleCount(count: number): boolean {
+    return count > 0 && count < LOW_SAMPLE_PRICE_COUNT_THRESHOLD;
   }
 
   // schema.org RealEstateListing — the structured-data equivalent of the fact grid already
@@ -752,6 +782,22 @@ export class ListingDetailComponent {
         this.viabilityError.set(true);
         this.dismissViabilityLoadingToast();
         this.notification.error('listingDetail.viabilityError');
+      }
+    });
+  }
+
+  private loadPriceComparison(): void {
+    this.loadingPriceComparison.set(true);
+    this.priceComparisonError.set(false);
+
+    this.listingService.getPricePerSqmComparison(this.id).subscribe({
+      next: (comparison) => {
+        this.loadingPriceComparison.set(false);
+        this.priceComparison.set(comparison);
+      },
+      error: () => {
+        this.loadingPriceComparison.set(false);
+        this.priceComparisonError.set(true);
       }
     });
   }

@@ -657,6 +657,78 @@
           }
         }
 
+        @if (isAdmin()) {
+          <div class="price-comparison-section">
+            <h2 class="section-title">{{ 'listingDetail.priceComparisonTitle' | translate }}</h2>
+            <div class="admin-only-banner">
+              <strong>{{ 'listingDetail.priceComparisonAdminOnly' | translate }}</strong>
+              {{ 'listingDetail.priceComparisonDisclaimer' | translate }}
+            </div>
+
+            @if (loadingPriceComparison()) {
+              <p class="loading">{{ 'listingDetail.priceComparisonLoading' | translate }}</p>
+            } @else if (priceComparison(); as comparison) {
+              @if (comparison.subjectPricePerSqm != null) {
+                <p class="price-comparison-subject">
+                  {{ 'listingDetail.priceComparisonThisProperty' | translate }}
+                  <strong>{{ comparison.subjectPricePerSqm | currency: 'MXN' : 'symbol' : '1.0-0' }}/m²</strong>
+                </p>
+
+                <table class="price-comparison-table">
+                  <thead>
+                    <tr>
+                      <th>{{ 'listingDetail.priceComparisonZone' | translate }}</th>
+                      <th>{{ 'listingDetail.priceComparisonCount' | translate }}</th>
+                      <th>{{ 'listingDetail.priceComparisonAvg' | translate }}</th>
+                      <th>{{ 'listingDetail.priceComparisonStatus' | translate }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (zone of priceComparisonRows(); track zone.labelKey) {
+                      <tr>
+                        <td>{{ zone.labelKey | translate }} ({{ zone.zone.label }})</td>
+                        <td class="num-cell">
+                          {{ zone.zone.count }}
+                          @if (isLowSampleCount(zone.zone.count)) {
+                            <span class="low-sample-badge">{{ 'listingDetail.priceComparisonLowSample' | translate }}</span>
+                          }
+                        </td>
+                        <td class="num-cell">
+                          @if (zone.zone.avgPricePerSqm != null) {
+                            {{ zone.zone.avgPricePerSqm | currency: 'MXN' : 'symbol' : '1.0-0' }}/m²
+                          } @else {
+                            —
+                          }
+                        </td>
+                        <td>
+                          @switch (zone.zone.comparison) {
+                            @case ('above') {
+                              <span class="comparison-badge above">{{ 'listingDetail.priceComparisonAbove' | translate }}</span>
+                            }
+                            @case ('below') {
+                              <span class="comparison-badge below">{{ 'listingDetail.priceComparisonBelow' | translate }}</span>
+                            }
+                            @case ('equal') {
+                              <span class="comparison-badge equal">{{ 'listingDetail.priceComparisonEqual' | translate }}</span>
+                            }
+                            @default {
+                              —
+                            }
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              } @else {
+                <p class="empty">{{ 'listingDetail.priceComparisonNoSubjectPrice' | translate }}</p>
+              }
+            } @else if (priceComparisonError()) {
+              <p class="error">{{ 'listingDetail.priceComparisonError' | translate }}</p>
+            }
+          </div>
+        }
+
         @if (isAdmin() && !isOwner()) {
           <a class="primary-link admin-owner-contact-link" [routerLink]="translation.path('listings', listing.id, 'edit')">
             {{ 'listingDetail.editOwnerContact' | translate }}

@@ -3,12 +3,13 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize, map, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
-import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingQuota, PriceHistoryEntry, PricePerSqmStat, PropertyType, ResidentialAnalysis, ViabilityAnalysis } from '../models/listing.model';
+import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInput, ListingPriceComparison, ListingQuota, PriceHistoryEntry, PricePerSqmStat, PropertyType, ResidentialAnalysis, ViabilityAnalysis } from '../models/listing.model';
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
   ListingDraftDto,
   ListingDto,
+  ListingPriceComparisonDto,
   ListingPriceHistoryDto,
   ListingQuotaDto,
   PROPERTY_TYPE_TO_NUMBER,
@@ -18,6 +19,7 @@ import {
   cmaResultFromDto,
   fromDto,
   listingDraftFromDto,
+  listingPriceComparisonFromDto,
   priceHistoryFromDto,
   pricePerSqmStatFromDto,
   residentialAnalysisFromDto,
@@ -128,6 +130,15 @@ export class ListingService {
     return this.http
       .get<PricePerSqmStatDto[]>(`${this.apiUrl}/price-per-sqm-stats`)
       .pipe(map((rows) => rows.map(pricePerSqmStatFromDto)));
+  }
+
+  // Admin-only, per-listing counterpart to getPricePerSqmStats above — this listing's own
+  // price/m² against comparables at zip/colonia/city/state level. See ListingPriceComparison's
+  // own doc comment for why this must never be shown outside the admin area.
+  getPricePerSqmComparison(id: string): Observable<ListingPriceComparison> {
+    return this.http
+      .get<ListingPriceComparisonDto>(`${this.apiUrl}/${id}/price-per-sqm-comparison`)
+      .pipe(map(listingPriceComparisonFromDto));
   }
 
   // House/apartment counterpart to getViabilityPreview above — free, ungated.

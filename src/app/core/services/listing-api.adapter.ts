@@ -7,6 +7,7 @@ import {
   Listing,
   ListingDraft,
   ListingInput,
+  ListingPriceComparison,
   ListingType,
   LandTenureType,
   LotShapeType,
@@ -17,7 +18,8 @@ import {
   ResidentialAnalysis,
   TopographyType,
   VialidadType,
-  ViabilityAnalysis
+  ViabilityAnalysis,
+  ZonePriceComparison
 } from '../models/listing.model';
 
 // Backend enums serialize as numbers when writing (Create/Update) but as
@@ -274,6 +276,42 @@ export function pricePerSqmStatFromDto(dto: PricePerSqmStatDto): PricePerSqmStat
     count: dto.count,
     avgPricePerSqm: dto.avgPricePerSqm,
     medianPricePerSqm: dto.medianPricePerSqm
+  };
+}
+
+export interface ZonePriceComparisonDto {
+  label: string;
+  count: number;
+  avgPricePerSqm: number | null;
+  medianPricePerSqm: number | null;
+  comparison: string | null;
+}
+
+export interface ListingPriceComparisonDto {
+  subjectPricePerSqm: number | null;
+  zipCode: ZonePriceComparisonDto;
+  colonia: ZonePriceComparisonDto;
+  city: ZonePriceComparisonDto;
+  state: ZonePriceComparisonDto;
+}
+
+function zonePriceComparisonFromDto(dto: ZonePriceComparisonDto): ZonePriceComparison {
+  return {
+    label: dto.label,
+    count: dto.count,
+    avgPricePerSqm: dto.avgPricePerSqm ?? undefined,
+    medianPricePerSqm: dto.medianPricePerSqm ?? undefined,
+    comparison: dto.comparison === 'above' || dto.comparison === 'below' || dto.comparison === 'equal' ? dto.comparison : null
+  };
+}
+
+export function listingPriceComparisonFromDto(dto: ListingPriceComparisonDto): ListingPriceComparison {
+  return {
+    subjectPricePerSqm: dto.subjectPricePerSqm ?? undefined,
+    zipCode: zonePriceComparisonFromDto(dto.zipCode),
+    colonia: zonePriceComparisonFromDto(dto.colonia),
+    city: zonePriceComparisonFromDto(dto.city),
+    state: zonePriceComparisonFromDto(dto.state)
   };
 }
 

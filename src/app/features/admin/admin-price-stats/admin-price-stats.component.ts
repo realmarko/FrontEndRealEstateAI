@@ -3,13 +3,9 @@ import { Component, OnInit, computed, signal } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { ListingService } from '../../../core/services/listing.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { PricePerSqmStat } from '../../../core/models/listing.model';
+import { LOW_SAMPLE_PRICE_COUNT_THRESHOLD, PricePerSqmStat } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
-
-// Below this, a bucket's avg/median is one or two listings pretending to be a market figure —
-// the UI flags it instead of just quietly showing a confident-looking number.
-export const LOW_SAMPLE_THRESHOLD = 3;
 
 @Component({
   selector: 'app-admin-price-stats',
@@ -42,7 +38,7 @@ export class AdminPriceStatsComponent implements OnInit {
   }
 
   isLowSample(count: number): boolean {
-    return count < LOW_SAMPLE_THRESHOLD;
+    return count < LOW_SAMPLE_PRICE_COUNT_THRESHOLD;
   }
 
   load(): void {

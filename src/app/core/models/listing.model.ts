@@ -282,6 +282,10 @@ export interface CmaResult {
   comparables: Listing[];
 }
 
+// Shared by admin-price-stats and listing-detail's admin-only price-comparison section — below
+// this, a bucket's avg/median is one or two listings pretending to be a market figure.
+export const LOW_SAMPLE_PRICE_COUNT_THRESHOLD = 3;
+
 // Admin-only roll-up (ListingService.getPricePerSqmStats) — one row per State/City/Colonia/
 // ListingType combo. Sample sizes are tiny at current listing volume; never render this where a
 // visitor could mistake a 1-listing bucket for a real market average.
@@ -293,6 +297,26 @@ export interface PricePerSqmStat {
   count: number;
   avgPricePerSqm: number;
   medianPricePerSqm: number;
+}
+
+// Admin-only (ListingService.getPricePerSqmComparison) — one listing's own price/m² against
+// comparables at increasingly broad zone levels. count === 0 means no comparable exists at that
+// level; comparison is null whenever there's nothing to compare against (count === 0) or the
+// listing itself has no price/m² (price-on-request, or missing area).
+export interface ZonePriceComparison {
+  label: string;
+  count: number;
+  avgPricePerSqm?: number;
+  medianPricePerSqm?: number;
+  comparison: 'above' | 'below' | 'equal' | null;
+}
+
+export interface ListingPriceComparison {
+  subjectPricePerSqm?: number;
+  zipCode: ZonePriceComparison;
+  colonia: ZonePriceComparison;
+  city: ZonePriceComparison;
+  state: ZonePriceComparison;
 }
 
 export interface ViabilityCheck {
