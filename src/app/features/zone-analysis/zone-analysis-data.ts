@@ -36,6 +36,8 @@ export const ZONE_ANALYSIS_ZONES: readonly ZoneAnalysisZone[] = [
   { slug: 'apizaco', cvegeo: '29005', name: 'Apizaco', state: 'Tlaxcala', lat: 19.4167, lng: -98.15 },
   { slug: 'huamantla', cvegeo: '29013', name: 'Huamantla', state: 'Tlaxcala', lat: 19.3167, lng: -97.9167 },
   { slug: 'chiautempan', cvegeo: '29010', name: 'Chiautempan', state: 'Tlaxcala', lat: 19.3167, lng: -98.1833 },
+  { slug: 'totolac', cvegeo: '29036', name: 'Totolac', state: 'Tlaxcala', lat: 19.3336, lng: -98.2219 },
+  { slug: 'tetla-de-la-solidaridad', cvegeo: '29031', name: 'Tetla de la Solidaridad', state: 'Tlaxcala', lat: 19.3658, lng: -98.1511 },
   { slug: 'queretaro', cvegeo: '22014', name: 'Querétaro', state: 'Querétaro', lat: 20.5888, lng: -100.3899 },
   { slug: 'san-juan-del-rio', cvegeo: '22016', name: 'San Juan del Río', state: 'Querétaro', lat: 20.3889, lng: -99.9961 },
   { slug: 'corregidora', cvegeo: '22006', name: 'Corregidora', state: 'Querétaro', lat: 20.5219, lng: -100.4397 },
