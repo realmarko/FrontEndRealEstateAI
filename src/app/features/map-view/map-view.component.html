@@ -589,7 +589,12 @@
       @if (visibleListings().length) {
         <div class="listings-list">
           @for (listing of visibleListings(); track listing.id) {
-            <div class="listing-card-wrap" (mouseenter)="onCardHover(listing.id)" (mouseleave)="onCardLeave(listing.id)">
+            <div
+              class="listing-card-wrap"
+              [class.search-dimmed]="search().trim() && !searchMatchIds().has(listing.id)"
+              (mouseenter)="onCardHover(listing.id)"
+              (mouseleave)="onCardLeave(listing.id)"
+            >
               <app-listing-card
                 [listing]="listing"
                 [isFavorite]="favorites.isFavorite(listing.id)"

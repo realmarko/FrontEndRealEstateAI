@@ -64,6 +64,10 @@ import {
   calculateMonthlyPayment
 } from '../../shared/utils/mortgage';
 
+// Stable empty-set reference for searchMatchIds when the search box is empty — avoids handing
+// the template a freshly-allocated Set on every recompute for the (most common) no-search case.
+const EMPTY_ID_SET: ReadonlySet<string> = new Set();
+
 const DEFAULT_CENTER: google.maps.LatLngLiteral = { lat: 19.0414, lng: -98.2063 }; // Puebla, MX
 const DEFAULT_ZOOM = 16;
 
@@ -82,6 +86,9 @@ const OTHER_LISTING_ICON: google.maps.Icon = {
   scaledSize: { width: 32, height: 32 } as google.maps.Size,
   anchor: { x: 16, y: 16 } as google.maps.Point
 };
+// How much a listing marker fades when a search is active and it isn't one of the matches (see
+// searchMatchIds) — dimmed, not hidden, since the viewport/list must still show every listing.
+const DIMMED_MARKER_OPACITY = 0.3;
 // Yellow is otherwise unused by MY_LISTING_ICON or any POI_CATEGORIES color below, and reads as
 // "featured/special" — fitting for a whole development rather than a single unit.
 const FRACCIONAMIENTO_ICON = 'https://maps.google.com/mapfiles/ms/icons/yellow-dot.png';
@@ -690,8 +697,11 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     return live;
   });
 
+  // The free-text search box (map-search) never removes a listing from the viewport/list — it
+  // only drives searchMatchIds below, which the list/markers use to highlight a match. Only the
+  // "real" filters (type, price, beds, company, municipality dropdown) actually exclude listings
+  // here; see searchMatchIds for the text-match logic that used to live in this filter too.
   readonly filteredListings = computed(() => {
-    const term = this.search().trim().toLowerCase();
     const type = this.typeFilter();
     const propertyType = this.propertyTypeFilter();
     const minP = this.minPrice();
@@ -700,17 +710,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const minBa = this.minBaths();
     const company = this.companyFilter().trim().toLowerCase();
     const polygon = this.municipalityPolygon();
-    const searchShape = this.searchMunicipalityPolygon();
 
     return this.effectiveListings().filter((listing) => {
-      const matchesTerm =
-        !term ||
-        listing.title.toLowerCase().includes(term) ||
-        listing.address.toLowerCase().includes(term) ||
-        (searchShape != null &&
-          listing.lat != null &&
-          listing.lng != null &&
-          google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), searchShape));
       const matchesType = type === 'all' || listing.type === type;
       const matchesPropertyType = propertyType === 'all' || listing.propertyType === propertyType;
       const matchesMinPrice = minP === null || listing.price >= minP;
@@ -724,7 +725,6 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
           listing.lng != null &&
           google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), polygon));
       return (
-        matchesTerm &&
         matchesType &&
         matchesPropertyType &&
         matchesMinPrice &&
@@ -735,6 +735,31 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         matchesMunicipality
       );
     });
+  });
+
+  // IDs of listings (among filteredListings, i.e. still respecting the real filters above) whose
+  // title/address matches the typed search text, or that fall inside the municipality polygon an
+  // exact municipality-name search resolved (see syncSearchMunicipality) — the same condition
+  // this.search() used to filter by directly. Empty (not "everything matches") when the box is
+  // empty, so the list/map template can tell "no search active" apart from "search active," apart
+  // from "nothing matches" in map-view.component.html/renderListingMarkers.
+  readonly searchMatchIds = computed<ReadonlySet<string>>(() => {
+    const term = this.search().trim().toLowerCase();
+    if (!term) return EMPTY_ID_SET;
+
+    const searchShape = this.searchMunicipalityPolygon();
+    const ids = new Set<string>();
+    for (const listing of this.filteredListings()) {
+      const matches =
+        listing.title.toLowerCase().includes(term) ||
+        listing.address.toLowerCase().includes(term) ||
+        (searchShape != null &&
+          listing.lat != null &&
+          listing.lng != null &&
+          google.maps.geometry.poly.containsLocation(new google.maps.LatLng(listing.lat, listing.lng), searchShape));
+      if (matches) ids.add(listing.id);
+    }
+    return ids;
   });
 
   private readonly mapBounds = signal<google.maps.LatLngBounds | null>(null);
@@ -856,11 +881,13 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
       hreflang: this.translation.hreflangPaths('map')
     });
 
-    // Re-render markers whenever the filtered listings or the logged-in user change (so "my
-    // listings" stay correctly highlighted, and the map mirrors the list), without a full reload.
+    // Re-render markers whenever the filtered listings, the logged-in user, or the search-match
+    // set change (so "my listings" stay correctly highlighted, a typed search dims non-matches,
+    // and the map mirrors the list), without a full reload.
     effect(() => {
       this.filteredListings();
       this.auth.currentUser();
+      this.searchMatchIds();
       if (this.map) {
         this.renderListingMarkers();
       }
@@ -1419,6 +1446,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const listings = this.filteredListings().filter((listing) => listing.lat != null && listing.lng != null);
     const currentUserId = this.auth.currentUser()?.id;
     const markers: google.maps.Marker[] = [];
+    // A typed search no longer removes non-matching listings (see searchMatchIds) — it dims their
+    // marker instead, so the viewport keeps showing everything while still calling out matches.
+    // searchMatchIds is empty (not "match everything") when the box itself is empty, so dimming
+    // only kicks in once there's an actual term/municipality search to highlight against.
+    const matchIds = this.searchMatchIds();
+    const searchActive = this.search().trim().length > 0;
 
     for (const listing of listings) {
       const isEditing = listing.id === editingId;
@@ -1426,6 +1459,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         position: isEditing && editingPosition ? { lat: editingPosition.lat(), lng: editingPosition.lng() } : { lat: listing.lat!, lng: listing.lng! },
         title: listing.title,
         icon: listing.ownerId === currentUserId ? MY_LISTING_ICON : OTHER_LISTING_ICON,
+        opacity: searchActive && !matchIds.has(listing.id) ? DIMMED_MARKER_OPACITY : 1,
         draggable: isEditing
       });
 

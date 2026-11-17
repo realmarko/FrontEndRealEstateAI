@@ -1089,11 +1089,18 @@
 }
 
 .listing-card-wrap {
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .listing-card-wrap:hover {
   transform: translateY(-2px);
+}
+
+/* A typed search (map-search) no longer removes non-matching cards from this list — it dims them
+   instead, mirroring the matching marker's reduced opacity on the map (see DIMMED_MARKER_OPACITY
+   in map-view.component.ts) so the list and the map always agree on what's a match. */
+.listing-card-wrap.search-dimmed {
+  opacity: 0.4;
 }
 
 .empty {
