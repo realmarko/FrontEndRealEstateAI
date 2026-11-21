@@ -262,6 +262,7 @@ export interface PricePerSqmStatDto {
   city: string;
   colonia: string;
   listingType: string;
+  propertyType: string;
   count: number;
   avgPricePerSqm: number;
   medianPricePerSqm: number;
@@ -273,6 +274,7 @@ export function pricePerSqmStatFromDto(dto: PricePerSqmStatDto): PricePerSqmStat
     city: dto.city,
     colonia: dto.colonia,
     listingType: LISTING_TYPE_FROM_STRING[dto.listingType] ?? 'sale',
+    propertyType: PROPERTY_TYPE_FROM_STRING[dto.propertyType] ?? 'house',
     count: dto.count,
     avgPricePerSqm: dto.avgPricePerSqm,
     medianPricePerSqm: dto.medianPricePerSqm

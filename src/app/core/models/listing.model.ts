@@ -287,13 +287,14 @@ export interface CmaResult {
 export const LOW_SAMPLE_PRICE_COUNT_THRESHOLD = 3;
 
 // Admin-only roll-up (ListingService.getPricePerSqmStats) — one row per State/City/Colonia/
-// ListingType combo. Sample sizes are tiny at current listing volume; never render this where a
-// visitor could mistake a 1-listing bucket for a real market average.
+// ListingType/PropertyType combo. Sample sizes are tiny at current listing volume; never render
+// this where a visitor could mistake a 1-listing bucket for a real market average.
 export interface PricePerSqmStat {
   state: string;
   city: string;
   colonia: string;
   listingType: ListingType;
+  propertyType: PropertyType;
   count: number;
   avgPricePerSqm: number;
   medianPricePerSqm: number;

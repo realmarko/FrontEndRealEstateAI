@@ -1142,6 +1142,7 @@ export const en: Record<string, string> = {
   'adminPriceStats.state': 'State',
   'adminPriceStats.city': 'City',
   'adminPriceStats.colonia': 'Neighborhood',
+  'adminPriceStats.propertyType': 'Property type',
   'adminPriceStats.count': 'Listings',
   'adminPriceStats.avg': 'Avg $/m²',
   'adminPriceStats.median': 'Median $/m²',
