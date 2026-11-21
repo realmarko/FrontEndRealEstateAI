@@ -654,6 +654,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   // mutually exclusive with it (see toggleAppreciationLayer): both paint AGEB polygons, so
   // showing both at once would just overdraw one with the other.
   readonly showAppreciationLayer = signal(false);
+  // True while a one-shot appreciation fetch (including its zoom-retry loop) is in flight, so the
+  // template can show a loading overlay over the map instead of leaving the toggle looking inert.
+  readonly loadingAppreciation = signal(false);
   // The opt-in "mapa de color competitivo" layer — fetched once per click (not on every pan,
   // unlike showAgebLayer above) for whichever opportunity category is currently selected. See
   // loadCompetitorDensity.
@@ -2824,12 +2827,14 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
 
     if (checked) {
       if (this.showAgebLayer()) this.toggleAgebLayer(false);
+      this.notification.info('map.appreciationDisclaimer');
       this.appreciationZoomRetries = 0;
       this.loadAppreciationForCurrentBounds();
       return;
     }
 
     this.appreciationRequestId++;
+    this.loadingAppreciation.set(false);
     this.appreciationDataLayer?.forEach((feature) => this.appreciationDataLayer!.remove(feature));
   }
 
@@ -2840,10 +2845,12 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
     const requestId = ++this.appreciationRequestId;
+    this.loadingAppreciation.set(true);
 
     this.geomarketingService.appreciationPotential(sw.lat(), sw.lng(), ne.lat(), ne.lng()).subscribe({
       next: (agebs) => this.zone.run(() => {
         if (requestId !== this.appreciationRequestId) return;
+        this.loadingAppreciation.set(false);
         this.renderAppreciationLayer(agebs);
       }),
       error: (err: { status?: number }) => this.zone.run(() => {
@@ -2854,7 +2861,8 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         // zoom in by hand, zoom in one level toward the map's current center ourselves and retry
         // — same center the visitor was already looking at, just tighter. Bounded by
         // MaxAppreciationZoomRetries so a pathologically AGEB-dense area can't loop forever; that
-        // case still falls back to the explicit "zoom in" message below.
+        // case still falls back to the explicit "zoom in" message below. loadingAppreciation stays
+        // true across the retry since it's still the same in-flight analysis from the visitor's POV.
         if (err?.status === 400 && this.map && this.appreciationZoomRetries < MapViewComponent.MaxAppreciationZoomRetries) {
           this.appreciationZoomRetries++;
           this.map.setZoom((this.map.getZoom() ?? 12) + 1);
@@ -2862,6 +2870,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
           return;
         }
 
+        this.loadingAppreciation.set(false);
         this.notification.error(err?.status === 400 ? 'map.appreciationTooManyZones' : 'map.appreciationLoadError');
       })
     });

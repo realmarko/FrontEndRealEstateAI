@@ -720,6 +720,7 @@ export const es: Record<string, string> = {
   'map.appreciationDisclaimer': 'Estimado a partir de indicadores públicos (desarrollos nuevos, conectividad, nivel socioeconómico vecino y precios propios). No es una garantía de inversión.',
   'map.appreciationScore': 'Potencial de plusvalía: {{score}}/100',
   'map.appreciationUnavailable': 'Sin datos suficientes para estimar el potencial de esta zona.',
+  'map.appreciationAnalyzing': 'Analizando potencial de plusvalía…',
   'map.bathsAny': 'Baños (todos)',
   'map.baths1': '1+ baños',
   'map.baths2': '2+ baños',

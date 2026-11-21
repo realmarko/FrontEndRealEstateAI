@@ -720,6 +720,7 @@ export const en: Record<string, string> = {
   'map.appreciationDisclaimer': 'Estimated from public indicators (new developments, connectivity, nearby socioeconomic level, and local prices). Not an investment guarantee.',
   'map.appreciationScore': 'Appreciation potential: {{score}}/100',
   'map.appreciationUnavailable': 'Not enough data to estimate this zone\'s potential.',
+  'map.appreciationAnalyzing': 'Analyzing appreciation potential…',
   'map.bathsAny': 'Any baths',
   'map.baths1': '1+ ba',
   'map.baths2': '2+ ba',

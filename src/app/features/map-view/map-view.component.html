@@ -227,6 +227,20 @@
                   <path d="M3 10.5 12 3l9 7.5" /><path d="M5 9v11h14V9" /><path d="M9 20v-6h6v6" />
                 </svg>
               </button>
+              <button
+                id="map-appreciation-toggle-btn"
+                type="button"
+                class="appreciation-toggle-btn"
+                appTooltip="map.appreciationLayer"
+                [class.active]="showAppreciationLayer()"
+                [attr.aria-label]="'map.appreciationLayer' | translate"
+                [attr.aria-pressed]="showAppreciationLayer()"
+                (click)="toggleAppreciationLayer(!showAppreciationLayer())"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M3 17l6-6 4 4 7-7" /><path d="M14 8h7v7" />
+                </svg>
+              </button>
             </ng-container>
           </div>
           <!-- Everything else in the toolbar competes for attention with placing/confirming a
@@ -332,21 +346,6 @@
                 <span class="map-sheet-switch-track"></span>
               </span>
             </label>
-            <label class="map-sheet-switch-row ageb-checklist-item">
-              <span>{{ 'map.appreciationLayer' | translate }}</span>
-              <span class="map-sheet-switch">
-                <input
-                  id="map-appreciation-layer-toggle"
-                  type="checkbox"
-                  [checked]="showAppreciationLayer()"
-                  (change)="toggleAppreciationLayer($any($event.target).checked)"
-                />
-                <span class="map-sheet-switch-track"></span>
-              </span>
-            </label>
-            @if (showAppreciationLayer()) {
-              <p class="map-sheet-hint">{{ 'map.appreciationDisclaimer' | translate }}</p>
-            }
           </div>
         </div>
       }
@@ -540,6 +539,12 @@
         <span class="map-loading-spinner" aria-hidden="true"></span>
         {{ 'map.loadingMap' | translate }}
       </div>
+      @if (loadingAppreciation()) {
+        <div class="map-loading map-loading-overlay">
+          <span class="map-loading-spinner" aria-hidden="true"></span>
+          {{ 'map.appreciationAnalyzing' | translate }}
+        </div>
+      }
       @if (editingLocationListingId()) {
         <div class="edit-location-banner" id="map-edit-location-banner">
           <p class="edit-location-hint">{{ 'map.editLocationHint' | translate }}</p>
