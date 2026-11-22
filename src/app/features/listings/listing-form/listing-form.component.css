@@ -106,12 +106,25 @@ select.ng-invalid.ng-touched {
   gap: 0.6rem;
 }
 
+.photo-reorder-hint {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.4rem;
+}
+
 .photo-thumb {
   position: relative;
   width: 96px;
   height: 72px;
   border-radius: 6px;
   overflow: hidden;
+  cursor: grab;
+}
+
+/* Dimmed instead of hidden — hiding the dragged thumbnail would shift every other thumbnail's
+   layout mid-drag, which reads as the drop target jumping around under the cursor. */
+.photo-thumb.dragging {
+  opacity: 0.4;
 }
 
 .photo-thumb img {
@@ -154,6 +167,27 @@ select.ng-invalid.ng-touched {
   font-size: 0.65rem;
   text-align: center;
   padding: 0.15rem 0;
+}
+
+/* Same footprint/position as .primary-badge (one or the other shows per thumbnail, never both)
+   so a non-primary thumbnail's clickable affordance doesn't shift the grid when it becomes
+   primary and swaps over to the plain badge. */
+.make-primary-btn {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(17, 24, 39, 0.55);
+  color: #fff;
+  border: none;
+  font-size: 0.65rem;
+  text-align: center;
+  padding: 0.15rem 0;
+  cursor: pointer;
+}
+
+.make-primary-btn:hover {
+  background: rgba(17, 24, 39, 0.8);
 }
 
 .price-mask {

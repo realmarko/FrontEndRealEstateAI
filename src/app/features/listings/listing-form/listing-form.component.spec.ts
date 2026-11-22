@@ -271,6 +271,52 @@ describe('ListingFormComponent', () => {
     expect(component.displayImages()).toEqual([]);
   });
 
+  it('makePrimary() moves a later existing photo to the front', () => {
+    const component = createComponent({ editingId: 'l1' });
+    component.existingImageUrls.set(['existing1.jpg', 'existing2.jpg']);
+
+    component.makePrimary(1);
+    expect(component.displayImages()).toEqual(['existing2.jpg', 'existing1.jpg']);
+  });
+
+  it('makePrimary() and reordering cannot cross the existing/new boundary, since the backend always saves existing photos first', () => {
+    const component = createComponent({ editingId: 'l1' });
+    component.existingImageUrls.set(['existing1.jpg', 'existing2.jpg']);
+    component.newPhotos.set([{ file: makeFile('new.jpg'), previewUrl: 'data:new' }]);
+    expect(component.displayImages()).toEqual(['existing1.jpg', 'existing2.jpg', 'data:new']);
+
+    expect(component.canBePrimary(2)).toBe(false);
+    component.makePrimary(2);
+    expect(component.displayImages()).toEqual(['existing1.jpg', 'existing2.jpg', 'data:new']);
+  });
+
+  it('canBePrimary() allows any photo to become primary when there are no existing photos yet', () => {
+    const component = createComponent({ editingId: 'l1' });
+    component.existingImageUrls.set([]);
+    component.newPhotos.set([
+      { file: makeFile('a.jpg'), previewUrl: 'data:a' },
+      { file: makeFile('b.jpg'), previewUrl: 'data:b' }
+    ]);
+
+    expect(component.canBePrimary(1)).toBe(true);
+    component.makePrimary(1);
+    expect(component.displayImages()).toEqual(['data:b', 'data:a']);
+  });
+
+  it('onPhotoDrop() reorders via draggedPhotoIndex and clears it afterward', () => {
+    const component = createComponent({ editingId: 'l1' });
+    component.existingImageUrls.set(['a.jpg', 'b.jpg', 'c.jpg']);
+
+    const dragStartEvent = { dataTransfer: { setData: () => {}, effectAllowed: '' } } as unknown as DragEvent;
+    component.onPhotoDragStart(dragStartEvent, 0);
+    expect(component.draggedPhotoIndex()).toBe(0);
+
+    const dropEvent = { preventDefault: () => {} } as unknown as DragEvent;
+    component.onPhotoDrop(dropEvent, 2);
+    expect(component.displayImages()).toEqual(['b.jpg', 'c.jpg', 'a.jpg']);
+    expect(component.draggedPhotoIndex()).toBeNull();
+  });
+
   describe('submit()', () => {
     function fillMinimumValidForm(component: ListingFormComponent): void {
       component.form.patchValue({

@@ -598,6 +598,8 @@ export const en: Record<string, string> = {
   'listingForm.choosePhotos': 'Choose from gallery',
   'listingForm.removePhoto': 'Remove photo',
   'listingForm.primaryPhoto': 'Primary',
+  'listingForm.makePrimaryPhoto': 'Make primary',
+  'listingForm.photoReorderHint': 'Drag a photo to reorder it, or use "Make primary" to choose the cover photo.',
   'listingForm.atLeastOnePhoto': 'Add at least one photo.',
   'listingForm.locationRequired': 'Choose your property\'s location on the map first.',
   'listingForm.createSubmit': 'Create listing',

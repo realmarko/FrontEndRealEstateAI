@@ -42,6 +42,15 @@ const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 const MAX_PHOTOS_PER_LISTING = 20;
 
+// Returns a new array with the item at fromIndex relocated to toIndex — used by the photo
+// gallery's drag-to-reorder and "Hacer principal" button (see reorderImages).
+function moveItem<T>(array: T[], fromIndex: number, toIndex: number): T[] {
+  const copy = array.slice();
+  const [moved] = copy.splice(fromIndex, 1);
+  copy.splice(toIndex, 0, moved);
+  return copy;
+}
+
 // Cheap client-side gate before autofillFromDraft() ever calls the (paid, per-request) AI
 // parsing endpoint — a pasted text with neither an area nor a price in it almost certainly isn't
 // a real listing ad, so there's nothing useful for the model to extract and the request is
@@ -622,6 +631,73 @@ export class ListingFormComponent {
     } else {
       const photoIndex = index - existingCount;
       this.newPhotos.update((photos) => photos.filter((_, i) => i !== photoIndex));
+    }
+  }
+
+  // Index of the thumbnail currently being dragged (set on dragstart, read on drop), so
+  // reorderImages below knows which displayImages() position to move — null the rest of the
+  // time, including right after a drop or a drag that ends outside any valid drop target.
+  readonly draggedPhotoIndex = signal<number | null>(null);
+
+  onPhotoDragStart(event: DragEvent, index: number): void {
+    this.draggedPhotoIndex.set(index);
+    // Firefox won't start a native drag at all unless dataTransfer carries some data; the value
+    // itself is never read back (the drop handler reads draggedPhotoIndex instead).
+    event.dataTransfer?.setData('text/plain', String(index));
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  }
+
+  // Without this, the browser's default is to refuse the drop entirely (shown as a "not
+  // allowed" cursor) — dragover must call preventDefault() on every fired event for drop to work.
+  onPhotoDragOver(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  onPhotoDrop(event: DragEvent, targetIndex: number): void {
+    event.preventDefault();
+    const fromIndex = this.draggedPhotoIndex();
+    this.draggedPhotoIndex.set(null);
+    if (fromIndex === null || fromIndex === targetIndex) return;
+    this.reorderImages(fromIndex, targetIndex);
+  }
+
+  onPhotoDragEnd(): void {
+    this.draggedPhotoIndex.set(null);
+  }
+
+  // Whether displayImages()[index] can actually become the overall-primary (index 0) photo —
+  // see reorderImages' doc comment for why a newly picked photo can't, once any already-hosted
+  // photo exists. Drives whether the template even shows "Hacer principal" for that thumbnail.
+  canBePrimary(index: number): boolean {
+    const existingCount = this.existingImageUrls().length;
+    return existingCount === 0 || index < existingCount;
+  }
+
+  // Moves whatever's at displayImages()[index] to the front — the explicit "Hacer principal"
+  // affordance, for anyone who'd rather click than drag (and the only way to do it at all on a
+  // touchscreen, where the native HTML5 drag-and-drop this form otherwise relies on doesn't fire).
+  makePrimary(index: number): void {
+    if (!this.canBePrimary(index)) return;
+    this.reorderImages(index, 0);
+  }
+
+  // existingImageUrls and newPhotos are two independently ordered signals, concatenated by
+  // displayImages() in that fixed order (see its own comment) because the backend
+  // (BuildImageUrlsAsync) always saves already-hosted photos before newly uploaded ones — a
+  // newly picked file can never land before an existing photo no matter what order the frontend
+  // sends them in. So reordering only moves an item within its own group (existing photos among
+  // themselves, or new photos among themselves); a drag that crosses the boundary is a no-op
+  // instead of appearing to work and then snapping back once the two signals recombine.
+  private reorderImages(fromIndex: number, toIndex: number): void {
+    const existingCount = this.existingImageUrls().length;
+    const fromIsExisting = fromIndex < existingCount;
+    const toIsExisting = toIndex < existingCount;
+    if (fromIsExisting !== toIsExisting) return;
+
+    if (fromIsExisting) {
+      this.existingImageUrls.update((urls) => moveItem(urls, fromIndex, toIndex));
+    } else {
+      this.newPhotos.update((photos) => moveItem(photos, fromIndex - existingCount, toIndex - existingCount));
     }
   }
 

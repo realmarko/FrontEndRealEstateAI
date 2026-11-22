@@ -598,6 +598,8 @@ export const es: Record<string, string> = {
   'listingForm.choosePhotos': 'Elegir de la galería',
   'listingForm.removePhoto': 'Eliminar foto',
   'listingForm.primaryPhoto': 'Principal',
+  'listingForm.makePrimaryPhoto': 'Hacer principal',
+  'listingForm.photoReorderHint': 'Arrastra una foto para cambiar su orden, o usa "Hacer principal" para elegir la foto de portada.',
   'listingForm.atLeastOnePhoto': 'Agrega al menos una foto.',
   'listingForm.locationRequired': 'Primero elige la ubicación de tu propiedad en el mapa.',
   'listingForm.createSubmit': 'Crear propiedad',
