@@ -72,13 +72,13 @@ function getYouTubeVideoId(url: string): string | null {
 }
 
 // Recognizes a facebook.com/fb.watch video link (a page/profile video post, /watch?v=, or a
-// shared reel) and wraps it in Facebook's public video-plugin iframe — unlike YouTube, there's no
+// /reel/ link) and wraps it in Facebook's public video-plugin iframe — unlike YouTube, there's no
 // per-video numeric id to extract and build our own embed URL from, so the plugin takes the
 // original share link as-is via its href param. Works for any public video without needing the
 // Graph API or an app id; a private/unlisted video still renders as a login prompt inside the
 // iframe rather than failing outright, which the template can't distinguish from a real embed.
 function getFacebookVideoEmbedUrl(url: string): string | null {
-  if (!/(?:facebook\.com\/.+\/videos\/|facebook\.com\/watch\/?\?v=|fb\.watch\/)/.test(url)) return null;
+  if (!/(?:facebook\.com\/.+\/videos\/|facebook\.com\/watch\/?\?v=|facebook\.com\/reel\/|fb\.watch\/)/.test(url)) return null;
   return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
 }
 

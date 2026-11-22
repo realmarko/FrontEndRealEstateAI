@@ -180,6 +180,15 @@ describe('ListingDetailComponent', () => {
     );
   });
 
+  it('videoEmbedUrl builds a Facebook video-plugin URL for a facebook.com/reel link', () => {
+    const reelUrl = 'https://www.facebook.com/reel/999565255850045';
+    const component = createComponent(makeListing({ videoTourUrl: reelUrl }));
+    const embedUrl = component.videoEmbedUrl() as unknown as { changingThisBreaksApplicationSecurity: string };
+    expect(embedUrl.changingThisBreaksApplicationSecurity).toBe(
+      `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(reelUrl)}&show_text=false`
+    );
+  });
+
   it('priceHistoryRows computes the change against the previous entry and reverses for display (newest first)', () => {
     const history: PriceHistoryEntry[] = [
       { price: 1000000, currency: 'MXN', recordedAt: '2026-01-01' },
