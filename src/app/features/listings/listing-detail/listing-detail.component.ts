@@ -71,6 +71,17 @@ function getYouTubeVideoId(url: string): string | null {
   return match ? match[1] : null;
 }
 
+// Recognizes a facebook.com/fb.watch video link (a page/profile video post, /watch?v=, or a
+// shared reel) and wraps it in Facebook's public video-plugin iframe — unlike YouTube, there's no
+// per-video numeric id to extract and build our own embed URL from, so the plugin takes the
+// original share link as-is via its href param. Works for any public video without needing the
+// Graph API or an app id; a private/unlisted video still renders as a login prompt inside the
+// iframe rather than failing outright, which the template can't distinguish from a real embed.
+function getFacebookVideoEmbedUrl(url: string): string | null {
+  if (!/(?:facebook\.com\/.+\/videos\/|facebook\.com\/watch\/?\?v=|fb\.watch\/)/.test(url)) return null;
+  return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
+}
+
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
@@ -116,14 +127,17 @@ export class ListingDetailComponent {
   readonly showPipelineModal = signal(false);
   readonly savingPipelineDeal = signal(false);
 
-  // Only YouTube links get an inline player (see getYouTubeVideoId) — anything else falls
+  // Only YouTube and Facebook links get an inline player (see getYouTubeVideoId /
+  // getFacebookVideoEmbedUrl) — anything else (Matterport, Vimeo, a raw video file, ...) falls
   // back to a plain "open in new tab" link in the template.
   readonly videoEmbedUrl = computed<SafeResourceUrl | null>(() => {
     const url = this.listing()?.videoTourUrl;
     if (!url) return null;
     const videoId = getYouTubeVideoId(url);
-    if (!videoId) return null;
-    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
+    if (videoId) return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${videoId}`);
+    const facebookEmbedUrl = getFacebookVideoEmbedUrl(url);
+    if (facebookEmbedUrl) return this.sanitizer.bypassSecurityTrustResourceUrl(facebookEmbedUrl);
+    return null;
   });
   readonly activePhotoIndex = signal(0);
   // Holds the photo being replaced for just long enough to crossfade under the new one (see
