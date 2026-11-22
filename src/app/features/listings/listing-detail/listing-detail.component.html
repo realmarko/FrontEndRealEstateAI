@@ -71,7 +71,7 @@
           }
         </p>
         <p class="address">{{ listing.address }}</p>
-        <p class="description">{{ listing.description }}</p>
+        <p class="description" [innerHTML]="descriptionHtml()"></p>
 
         <h2 class="section-title">{{ 'listingDetail.factsTitle' | translate }}</h2>
         <div class="fact-grid">

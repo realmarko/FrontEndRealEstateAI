@@ -1,6 +1,6 @@
 import { Component, DestroyRef, ElementRef, HostListener, Injector, NgZone, ViewChild, afterNextRender, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet } from '@angular/common';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { isBrowser } from '../../../core/utils/platform';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
@@ -82,6 +82,27 @@ function getFacebookVideoEmbedUrl(url: string): string | null {
   return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
 }
 
+// Agents paste WhatsApp/Maps/social links straight into the free-text description — there's no
+// separate field for them — so a plain interpolation left them as unclickable text. Escapes the
+// description first (so the text itself can't inject markup, and — quotes included — can't break
+// out of the href="..." attribute built below from a URL match that isn't followed by whitespace),
+// then wraps only the URL matches in <a> tags; trailing punctuation right after a URL (a period
+// ending the sentence, a closing parenthesis, ...) is pulled back out of the link so it doesn't
+// look like part of the address.
+function linkifyDescription(description: string): string {
+  const escaped = description
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  return escaped.replace(/https?:\/\/[^\s<]+/g, (match) => {
+    const trailingPunctuation = match.match(/[.,;:!?)\]]+$/)?.[0] ?? '';
+    const url = trailingPunctuation ? match.slice(0, -trailingPunctuation.length) : match;
+    return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${trailingPunctuation}`;
+  });
+}
+
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
@@ -138,6 +159,10 @@ export class ListingDetailComponent {
     const facebookEmbedUrl = getFacebookVideoEmbedUrl(url);
     if (facebookEmbedUrl) return this.sanitizer.bypassSecurityTrustResourceUrl(facebookEmbedUrl);
     return null;
+  });
+  readonly descriptionHtml = computed<SafeHtml | null>(() => {
+    const description = this.listing()?.description;
+    return description ? this.sanitizer.bypassSecurityTrustHtml(linkifyDescription(description)) : null;
   });
   readonly activePhotoIndex = signal(0);
   // Holds the photo being replaced for just long enough to crossfade under the new one (see

@@ -189,6 +189,39 @@ describe('ListingDetailComponent', () => {
     );
   });
 
+  it('descriptionHtml is null with no description', () => {
+    const component = createComponent(makeListing({ description: '' }));
+    expect(component.descriptionHtml()).toBeNull();
+  });
+
+  it('descriptionHtml linkifies a bare URL and escapes markup in the plain text', () => {
+    const component = createComponent(
+      makeListing({ description: 'Ubicación: https://maps.app.goo.gl/j3ijZnSjrFWQMoZw6 <script> & co.' })
+    );
+    const html = component.descriptionHtml() as unknown as { changingThisBreaksApplicationSecurity: string };
+    expect(html.changingThisBreaksApplicationSecurity).toBe(
+      'Ubicación: <a href="https://maps.app.goo.gl/j3ijZnSjrFWQMoZw6" target="_blank" rel="noopener noreferrer">https://maps.app.goo.gl/j3ijZnSjrFWQMoZw6</a> &lt;script&gt; &amp; co.'
+    );
+  });
+
+  it('descriptionHtml pulls trailing sentence punctuation back out of the link', () => {
+    const component = createComponent(makeListing({ description: 'Mapa: https://maps.app.goo.gl/abc123.' }));
+    const html = component.descriptionHtml() as unknown as { changingThisBreaksApplicationSecurity: string };
+    expect(html.changingThisBreaksApplicationSecurity).toBe(
+      'Mapa: <a href="https://maps.app.goo.gl/abc123" target="_blank" rel="noopener noreferrer">https://maps.app.goo.gl/abc123</a>.'
+    );
+  });
+
+  it('descriptionHtml escapes a quote inside a URL match so it cannot break out of the href attribute', () => {
+    const component = createComponent(
+      makeListing({ description: 'Ver: https://evil.example/"onmouseover=alert' })
+    );
+    const html = component.descriptionHtml() as unknown as { changingThisBreaksApplicationSecurity: string };
+    expect(html.changingThisBreaksApplicationSecurity).toBe(
+      'Ver: <a href="https://evil.example/&quot;onmouseover=alert" target="_blank" rel="noopener noreferrer">https://evil.example/&quot;onmouseover=alert</a>'
+    );
+  });
+
   it('priceHistoryRows computes the change against the previous entry and reverses for display (newest first)', () => {
     const history: PriceHistoryEntry[] = [
       { price: 1000000, currency: 'MXN', recordedAt: '2026-01-01' },
