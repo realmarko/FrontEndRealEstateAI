@@ -438,6 +438,8 @@ export interface ResidentialAnalysis {
   // Null (never a fabricated estimate) when too few real nearby rentals exist — see the
   // backend's ResidentialAnalysisService.MinRentListingsForYield.
   rentalYield: RentalYieldEstimate | null;
+  nearbyAmenities: TrafficGenerator[];
+  nearbyAmenitiesDataUnavailable: boolean;
 }
 
 // Best-effort extraction from a pasted classified-ad text (/listings/new's "paste and

@@ -114,6 +114,28 @@
       } @else {
         <p class="status rental-yield-unavailable">{{ 'residentialAnalysisPage.rentalYieldUnavailable' | translate }}</p>
       }
+
+      @if (a.nearbyAmenities.length || a.nearbyAmenitiesDataUnavailable) {
+        <div class="card">
+          <h3 class="card-title">{{ 'residentialAnalysisPage.amenitiesTitle' | translate }}</h3>
+          @if (a.nearbyAmenitiesDataUnavailable) {
+            <p class="data-source-warning">{{ 'residentialAnalysisPage.amenitiesDataUnavailable' | translate }}</p>
+          }
+          @if (a.nearbyAmenities.length) {
+            <ul class="amenities-list">
+              @for (amenity of a.nearbyAmenities; track amenity.name) {
+                <li>
+                  <span class="amenity-name">{{ amenity.name }}</span>
+                  <span class="amenity-category">{{ amenity.category }}</span>
+                  <span class="amenity-distance">{{ amenity.distanceMeters | number }} m</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="status">{{ 'residentialAnalysisPage.noAmenities' | translate }}</p>
+          }
+        </div>
+      }
     }
   </div>
 }

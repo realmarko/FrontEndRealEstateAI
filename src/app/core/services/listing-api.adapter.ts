@@ -490,6 +490,8 @@ export interface ResidentialAnalysisDto {
   appreciationScore: number | null;
   appreciationExplanations: string[];
   rentalYield: RentalYieldEstimateDto | null;
+  nearbyAmenities: TrafficGeneratorDto[];
+  nearbyAmenitiesDataUnavailable: boolean;
 }
 
 export function residentialAnalysisFromDto(dto: ResidentialAnalysisDto): ResidentialAnalysis {
@@ -513,7 +515,9 @@ export function residentialAnalysisFromDto(dto: ResidentialAnalysisDto): Residen
           avgMonthlyRent: dto.rentalYield.avgMonthlyRent,
           estimatedAnnualYieldPct: dto.rentalYield.estimatedAnnualYieldPct
         }
-      : null
+      : null,
+    nearbyAmenities: dto.nearbyAmenities,
+    nearbyAmenitiesDataUnavailable: dto.nearbyAmenitiesDataUnavailable
   };
 }
 
