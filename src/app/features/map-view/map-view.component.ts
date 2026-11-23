@@ -1078,6 +1078,9 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.map = new google.maps.Map(this.mapContainer.nativeElement, {
       center,
       zoom: DEFAULT_ZOOM,
+      // Satellite imagery with road/place labels overlaid (Google's "Hybrid" map type) instead of
+      // the plain roadmap default — the user wants this as the map's starting view.
+      mapTypeId: google.maps.MapTypeId.HYBRID,
       mapTypeControl: false,
       streetViewControl: true,
       streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
