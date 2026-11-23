@@ -438,16 +438,23 @@ export class ListingFormComponent {
           if (draft.lotSizeSqm != null) this.form.controls.lotSizeSqm.setValue(draft.lotSizeSqm);
           if (draft.frontageWidthMeters != null) this.form.controls.frontageWidthMeters.setValue(draft.frontageWidthMeters);
           if (draft.frontageDepthMeters != null) this.form.controls.frontageDepthMeters.setValue(draft.frontageDepthMeters);
+          if (draft.gardenSizeSqm != null) this.form.controls.gardenSizeSqm.setValue(draft.gardenSizeSqm);
           if (draft.parkingSpaces != null) this.form.controls.parkingSpaces.setValue(draft.parkingSpaces);
+          if (draft.parkingIsCovered != null) this.form.controls.parkingIsCovered.setValue(draft.parkingIsCovered);
           if (draft.floors != null) this.form.controls.floors.setValue(draft.floors);
           if (draft.yearBuilt != null) this.form.controls.yearBuilt.setValue(draft.yearBuilt);
           if (draft.constructionCondition) this.form.controls.constructionCondition.setValue(draft.constructionCondition);
+          if (draft.hasKitchen != null) this.form.controls.hasKitchen.setValue(draft.hasKitchen);
+          if (draft.hasLivingRoom != null) this.form.controls.hasLivingRoom.setValue(draft.hasLivingRoom);
+          if (draft.hasDiningRoom != null) this.form.controls.hasDiningRoom.setValue(draft.hasDiningRoom);
           if (draft.hasPool != null) this.form.controls.hasPool.setValue(draft.hasPool);
           if (draft.hasRoofGarden != null) this.form.controls.hasRoofGarden.setValue(draft.hasRoofGarden);
           if (draft.hasTerrace != null) this.form.controls.hasTerrace.setValue(draft.hasTerrace);
+          if (draft.hasBalcony != null) this.form.controls.hasBalcony.setValue(draft.hasBalcony);
           if (draft.hasLaundryArea != null) this.form.controls.hasLaundryArea.setValue(draft.hasLaundryArea);
           if (draft.hasCistern != null) this.form.controls.hasCistern.setValue(draft.hasCistern);
           if (draft.cisternCapacityLiters != null) this.form.controls.cisternCapacityLiters.setValue(draft.cisternCapacityLiters);
+          if (draft.hasWell != null) this.form.controls.hasWell.setValue(draft.hasWell);
           if (draft.hasNaturalGas != null) this.form.controls.hasNaturalGas.setValue(draft.hasNaturalGas);
           if (draft.hasLpGas != null) this.form.controls.hasLpGas.setValue(draft.hasLpGas);
           if (draft.hasSecurity != null) this.form.controls.hasSecurity.setValue(draft.hasSecurity);
@@ -457,6 +464,11 @@ export class ListingFormComponent {
           if (draft.hasServiceRoom != null) this.form.controls.hasServiceRoom.setValue(draft.hasServiceRoom);
           if (draft.hasStorageRoom != null) this.form.controls.hasStorageRoom.setValue(draft.hasStorageRoom);
           if (draft.hasPropertyTaxDebt != null) this.form.controls.hasPropertyTaxDebt.setValue(draft.hasPropertyTaxDebt);
+          if (draft.hasPotableWater != null) this.form.controls.hasPotableWater.setValue(draft.hasPotableWater);
+          if (draft.hasDrainage != null) this.form.controls.hasDrainage.setValue(draft.hasDrainage);
+          if (draft.hasElectricity != null) this.form.controls.hasElectricity.setValue(draft.hasElectricity);
+          if (draft.hasPavedStreet != null) this.form.controls.hasPavedStreet.setValue(draft.hasPavedStreet);
+          if (draft.isCornerLot != null) this.form.controls.isCornerLot.setValue(draft.isCornerLot);
           if (draft.lat != null && draft.lng != null) {
             this.draftLat = draft.lat;
             this.draftLng = draft.lng;

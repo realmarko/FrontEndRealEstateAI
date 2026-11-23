@@ -459,16 +459,23 @@ export interface ListingDraft {
   lotSizeSqm: number | null;
   frontageWidthMeters: number | null;
   frontageDepthMeters: number | null;
+  gardenSizeSqm: number | null;
   parkingSpaces: number | null;
+  parkingIsCovered: boolean | null;
   floors: number | null;
   yearBuilt: number | null;
   constructionCondition: ConstructionConditionType | null;
+  hasKitchen: boolean | null;
+  hasLivingRoom: boolean | null;
+  hasDiningRoom: boolean | null;
   hasPool: boolean | null;
   hasRoofGarden: boolean | null;
   hasTerrace: boolean | null;
+  hasBalcony: boolean | null;
   hasLaundryArea: boolean | null;
   hasCistern: boolean | null;
   cisternCapacityLiters: number | null;
+  hasWell: boolean | null;
   hasNaturalGas: boolean | null;
   hasLpGas: boolean | null;
   hasSecurity: boolean | null;
@@ -478,6 +485,11 @@ export interface ListingDraft {
   hasServiceRoom: boolean | null;
   hasStorageRoom: boolean | null;
   hasPropertyTaxDebt: boolean | null;
+  hasPotableWater: boolean | null;
+  hasDrainage: boolean | null;
+  hasElectricity: boolean | null;
+  hasPavedStreet: boolean | null;
+  isCornerLot: boolean | null;
   // Resolved from a Google Maps link in the pasted text (see GoogleMapsLinkResolverService on
   // the backend), not from the ad's own wording — null when no Maps link was found in the text,
   // or the link couldn't be resolved to a real location.

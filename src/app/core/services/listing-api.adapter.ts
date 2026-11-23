@@ -535,16 +535,23 @@ export interface ListingDraftDto {
   lotSizeSqm: number | null;
   frontageWidthMeters: number | null;
   frontageDepthMeters: number | null;
+  gardenSizeSqm: number | null;
   parkingSpaces: number | null;
+  parkingIsCovered: boolean | null;
   floors: number | null;
   yearBuilt: number | null;
   constructionCondition: string | null;
+  hasKitchen: boolean | null;
+  hasLivingRoom: boolean | null;
+  hasDiningRoom: boolean | null;
   hasPool: boolean | null;
   hasRoofGarden: boolean | null;
   hasTerrace: boolean | null;
+  hasBalcony: boolean | null;
   hasLaundryArea: boolean | null;
   hasCistern: boolean | null;
   cisternCapacityLiters: number | null;
+  hasWell: boolean | null;
   hasNaturalGas: boolean | null;
   hasLpGas: boolean | null;
   hasSecurity: boolean | null;
@@ -554,6 +561,11 @@ export interface ListingDraftDto {
   hasServiceRoom: boolean | null;
   hasStorageRoom: boolean | null;
   hasPropertyTaxDebt: boolean | null;
+  hasPotableWater: boolean | null;
+  hasDrainage: boolean | null;
+  hasElectricity: boolean | null;
+  hasPavedStreet: boolean | null;
+  isCornerLot: boolean | null;
   lat: number | null;
   lng: number | null;
   mapsLinkResolutionFailed: boolean;
@@ -575,16 +587,23 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
     lotSizeSqm: dto.lotSizeSqm,
     frontageWidthMeters: dto.frontageWidthMeters,
     frontageDepthMeters: dto.frontageDepthMeters,
+    gardenSizeSqm: dto.gardenSizeSqm,
     parkingSpaces: dto.parkingSpaces,
+    parkingIsCovered: dto.parkingIsCovered,
     floors: dto.floors,
     yearBuilt: dto.yearBuilt,
     constructionCondition: dto.constructionCondition ? CONSTRUCTION_CONDITION_FROM_STRING[dto.constructionCondition] ?? null : null,
+    hasKitchen: dto.hasKitchen,
+    hasLivingRoom: dto.hasLivingRoom,
+    hasDiningRoom: dto.hasDiningRoom,
     hasPool: dto.hasPool,
     hasRoofGarden: dto.hasRoofGarden,
     hasTerrace: dto.hasTerrace,
+    hasBalcony: dto.hasBalcony,
     hasLaundryArea: dto.hasLaundryArea,
     hasCistern: dto.hasCistern,
     cisternCapacityLiters: dto.cisternCapacityLiters,
+    hasWell: dto.hasWell,
     hasNaturalGas: dto.hasNaturalGas,
     hasLpGas: dto.hasLpGas,
     hasSecurity: dto.hasSecurity,
@@ -594,6 +613,11 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
     hasServiceRoom: dto.hasServiceRoom,
     hasStorageRoom: dto.hasStorageRoom,
     hasPropertyTaxDebt: dto.hasPropertyTaxDebt,
+    hasPotableWater: dto.hasPotableWater,
+    hasDrainage: dto.hasDrainage,
+    hasElectricity: dto.hasElectricity,
+    hasPavedStreet: dto.hasPavedStreet,
+    isCornerLot: dto.isCornerLot,
     lat: dto.lat,
     lng: dto.lng,
     mapsLinkResolutionFailed: dto.mapsLinkResolutionFailed
