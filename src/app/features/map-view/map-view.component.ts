@@ -2650,12 +2650,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   }
 
   // Only when nothing already marks this spot: a text search that also matched real listings
-  // already shows their own markers (see filteredListings/renderListingMarkers) — adding a
-  // second, unrelated pin right next to one would just be visual noise. A pure address/
-  // coordinate search with zero listing matches has nothing on the map yet, so this is the only
-  // thing that tells the visitor where their search actually landed.
+  // already shows their own markers (see searchMatchIds/renderListingMarkers) — adding a second,
+  // unrelated pin right next to one would just be visual noise. A pure address/coordinate search
+  // with zero listing matches has nothing on the map yet, so this is the only thing that tells
+  // the visitor where their search actually landed. Checks searchMatchIds, NOT filteredListings
+  // (which no longer excludes non-matching listings at all since the search box switched to
+  // highlighting matches instead of filtering them out) — filteredListings().length > 0 is true
+  // almost any time listings exist in the viewport, regardless of whether any of them match.
   private placeSearchResultMarker(location: google.maps.LatLngLiteral): void {
-    if (this.filteredListings().length > 0) return;
+    if (this.searchMatchIds().size > 0) return;
 
     if (this.searchResultMarker) {
       this.searchResultMarker.setPosition(location);
