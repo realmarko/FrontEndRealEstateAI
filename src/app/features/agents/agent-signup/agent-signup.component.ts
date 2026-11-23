@@ -10,6 +10,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { TranslationService } from '../../../core/services/translation.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { PhoneInputDirective } from '../../../shared/directives/phone-input.directive';
+import { FormErrorComponent } from '../../../shared/components/form-error/form-error.component';
 import { SeoService } from '../../../core/services/seo.service';
 
 const ALLOWED_PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
@@ -18,7 +19,7 @@ const MAX_PHOTO_BYTES = 5 * 1024 * 1024;
 @Component({
   selector: 'app-agent-signup',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe, PhoneInputDirective],
+  imports: [ReactiveFormsModule, TranslatePipe, PhoneInputDirective, FormErrorComponent],
   templateUrl: './agent-signup.component.html',
   styleUrl: './agent-signup.component.css'
 })

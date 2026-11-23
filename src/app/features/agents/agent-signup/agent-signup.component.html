@@ -22,6 +22,7 @@
     <label>
       {{ 'agentSignup.phone' | translate }}
       <input type="tel" inputmode="numeric" formControlName="phone" appPhoneInput autocomplete="tel" maxlength="12" />
+      <app-form-error [control]="form.controls.phone" />
     </label>
 
     <label>
