@@ -436,6 +436,8 @@ export class ListingFormComponent {
           if (draft.bathrooms != null) this.form.controls.bathrooms.setValue(draft.bathrooms);
           if (draft.areaSqm != null) this.form.controls.areaSqm.setValue(draft.areaSqm);
           if (draft.lotSizeSqm != null) this.form.controls.lotSizeSqm.setValue(draft.lotSizeSqm);
+          if (draft.frontageWidthMeters != null) this.form.controls.frontageWidthMeters.setValue(draft.frontageWidthMeters);
+          if (draft.frontageDepthMeters != null) this.form.controls.frontageDepthMeters.setValue(draft.frontageDepthMeters);
           if (draft.parkingSpaces != null) this.form.controls.parkingSpaces.setValue(draft.parkingSpaces);
           if (draft.floors != null) this.form.controls.floors.setValue(draft.floors);
           if (draft.yearBuilt != null) this.form.controls.yearBuilt.setValue(draft.yearBuilt);

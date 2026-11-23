@@ -457,6 +457,8 @@ export interface ListingDraft {
   bathrooms: number | null;
   areaSqm: number | null;
   lotSizeSqm: number | null;
+  frontageWidthMeters: number | null;
+  frontageDepthMeters: number | null;
   parkingSpaces: number | null;
   floors: number | null;
   yearBuilt: number | null;

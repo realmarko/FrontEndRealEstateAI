@@ -533,6 +533,8 @@ export interface ListingDraftDto {
   bathrooms: number | null;
   areaSqm: number | null;
   lotSizeSqm: number | null;
+  frontageWidthMeters: number | null;
+  frontageDepthMeters: number | null;
   parkingSpaces: number | null;
   floors: number | null;
   yearBuilt: number | null;
@@ -571,6 +573,8 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
     bathrooms: dto.bathrooms,
     areaSqm: dto.areaSqm,
     lotSizeSqm: dto.lotSizeSqm,
+    frontageWidthMeters: dto.frontageWidthMeters,
+    frontageDepthMeters: dto.frontageDepthMeters,
     parkingSpaces: dto.parkingSpaces,
     floors: dto.floors,
     yearBuilt: dto.yearBuilt,
