@@ -43,6 +43,10 @@
       {{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}
     </span>
 
+    @if (listing.status === 'soldOrRented') {
+      <span class="sold-stamp">{{ (listing.type === 'rent' ? 'listingDetail.rentedBadge' : 'listingDetail.soldBadge') | translate }}</span>
+    }
+
     <button
       type="button"
       class="fav-overlay"

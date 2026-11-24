@@ -20,6 +20,7 @@ describe('ListingListComponent', () => {
     id: 'l1',
     title: 'Casa en venta',
     description: '',
+    status: 'active',
     price: 1000000,
     currency: 'MXN',
     type: 'sale',

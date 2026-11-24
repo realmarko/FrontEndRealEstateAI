@@ -22,6 +22,10 @@
             {{ (listing.type === 'rent' ? 'listingForm.forRent' : 'listingForm.forSale') | translate }}
           </span>
 
+          @if (isSold()) {
+            <span class="sold-stamp">{{ (listing.type === 'rent' ? 'listingDetail.rentedBadge' : 'listingDetail.soldBadge') | translate }}</span>
+          }
+
           <span class="view-tag">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
@@ -567,6 +571,9 @@
             @if (canSendToProd()) {
               <button type="button" class="primary-link" [disabled]="sendingToProd()" (click)="sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
             }
+            <button type="button" class="primary-link" [disabled]="updatingSoldStatus()" (click)="toggleSoldStatus()">
+              {{ (isSold() ? 'listingDetail.reactivate' : 'listingDetail.markAsSold') | translate }}
+            </button>
             <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
           </div>
           <ng-container *ngTemplateOutlet="viabilitySection" />
@@ -578,6 +585,9 @@
               @if (canSendToProd()) {
                 <button type="button" class="primary-link" [disabled]="sendingToProd()" (click)="sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
               }
+              <button type="button" class="primary-link" [disabled]="updatingSoldStatus()" (click)="toggleSoldStatus()">
+                {{ (isSold() ? 'listingDetail.reactivate' : 'listingDetail.markAsSold') | translate }}
+              </button>
               <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
             </div>
           }

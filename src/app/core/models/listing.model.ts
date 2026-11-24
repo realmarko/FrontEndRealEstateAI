@@ -1,4 +1,7 @@
 export type ListingType = 'sale' | 'rent';
+// Pending is unused by the backend today (nothing ever sets it) — kept here only so a stray
+// value doesn't silently fall through LISTING_STATUS_FROM_STRING's ?? fallback as 'active'.
+export type ListingStatus = 'active' | 'pending' | 'soldOrRented' | 'removed';
 export type PropertyType =
   | 'house'
   | 'condoHouse'
@@ -119,6 +122,7 @@ export interface Listing {
   id: string;
   title: string;
   description: string;
+  status: ListingStatus;
   price: number;
   priceOnRequest?: boolean;
   currency: Currency;
@@ -223,6 +227,9 @@ export interface Listing {
 export type ListingInput = Omit<
   Listing,
   | 'id'
+  // Edited through its own endpoint (ListingsController.UpdateStatus / updateStatus() — the
+  // "Marcar como vendida/rentada" flow), not the regular create/update form.
+  | 'status'
   | 'ownerId'
   | 'ownerName'
   | 'ownerEmail'

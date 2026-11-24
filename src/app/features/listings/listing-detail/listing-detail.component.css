@@ -101,6 +101,28 @@
   background: #b45309;
 }
 
+/* Diagonal "stamp" look (rotated band, gold rule top/bottom) deliberately reads differently from
+   the straight pill badges above — a listing being sold/rented is a bigger deal than its
+   for-sale/for-rent tag, so it shouldn't blend in as just another pill. pointer-events: none so
+   it never blocks the lightbox click or the prev/next nav arrows underneath it. */
+.sold-stamp {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-10deg);
+  background: rgba(17, 24, 39, 0.88);
+  color: #fff;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: var(--space-2) var(--space-6);
+  border-top: 2px solid var(--gold);
+  border-bottom: 2px solid var(--gold);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 .view-tag {
   position: absolute;
   top: var(--space-2);

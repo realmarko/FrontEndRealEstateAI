@@ -16,6 +16,7 @@ describe('ListingCardComponent', () => {
     id: 'l1',
     title: 'Casa en venta',
     description: '',
+    status: 'active',
     price: 2000000,
     currency: 'MXN',
     type: 'sale',

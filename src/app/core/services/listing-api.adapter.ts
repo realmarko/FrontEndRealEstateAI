@@ -8,6 +8,7 @@ import {
   ListingDraft,
   ListingInput,
   ListingPriceComparison,
+  ListingStatus,
   ListingType,
   LandTenureType,
   LotShapeType,
@@ -28,6 +29,14 @@ import {
 // maintaining a second copy that could silently drift out of sync with this one.
 export const LISTING_TYPE_TO_NUMBER: Record<ListingType, number> = { sale: 0, rent: 1 };
 export const LISTING_TYPE_FROM_STRING: Record<string, ListingType> = { Sale: 'sale', Rent: 'rent' };
+// Read-only — status is changed via ListingService.updateStatus(), not sent through toFormData
+// with the rest of a listing's fields, so there's no matching *_TO_NUMBER map.
+export const LISTING_STATUS_FROM_STRING: Record<string, ListingStatus> = {
+  Active: 'active',
+  Pending: 'pending',
+  SoldOrRented: 'soldOrRented',
+  Removed: 'removed'
+};
 
 export const PROPERTY_TYPE_TO_NUMBER: Record<PropertyType, number> = {
   house: 0,
@@ -643,6 +652,7 @@ export function fromDto(dto: ListingDto): Listing {
     id: dto.id,
     title: dto.title,
     description: dto.description,
+    status: LISTING_STATUS_FROM_STRING[dto.status] ?? 'active',
     price: dto.price,
     priceOnRequest: dto.priceOnRequest,
     currency: dto.currency as Listing['currency'],

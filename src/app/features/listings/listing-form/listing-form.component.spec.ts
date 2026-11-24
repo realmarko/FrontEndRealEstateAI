@@ -63,6 +63,7 @@ describe('ListingFormComponent', () => {
     id: 'l1',
     title: 'Casa existente',
     description: 'Desc',
+    status: 'active',
     price: 1000000,
     currency: 'MXN',
     type: 'sale',

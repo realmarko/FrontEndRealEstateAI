@@ -140,6 +140,8 @@ export class ListingDetailComponent {
   // environment.isDevEnvironment's own doc comment for why prod-deploy always has this false.
   readonly canSendToProd = computed(() => this.isAdmin() && environment.isDevEnvironment);
   readonly sendingToProd = signal(false);
+  readonly isSold = computed(() => this.listing()?.status === 'soldOrRented');
+  readonly updatingSoldStatus = signal(false);
   readonly isAgent = computed(() => this.auth.currentUser()?.roles.includes('Agent') ?? false);
   // Only meaningful once pipeline.refresh() has populated processes() — triggered below, in the
   // listing-load success handler, but only for an owner who's also an Agent (the only case the
@@ -774,6 +776,26 @@ export class ListingDetailComponent {
         this.router.navigateByUrl(this.translation.path('listings'));
       },
       error: () => this.notification.error('listingDetail.deleteError')
+    });
+  }
+
+  // "Marcar como vendida/rentada" / "Reactivar" — toggles the SoldBadge (see isSold above) and,
+  // on the backend, whether the listing still shows up in public search/map results.
+  toggleSoldStatus(): void {
+    const sold = !this.isSold();
+    if (!confirm(this.translation.t(sold ? 'listingDetail.markAsSoldConfirm' : 'listingDetail.reactivateConfirm'))) return;
+
+    this.updatingSoldStatus.set(true);
+    this.listingService.updateStatus(this.id, sold).subscribe({
+      next: (listing) => {
+        this.updatingSoldStatus.set(false);
+        this.listing.set(listing);
+        this.notification.success(sold ? 'listingDetail.markAsSoldSuccess' : 'listingDetail.reactivateSuccess');
+      },
+      error: () => {
+        this.updatingSoldStatus.set(false);
+        this.notification.error(sold ? 'listingDetail.markAsSoldError' : 'listingDetail.reactivateError');
+      }
     });
   }
 

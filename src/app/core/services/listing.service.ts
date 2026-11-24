@@ -235,4 +235,14 @@ export class ListingService {
       tap((listing) => this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l))))
     );
   }
+
+  // "Marcar como vendida/rentada" / "Reactivar" on listing-detail — owner/admin, backend-enforced.
+  // sold: true moves the listing to SoldOrRented (drops out of public search/map); false
+  // reactivates it back to Active.
+  updateStatus(id: string, sold: boolean): Observable<Listing> {
+    return this.http.patch<ListingDto>(`${this.apiUrl}/${id}/status`, { sold }).pipe(
+      map(fromDto),
+      tap((listing) => this.listingsSignal.update((list) => list.map((l) => (l.id === id ? listing : l))))
+    );
+  }
 }
