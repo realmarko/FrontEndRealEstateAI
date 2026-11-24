@@ -447,6 +447,8 @@ export interface ResidentialAnalysis {
   rentalYield: RentalYieldEstimate | null;
   nearbyAmenities: TrafficGenerator[];
   nearbyAmenitiesDataUnavailable: boolean;
+  nearbyRoads: NearbyRoad[];
+  roadsDataUnavailable: boolean;
 }
 
 // Best-effort extraction from a pasted classified-ad text (/listings/new's "paste and

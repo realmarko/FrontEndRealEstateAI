@@ -501,6 +501,8 @@ export interface ResidentialAnalysisDto {
   rentalYield: RentalYieldEstimateDto | null;
   nearbyAmenities: TrafficGeneratorDto[];
   nearbyAmenitiesDataUnavailable: boolean;
+  nearbyRoads: NearbyRoadDto[];
+  roadsDataUnavailable: boolean;
 }
 
 export function residentialAnalysisFromDto(dto: ResidentialAnalysisDto): ResidentialAnalysis {
@@ -526,7 +528,16 @@ export function residentialAnalysisFromDto(dto: ResidentialAnalysisDto): Residen
         }
       : null,
     nearbyAmenities: dto.nearbyAmenities,
-    nearbyAmenitiesDataUnavailable: dto.nearbyAmenitiesDataUnavailable
+    nearbyAmenitiesDataUnavailable: dto.nearbyAmenitiesDataUnavailable,
+    nearbyRoads: dto.nearbyRoads.map((r) => ({
+      name: r.name,
+      classification: r.classification,
+      distanceMeters: r.distanceMeters,
+      lat: r.lat,
+      lng: r.lng,
+      geometry: r.geometry.map((p) => ({ lat: p.lat, lng: p.lng }))
+    })),
+    roadsDataUnavailable: dto.roadsDataUnavailable
   };
 }
 

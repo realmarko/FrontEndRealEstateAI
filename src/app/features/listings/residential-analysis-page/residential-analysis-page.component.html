@@ -28,6 +28,30 @@
       </p>
     </div>
 
+    @if (listingValue.lat != null && listingValue.lng != null) {
+      <div class="card map-card">
+        <h3 class="card-title">{{ 'residentialAnalysisPage.mapCardTitle' | translate }}</h3>
+        <div class="map-row">
+          <div #locationMap class="location-map"></div>
+          <div class="map-legend">
+            <h4 class="legend-title">{{ 'residentialAnalysisPage.legendTitle' | translate }}</h4>
+            @for (item of markerLegend; track item.labelKey) {
+              <div class="legend-item">
+                <img [src]="item.icon" alt="" class="legend-icon" />
+                <span>{{ item.labelKey | translate }}</span>
+              </div>
+            }
+            @for (item of roadLegend; track item.labelKey) {
+              <div class="legend-item">
+                <span class="legend-line" [style.background]="item.color"></span>
+                <span>{{ item.labelKey | translate }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
     @if (loadingAnalysis()) {
       <div class="loading-state">
         <span class="spinner" aria-hidden="true"></span>
@@ -113,6 +137,26 @@
         </div>
       } @else {
         <p class="status rental-yield-unavailable">{{ 'residentialAnalysisPage.rentalYieldUnavailable' | translate }}</p>
+      }
+
+      @if (a.nearbyRoads.length || a.roadsDataUnavailable) {
+        <div class="card">
+          <h3 class="card-title">{{ 'residentialAnalysisPage.nearbyRoadsTitle' | translate }}</h3>
+          @if (a.roadsDataUnavailable) {
+            <p class="data-source-warning">{{ 'residentialAnalysisPage.roadsDataUnavailable' | translate }}</p>
+          }
+          @if (a.nearbyRoads.length) {
+            <ul class="amenities-list">
+              @for (road of a.nearbyRoads; track (road.name ?? '') + road.distanceMeters) {
+                <li>
+                  <span class="amenity-name">{{ road.name ?? road.classification }}</span>
+                  <span class="amenity-category">{{ road.classification }}</span>
+                  <span class="amenity-distance">{{ road.distanceMeters | number }} m</span>
+                </li>
+              }
+            </ul>
+          }
+        </div>
       }
 
       @if (a.nearbyAmenities.length || a.nearbyAmenitiesDataUnavailable) {
