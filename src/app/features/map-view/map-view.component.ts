@@ -161,8 +161,9 @@ export type PoiCategoryKey =
   | 'walmart'
   | 'chedraui'
   | 'chedrauiSelecto'
-  | 'superChe'
   | 'aurrera'
+  | 'aurreraExpress'
+  | 'superChe'
   | 'tiendas3b'
   | 'banks'
   | 'gasStations'
@@ -307,13 +308,40 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     labelKey: 'map.poiChedrauiSelecto',
     // Its own layer, separate from the plain 'chedraui' category above, even though the broader
     // 'Chedraui' keyword there would already match these locations too — a visitor who wants to
-    // tell the premium format apart from a regular Chedraui needs it as its own toggle.
+    // tell the premium format apart from a regular Chedraui needs it as its own toggle. Placed
+    // directly after 'chedraui' (not alphabetically/by color) so every format of the same chain
+    // groups together in the checklist instead of interleaving with unrelated chains.
     placeType: 'supermarket',
     keyword: 'Chedraui Selecto',
     // Same teal family as 'chedraui' (#0d9488) since it's a format of that same chain, one shade
     // darker so the two stay distinguishable when both layers are active at once.
     icon: createPoiIcon('#115e59', SHOPPING_CART_GLYPH),
     clusterColor: '#115e59'
+  },
+  {
+    key: 'aurrera',
+    group: 'services',
+    labelKey: 'map.poiAurrera',
+    // Covers "Bodega Aurrera" and "Mi Bodega Aurrera" — both contain "Aurrera" — but not
+    // "Aurrera Express" in practice, which Places tends to return as its own distinct result
+    // name close enough to the dedicated 'aurreraExpress' keyword below that the two rarely
+    // double up in the same search.
+    placeType: 'supermarket',
+    keyword: 'Aurrera',
+    icon: createPoiIcon('#d97706', SHOPPING_CART_GLYPH),
+    clusterColor: '#d97706'
+  },
+  {
+    key: 'aurreraExpress',
+    group: 'services',
+    labelKey: 'map.poiAurreraExpress',
+    // Right after 'aurrera' for the same reason 'chedrauiSelecto' sits right after 'chedraui' —
+    // every format of one chain grouped together.
+    placeType: 'supermarket',
+    keyword: 'Aurrera Express',
+    // Same amber family as 'aurrera' (#d97706), one shade darker.
+    icon: createPoiIcon('#92400e', SHOPPING_CART_GLYPH),
+    clusterColor: '#92400e'
   },
   {
     key: 'superChe',
@@ -323,16 +351,6 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     keyword: 'Super Che',
     icon: createPoiIcon('#4d7c0f', SHOPPING_CART_GLYPH),
     clusterColor: '#4d7c0f'
-  },
-  {
-    key: 'aurrera',
-    group: 'services',
-    labelKey: 'map.poiAurrera',
-    // Covers both "Bodega Aurrera" and "Mi Bodega Aurrera" — both contain "Aurrera".
-    placeType: 'supermarket',
-    keyword: 'Aurrera',
-    icon: createPoiIcon('#d97706', SHOPPING_CART_GLYPH),
-    clusterColor: '#d97706'
   },
   {
     key: 'tiendas3b',

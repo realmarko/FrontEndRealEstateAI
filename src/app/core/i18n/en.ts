@@ -684,6 +684,7 @@ export const en: Record<string, string> = {
   'map.poiChedrauiSelecto': 'Chedraui Selecto',
   'map.poiSuperChe': 'Super Che',
   'map.poiAurrera': 'Bodega Aurrera',
+  'map.poiAurreraExpress': 'Aurrera Express',
   'map.poiTiendas3b': 'Tiendas 3B',
   'map.poiBanks': 'Banks & ATMs',
   'map.poiGasStations': 'Gas stations',
