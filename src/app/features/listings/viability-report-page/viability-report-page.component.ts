@@ -10,7 +10,7 @@ import { SeoService } from '../../../core/services/seo.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { TranslationService } from '../../../core/services/translation.service';
-import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType } from '../../../core/models/listing.model';
+import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType, matchingBusinessTypeKey } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
 
@@ -169,8 +169,19 @@ export class ViabilityReportPageComponent {
   readonly analysisError = signal(false);
 
   // Worst-first would bury the point of the report; best-first lets a reader (often the business
-  // actually scouting this lot, not just the seller) see the strongest fits immediately.
-  readonly rankedBusinesses = computed(() => [...(this.analysis()?.businesses ?? [])].sort((a, b) => b.score - a.score));
+  // actually scouting this lot, not just the seller) see the strongest fits immediately. The giro
+  // matching the listing's own PropertyType (e.g. a nave industrial vs. "Bodega/nave industrial")
+  // only jumps ahead of a tie, never ahead of a genuinely higher score — the hero KPI badge reads
+  // this list's [0] as "Mejor viabilidad" (kpiBestFit), so pinning an actual lower-scoring match to
+  // the front would show a worse giro labeled as the best one.
+  readonly rankedBusinesses = computed(() => {
+    const businesses = [...(this.analysis()?.businesses ?? [])].sort((a, b) => b.score - a.score);
+    const matchKey = matchingBusinessTypeKey(this.listing()?.propertyType);
+    const matchIndex = matchKey ? businesses.findIndex((b) => b.key === matchKey) : -1;
+    if (matchIndex <= 0 || businesses[matchIndex].score !== businesses[0].score) return businesses;
+    const [match] = businesses.splice(matchIndex, 1);
+    return [match, ...businesses];
+  });
   readonly topBusiness = computed(() => this.rankedBusinesses()[0] ?? null);
 
   // Gates the "complete your listing's data" CTA — this report page is public (anyone evaluating

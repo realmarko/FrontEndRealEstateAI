@@ -94,6 +94,25 @@ export function isPureLandPropertyType(propertyType: PropertyType | null | undef
   return propertyType != null && PURE_LAND_PROPERTY_TYPES.includes(propertyType);
 }
 
+// Maps a listing's own PropertyType to the BusinessTypeCriteria.Key it already matches, so the
+// viability report can put that giro first instead of whatever else happens to tie it on score —
+// a nave industrial being "100% apta para Bodega/nave industrial" is the obvious headline, not
+// something a visitor should have to notice buried under "Farmacia" just because both hit 100%.
+// Deliberately conservative: a raw-land type (land/residentialLand/commercialLand/industrialLand)
+// doesn't declare what it will become, so those are left unmapped and fall back to pure score
+// ranking, same as 'building'/'commercialStorage' (too ambiguous to map to one specific giro).
+const PROPERTY_TYPE_TO_BUSINESS_TYPE_KEY: Partial<Record<PropertyType, string>> = {
+  industrialWarehouse: 'warehouse',
+  industrialStorage: 'warehouse',
+  office: 'office',
+  shoppingPlaza: 'shopping_plaza',
+  retailSpace: 'local_comercial'
+};
+
+export function matchingBusinessTypeKey(propertyType: PropertyType | null | undefined): string | null {
+  return (propertyType != null && PROPERTY_TYPE_TO_BUSINESS_TYPE_KEY[propertyType]) || null;
+}
+
 // Property types with individual living rooms (cocina/sala/comedor) and the amenities section
 // below — a single dwelling unit, as opposed to raw land/commercial-industrial structures or a
 // single rented room.

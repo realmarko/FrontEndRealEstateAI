@@ -24,7 +24,8 @@ import {
   ViabilityAnalysis,
   isHouseOrApartmentPropertyType,
   isLandOrCommercialPropertyType,
-  isPureLandPropertyType
+  isPureLandPropertyType,
+  matchingBusinessTypeKey
 } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { ContactFormValue, ContactModalComponent } from '../../../shared/components/contact-modal/contact-modal.component';
@@ -233,9 +234,17 @@ export class ListingDetailComponent {
       { labelKey: 'listingDetail.priceComparisonState', zone: comparison.state }
     ];
   });
+  // Same "the property's own declared type wins ties, never a genuinely higher score" rule as the
+  // full report page (viability-report-page's rankedBusinesses) — this teaser must never show a
+  // different winner than the full report a click away, and never show a lower-scoring giro where
+  // the template reads it as the top pick.
   readonly viabilityTopBusiness = computed(() => {
     const businesses = this.viabilityAnalysis()?.businesses ?? [];
-    return businesses.reduce<(typeof businesses)[number] | null>((best, b) => (!best || b.score > best.score ? b : best), null);
+    const best = businesses.reduce<(typeof businesses)[number] | null>((best, b) => (!best || b.score > best.score ? b : best), null);
+    if (!best) return null;
+    const matchKey = matchingBusinessTypeKey(this.listing()?.propertyType);
+    const matched = matchKey ? businesses.find((b) => b.key === matchKey) : undefined;
+    return matched && matched.score === best.score ? matched : best;
   });
 
   // Points straight at the backend's anonymous PDF endpoint (not the listing-detail page) —
