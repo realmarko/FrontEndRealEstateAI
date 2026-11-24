@@ -220,6 +220,10 @@ export interface Listing {
   topography?: TopographyType;
   isFloodRiskZone?: boolean;
   cadastralValue?: number;
+  // Which of the owning agent's brokerages this listing is published under — null/undefined for
+  // an independent agent, or one who hasn't picked one. Editable (see ListingInput); contrast
+  // with ownerCompany below, which is a read-only display string.
+  brokerageId?: number;
   ownerCompany?: string;
   imageUrls: string[];
   ownerId: string;

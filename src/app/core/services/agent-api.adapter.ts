@@ -7,6 +7,7 @@ export interface AgentDto {
   email: string;
   phone: string;
   company?: string | null;
+  companies: string[];
   isIndependent: boolean;
   photoUrl?: string | null;
   bio?: string | null;
@@ -35,6 +36,7 @@ export function fromDto(dto: AgentDto): Agent {
     email: dto.email,
     phone: dto.phone,
     company: dto.company ?? undefined,
+    companies: dto.companies ?? [],
     isIndependent: dto.isIndependent,
     photoUrl: dto.photoUrl ?? undefined,
     bio: dto.bio ?? undefined,

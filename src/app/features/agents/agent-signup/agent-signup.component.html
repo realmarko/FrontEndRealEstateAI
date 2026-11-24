@@ -26,13 +26,14 @@
     </label>
 
     <label>
-      {{ 'agentSignup.company' | translate }}
-      <input type="text" formControlName="company" list="brokerage-options" autocomplete="off" [placeholder]="'agentSignup.companyPlaceholder' | translate" maxlength="200" />
+      {{ 'agentSignup.companies' | translate }}
+      <input type="text" formControlName="companies" list="brokerage-options" autocomplete="off" [placeholder]="'agentSignup.companiesPlaceholder' | translate" maxlength="1000" />
       <datalist id="brokerage-options">
         @for (name of brokerages(); track name) {
           <option [value]="name"></option>
         }
       </datalist>
+      <small class="field-hint">{{ 'agentSignup.companiesHint' | translate }}</small>
     </label>
 
     <label class="checkbox-label">

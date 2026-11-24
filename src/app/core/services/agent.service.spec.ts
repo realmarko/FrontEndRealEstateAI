@@ -17,6 +17,7 @@ describe('AgentService', () => {
     email: 'ana@example.com',
     phone: '2221234567',
     company: null,
+    companies: [],
     isIndependent: true,
     photoUrl: null,
     bio: null,
@@ -117,7 +118,7 @@ describe('AgentService', () => {
   });
 
   it('createMine() sends the profile fields as multipart form data and appends the result', () => {
-    const input: AgentProfileInput = { phone: '2221112222', company: 'Acme', specialties: ['casas', 'terrenos'] };
+    const input: AgentProfileInput = { phone: '2221112222', companies: ['Acme'], specialties: ['casas', 'terrenos'] };
 
     service.createMine(input).subscribe();
 
@@ -125,7 +126,7 @@ describe('AgentService', () => {
     expect(req.request.method).toBe('POST');
     const body = req.request.body as FormData;
     expect(body.get('phone')).toBe('2221112222');
-    expect(body.get('company')).toBe('Acme');
+    expect(body.get('companies')).toBe('Acme');
     expect(body.get('isIndependent')).toBe('false');
     expect(body.get('specialties')).toBe('casas,terrenos');
     expect(body.has('photo')).toBe(false);

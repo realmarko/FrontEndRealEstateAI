@@ -203,6 +203,12 @@ select.ng-invalid.ng-touched {
   color: #4b5563;
 }
 
+.publish-under-single {
+  margin: -0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
 .price-per-sqm-hint {
   margin: -0.5rem 0 0;
   font-size: 0.8rem;

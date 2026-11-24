@@ -23,3 +23,9 @@
 .checkbox-label input {
   width: auto;
 }
+
+.field-hint {
+  color: #6b7280;
+  font-size: 0.8rem;
+  font-weight: 400;
+}

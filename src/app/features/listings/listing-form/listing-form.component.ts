@@ -5,6 +5,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { ListingService } from '../../../core/services/listing.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { BrokerageService } from '../../../core/services/brokerage.service';
+import { Agency } from '../../../core/models/agency.model';
 import { GeomarketingService, MunicipalityListItem, StateListItem } from '../../../core/services/geomarketing.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import {
@@ -85,6 +87,7 @@ export class ListingFormComponent {
   private readonly router = inject(Router);
   private readonly listingService = inject(ListingService);
   private readonly auth = inject(AuthService);
+  private readonly brokerageService = inject(BrokerageService);
   private readonly geomarketingService = inject(GeomarketingService);
   private readonly landUseCategoryService = inject(LandUseCategoryService);
   protected readonly translation = inject(TranslationService);
@@ -206,8 +209,16 @@ export class ListingFormComponent {
     lotShape: this.fb.control<LotShapeType | null>(null),
     topography: this.fb.control<TopographyType | null>(null),
     isFloodRiskZone: this.fb.control<boolean | null>(null),
-    cadastralValue: this.fb.control<number | null>(null, Validators.min(0))
+    cadastralValue: this.fb.control<number | null>(null, Validators.min(0)),
+    // Hidden entirely when myAgencies() is empty (independent agent, or none picked at
+    // signup) — see the template. Populated from brokerageService.fetchMine() in the
+    // constructor below.
+    brokerageId: this.fb.control<number | null>(null)
   });
+
+  // The agent's own agencies, for the "publicar bajo" selector — empty for an independent
+  // agent, in which case the template hides the field entirely and brokerageId stays null.
+  readonly myAgencies = signal<Agency[]>([]);
 
   // A convenience input, not a real field: the backend only stores total price, so this is kept
   // outside `form` (never part of raw/getRawValue(), never submitted) and synced bidirectionally
@@ -326,6 +337,20 @@ export class ListingFormComponent {
     // pricePerSqmControl showing a stale value (computed against the old basis) until price or
     // either area control happened to change again.
     this.form.controls.propertyType.valueChanges.subscribe(() => this.syncPricePerSqmFromPrice());
+
+    // Independent agents (0 agencies) never see the field at all (myAgencies().length === 0
+    // in the template); an agent with exactly one agency gets it preselected since there's
+    // nothing to actually choose — only 2+ forces a real decision. Skipped entirely in edit
+    // mode: fetchById() below patches the control from the listing's own saved brokerageId
+    // (possibly null, e.g. published before the agent joined this agency), and these two HTTP
+    // calls have no ordering guarantee — auto-selecting here too could silently overwrite that
+    // value with this agency's id if this response happens to land after patchValue().
+    this.brokerageService.fetchMine().subscribe((agencies) => {
+      this.myAgencies.set(agencies);
+      if (!this.isEditMode && agencies.length === 1 && !this.form.controls.brokerageId.value) {
+        this.form.controls.brokerageId.setValue(agencies[0].id);
+      }
+    });
 
     // The other direction: typing a price-per-m² computes and writes the total price. emitEvent
     // defaults to true here so the template (which reads form.value.price directly, not via an
@@ -866,6 +891,7 @@ export class ListingFormComponent {
       topography: raw.topography ?? undefined,
       isFloodRiskZone: raw.isFloodRiskZone ?? undefined,
       cadastralValue: raw.cadastralValue ?? undefined,
+      brokerageId: raw.brokerageId ?? undefined,
       existingImageUrls: this.existingImageUrls(),
       photos: this.newPhotos().map((p) => p.file),
       lat: this.draftLat ?? this.lat ?? this.existingLat ?? undefined,

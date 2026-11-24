@@ -59,10 +59,20 @@ export class BrokerageService {
     return this.http.get<BrokerageDto>(`${this.apiUrl}/by-slug/${encodeURIComponent(slug)}`).pipe(map(fromDto));
   }
 
-  // GET /api/brokerages/mine — the caller's own agency; the caller handles the 404 case
-  // (independent agent, or no agent profile yet).
-  fetchMine(): Observable<Agency> {
-    return this.http.get<BrokerageDto>(`${this.apiUrl}/mine`).pipe(map(fromDto));
+  // GET /api/brokerages/mine — every agency the caller belongs to (an agent can belong to more
+  // than one) — empty array for an independent agent, or one with no profile yet.
+  fetchMine(): Observable<Agency[]> {
+    return this.http.get<BrokerageDto[]>(`${this.apiUrl}/mine`).pipe(map((items) => items.map(fromDto)));
+  }
+
+  // POST /api/brokerages/mine/{id} — the caller joins an existing (or newly resolved) brokerage.
+  joinMine(id: number): Observable<Agency> {
+    return this.http.post<BrokerageDto>(`${this.apiUrl}/mine/${id}`, {}).pipe(map(fromDto));
+  }
+
+  // DELETE /api/brokerages/mine/{id} — the caller leaves a brokerage they belong to.
+  leaveMine(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/mine/${id}`);
   }
 
   updateMine(id: number, input: AgencyProfileInput): Observable<Agency> {

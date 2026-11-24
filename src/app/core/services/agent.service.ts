@@ -108,7 +108,7 @@ export class AgentService {
   private toFormData(input: AgentProfileInput): FormData {
     const formData = new FormData();
     formData.append('phone', input.phone);
-    if (input.company) formData.append('company', input.company);
+    if (input.companies?.length) formData.append('companies', input.companies.join(','));
     formData.append('isIndependent', String(input.isIndependent ?? false));
     if (input.photo) formData.append('photo', input.photo);
     if (input.bio) formData.append('bio', input.bio);

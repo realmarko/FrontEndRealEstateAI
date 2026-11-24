@@ -54,6 +54,20 @@
       </label>
     </div>
 
+    @if (myAgencies().length > 1) {
+      <label>
+        {{ 'listingForm.publishUnder' | translate }}
+        <select id="brokerageId" formControlName="brokerageId" name="brokerageId">
+          <option [ngValue]="null">{{ 'listingForm.publishUnderNone' | translate }}</option>
+          @for (agency of myAgencies(); track agency.id) {
+            <option [ngValue]="agency.id">{{ agency.name }}</option>
+          }
+        </select>
+      </label>
+    } @else if (myAgencies().length === 1) {
+      <p class="publish-under-single">{{ 'listingForm.publishUnderSingle' | translate:{ name: myAgencies()[0].name } }}</p>
+    }
+
     <label class="checkbox-label">
       <input type="checkbox" id="priceOnRequest" formControlName="priceOnRequest" name="priceOnRequest" />
       {{ 'listingForm.priceOnRequest' | translate }}

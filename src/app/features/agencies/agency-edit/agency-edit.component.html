@@ -2,6 +2,22 @@
   <p class="status">{{ 'agencyEdit.loading' | translate }}</p>
 } @else if (notFound()) {
   <p class="status">{{ 'agencyEdit.notFound' | translate }}</p>
+} @else if (agencyChoices().length > 0) {
+  <div class="page">
+    <h1>{{ 'agencyEdit.chooseTitle' | translate }}</h1>
+    <ul class="agency-choice-list">
+      @for (agency of agencyChoices(); track agency.id) {
+        <li>
+          <button type="button" class="agency-choice" (click)="loadAgency(agency)">
+            @if (agency.logoUrl) {
+              <img [src]="agency.logoUrl" alt="" class="agency-choice-logo" />
+            }
+            <span>{{ agency.name }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
 } @else {
   <div class="page">
     <h1>{{ 'agencyEdit.title' | translate }}</h1>

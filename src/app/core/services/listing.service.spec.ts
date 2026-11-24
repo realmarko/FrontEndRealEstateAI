@@ -26,6 +26,7 @@ describe('ListingService', () => {
     state: 'Puebla',
     zipCode: '72000',
     country: 'México',
+    brokerageId: null,
     hideAgentContact: false,
     ownerContactName: null,
     ownerContactPhone: null,

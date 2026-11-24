@@ -160,6 +160,7 @@ export interface ListingDto {
   state: string;
   zipCode: string;
   country: string;
+  brokerageId: number | null;
   hideAgentContact: boolean;
   ownerContactName: string | null;
   ownerContactPhone: string | null;
@@ -675,6 +676,7 @@ export function fromDto(dto: ListingDto): Listing {
     state: dto.state,
     zipCode: dto.zipCode,
     country: dto.country,
+    brokerageId: dto.brokerageId ?? undefined,
     hideAgentContact: dto.hideAgentContact,
     ownerContactName: dto.ownerContactName ?? undefined,
     ownerContactPhone: dto.ownerContactPhone ?? undefined,
@@ -781,6 +783,7 @@ export function toFormData(input: ListingInput, status?: number): FormData {
   form.append('state', input.state);
   form.append('zipCode', input.zipCode);
   form.append('country', input.country);
+  if (input.brokerageId != null) form.append('brokerageId', String(input.brokerageId));
   form.append('latitude', String(input.lat ?? 0));
   form.append('longitude', String(input.lng ?? 0));
   form.append('bedrooms', String(input.bedrooms));

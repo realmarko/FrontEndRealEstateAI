@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder } from '@angular/forms';
 import { BrokerageService } from '../../../core/services/brokerage.service';
+import { Agency } from '../../../core/models/agency.model';
 import { toSlug } from '../../../core/services/brokerage-api.adapter';
 import { NotificationService } from '../../../core/services/notification.service';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -35,6 +36,11 @@ export class AgencyEditComponent {
   readonly logoError = signal<string | null>(null);
   private selectedLogo: File | null = null;
 
+  // Populated whenever the caller belongs to more than one agency — the template shows a picker
+  // instead of the form until one is chosen (see chooseAgency below). Empty for the common case
+  // (0 or 1 agency), where the form loads directly, same as before this field existed.
+  readonly agencyChoices = signal<Agency[]>([]);
+
   readonly form = this.fb.nonNullable.group({
     state: [''],
     city: [''],
@@ -51,28 +57,44 @@ export class AgencyEditComponent {
       path: this.translation.path('agencies', 'edit')
     });
 
-    // No id route param on purpose: /brokerages/mine resolves it from the caller's own agent
+    // No id route param on purpose: /brokerages/mine resolves them from the caller's own agent
     // profile, so an agent without a brokerage (or whose own profile doesn't exist yet) gets a
-    // clean 404 here instead of needing to already know an id to visit this page.
+    // clean "not found" here instead of needing to already know an id to visit this page.
     this.brokerageService.fetchMine().subscribe({
-      next: (agency) => {
-        this.agencyId = agency.id;
-        this.form.patchValue({
-          state: agency.state ?? '',
-          city: agency.city ?? '',
-          website: agency.website ?? '',
-          facebookUrl: agency.facebookUrl ?? '',
-          instagramUrl: agency.instagramUrl ?? '',
-          description: agency.description ?? ''
-        });
-        this.logoPreview.set(agency.logoUrl ?? null);
-        this.loading.set(false);
+      next: (agencies) => {
+        if (agencies.length === 0) {
+          this.notFound.set(true);
+          this.loading.set(false);
+        } else if (agencies.length === 1) {
+          this.loadAgency(agencies[0]);
+        } else {
+          // More than one — let the agent pick which one to edit instead of guessing.
+          this.agencyChoices.set(agencies);
+          this.loading.set(false);
+        }
       },
       error: () => {
         this.notFound.set(true);
         this.loading.set(false);
       }
     });
+  }
+
+  // Picks one of agencyChoices() to edit — also the path taken automatically when the caller
+  // belongs to exactly one agency (see the constructor above).
+  loadAgency(agency: Agency): void {
+    this.agencyChoices.set([]);
+    this.agencyId = agency.id;
+    this.form.patchValue({
+      state: agency.state ?? '',
+      city: agency.city ?? '',
+      website: agency.website ?? '',
+      facebookUrl: agency.facebookUrl ?? '',
+      instagramUrl: agency.instagramUrl ?? '',
+      description: agency.description ?? ''
+    });
+    this.logoPreview.set(agency.logoUrl ?? null);
+    this.loading.set(false);
   }
 
   onLogoSelected(event: Event): void {

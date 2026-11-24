@@ -47,7 +47,9 @@ export class AgentSignupComponent {
 
   readonly form = this.fb.nonNullable.group({
     phone: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
-    company: [''],
+    // Comma-separated, same convention as specialties below — an agent can belong to more than
+    // one brokerage now (see brokerages signal for the autocomplete suggestions).
+    companies: [''],
     isIndependent: [false],
     bio: [''],
     specialties: ['']
@@ -64,10 +66,10 @@ export class AgentSignupComponent {
 
     this.form.controls.isIndependent.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((isIndependent) => {
       if (isIndependent) {
-        this.form.controls.company.setValue('');
-        this.form.controls.company.disable();
+        this.form.controls.companies.setValue('');
+        this.form.controls.companies.disable();
       } else {
-        this.form.controls.company.enable();
+        this.form.controls.companies.enable();
       }
     });
 
@@ -87,7 +89,7 @@ export class AgentSignupComponent {
       next: (agent) => {
         this.form.patchValue({
           phone: agent.phone,
-          company: agent.company ?? '',
+          companies: agent.companies.join(', '),
           isIndependent: agent.isIndependent,
           bio: agent.bio ?? '',
           specialties: agent.specialties.join(', ')
@@ -143,10 +145,12 @@ export class AgentSignupComponent {
     }
 
     this.submitting.set(true);
-    const { phone, company, isIndependent, bio, specialties } = this.form.getRawValue();
+    const { phone, companies, isIndependent, bio, specialties } = this.form.getRawValue();
     const input = {
       phone,
-      company: company || undefined,
+      companies: companies
+        ? companies.split(',').map((c) => c.trim()).filter(Boolean)
+        : undefined,
       isIndependent,
       photo: this.selectedPhoto ?? undefined,
       bio: bio || undefined,
