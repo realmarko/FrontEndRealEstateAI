@@ -160,6 +160,8 @@ export type PoiCategoryKey =
   | 'parks'
   | 'walmart'
   | 'chedraui'
+  | 'chedrauiSelecto'
+  | 'superChe'
   | 'aurrera'
   | 'tiendas3b'
   | 'banks'
@@ -298,6 +300,29 @@ const POI_CATEGORIES: PoiCategoryConfig[] = [
     keyword: 'Chedraui',
     icon: createPoiIcon('#0d9488', SHOPPING_CART_GLYPH),
     clusterColor: '#0d9488'
+  },
+  {
+    key: 'chedrauiSelecto',
+    group: 'services',
+    labelKey: 'map.poiChedrauiSelecto',
+    // Its own layer, separate from the plain 'chedraui' category above, even though the broader
+    // 'Chedraui' keyword there would already match these locations too — a visitor who wants to
+    // tell the premium format apart from a regular Chedraui needs it as its own toggle.
+    placeType: 'supermarket',
+    keyword: 'Chedraui Selecto',
+    // Same teal family as 'chedraui' (#0d9488) since it's a format of that same chain, one shade
+    // darker so the two stay distinguishable when both layers are active at once.
+    icon: createPoiIcon('#115e59', SHOPPING_CART_GLYPH),
+    clusterColor: '#115e59'
+  },
+  {
+    key: 'superChe',
+    group: 'services',
+    labelKey: 'map.poiSuperChe',
+    placeType: 'supermarket',
+    keyword: 'Super Che',
+    icon: createPoiIcon('#4d7c0f', SHOPPING_CART_GLYPH),
+    clusterColor: '#4d7c0f'
   },
   {
     key: 'aurrera',
