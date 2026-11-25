@@ -969,6 +969,7 @@ export const es: Record<string, string> = {
   'agencies.empty': 'No hay inmobiliarias que coincidan con tu búsqueda.',
   'agencies.agentsCount': 'agentes',
   'agencies.listingsCount': 'anuncios',
+  'agencies.adminAddAgency': 'Agregar inmobiliaria',
 
   'agencyDetail.website': 'Sitio web',
   'agencyDetail.editLink': 'Editar mi inmobiliaria',

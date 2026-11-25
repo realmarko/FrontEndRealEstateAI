@@ -943,6 +943,15 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.brokerageService.search().subscribe((names) => this.brokerages.set(names));
     this.municipalities = this.geomarketingService.municipalities;
 
+    // ?action=addBrokerage — the shortcut from /inmobiliarias's admin-only "Agregar inmobiliaria"
+    // button, so an admin lands here with the pin tool already armed instead of having to find
+    // the toolbar icon themselves. Checked against the role directly (not a route guard) since
+    // arriving without the param, or as a non-admin, should just open the map normally rather
+    // than redirect/error — this is a convenience shortcut, not a protected route.
+    if (this.route.snapshot.queryParamMap.get('action') === 'addBrokerage' && this.auth.isAdmin()) {
+      this.toggleAddBrokerageMode();
+    }
+
     if (this.isBrowser) {
       this.isOffline.set(!navigator.onLine);
       window.addEventListener('online', this.handleOnline);

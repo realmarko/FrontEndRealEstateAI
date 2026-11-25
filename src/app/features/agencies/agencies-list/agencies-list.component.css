@@ -3,6 +3,29 @@
   margin: 0 auto;
 }
 
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.admin-add-agency-btn {
+  display: inline-flex;
+  align-items: center;
+  background: #000000;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.6rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.admin-add-agency-btn:hover {
+  background: var(--gold);
+  color: #000000;
+}
+
 .search-card {
   background: #fff;
   border-radius: var(--radius-sm);

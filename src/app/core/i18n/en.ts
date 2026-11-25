@@ -969,6 +969,7 @@ export const en: Record<string, string> = {
   'agencies.empty': 'No agencies match your search.',
   'agencies.agentsCount': 'agents',
   'agencies.listingsCount': 'listings',
+  'agencies.adminAddAgency': 'Add agency',
 
   'agencyDetail.website': 'Website',
   'agencyDetail.editLink': 'Edit my agency',

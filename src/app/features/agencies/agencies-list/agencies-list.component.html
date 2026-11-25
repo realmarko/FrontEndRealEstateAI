@@ -1,4 +1,12 @@
 <div class="page">
+  @if (auth.isAdmin()) {
+    <div class="admin-actions">
+      <a class="admin-add-agency-btn" [routerLink]="addAgencyPath" [queryParams]="{ action: 'addBrokerage' }">
+        {{ 'agencies.adminAddAgency' | translate }}
+      </a>
+    </div>
+  }
+
   <div class="search-card">
     <h1>{{ 'agencies.title' | translate }}</h1>
 

@@ -1,9 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { BrokerageService } from '../../../core/services/brokerage.service';
 import { AgencyCardComponent } from '../components/agency-card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 20;
@@ -11,12 +13,20 @@ const PAGE_SIZE = 20;
 @Component({
   selector: 'app-agencies-list',
   standalone: true,
-  imports: [AgencyCardComponent, TranslatePipe],
+  imports: [AgencyCardComponent, TranslatePipe, RouterLink],
   templateUrl: './agencies-list.component.html',
   styleUrl: './agencies-list.component.css'
 })
 export class AgenciesListComponent {
   private readonly brokerageService = inject(BrokerageService);
+  protected readonly auth = inject(AuthService);
+  private readonly translation = inject(TranslationService);
+
+  // Links into /map's existing "Agregar inmobiliaria" pin tool (BrokeragesController.Create
+  // already requires a Latitude/Longitude, so creating one without picking a location on the map
+  // isn't an option) — ?action=addBrokerage auto-arms that tool on arrival, read in
+  // MapViewComponent's constructor.
+  readonly addAgencyPath = this.translation.path('map');
 
   readonly search = signal('');
   readonly state = signal('');
@@ -33,12 +43,11 @@ export class AgenciesListComponent {
     // can go stale after actions elsewhere, e.g. an agent editing their agency profile).
     this.refreshNow();
 
-    const translation = inject(TranslationService);
     inject(SeoService).set({
       title: 'Inmobiliarias',
       description: 'Directorio de inmobiliarias en México con propiedades en venta y renta.',
-      path: translation.path('agencies'),
-      hreflang: translation.hreflangPaths('agencies')
+      path: this.translation.path('agencies'),
+      hreflang: this.translation.hreflangPaths('agencies')
     });
   }
 
