@@ -649,6 +649,48 @@ export function listingDraftFromDto(dto: ListingDraftDto): ListingDraft {
   };
 }
 
+// Outgoing (frontend -> backend), unlike ListingDraftDto above — see
+// GenerateListingDescriptionRequestDto's own comment on the backend for why ListingType is the
+// form's own lowercase token while PropertyType/ConstructionCondition are already-translated
+// Spanish labels, not enum codes. Every field optional: sent as whatever the form currently has,
+// which may be a work in progress.
+export interface GenerateListingDescriptionRequestDto {
+  listingType?: string | null;
+  propertyType?: string | null;
+  price?: number | null;
+  currency?: string | null;
+  colonia?: string | null;
+  city?: string | null;
+  state?: string | null;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
+  areaSqm?: number | null;
+  lotSizeSqm?: number | null;
+  parkingSpaces?: number | null;
+  floors?: number | null;
+  yearBuilt?: number | null;
+  constructionCondition?: string | null;
+  hasPool?: boolean | null;
+  hasRoofGarden?: boolean | null;
+  hasTerrace?: boolean | null;
+  hasBalcony?: boolean | null;
+  hasSecurity?: boolean | null;
+  hasElevator?: boolean | null;
+  hasGym?: boolean | null;
+  hasBbqArea?: boolean | null;
+  hasNaturalGas?: boolean | null;
+  hasWell?: boolean | null;
+  isCornerLot?: boolean | null;
+  hasPotableWater?: boolean | null;
+  hasDrainage?: boolean | null;
+  hasElectricity?: boolean | null;
+  hasPavedStreet?: boolean | null;
+}
+
+export interface GenerateListingDescriptionResultDto {
+  description: string;
+}
+
 export function priceHistoryFromDto(dto: ListingPriceHistoryDto): PriceHistoryEntry {
   return {
     price: dto.price,

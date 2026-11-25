@@ -512,6 +512,78 @@ export class ListingFormComponent {
       });
   }
 
+  readonly generatingDescription = signal(false);
+
+  // The mirror image of autofillFromDraft above: structured fields -> a drafted description,
+  // instead of free text -> structured fields. Always overwrites the description control (same
+  // "owner reviews/edits before saving, nothing auto-publishes" reasoning as autofillFromDraft) —
+  // there's no partial-merge concern here since there's only one field to fill, unlike the ~40
+  // fields autofillFromDraft can touch.
+  generateDescription(): void {
+    if (this.generatingDescription()) return;
+
+    // Unlike autofillFromDraft (only reachable on a blank new-listing form, so there's never
+    // real data to lose — see its own comment), this button is also reachable in isEditMode, on
+    // an already-published listing whose description a human may have carefully written. Silently
+    // overwriting that with no confirmation is exactly the kind of real-data loss this app's
+    // conventions guard against elsewhere (listingDetail.deleteConfirm et al. use the same
+    // window.confirm pattern) — only prompt when there's actually something to lose, so a blank
+    // description (the common new-listing case) still generates in one click.
+    const existing = this.form.controls.description.value.trim();
+    if (existing && !confirm(this.translation.t('listingForm.generateDescriptionOverwriteConfirm'))) return;
+
+    const raw = this.form.getRawValue();
+    this.generatingDescription.set(true);
+
+    this.listingService
+      .generateDescription({
+        listingType: raw.type,
+        propertyType: this.translation.t('listingForm.' + raw.propertyType),
+        price: raw.priceOnRequest ? null : raw.price,
+        currency: raw.currency,
+        colonia: raw.colonia || null,
+        city: raw.city || null,
+        state: raw.state || null,
+        bedrooms: raw.bedrooms,
+        bathrooms: raw.bathrooms,
+        areaSqm: raw.areaSqm,
+        lotSizeSqm: raw.lotSizeSqm,
+        parkingSpaces: raw.parkingSpaces,
+        floors: raw.floors,
+        yearBuilt: raw.yearBuilt,
+        constructionCondition: raw.constructionCondition
+          ? this.translation.t('listingForm.condition' + raw.constructionCondition.charAt(0).toUpperCase() + raw.constructionCondition.slice(1))
+          : null,
+        hasPool: raw.hasPool,
+        hasRoofGarden: raw.hasRoofGarden,
+        hasTerrace: raw.hasTerrace,
+        hasBalcony: raw.hasBalcony,
+        hasSecurity: raw.hasSecurity,
+        hasElevator: raw.hasElevator,
+        hasGym: raw.hasGym,
+        hasBbqArea: raw.hasBbqArea,
+        hasNaturalGas: raw.hasNaturalGas,
+        hasWell: raw.hasWell,
+        isCornerLot: raw.isCornerLot,
+        hasPotableWater: raw.hasPotableWater,
+        hasDrainage: raw.hasDrainage,
+        hasElectricity: raw.hasElectricity,
+        hasPavedStreet: raw.hasPavedStreet
+      })
+      .pipe(finalize(() => this.generatingDescription.set(false)))
+      .subscribe({
+        next: (description) => {
+          if (!description) {
+            this.notification.error('listingForm.generateDescriptionEmpty');
+            return;
+          }
+          this.form.controls.description.setValue(description);
+          this.notification.success('listingForm.generateDescriptionSuccess');
+        },
+        error: () => this.notification.error('listingForm.generateDescriptionError')
+      });
+  }
+
   // Only overwrites a field that's still at its untouched default — if reverse geocoding takes
   // long enough that the owner already started typing (or the browser only got a partial
   // address back), their own input always wins over whatever this fills in.

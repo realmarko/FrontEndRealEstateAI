@@ -7,6 +7,8 @@ import { CmaResult, Listing, ListingDraft, ListingInput, ListingOwnerContactInpu
 import { PagedResult } from '../models/paged-result.model';
 import {
   CmaResultDto,
+  GenerateListingDescriptionRequestDto,
+  GenerateListingDescriptionResultDto,
   ListingDraftDto,
   ListingDto,
   ListingPriceComparisonDto,
@@ -159,6 +161,15 @@ export class ListingService {
   // touches a listing — the caller patches its own form with the result.
   parseDraft(text: string): Observable<ListingDraft> {
     return this.http.post<ListingDraftDto>(`${this.apiUrl}/parse-draft`, { text }).pipe(map(listingDraftFromDto));
+  }
+
+  // The mirror image of parseDraft above: drafts a description from whatever structured fields
+  // the owner has filled in so far. Never touches a listing — the caller fills its own
+  // description control with the result and the owner can still edit it before saving.
+  generateDescription(request: GenerateListingDescriptionRequestDto): Observable<string> {
+    return this.http
+      .post<GenerateListingDescriptionResultDto>(`${this.apiUrl}/generate-description`, request)
+      .pipe(map((result) => result.description));
   }
 
   // The gated half: captures the lead's name/email (no login required — a lead magnet has to

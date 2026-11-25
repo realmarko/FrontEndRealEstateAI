@@ -25,7 +25,17 @@
     </label>
 
     <label>
-      {{ 'listingForm.description' | translate }}
+      <span class="description-label-row">
+        {{ 'listingForm.description' | translate }}
+        <button
+          type="button"
+          class="generate-description-btn"
+          [disabled]="generatingDescription()"
+          (click)="generateDescription()"
+        >
+          {{ (generatingDescription() ? 'listingForm.generateDescriptionLoading' : 'listingForm.generateDescriptionButton') | translate }}
+        </button>
+      </span>
       <textarea id="description" rows="4" formControlName="description" name="description" maxlength="5000"></textarea>
       <app-form-error [control]="form.controls.description" />
     </label>

@@ -12,6 +12,35 @@
   color: #6b7280;
 }
 
+.description-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.generate-description-btn {
+  background: none;
+  border: 1px solid var(--hairline);
+  border-radius: 6px;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--navy);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.generate-description-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.generate-description-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .draft-paste-panel {
   display: flex;
   flex-direction: column;
