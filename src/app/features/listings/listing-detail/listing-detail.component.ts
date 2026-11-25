@@ -180,6 +180,9 @@ export class ListingDetailComponent {
   readonly contactingOwner = signal(false);
   readonly showTransferModal = signal(false);
   readonly transferring = signal(false);
+  // The "Acciones ▾" dropdown/bottom-sheet in the owner/admin action row (see
+  // closeActionsMenuOnOutsideClick below for how it closes).
+  readonly actionsMenuOpen = signal(false);
   readonly showQrModal = signal(false);
   readonly priceHistory = signal<PriceHistoryEntry[]>([]);
   readonly similarListings = signal<Listing[]>([]);
@@ -750,6 +753,26 @@ export class ListingDetailComponent {
     this.previousPhotoUrl.set(urls[this.activePhotoIndex()] ?? this.defaultImage);
     this.activePhotoIndex.set(index);
     this.photoFadeTimeout = setTimeout(() => this.previousPhotoUrl.set(null), 220);
+  }
+
+  toggleActionsMenu(): void {
+    this.actionsMenuOpen.update((open) => !open);
+  }
+
+  closeActionsMenu(): void {
+    this.actionsMenuOpen.set(false);
+  }
+
+  // Closes the dropdown/bottom-sheet on any click outside it — the trigger and panel both stop
+  // propagation (see template) so a click on either of those never reaches here.
+  @HostListener('document:click')
+  onDocumentClickCloseActionsMenu(): void {
+    if (this.actionsMenuOpen()) this.actionsMenuOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscapeCloseActionsMenu(): void {
+    if (this.actionsMenuOpen()) this.actionsMenuOpen.set(false);
   }
 
   openTransferModal(): void {

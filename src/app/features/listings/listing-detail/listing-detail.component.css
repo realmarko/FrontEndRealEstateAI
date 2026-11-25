@@ -230,6 +230,13 @@
   gap: var(--space-2);
   overflow-x: auto;
   padding-bottom: var(--space-1);
+  /* Native horizontal scroll (and touch swipe) still works — only the visible scrollbar chrome
+     is hidden, same idea as the main photo's own swipe/wheel handling above. */
+  scrollbar-width: none;
+}
+
+.thumbnails::-webkit-scrollbar {
+  display: none;
 }
 
 .thumb {
@@ -509,6 +516,9 @@
   color: #374151;
   border-radius: 4px;
   padding: var(--space-2) var(--space-3);
+  /* Keeps every tappable control here at the 44px touch-target floor even though the icon +
+     text content alone is shorter than that. */
+  min-height: 44px;
   cursor: pointer;
 }
 
@@ -549,6 +559,8 @@
 
 .owner-actions {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: var(--space-3);
   /* 16px on top of .info's own 8px flex gap = a clean 24px (var(--space-6)) total separation
      from the buttons above, same reasoning as .agent-card below. */
@@ -571,13 +583,158 @@
   background: var(--gold-hover);
 }
 
-.danger {
-  background: #fff;
-  border: 1px solid #b91c1c;
-  color: #b91c1c;
-  border-radius: 4px;
-  padding: var(--space-2) var(--space-4);
+/* The one primary action in .owner-actions (Editar) — everything else that used to compete with
+   it at the same visual weight now lives inside .actions-menu below. */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  background: var(--gold);
+  color: var(--on-gold);
+  text-decoration: none;
+  padding: var(--space-2) var(--space-5);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
   cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: var(--gold-hover);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 44px;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid #d1d5db;
+  padding: var(--space-2) var(--space-4);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+}
+
+.actions-menu {
+  position: relative;
+}
+
+/* Above the mobile backdrop's z-index 19 (see .actions-sheet-backdrop) — otherwise the trigger
+   sits in normal document flow below the fixed, full-viewport scrim and visually dims along with
+   the rest of the page while the sheet is open, even though it stays clickable either way. */
+.actions-trigger {
+  position: relative;
+  z-index: 21;
+}
+
+.actions-trigger .chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s ease;
+}
+
+.actions-trigger[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+
+/* Transparent on desktop (its only job there is to extend the "click outside closes the menu"
+   catch area behind the trigger) — the mobile media query below gives it the dimmed look of an
+   actual bottom-sheet scrim. */
+.actions-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 19;
+  background: transparent;
+}
+
+.actions-panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+  padding: var(--space-2);
+}
+
+.actions-item {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  width: 100%;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 0 var(--space-3);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.actions-item:hover {
+  background: #f3f4f6;
+}
+
+.actions-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.actions-item.danger {
+  color: #b91c1c;
+}
+
+.actions-item.danger:hover {
+  background: #fef2f2;
+}
+
+.actions-divider {
+  border: none;
+  border-top: 1px solid var(--hairline);
+  margin: var(--space-2) 0;
+}
+
+/* Below this width the dropdown becomes a bottom sheet — closer to the thumb, and wide enough
+   that "Acciones" never needs to fit inside a cramped anchored popover next to the edge of a
+   narrow viewport. */
+@media (max-width: 640px) {
+  .actions-sheet-backdrop {
+    background: rgba(17, 24, 39, 0.4);
+  }
+
+  .actions-panel {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    min-width: 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    border-bottom: none;
+    padding: var(--space-3) var(--space-3) calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .actions-item {
+    font-size: 0.95rem;
+  }
 }
 
 /* Echoes .auth-card's gold-accent treatment (styles.css) — the app's existing signal for "this

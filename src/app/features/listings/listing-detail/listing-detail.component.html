@@ -566,38 +566,77 @@
 
         @if (isOwner()) {
           <div class="owner-actions">
-            <a class="primary-link" [routerLink]="translation.path('listings', listing.id, 'edit')">{{ 'listingDetail.edit' | translate }}</a>
-            @if (isAgent()) {
-              @if (inPipeline()) {
-                <a class="primary-link" routerLink="/pipeline">{{ 'listingDetail.viewInPipeline' | translate }}</a>
-              } @else {
-                <button type="button" class="primary-link" (click)="openPipelineModal()">{{ 'listingDetail.addToPipeline' | translate }}</button>
+            <a class="btn-primary" [routerLink]="translation.path('listings', listing.id, 'edit')">{{ 'listingDetail.edit' | translate }}</a>
+
+            @if (isAgent() && inPipeline()) {
+              <a class="btn-secondary" routerLink="/pipeline">{{ 'listingDetail.viewInPipeline' | translate }}</a>
+            }
+
+            <div class="actions-menu">
+              <button
+                type="button"
+                class="btn-secondary actions-trigger"
+                (click)="$event.stopPropagation(); toggleActionsMenu()"
+                aria-haspopup="true"
+                [attr.aria-expanded]="actionsMenuOpen()"
+              >
+                {{ 'listingDetail.actionsMenu' | translate }}
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+              </button>
+
+              @if (actionsMenuOpen()) {
+                <div class="actions-sheet-backdrop" (click)="closeActionsMenu()"></div>
+                <div class="actions-panel" role="menu" (click)="$event.stopPropagation()">
+                  @if (isAgent() && !inPipeline()) {
+                    <button type="button" class="actions-item" role="menuitem" (click)="closeActionsMenu(); openPipelineModal()">{{ 'listingDetail.addToPipeline' | translate }}</button>
+                  }
+                  @if (isAdmin()) {
+                    <button type="button" class="actions-item" role="menuitem" (click)="closeActionsMenu(); openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
+                  }
+                  @if (canSendToProd()) {
+                    <button type="button" class="actions-item" role="menuitem" [disabled]="sendingToProd()" (click)="closeActionsMenu(); sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
+                  }
+                  <button type="button" class="actions-item" role="menuitem" [disabled]="updatingSoldStatus()" (click)="closeActionsMenu(); toggleSoldStatus()">
+                    {{ (isSold() ? 'listingDetail.reactivate' : 'listingDetail.markAsSold') | translate }}
+                  </button>
+                  <hr class="actions-divider" />
+                  <button type="button" class="actions-item danger" role="menuitem" (click)="closeActionsMenu(); deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
+                </div>
               }
-            }
-            @if (isAdmin()) {
-              <button type="button" class="primary-link" (click)="openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
-            }
-            @if (canSendToProd()) {
-              <button type="button" class="primary-link" [disabled]="sendingToProd()" (click)="sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
-            }
-            <button type="button" class="primary-link" [disabled]="updatingSoldStatus()" (click)="toggleSoldStatus()">
-              {{ (isSold() ? 'listingDetail.reactivate' : 'listingDetail.markAsSold') | translate }}
-            </button>
-            <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.delete' | translate }}</button>
+            </div>
           </div>
           <ng-container *ngTemplateOutlet="viabilitySection" />
           <ng-container *ngTemplateOutlet="residentialAnalysisSection" />
         } @else {
           @if (isAdmin()) {
             <div class="owner-actions">
-              <button type="button" class="primary-link" (click)="openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
-              @if (canSendToProd()) {
-                <button type="button" class="primary-link" [disabled]="sendingToProd()" (click)="sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
-              }
-              <button type="button" class="primary-link" [disabled]="updatingSoldStatus()" (click)="toggleSoldStatus()">
-                {{ (isSold() ? 'listingDetail.reactivate' : 'listingDetail.markAsSold') | translate }}
-              </button>
-              <button type="button" class="danger" (click)="deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
+              <div class="actions-menu">
+                <button
+                  type="button"
+                  class="btn-secondary actions-trigger"
+                  (click)="$event.stopPropagation(); toggleActionsMenu()"
+                  aria-haspopup="true"
+                  [attr.aria-expanded]="actionsMenuOpen()"
+                >
+                  {{ 'listingDetail.actionsMenu' | translate }}
+                  <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                </button>
+
+                @if (actionsMenuOpen()) {
+                  <div class="actions-sheet-backdrop" (click)="closeActionsMenu()"></div>
+                  <div class="actions-panel" role="menu" (click)="$event.stopPropagation()">
+                    <button type="button" class="actions-item" role="menuitem" (click)="closeActionsMenu(); openTransferModal()">{{ 'listingDetail.transferToAgent' | translate }}</button>
+                    @if (canSendToProd()) {
+                      <button type="button" class="actions-item" role="menuitem" [disabled]="sendingToProd()" (click)="closeActionsMenu(); sendToProd()">{{ 'listingDetail.sendToProd' | translate }}</button>
+                    }
+                    <button type="button" class="actions-item" role="menuitem" [disabled]="updatingSoldStatus()" (click)="closeActionsMenu(); toggleSoldStatus()">
+                      {{ (isSold() ? 'listingDetail.reactivate' : 'listingDetail.markAsSold') | translate }}
+                    </button>
+                    <hr class="actions-divider" />
+                    <button type="button" class="actions-item danger" role="menuitem" (click)="closeActionsMenu(); deleteListing()">{{ 'listingDetail.adminDelete' | translate }}</button>
+                  </div>
+                }
+              </div>
             </div>
           }
           <ng-container *ngTemplateOutlet="viabilitySection" />

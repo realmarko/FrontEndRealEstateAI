@@ -238,6 +238,7 @@ export const en: Record<string, string> = {
   'listingDetail.nextPhoto': 'Next photo',
   'listingDetail.closeLightbox': 'Close',
   'listingDetail.edit': 'Edit',
+  'listingDetail.actionsMenu': 'Actions',
   'listingDetail.addToPipeline': 'Add to pipeline',
   'listingDetail.viewInPipeline': 'View in pipeline',
   'listingDetail.addedToPipeline': 'Property added to the pipeline.',
