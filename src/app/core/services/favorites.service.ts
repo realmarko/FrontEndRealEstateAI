@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -135,12 +135,22 @@ export class FavoritesService {
           this.refresh();
         }
       },
-      error: () => {
+      error: (err: HttpErrorResponse) => {
         this.pendingIds.update((ids) => {
           const next = new Set(ids);
           next.delete(listingId);
           return next;
         });
+
+        // A DELETE 404 means the favorite was already gone server-side (e.g. this tab's local
+        // state drifted from the backend — stale data from before a re-login, or it was removed
+        // from another tab/device) — the end state (not favorited) the optimistic update already
+        // applied is correct, so this isn't a real failure and shouldn't roll back or show an
+        // error toast. A POST never 404s this way (Add() 404s only on a missing LISTING, not an
+        // existing favorite — AnyAsync already short-circuits that case with 204), so this check
+        // only ever matches the DELETE/already-removed case.
+        if (wasFavorite && err.status === 404) return;
+
         // Re-check auth: if the session ended while this request was in flight, refresh()
         // (triggered by the login-state effect) has already cleared both signals for the
         // signed-out visitor — re-applying the rollback here would resurrect a phantom

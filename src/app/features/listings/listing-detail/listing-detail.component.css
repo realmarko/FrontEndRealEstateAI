@@ -89,6 +89,12 @@
   position: absolute;
   top: var(--space-2);
   left: var(--space-2);
+  /* Above .photo-layer.current's own z-index: 2 — without this, every overlay badge on the
+     main photo (this one, .sold-stamp, .view-tag, .fav-overlay, .nav-arrow, .photo-count) paints
+     UNDER the photo and is invisible, since an element with an explicit positive z-index always
+     stacks above auto/0 siblings regardless of DOM order, no matter how later in the markup they
+     appear. Confirmed live on a single-photo listing (dev.espacial.com.mx) before this fix. */
+  z-index: 3;
   background: #000000;
   color: #fff;
   font-size: 0.75rem;
@@ -107,6 +113,7 @@
    it never blocks the lightbox click or the prev/next nav arrows underneath it. */
 .sold-stamp {
   position: absolute;
+  z-index: 3;
   top: 42%;
   left: 50%;
   transform: translate(-50%, -50%) rotate(-10deg);
@@ -125,6 +132,7 @@
 
 .view-tag {
   position: absolute;
+  z-index: 3;
   top: var(--space-2);
   right: var(--space-2);
   display: inline-flex;
@@ -144,8 +152,39 @@
   flex: none;
 }
 
+/* Same circular overlay as listing-card's .fav-overlay — kept in sync with that one so the
+   heart looks identical everywhere it appears. Sits below .view-tag (both top-right) rather
+   than overlapping it. */
+.fav-overlay {
+  position: absolute;
+  z-index: 3;
+  top: 2.5rem;
+  right: var(--space-2);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.fav-overlay svg {
+  width: 18px;
+  height: 18px;
+}
+
+.fav-overlay.active {
+  color: #dc2626;
+}
+
 .nav-arrow {
   position: absolute;
+  z-index: 3;
   top: 50%;
   transform: translateY(-50%);
   width: 36px;
@@ -176,6 +215,7 @@
 
 .photo-count {
   position: absolute;
+  z-index: 3;
   bottom: var(--space-2);
   right: var(--space-2);
   background: rgba(17, 24, 39, 0.7);
@@ -458,7 +498,6 @@
   gap: var(--space-2);
 }
 
-.fav,
 .share,
 .qr-code,
 .view-on-map {
@@ -479,11 +518,6 @@
   width: 18px;
   height: 18px;
   flex-shrink: 0;
-}
-
-.fav.active {
-  border-color: #fca5a5;
-  color: #dc2626;
 }
 
 .price {
