@@ -53,7 +53,7 @@ import {
   createPriceMarkerIcon
 } from '../../core/utils/map-icons';
 import { FraccionamientoPublicListItem } from '../../core/models/fraccionamiento.model';
-import { applyCurrencyMask } from '../../shared/utils/currency-input';
+import { applyCurrencyMask, formatCurrencyDisplay } from '../../shared/utils/currency-input';
 import { normalizeText } from '../../shared/utils/normalize-text';
 import { parseCoordinates } from '../../shared/utils/parse-coordinates';
 import { loadGoogleMaps } from '../../core/utils/load-google-maps';
@@ -2747,6 +2747,24 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
     this.maxPrice.set(digits === '' ? null : Number(digits));
   }
 
+  // The price inputs are deliberately uncontrolled (no [value] binding — see applyCurrencyMask's
+  // own in-place-caret reasoning), so setting minPrice/maxPrice from anywhere other than a typed
+  // keystroke (here, the AI search's parsed result) never touches what the boxes actually display.
+  // Mirrors both the desktop and mobile copies of each field, same dual-markup convention as the
+  // rest of this component.
+  private syncPriceInputDisplays(): void {
+    const minText = this.minPrice() !== null ? formatCurrencyDisplay(String(this.minPrice())) : '';
+    const maxText = this.maxPrice() !== null ? formatCurrencyDisplay(String(this.maxPrice())) : '';
+    for (const id of ['map-price-min', 'map-price-min-mobile']) {
+      const input = document.getElementById(id) as HTMLInputElement | null;
+      if (input) input.value = minText;
+    }
+    for (const id of ['map-price-max', 'map-price-max-mobile']) {
+      const input = document.getElementById(id) as HTMLInputElement | null;
+      if (input) input.value = maxText;
+    }
+  }
+
   setMinBeds(value: string): void {
     this.minBeds.set(value === 'any' ? 'any' : Number(value));
   }
@@ -3191,6 +3209,7 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         if (result.propertyType) this.propertyTypeFilter.set(result.propertyType);
         if (result.minPrice !== null) this.minPrice.set(result.minPrice);
         if (result.maxPrice !== null) this.maxPrice.set(result.maxPrice);
+        if (result.minPrice !== null || result.maxPrice !== null) this.syncPriceInputDisplays();
         // Clamped to the dropdowns' own highest option (see map-view.component.html) — "6+
         // recámaras" has nowhere else to go, and silently dropping it would ignore a filter the
         // visitor clearly asked for.
