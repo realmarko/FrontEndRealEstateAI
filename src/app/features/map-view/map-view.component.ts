@@ -708,6 +708,16 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
   readonly showSaveSearchForm = signal(false);
   readonly saveSearchName = signal('');
 
+  // Natural-language search box ("Buscar con IA"), same inline-panel pattern as
+  // showSaveSearchForm/saveSearchName above — see runAiSearch for the parse-and-apply flow.
+  readonly showAiSearchForm = signal(false);
+  readonly aiSearchQuery = signal('');
+  readonly aiSearchLoading = signal(false);
+  // Last successful parse's human-readable summary, shown next to the toggle so the visitor can
+  // tell the query actually took effect — cleared whenever a new query is typed (see
+  // setAiSearchQuery) so it never lingers once stale.
+  readonly aiSearchInterpretation = signal<string | null>(null);
+
   // Mobile-only: which pane the map/list toggle currently shows (<=860px — see
   // map-view.component.css's own breakpoint). Unused above that width, where map and list
   // render side by side as before.
@@ -3151,6 +3161,72 @@ export class MapViewComponent implements AfterViewInit, OnDestroy {
         },
         error: () => this.notification.error('savedSearches.saveError')
       });
+  }
+
+  toggleAiSearchForm(): void {
+    this.showAiSearchForm.update((v) => !v);
+  }
+
+  setAiSearchQuery(value: string): void {
+    this.aiSearchQuery.set(value);
+    // A new query invalidates whatever the last one's interpretation said — cleared immediately
+    // rather than left to look like it still describes the box's current contents.
+    this.aiSearchInterpretation.set(null);
+  }
+
+  // Natural-language search box: sends the typed query to the backend's AI parser and applies
+  // whatever it understood to the map's own existing filters (typeFilter, propertyTypeFilter,
+  // minPrice/maxPrice, minBeds/minBaths) plus the plain search box for a mentioned city/colonia —
+  // exactly the filters a visitor could already set by hand, never a parallel/separate filter path.
+  runAiSearch(): void {
+    const query = this.aiSearchQuery().trim();
+    if (!query || this.aiSearchLoading()) return;
+
+    this.aiSearchLoading.set(true);
+    this.listingService.parseMapSearch(query).subscribe({
+      next: (result) => {
+        this.aiSearchLoading.set(false);
+
+        if (result.listingType) this.typeFilter.set(result.listingType);
+        if (result.propertyType) this.propertyTypeFilter.set(result.propertyType);
+        if (result.minPrice !== null) this.minPrice.set(result.minPrice);
+        if (result.maxPrice !== null) this.maxPrice.set(result.maxPrice);
+        // Clamped to the dropdowns' own highest option (see map-view.component.html) — "6+
+        // recámaras" has nowhere else to go, and silently dropping it would ignore a filter the
+        // visitor clearly asked for.
+        if (result.minBedrooms !== null) this.minBeds.set(Math.min(result.minBedrooms, 4));
+        if (result.minBathrooms !== null) this.minBaths.set(Math.min(result.minBathrooms, 3));
+
+        if (result.city) {
+          this.onSearchChange(result.city);
+          this.searchAddress();
+        }
+
+        // "Understood" means ANY filter came back, not just interpretation specifically — the
+        // model can in principle fill a filter without also filling interpretation (they're
+        // independent optional fields in the tool schema), and that's still a real match the
+        // visitor shouldn't see contradicted by an error toast.
+        const understood =
+          result.listingType ||
+          result.propertyType ||
+          result.minPrice !== null ||
+          result.maxPrice !== null ||
+          result.minBedrooms !== null ||
+          result.minBathrooms !== null ||
+          result.city ||
+          result.interpretation;
+
+        if (result.interpretation) {
+          this.aiSearchInterpretation.set(result.interpretation);
+        } else if (!understood) {
+          this.notification.error('map.aiSearchNotUnderstood');
+        }
+      },
+      error: () => {
+        this.aiSearchLoading.set(false);
+        this.notification.error('map.aiSearchError');
+      }
+    });
   }
 
   toggleMoreFilters(): void {

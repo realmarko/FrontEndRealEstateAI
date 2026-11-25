@@ -136,6 +136,22 @@
   align-items: center;
 }
 
+.ai-search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+/* Full-width on its own line below the input/button row (see .ai-search-form's flex-wrap) rather
+   than squeezed in as a third inline item — it's a sentence, not a label. */
+.ai-search-interpretation {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
 .map-content {
   display: flex;
   flex: 1;

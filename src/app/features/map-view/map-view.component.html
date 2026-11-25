@@ -82,6 +82,10 @@
       {{ (showMoreFilters() ? 'map.fewerFilters' : 'map.moreFilters') | translate }}
     </button>
 
+    <button id="map-ai-search-toggle-btn" type="button" class="more-filters-btn" (click)="toggleAiSearchForm()">
+      {{ 'map.aiSearchButton' | translate }}
+    </button>
+
     <ng-container *ngIf="auth.isAuthenticated()">
       <button id="map-save-search-toggle-btn" type="button" class="more-filters-btn" (click)="toggleSaveSearchForm()">
         {{ 'savedSearches.saveButton' | translate }}
@@ -100,6 +104,25 @@
         <button id="map-save-search-confirm-btn" type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
       </div>
     </ng-container>
+
+    <div class="ai-search-form" *ngIf="showAiSearchForm()">
+      <input
+        id="map-ai-search-input"
+        type="text"
+        class="filter-input"
+        [placeholder]="'map.aiSearchPlaceholder' | translate"
+        [value]="aiSearchQuery()"
+        (input)="setAiSearchQuery($any($event.target).value)"
+        (keyup.enter)="runAiSearch()"
+        maxlength="300"
+      />
+      <button id="map-ai-search-run-btn" type="button" [disabled]="!aiSearchQuery().trim() || aiSearchLoading()" (click)="runAiSearch()">
+        {{ (aiSearchLoading() ? 'map.aiSearchLoading' : 'map.aiSearchSubmit') | translate }}
+      </button>
+      @if (aiSearchInterpretation(); as interpretation) {
+        <p class="ai-search-interpretation">{{ 'map.aiSearchUnderstood' | translate }} {{ interpretation }}</p>
+      }
+    </div>
 
     <div class="more-filters-panel" *ngIf="showMoreFilters()">
       <select id="map-filter-baths" class="filter-select" [value]="minBaths()" (change)="setMinBaths($any($event.target).value)">
@@ -709,6 +732,7 @@
       <ng-container *ngIf="auth.isAuthenticated()">
         <button id="map-save-search-toggle-btn-mobile" type="button" class="filters-secondary-btn" (click)="toggleSaveSearchForm()">{{ 'savedSearches.saveButton' | translate }}</button>
       </ng-container>
+      <button id="map-ai-search-toggle-btn-mobile" type="button" class="filters-secondary-btn" (click)="toggleAiSearchForm()">{{ 'map.aiSearchButton' | translate }}</button>
       <button id="map-filters-apply-btn" type="button" class="filters-apply-btn" (click)="applyMobileFilters()">{{ 'map.applyFilters' | translate }}</button>
     </div>
 
@@ -724,6 +748,25 @@
         maxlength="200"
       />
       <button id="map-save-search-confirm-btn-mobile" type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+    </div>
+
+    <div class="ai-search-form mobile" *ngIf="showAiSearchForm()">
+      <input
+        id="map-ai-search-input-mobile"
+        type="text"
+        class="filter-input"
+        [placeholder]="'map.aiSearchPlaceholder' | translate"
+        [value]="aiSearchQuery()"
+        (input)="setAiSearchQuery($any($event.target).value)"
+        (keyup.enter)="runAiSearch()"
+        maxlength="300"
+      />
+      <button id="map-ai-search-run-btn-mobile" type="button" [disabled]="!aiSearchQuery().trim() || aiSearchLoading()" (click)="runAiSearch()">
+        {{ (aiSearchLoading() ? 'map.aiSearchLoading' : 'map.aiSearchSubmit') | translate }}
+      </button>
+      @if (aiSearchInterpretation(); as interpretation) {
+        <p class="ai-search-interpretation">{{ 'map.aiSearchUnderstood' | translate }} {{ interpretation }}</p>
+      }
     </div>
   </div>
 </div>

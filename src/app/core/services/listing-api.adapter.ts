@@ -691,6 +691,44 @@ export interface GenerateListingDescriptionResultDto {
   description: string;
 }
 
+// Incoming (backend -> frontend): /map's natural-language search box. ListingType/PropertyType
+// come back as the C# enum member name (e.g. "Sale", "House"), same convention as
+// ListingDraftParseResultDto below — mapSearchParseFromDto reuses the very same *_FROM_STRING maps.
+export interface MapSearchParseResultDto {
+  listingType: string | null;
+  propertyType: string | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  minBedrooms: number | null;
+  minBathrooms: number | null;
+  city: string | null;
+  interpretation: string | null;
+}
+
+export interface MapSearchParseResult {
+  listingType: ListingType | null;
+  propertyType: PropertyType | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  minBedrooms: number | null;
+  minBathrooms: number | null;
+  city: string | null;
+  interpretation: string | null;
+}
+
+export function mapSearchParseFromDto(dto: MapSearchParseResultDto): MapSearchParseResult {
+  return {
+    listingType: dto.listingType ? LISTING_TYPE_FROM_STRING[dto.listingType] ?? null : null,
+    propertyType: dto.propertyType ? PROPERTY_TYPE_FROM_STRING[dto.propertyType] ?? null : null,
+    minPrice: dto.minPrice,
+    maxPrice: dto.maxPrice,
+    minBedrooms: dto.minBedrooms,
+    minBathrooms: dto.minBathrooms,
+    city: dto.city,
+    interpretation: dto.interpretation
+  };
+}
+
 export function priceHistoryFromDto(dto: ListingPriceHistoryDto): PriceHistoryEntry {
   return {
     price: dto.price,

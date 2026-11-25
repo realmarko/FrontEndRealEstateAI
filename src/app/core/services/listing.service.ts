@@ -14,6 +14,8 @@ import {
   ListingPriceComparisonDto,
   ListingPriceHistoryDto,
   ListingQuotaDto,
+  MapSearchParseResult,
+  MapSearchParseResultDto,
   PROPERTY_TYPE_TO_NUMBER,
   PricePerSqmStatDto,
   ResidentialAnalysisDto,
@@ -22,6 +24,7 @@ import {
   fromDto,
   listingDraftFromDto,
   listingPriceComparisonFromDto,
+  mapSearchParseFromDto,
   priceHistoryFromDto,
   pricePerSqmStatFromDto,
   residentialAnalysisFromDto,
@@ -170,6 +173,15 @@ export class ListingService {
     return this.http
       .post<GenerateListingDescriptionResultDto>(`${this.apiUrl}/generate-description`, request)
       .pipe(map((result) => result.description));
+  }
+
+  // /map's natural-language search box: turns a free-text query into the map's own structured
+  // filters (type, property type, price/beds/baths floors, a city/colonia to pan to). Public
+  // endpoint — no auth required, matching the map itself. Never touches a listing.
+  parseMapSearch(query: string): Observable<MapSearchParseResult> {
+    return this.http
+      .post<MapSearchParseResultDto>(`${this.apiUrl}/parse-map-search`, { query })
+      .pipe(map(mapSearchParseFromDto));
   }
 
   // The gated half: captures the lead's name/email (no login required — a lead magnet has to
