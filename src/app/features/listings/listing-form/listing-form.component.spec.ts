@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angul
 import { Subject, of, throwError } from 'rxjs';
 import { ListingFormComponent } from './listing-form.component';
 import { ListingService } from '../../../core/services/listing.service';
+import { BrokerageService } from '../../../core/services/brokerage.service';
 import { GeomarketingService } from '../../../core/services/geomarketing.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -97,6 +98,8 @@ describe('ListingFormComponent', () => {
   ): ListingFormComponent {
     listingServiceSpy = jasmine.createSpyObj('ListingService', ['fetchById', 'create', 'update']);
     listingServiceSpy.fetchById.and.returnValue(of(makeListing()));
+    const brokerageServiceSpy = jasmine.createSpyObj('BrokerageService', ['fetchMine']);
+    brokerageServiceSpy.fetchMine.and.returnValue(of([]));
     geomarketingServiceSpy = jasmine.createSpyObj('GeomarketingService', ['listStates', 'listMunicipalities']);
     geomarketingServiceSpy.listStates.and.returnValue(of([]));
     geomarketingServiceSpy.listMunicipalities.and.returnValue(of([]));
@@ -122,6 +125,7 @@ describe('ListingFormComponent', () => {
       providers: [
         provideRouter([]),
         { provide: ListingService, useValue: listingServiceSpy },
+        { provide: BrokerageService, useValue: brokerageServiceSpy },
         { provide: GeomarketingService, useValue: geomarketingServiceSpy },
         { provide: LandUseCategoryService, useValue: landUseCategoryServiceSpy },
         { provide: NotificationService, useValue: notificationSpy },
