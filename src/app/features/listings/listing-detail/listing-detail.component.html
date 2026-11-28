@@ -527,7 +527,15 @@
                 <div class="viability-card">
                   <div class="viability-card-head">
                     <span class="viability-name">{{ topBusiness.displayName }}</span>
-                    <span class="viability-score" [class.good]="topBusiness.score > 80" [class.medium]="topBusiness.score >= 40 && topBusiness.score <= 80" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
+                    <div
+                      class="score-donut"
+                      [style.--pct]="topBusiness.score"
+                      [class.good]="topBusiness.score > 80"
+                      [class.medium]="topBusiness.score >= 40 && topBusiness.score <= 80"
+                      [class.low]="topBusiness.score < 40"
+                    >
+                      <span class="score-donut-value">{{ topBusiness.score }}%</span>
+                    </div>
                   </div>
                   <p class="viability-reason">{{ 'listingDetail.viabilityBestFit' | translate }}</p>
                   @if (topBusiness.nearbyCompetitors.length) {

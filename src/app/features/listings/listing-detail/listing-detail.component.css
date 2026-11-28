@@ -945,26 +945,48 @@
   font-size: 0.95rem;
 }
 
-.viability-score {
+/* Radial progress donut for the teaser's top-business score — a conic-gradient ring (0-100%, via
+   the --pct custom property) in whichever status color the .good/.medium/.low modifier sets as
+   `color`, so the ring and the centered percentage text always agree on color with one source of
+   truth instead of two separate color rules drifting apart. */
+.score-donut {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: conic-gradient(currentColor calc(var(--pct) * 1%), #e5e7eb 0);
+}
+
+.score-donut::before {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.score-donut-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
   font-weight: 700;
-  font-size: 0.95rem;
-  border-radius: 999px;
-  padding: 0.1rem var(--space-2);
+  color: var(--ink);
 }
 
-.viability-score.good {
+.score-donut.good {
   color: #15803d;
-  background: rgba(21, 128, 61, 0.1);
 }
 
-.viability-score.medium {
+.score-donut.medium {
   color: #b45309;
-  background: rgba(180, 83, 9, 0.1);
 }
 
-.viability-score.low {
+.score-donut.low {
   color: #b91c1c;
-  background: rgba(185, 28, 28, 0.1);
 }
 
 .viability-reason {
