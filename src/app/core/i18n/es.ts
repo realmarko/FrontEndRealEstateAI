@@ -1051,7 +1051,7 @@ export const es: Record<string, string> = {
   'ownerSignup.success': '¡Perfil de propietario creado!',
 
   'landing.heroMapCaption': 'Mapa en vivo',
-  'landing.heroHeadline': 'El mapa de Latinoamérica para encontrar casa.',
+  'landing.heroHeadline': 'El mapa inteligente para encontrar casa e invertir en Puebla, Tlaxcala y Querétaro.',
   'landing.heroBody': 'Explora propiedades reales sobre el mapa, guarda tu búsqueda y habla directo con el dueño o agente — sin intermediarios que no conoces.',
   'landing.heroSearchCta': 'Buscar propiedades',
   'landing.heroListCta': 'Publicar mi propiedad',
@@ -1082,8 +1082,8 @@ export const es: Record<string, string> = {
   'landing.geoStat2Label': 'fuentes oficiales — DENUE y Censo del INEGI, no estimaciones',
   'landing.geoCta': 'Analizar una zona',
 
-  'landing.footerTagline': 'Hecho para Latinoamérica, casa por casa.',
-  'landing.heroFlagsLabel': 'Pensado para la región',
+  'landing.footerTagline': 'Empezamos en Puebla, Tlaxcala y Querétaro, con la mira en Latinoamérica.',
+  'landing.heroFlagsLabel': 'Hoy en Puebla, Tlaxcala y Querétaro. Pronto en más países.',
   'landing.footerBrowse': 'Explorar',
   'landing.footerSearch': 'Buscar propiedades',
   'landing.footerMap': 'Abrir mapa',
