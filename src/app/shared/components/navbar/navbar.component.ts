@@ -42,6 +42,15 @@ export class NavbarComponent {
     return 'nav.roleBuyer';
   });
 
+  // First + last initial for the account-trigger's avatar circle — there's no profile-photo field
+  // on User itself (only Agent, a separate public-facing entity), so this is the whole avatar,
+  // not a fallback for a missing photo.
+  readonly accountInitials = computed(() => {
+    const user = this.auth.currentUser();
+    if (!user) return '';
+    return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  });
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly notification = inject(NotificationService);
   private readonly elementRef = inject(ElementRef<HTMLElement>);

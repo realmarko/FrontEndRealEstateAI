@@ -149,8 +149,30 @@
   border-color: #c6a15b;
 }
 
+.account-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--on-gold);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.account-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
 .account-role {
   color: var(--nav-text-dim);
+  font-size: 0.75rem;
 }
 
 .account-trigger:hover .account-role {
