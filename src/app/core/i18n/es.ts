@@ -24,8 +24,6 @@ export const es: Record<string, string> = {
   'nav.adminLabel': 'Administración',
   'nav.roleAddedSuccess': 'Listo, ya tienes acceso de ese tipo de cuenta.',
   'nav.roleAddedError': 'No se pudo actualizar tu cuenta. Intenta de nuevo.',
-  'nav.switchToEnglish': 'English',
-  'nav.switchToSpanish': 'Español',
   'nav.register': 'Registrarse',
   'nav.menu': 'Menú',
 

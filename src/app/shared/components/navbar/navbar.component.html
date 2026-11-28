@@ -25,13 +25,6 @@
     </div>
 
     <div class="session">
-      <!-- Always visible, logged in or not — language is a site-wide setting, not a personal
-           one, so it stays outside the account menu instead of being hidden from anonymous
-           visitors. -->
-      <button type="button" class="lang-toggle" (click)="setLang(otherLang())">
-        {{ (otherLang() === 'en' ? 'nav.switchToEnglish' : 'nav.switchToSpanish') | translate }}
-      </button>
-
       @if (auth.isAuthenticated()) {
         <div class="account">
           <button

@@ -125,22 +125,6 @@
   gap: var(--space-4);
 }
 
-.lang-toggle {
-  background: transparent;
-  border: 1px solid #9aa0a6;
-  color: #f6f5f3;
-  padding: var(--space-1) var(--space-3);
-  border-radius: 2px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.lang-toggle:hover {
-  border-color: #c6a15b;
-  color: var(--nav-text-gold);
-}
-
 /* --- Account menu (logged-in state) --- */
 
 .account {
@@ -320,7 +304,6 @@
 
   .links a,
   .session a,
-  .lang-toggle,
   .account-trigger {
     padding: var(--space-3) 0;
     border-top: 1px solid rgba(255, 255, 255, 0.15);
@@ -328,7 +311,6 @@
     text-align: left;
   }
 
-  .lang-toggle,
   .account-trigger {
     border-left: none;
     border-right: none;

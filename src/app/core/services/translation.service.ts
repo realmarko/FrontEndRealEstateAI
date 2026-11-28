@@ -1,53 +1,28 @@
 import { DOCUMENT } from '@angular/common';
 import { Injectable, inject, signal } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
 import { en } from '../i18n/en';
 import { es } from '../i18n/es';
-import { isBrowser } from '../utils/platform';
 import { LogicalKey, localizedPath } from '../routing/route-slugs';
 
 export type Lang = 'en' | 'es';
 
-// Renamed from the pre-Spanish-default 'reapp_lang' (one-time migration, not a cosmetic rename):
-// that key could hold 'en' for any returning visitor from before Spanish became the default —
-// written back then by the old navigator.language-detection logic, not necessarily an explicit
-// choice — and the home route carries no data.lang to correct it (see deepestRouteLang's own
-// comment: routes with no data.lang leave the signal untouched). Rotating the key makes every
-// such visitor re-evaluate under the new 'es'-by-default rule exactly once; an explicit toggle
-// click afterward writes to (and is then read back from) this new key as expected.
-const LANG_KEY = 'reapp_lang_v2';
 const DICTIONARIES: Record<Lang, Record<string, string>> = { en, es };
 
 @Injectable({ providedIn: 'root' })
 export class TranslationService {
-  // No localStorage exists during SSR/prerendering — defaults to 'es' (the site's default
-  // language; see CLAUDE.md/user decision), immediately overridden below by whichever language
-  // the matched route's own EN/ES slug actually carries (see core/routing/localized-route.ts).
-  private readonly isBrowser = isBrowser();
   private readonly document = inject(DOCUMENT);
-  private readonly router = inject(Router);
 
-  readonly lang = signal<Lang>(this.readInitialLang());
+  // The site is Spanish-only for now (the English toggle was removed) — fixed at 'es' regardless
+  // of which language a dual-registered route's data.lang carries (core/routing/localized-route.ts),
+  // so an English URL (e.g. /agents, kept for existing links/SEO) still renders Spanish content.
+  readonly lang = signal<Lang>('es');
 
   constructor() {
     this.document.documentElement.lang = this.lang();
-
-    // The URL is the source of truth for language once it carries one: a dual-registered route
-    // (core/routing/localized-route.ts) tags its matched Route with data.lang, so opening a
-    // shared /propiedades link shows Spanish immediately — even overriding a stale localStorage
-    // preference from a previous visit — while the toggle keeps working by navigating to the
-    // other-language URL (see navbar.component.ts), which lands back here. Routes with no
-    // data.lang (home, every authGuard-only admin/utility page) leave the signal untouched.
-    this.router.events.pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd)).subscribe(() => {
-      const lang = this.deepestRouteLang();
-      if (lang) this.setLang(lang);
-    });
   }
 
   setLang(lang: Lang): void {
     this.lang.set(lang);
-    if (this.isBrowser) localStorage.setItem(LANG_KEY, lang);
     this.document.documentElement.lang = lang;
   }
 
@@ -76,21 +51,5 @@ export class TranslationService {
     }
 
     return value;
-  }
-
-  private readInitialLang(): Lang {
-    if (!this.isBrowser) return 'es';
-    const stored = localStorage.getItem(LANG_KEY);
-    return stored === 'en' || stored === 'es' ? stored : 'es';
-  }
-
-  private deepestRouteLang(): Lang | undefined {
-    let snapshot = this.router.routerState.snapshot.root;
-    let lang: Lang | undefined = snapshot.data['lang'] as Lang | undefined;
-    while (snapshot.firstChild) {
-      snapshot = snapshot.firstChild;
-      lang = (snapshot.data['lang'] as Lang | undefined) ?? lang;
-    }
-    return lang;
   }
 }

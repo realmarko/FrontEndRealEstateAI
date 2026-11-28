@@ -24,8 +24,6 @@ export const en: Record<string, string> = {
   'nav.adminLabel': 'Admin',
   'nav.roleAddedSuccess': "You're all set — that account type is now active.",
   'nav.roleAddedError': 'Could not update your account. Please try again.',
-  'nav.switchToEnglish': 'English',
-  'nav.switchToSpanish': 'Español',
   'nav.register': 'Register',
   'nav.menu': 'Menu',
 

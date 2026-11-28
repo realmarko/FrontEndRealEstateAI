@@ -1,14 +1,11 @@
-import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
 import { TranslationService } from './translation.service';
 
 describe('TranslationService', () => {
   let service: TranslationService;
 
   beforeEach(() => {
-    localStorage.removeItem('reapp_lang_v2');
-    TestBed.configureTestingModule({ providers: [provideRouter([])] });
+    TestBed.configureTestingModule({});
     service = TestBed.inject(TranslationService);
   });
 
@@ -31,29 +28,10 @@ describe('TranslationService', () => {
     expect(service.t('this.key.does.not.exist')).toBe('this.key.does.not.exist');
   });
 
-  it('persists the selected language across instances via localStorage', () => {
-    service.setLang('es');
-    expect(localStorage.getItem('reapp_lang_v2')).toBe('es');
-
-    // TranslationService now injects DOCUMENT/PLATFORM_ID (for SSR safety), so a fresh instance
-    // must be constructed inside an injection context — a bare `new TranslationService()` throws
-    // NG0203 outside one.
+  it('defaults every fresh instance to Spanish (the site is Spanish-only)', () => {
+    // TranslationService injects DOCUMENT, so a fresh instance must be constructed inside an
+    // injection context — a bare `new TranslationService()` throws NG0203 outside one.
     const freshInstance = TestBed.runInInjectionContext(() => new TranslationService());
     expect(freshInstance.lang()).toBe('es');
-  });
-
-  // Regression guard: this service used to touch `localStorage`/`navigator`/global `document`
-  // unconditionally, which threw during SSR/prerendering (none of those exist there, simulated
-  // here via PLATFORM_ID: 'server').
-  it('defaults to Spanish without touching localStorage/navigator on the server platform', () => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [provideRouter([]), { provide: PLATFORM_ID, useValue: 'server' }]
-    });
-
-    const serverService = TestBed.inject(TranslationService);
-
-    expect(serverService.lang()).toBe('es');
-    expect(() => serverService.setLang('es')).not.toThrow();
   });
 });
