@@ -101,7 +101,7 @@
           (keyup.enter)="saveCurrentSearch()"
           maxlength="200"
         />
-        <button id="map-save-search-confirm-btn" type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+        <button id="map-save-search-confirm-btn" type="button" class="inline-action-btn" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
       </div>
     </ng-container>
 
@@ -116,7 +116,7 @@
         (keyup.enter)="runAiSearch()"
         maxlength="300"
       />
-      <button id="map-ai-search-run-btn" type="button" [disabled]="!aiSearchQuery().trim() || aiSearchLoading()" (click)="runAiSearch()">
+      <button id="map-ai-search-run-btn" type="button" class="inline-action-btn" [disabled]="!aiSearchQuery().trim() || aiSearchLoading()" (click)="runAiSearch()">
         {{ (aiSearchLoading() ? 'map.aiSearchLoading' : 'map.aiSearchSubmit') | translate }}
       </button>
       @if (aiSearchInterpretation(); as interpretation) {
@@ -747,7 +747,7 @@
         (keyup.enter)="saveCurrentSearch()"
         maxlength="200"
       />
-      <button id="map-save-search-confirm-btn-mobile" type="button" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
+      <button id="map-save-search-confirm-btn-mobile" type="button" class="inline-action-btn" (click)="saveCurrentSearch()">{{ 'savedSearches.confirm' | translate }}</button>
     </div>
 
     <div class="ai-search-form mobile" *ngIf="showAiSearchForm()">
@@ -761,7 +761,7 @@
         (keyup.enter)="runAiSearch()"
         maxlength="300"
       />
-      <button id="map-ai-search-run-btn-mobile" type="button" [disabled]="!aiSearchQuery().trim() || aiSearchLoading()" (click)="runAiSearch()">
+      <button id="map-ai-search-run-btn-mobile" type="button" class="inline-action-btn" [disabled]="!aiSearchQuery().trim() || aiSearchLoading()" (click)="runAiSearch()">
         {{ (aiSearchLoading() ? 'map.aiSearchLoading' : 'map.aiSearchSubmit') | translate }}
       </button>
       @if (aiSearchInterpretation(); as interpretation) {

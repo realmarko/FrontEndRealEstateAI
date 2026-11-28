@@ -64,11 +64,51 @@
 
 .search-input:focus,
 .filter-select:focus,
+.filter-input:focus,
 .price-input:focus,
 .more-filters-btn:focus-visible {
   outline: none;
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(198, 161, 91, 0.2);
+}
+
+/* The text inputs inside the save-search/AI-search/"more filters" panels — same look as
+   .search-input and .filter-select above, which they'd been missing entirely (plain unstyled
+   browser input, mismatched with the rest of the filter bar) until now. */
+.filter-input {
+  flex: 1 1 200px;
+  min-width: 160px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--ink);
+  background: #fff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* The save-search/AI-search "confirm"/"run" buttons — same gold CTA language as .btn-primary
+   elsewhere in the app, which they'd also been missing (plain unstyled browser button) until now. */
+.inline-action-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--gold);
+  color: var(--on-gold);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.inline-action-btn:hover:not(:disabled) {
+  background: var(--gold-hover);
+}
+
+.inline-action-btn:disabled {
+  background: var(--hairline);
+  color: var(--ink-soft);
+  cursor: default;
 }
 
 .filter-select {
