@@ -314,8 +314,7 @@ export const es: Record<string, string> = {
   'listingDetail.residentialAnalysisError': 'No se pudo calcular el análisis residencial en este momento.',
 
   'listingDetail.priceComparisonTitle': 'Precio por m² vs. la zona',
-  'listingDetail.priceComparisonAdminOnly': 'Este dato solo es válido para admin.',
-  'listingDetail.priceComparisonDisclaimer': 'Compara el precio/m² de esta propiedad contra otras activas del mismo tipo (venta o renta) en su código postal, colonia, ciudad y estado. Con pocas propiedades comparables, el promedio puede venir de 1 o 2 listings — no lo muestres a usuarios ni agentes.',
+  'listingDetail.priceComparisonTooltip': 'Este dato solo es válido para admin. Compara el precio/m² de esta propiedad contra otras activas del mismo tipo (venta o renta) en su código postal, colonia, ciudad y estado. Con pocas propiedades comparables, el promedio puede venir de 1 o 2 listings — no lo muestres a usuarios ni agentes.',
   'listingDetail.priceComparisonThisProperty': 'Precio/m² de esta propiedad:',
   'listingDetail.priceComparisonLoading': 'Cargando comparación...',
   'listingDetail.priceComparisonZone': 'Zona',

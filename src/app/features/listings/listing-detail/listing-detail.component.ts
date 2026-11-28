@@ -37,6 +37,7 @@ import { RoiCalculatorComponent } from '../../../shared/components/roi-calculato
 import { ListingGridComponent } from '../../../shared/components/listing-grid/listing-grid.component';
 import { QrCodeModalComponent } from '../../../shared/components/qr-code-modal/qr-code-modal.component';
 import { WhatsAppButtonComponent } from '../../../shared/components/whatsapp-button/whatsapp-button.component';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { SeoService } from '../../../core/services/seo.service';
 import { TranslationService } from '../../../core/services/translation.service';
 import { LandUseCategoryService } from '../../../core/services/land-use-category.service';
@@ -118,7 +119,7 @@ function linkifyDescription(description: string): string {
 @Component({
   selector: 'app-listing-detail',
   standalone: true,
-  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet, RouterLink, TranslatePipe, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
+  imports: [CurrencyPipe, DatePipe, DecimalPipe, NgTemplateOutlet, RouterLink, TranslatePipe, TooltipDirective, ContactModalComponent, TransferListingModalComponent, MortgageCalculatorComponent, RoiCalculatorComponent, ListingGridComponent, QrCodeModalComponent, WhatsAppButtonComponent, NewDealModalComponent],
   templateUrl: './listing-detail.component.html',
   styleUrl: './listing-detail.component.css'
 })

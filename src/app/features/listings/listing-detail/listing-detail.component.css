@@ -1162,19 +1162,31 @@
   gap: var(--space-3);
 }
 
-.admin-only-banner {
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--gold);
-  border-radius: var(--radius-sm);
-  background: rgba(198, 161, 91, 0.08);
-  color: var(--ink);
-  font-size: 0.85rem;
-  line-height: 1.5;
+.section-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
-.admin-only-banner strong {
+.info-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: help;
+}
+
+.info-icon:hover {
+  border-color: var(--gold);
   color: var(--navy);
-  margin-right: var(--space-2);
 }
 
 .price-comparison-subject {

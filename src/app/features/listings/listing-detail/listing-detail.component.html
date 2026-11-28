@@ -816,10 +816,16 @@
 
         @if (isAdmin()) {
           <div class="price-comparison-section">
-            <h2 class="section-title">{{ 'listingDetail.priceComparisonTitle' | translate }}</h2>
-            <div class="admin-only-banner">
-              <strong>{{ 'listingDetail.priceComparisonAdminOnly' | translate }}</strong>
-              {{ 'listingDetail.priceComparisonDisclaimer' | translate }}
+            <div class="section-title-row">
+              <h2 class="section-title">{{ 'listingDetail.priceComparisonTitle' | translate }}</h2>
+              <button
+                type="button"
+                class="info-icon"
+                [appTooltip]="'listingDetail.priceComparisonTooltip'"
+                [attr.aria-label]="'listingDetail.priceComparisonTooltip' | translate"
+              >
+                ⓘ
+              </button>
             </div>
 
             @if (loadingPriceComparison()) {
