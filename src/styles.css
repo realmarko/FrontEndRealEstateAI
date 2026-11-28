@@ -427,3 +427,36 @@ body {
   white-space: normal;
   text-align: center;
 }
+
+/* Shared "section title + (i) info icon" pattern: a heading with a small tooltip-triggering
+   button beside it for a secondary methodology/caveat note, instead of an always-visible
+   disclaimer block taking up space in the main view. First used by listing-detail's price/m²
+   comparison and admin-price-stats' own admin-only banner — both pages had the exact same
+   gold-bordered "admin-only-banner" block before this, so the fix (and its CSS) lives here once
+   instead of copied into each component's stylesheet. */
+.section-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.info-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+  line-height: 1;
+  cursor: help;
+}
+
+.info-icon:hover {
+  border-color: var(--gold);
+  color: var(--navy);
+}

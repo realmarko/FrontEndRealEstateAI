@@ -5,12 +5,13 @@ import { ListingService } from '../../../core/services/listing.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { LOW_SAMPLE_PRICE_COUNT_THRESHOLD, PricePerSqmStat } from '../../../core/models/listing.model';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { TooltipDirective } from '../../../shared/directives/tooltip.directive';
 import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-admin-price-stats',
   standalone: true,
-  imports: [CurrencyPipe, TranslatePipe],
+  imports: [CurrencyPipe, TranslatePipe, TooltipDirective],
   templateUrl: './admin-price-stats.component.html',
   styleUrl: './admin-price-stats.component.css'
 })

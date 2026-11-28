@@ -1,9 +1,14 @@
 <div class="page">
-  <h1>{{ 'adminPriceStats.title' | translate }}</h1>
-
-  <div class="admin-only-banner">
-    <strong>{{ 'adminPriceStats.adminOnlyLabel' | translate }}</strong>
-    {{ 'adminPriceStats.disclaimer' | translate }}
+  <div class="section-title-row">
+    <h1>{{ 'adminPriceStats.title' | translate }}</h1>
+    <button
+      type="button"
+      class="info-icon"
+      [appTooltip]="'adminPriceStats.tooltip'"
+      [attr.aria-label]="'adminPriceStats.tooltip' | translate"
+    >
+      ⓘ
+    </button>
   </div>
 
   @if (stats().length) {

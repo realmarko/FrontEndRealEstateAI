@@ -1162,32 +1162,8 @@
   gap: var(--space-3);
 }
 
-.section-title-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.info-icon {
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  border: 1px solid #d1d5db;
-  background: #fff;
-  color: var(--ink-soft);
-  font-size: 0.7rem;
-  line-height: 1;
-  cursor: help;
-}
-
-.info-icon:hover {
-  border-color: var(--gold);
-  color: var(--navy);
-}
+/* .section-title-row and .info-icon now live in the global styles.css — shared with
+   admin-price-stats' own identical admin-only-banner-turned-tooltip. */
 
 .price-comparison-subject {
   margin: 0;

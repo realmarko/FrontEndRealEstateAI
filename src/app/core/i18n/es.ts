@@ -1194,8 +1194,7 @@ export const es: Record<string, string> = {
   'adminStats.pageAdminPriceStats': 'Admin: precio por m²',
 
   'adminPriceStats.title': 'Precio por m² por zona',
-  'adminPriceStats.adminOnlyLabel': 'Este dato solo es válido para admin.',
-  'adminPriceStats.disclaimer': 'Se calcula con las propiedades activas y con precio cargadas hasta ahora. Con pocos listings por zona, el promedio/mediana puede venir de 1 o 2 propiedades — no lo uses como referencia de mercado ni lo muestres a usuarios o agentes.',
+  'adminPriceStats.tooltip': 'Este dato solo es válido para admin. Se calcula con las propiedades activas y con precio cargadas hasta ahora. Con pocos listings por zona, el promedio/mediana puede venir de 1 o 2 propiedades — no lo uses como referencia de mercado ni lo muestres a usuarios o agentes.',
   'adminPriceStats.sale': 'Venta',
   'adminPriceStats.rent': 'Renta',
   'adminPriceStats.state': 'Estado',
