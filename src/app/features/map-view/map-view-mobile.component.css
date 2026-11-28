@@ -226,6 +226,13 @@
   gap: 0.5rem;
   overflow-x: auto;
   padding-bottom: 0.2rem;
+  /* Swipe still works natively — only the visible scrollbar chrome is hidden, same treatment as
+     listing-detail's own thumbnail strip. */
+  scrollbar-width: none;
+}
+
+.pill-row::-webkit-scrollbar {
+  display: none;
 }
 
 .pill-row.wrap {

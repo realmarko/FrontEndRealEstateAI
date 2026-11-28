@@ -168,6 +168,13 @@ td {
   padding: 0.25rem 1.25rem 0.5rem;
   margin: 0 -1.25rem;
   -webkit-overflow-scrolling: touch;
+  /* Swipe still works natively — only the visible scrollbar chrome is hidden, same treatment as
+     listing-detail's own thumbnail strip. */
+  scrollbar-width: none;
+}
+
+.carousel-track::-webkit-scrollbar {
+  display: none;
 }
 
 .compare-card {
