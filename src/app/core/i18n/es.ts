@@ -1083,7 +1083,6 @@ export const es: Record<string, string> = {
   'landing.geoCta': 'Analizar una zona',
 
   'landing.footerTagline': 'Empezamos en Puebla, Tlaxcala y Querétaro, con la mira en Latinoamérica.',
-  'landing.heroFlagsLabel': 'Hoy en Puebla, Tlaxcala y Querétaro. Pronto en más países.',
   'landing.footerBrowse': 'Explorar',
   'landing.footerSearch': 'Buscar propiedades',
   'landing.footerMap': 'Abrir mapa',
