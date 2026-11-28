@@ -20,6 +20,7 @@ import {
   ListingPriceComparison,
   LotShapeType,
   PriceHistoryEntry,
+  ResidentialAnalysis,
   TopographyType,
   ViabilityAnalysis,
   isHouseOrApartmentPropertyType,
@@ -62,6 +63,16 @@ function haversineDistanceKm(lat1: number, lng1: number, lat2: number, lng2: num
     Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Tallies a TrafficGenerator[]-shaped list (viability's trafficGenerators, residential's
+// nearbyAmenities — both carry a free-text `category` from the backend's own per-report search
+// terms, e.g. "Escuela"/"Centro comercial") into category -> count, sorted most-common first so
+// the nearby-summary chips read like a highlight reel rather than an arbitrary order.
+function groupByCategory(items: { category: string }[]): { category: string; count: number }[] {
+  const counts = new Map<string, number>();
+  for (const item of items) counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
+  return [...counts.entries()].map(([category, count]) => ({ category, count })).sort((a, b) => b.count - a.count);
 }
 
 // Recognizes youtube.com/watch, youtu.be, and already-an-embed-link youtube.com/embed URLs.
@@ -173,6 +184,7 @@ export class ListingDetailComponent {
   readonly previousPhotoUrl = signal<string | null>(null);
   private photoFadeTimeout?: ReturnType<typeof setTimeout>;
   private viabilityLoadingToast: ActiveToast<unknown> | null = null;
+  private residentialAnalysisLoadingToast: ActiveToast<unknown> | null = null;
   readonly showContactModal = signal(false);
   readonly sendingContact = signal(false);
   // Which flow the open contact modal feeds into — set by whichever card's button opened it
@@ -249,6 +261,19 @@ export class ListingDetailComponent {
     const matched = matchKey ? businesses.find((b) => b.key === matchKey) : undefined;
     return matched && matched.score === best.score ? matched : best;
   });
+  // Nearby-summary chips for the commercial/land teaser — grouped counts of whatever traffic
+  // generators (schools/malls/hospitals/gas stations/...) the same viabilityAnalysis() already
+  // carries, so this card costs no extra request.
+  readonly viabilityNearbyCategories = computed(() => groupByCategory(this.viabilityAnalysis()?.trafficGenerators ?? []));
+
+  // House/apartment counterpart to the viability teaser above — same "free, already-fetched
+  // preview" shape (getResidentialAnalysisPreview), loaded by loadResidentialAnalysisPreview for
+  // an eligible property type. The full breakdown lives on its own page
+  // (residential-analysis-page.component.ts, linked from the CTA below).
+  readonly residentialAnalysis = signal<ResidentialAnalysis | null>(null);
+  readonly loadingResidentialAnalysis = signal(false);
+  readonly residentialAnalysisError = signal(false);
+  readonly residentialNearbyCategories = computed(() => groupByCategory(this.residentialAnalysis()?.nearbyAmenities ?? []));
 
   // Points straight at the backend's anonymous PDF endpoint (not the listing-detail page) —
   // scanning the printed QR should hand over the fact sheet immediately, with no detour
@@ -397,6 +422,7 @@ export class ListingDetailComponent {
     inject(DestroyRef).onDestroy(() => {
       if (this.photoFadeTimeout) clearTimeout(this.photoFadeTimeout);
       this.dismissViabilityLoadingToast();
+      this.dismissResidentialAnalysisLoadingToast();
     });
 
     this.listingService.fetchById(this.id).subscribe({
@@ -447,6 +473,10 @@ export class ListingDetailComponent {
         // every deploy, for a number the visitor never even sees until the page is interactive.
         if (isLandOrCommercialPropertyType(listing.propertyType) && this.isBrowser) {
           this.loadViabilityPreview();
+        }
+
+        if (isHouseOrApartmentPropertyType(listing.propertyType) && this.isBrowser) {
+          this.loadResidentialAnalysisPreview();
         }
 
         if (this.isAdmin()) {
@@ -901,6 +931,26 @@ export class ListingDetailComponent {
     });
   }
 
+  private loadResidentialAnalysisPreview(): void {
+    this.loadingResidentialAnalysis.set(true);
+    this.residentialAnalysisError.set(false);
+    this.residentialAnalysisLoadingToast = this.notification.loading('listingDetail.residentialAnalysisLoading');
+
+    this.listingService.getResidentialAnalysisPreview(this.id).subscribe({
+      next: (analysis) => {
+        this.loadingResidentialAnalysis.set(false);
+        this.residentialAnalysis.set(analysis);
+        this.dismissResidentialAnalysisLoadingToast();
+      },
+      error: () => {
+        this.loadingResidentialAnalysis.set(false);
+        this.residentialAnalysisError.set(true);
+        this.dismissResidentialAnalysisLoadingToast();
+        this.notification.error('listingDetail.residentialAnalysisError');
+      }
+    });
+  }
+
   private loadPriceComparison(): void {
     this.loadingPriceComparison.set(true);
     this.priceComparisonError.set(false);
@@ -921,6 +971,12 @@ export class ListingDetailComponent {
     if (!this.viabilityLoadingToast) return;
     this.notification.dismiss(this.viabilityLoadingToast);
     this.viabilityLoadingToast = null;
+  }
+
+  private dismissResidentialAnalysisLoadingToast(): void {
+    if (!this.residentialAnalysisLoadingToast) return;
+    this.notification.dismiss(this.residentialAnalysisLoadingToast);
+    this.residentialAnalysisLoadingToast = null;
   }
 
   openContactModal(contactOwner = false): void {

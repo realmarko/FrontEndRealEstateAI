@@ -501,13 +501,47 @@
               } @else if (viabilityError()) {
                 <p class="viability-status">{{ 'listingDetail.viabilityError' | translate }}</p>
               } @else if (viabilityTopBusiness(); as topBusiness) {
+                <div class="nearby-stats">
+                  <div class="nearby-stat">
+                    <span class="nearby-stat-value">
+                      @if (viabilityAnalysis()?.populationDataAvailable) {
+                        {{ viabilityAnalysis()?.populationInRadius | number }}
+                      } @else {
+                        {{ 'listingDetail.nearbyDataUnavailable' | translate }}
+                      }
+                    </span>
+                    <span class="nearby-stat-label">{{ 'listingDetail.nearbyPopulationLabel' | translate }}</span>
+                  </div>
+                  <div class="nearby-stat">
+                    <span class="nearby-stat-value">
+                      @if (viabilityAnalysis()?.socioeconomicScore != null) {
+                        {{ viabilityAnalysis()?.socioeconomicScore | number:'1.0-0' }}
+                      } @else {
+                        {{ 'listingDetail.nearbyDataUnavailable' | translate }}
+                      }
+                    </span>
+                    <span class="nearby-stat-label">{{ 'listingDetail.nearbySocioeconomicLabel' | translate }}</span>
+                  </div>
+                </div>
+
                 <div class="viability-card">
                   <div class="viability-card-head">
                     <span class="viability-name">{{ topBusiness.displayName }}</span>
                     <span class="viability-score" [class.good]="topBusiness.score > 80" [class.medium]="topBusiness.score >= 40 && topBusiness.score <= 80" [class.low]="topBusiness.score < 40">{{ topBusiness.score }}%</span>
                   </div>
                   <p class="viability-reason">{{ 'listingDetail.viabilityBestFit' | translate }}</p>
+                  @if (topBusiness.nearbyCompetitors.length) {
+                    <p class="nearby-note">{{ 'listingDetail.nearbySameTypeBusinesses' | translate: { count: topBusiness.nearbyCompetitors.length } }}</p>
+                  }
                 </div>
+
+                @if (viabilityNearbyCategories().length) {
+                  <div class="nearby-categories">
+                    @for (cat of viabilityNearbyCategories(); track cat.category) {
+                      <span class="nearby-category-chip">{{ cat.category }} · {{ cat.count }}</span>
+                    }
+                  </div>
+                }
 
                 <a class="primary-link viability-cta" [routerLink]="['/listings', listing.id, 'viabilidad-comercial']">
                   {{ 'listingDetail.viabilityCta' | translate }}
@@ -525,6 +559,57 @@
             <div class="viability-section">
               <h2 class="section-title">{{ 'listingDetail.residentialAnalysisTitle' | translate }}</h2>
               <p class="viability-intro">{{ 'listingDetail.residentialAnalysisIntro' | translate }}</p>
+
+              @if (loadingResidentialAnalysis()) {
+                <div class="viability-loading">
+                  <span class="viability-spinner" aria-hidden="true"></span>
+                  <p class="viability-status">{{ 'listingDetail.residentialAnalysisLoading' | translate }}</p>
+                </div>
+              } @else if (residentialAnalysisError()) {
+                <p class="viability-status">{{ 'listingDetail.residentialAnalysisError' | translate }}</p>
+              } @else if (residentialAnalysis(); as analysis) {
+                <div class="nearby-stats">
+                  <div class="nearby-stat">
+                    <span class="nearby-stat-value">
+                      @if (analysis.populationDataAvailable) {
+                        {{ analysis.populationInRadius | number }}
+                      } @else {
+                        {{ 'listingDetail.nearbyDataUnavailable' | translate }}
+                      }
+                    </span>
+                    <span class="nearby-stat-label">{{ 'listingDetail.nearbyPopulationLabel' | translate }}</span>
+                  </div>
+                  <div class="nearby-stat">
+                    <span class="nearby-stat-value">
+                      @if (analysis.socioeconomicScore != null) {
+                        {{ analysis.socioeconomicScore | number:'1.0-0' }}
+                      } @else {
+                        {{ 'listingDetail.nearbyDataUnavailable' | translate }}
+                      }
+                    </span>
+                    <span class="nearby-stat-label">{{ 'listingDetail.nearbySocioeconomicLabel' | translate }}</span>
+                  </div>
+                  <div class="nearby-stat">
+                    <span class="nearby-stat-value">
+                      @if (analysis.appreciationScore != null) {
+                        {{ analysis.appreciationScore | number:'1.0-0' }}
+                      } @else {
+                        {{ 'listingDetail.nearbyDataUnavailable' | translate }}
+                      }
+                    </span>
+                    <span class="nearby-stat-label">{{ 'listingDetail.nearbyAppreciationLabel' | translate }}</span>
+                  </div>
+                </div>
+
+                @if (residentialNearbyCategories().length) {
+                  <div class="nearby-categories">
+                    @for (cat of residentialNearbyCategories(); track cat.category) {
+                      <span class="nearby-category-chip">{{ cat.category }} · {{ cat.count }}</span>
+                    }
+                  </div>
+                }
+              }
+
               <a class="primary-link viability-cta" [routerLink]="['/listings', listing.id, 'analisis-residencial']">
                 {{ 'listingDetail.residentialAnalysisCta' | translate }}
               </a>
