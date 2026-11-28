@@ -660,13 +660,13 @@
             <div class="actions-menu">
               <button
                 type="button"
-                class="btn-secondary actions-trigger"
+                class="actions-trigger-icon"
                 (click)="$event.stopPropagation(); toggleActionsMenu()"
                 aria-haspopup="true"
                 [attr.aria-expanded]="actionsMenuOpen()"
+                [attr.aria-label]="'listingDetail.actionsMenu' | translate"
               >
-                {{ 'listingDetail.actionsMenu' | translate }}
-                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>
               </button>
 
               @if (actionsMenuOpen()) {
@@ -698,13 +698,13 @@
               <div class="actions-menu">
                 <button
                   type="button"
-                  class="btn-secondary actions-trigger"
+                  class="actions-trigger-icon"
                   (click)="$event.stopPropagation(); toggleActionsMenu()"
                   aria-haspopup="true"
                   [attr.aria-expanded]="actionsMenuOpen()"
+                  [attr.aria-label]="'listingDetail.actionsMenu' | translate"
                 >
-                  {{ 'listingDetail.actionsMenu' | translate }}
-                  <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>
                 </button>
 
                 @if (actionsMenuOpen()) {

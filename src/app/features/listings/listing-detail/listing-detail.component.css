@@ -190,12 +190,24 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: none;
-  background: rgba(255, 255, 255, 0.9);
+  /* Glassmorphism: translucent white over whatever the photo shows through it, blurred so the
+     icon stays legible against busy photos instead of a solid white disc. */
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  /* Opaque enough (unlike the lightbox's own 0.15 over a solid black backdrop) that the dark glyph
+     stays legible over a bright patch of photo, while the blur still reads as glass rather than a
+     flat white disc. */
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   font-size: 1.3rem;
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transition: background-color 0.15s ease;
+}
+
+.nav-arrow:hover {
+  background: rgba(255, 255, 255, 0.75);
 }
 
 .nav-arrow.prev {
@@ -632,19 +644,28 @@
 /* Above the mobile backdrop's z-index 19 (see .actions-sheet-backdrop) — otherwise the trigger
    sits in normal document flow below the fixed, full-viewport scrim and visually dims along with
    the rest of the page while the sheet is open, even though it stays clickable either way. */
-.actions-trigger {
+.actions-trigger-icon {
   position: relative;
   z-index: 21;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.actions-trigger .chevron {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.15s ease;
+.actions-trigger-icon:hover {
+  background: #f9fafb;
 }
 
-.actions-trigger[aria-expanded='true'] .chevron {
-  transform: rotate(180deg);
+.actions-trigger-icon svg {
+  width: 20px;
+  height: 20px;
 }
 
 /* Transparent on desktop (its only job there is to extend the "click outside closes the menu"
@@ -1063,12 +1084,19 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.25);
   background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   color: #fff;
   font-size: 1.8rem;
   line-height: 1;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.lightbox-nav:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .lightbox-nav.prev {
