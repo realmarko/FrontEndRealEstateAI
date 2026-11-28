@@ -153,32 +153,8 @@
   margin-top: 0.3rem;
 }
 
-.approve-btn {
-  padding: 0.45rem 1rem;
-  background: #16a34a;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.reject-btn {
-  padding: 0.45rem 1rem;
-  background: #fff;
-  color: #991b1b;
-  border: 1px solid #fecaca;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-}
-
-.approve-btn:disabled,
-.reject-btn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
+/* .approve-btn/.reject-btn now live in the global styles.css — shared with
+   admin-fraccionamientos' own identical pair. */
 
 .list-footer {
   display: flex;

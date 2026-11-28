@@ -460,3 +460,35 @@ body {
   border-color: var(--gold);
   color: var(--navy);
 }
+
+/* Admin moderation queue's approve/reject pair — byte-for-byte identical between
+   admin-fraccionamientos and admin-infrastructure-projects before this, so it lives here once.
+   Deliberately NOT grouped into a "⋮" menu like listing-detail's own actions-menu: these are a
+   moderation queue where an admin scans many rows and acts on each at a glance, so both actions
+   stay visible rather than adding a click to get to them. */
+.approve-btn {
+  padding: 0.45rem 1rem;
+  background: #16a34a;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.reject-btn {
+  padding: 0.45rem 1rem;
+  background: #fff;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.approve-btn:disabled,
+.reject-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
