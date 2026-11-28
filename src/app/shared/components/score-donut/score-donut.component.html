@@ -1,0 +1,3 @@
+<div class="score-donut" [style.--pct]="score()" [class.good]="status() === 'good'" [class.medium]="status() === 'medium'" [class.low]="status() === 'low'">
+  <span class="score-donut-value">{{ score() }}%</span>
+</div>

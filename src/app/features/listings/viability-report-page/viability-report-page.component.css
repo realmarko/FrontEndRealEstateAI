@@ -159,19 +159,20 @@ h1 {
   margin-top: var(--space-1);
 }
 
-/* Reuses the page's existing green "good" signal (rgba(21,128,61,0.1)/#15803d, same as
-   .score.good and .strengths-label below) scaled up into a large pill badge, rather than
-   inventing a new accent color for the one metric the brief asks to stand out. */
+/* The score itself is <app-score-donut> (shared/components/score-donut), which already color-codes
+   good/medium/low — this just lays the donut and the business name out side by side. */
 .kpi-best-fit-badge {
-  display: inline-block;
-  background: rgba(21, 128, 61, 0.12);
-  color: #15803d;
-  font-weight: 800;
-  font-size: 1.35rem;
-  line-height: 1.2;
-  border-radius: 999px;
-  padding: var(--space-2) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin-top: var(--space-1);
+}
+
+.kpi-best-fit-name {
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--ink);
 }
 
 .download-pdf-cta {
@@ -244,8 +245,8 @@ h1 {
     grid-column: 1 / -1;
   }
 
-  .kpi-best-fit-badge {
-    font-size: 1.15rem;
+  .kpi-best-fit-name {
+    font-size: 1rem;
   }
 }
 

@@ -40,7 +40,10 @@
       <div class="kpi kpi-hero">
         <span class="kpi-label">{{ 'viabilityPage.kpiBestFit' | translate }}</span>
         @if (topBusiness(); as top) {
-          <span class="kpi-best-fit-badge">{{ top.score }}% {{ top.displayName }}</span>
+          <div class="kpi-best-fit-badge">
+            <app-score-donut [score]="top.score" />
+            <span class="kpi-best-fit-name">{{ top.displayName }}</span>
+          </div>
         } @else {
           <span class="kpi-value kpi-unavailable">…</span>
         }

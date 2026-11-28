@@ -13,6 +13,7 @@ import { TranslationService } from '../../../core/services/translation.service';
 import { BusinessViability, Listing, NearbyRoad, ViabilityAnalysis, ViabilityCheck, isLandOrCommercialPropertyType, matchingBusinessTypeKey } from '../../../core/models/listing.model';
 import { loadGoogleMaps } from '../../../core/utils/load-google-maps';
 import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH, createPoiIcon } from '../../../core/utils/map-icons';
+import { ScoreDonutComponent } from '../../../shared/components/score-donut/score-donut.component';
 
 // The full "Reporte de Viabilidad Comercial" — every business type, every check, not just the
 // top-3 teaser shown inline on listing-detail (see its viability-section, which links here).
@@ -22,7 +23,7 @@ import { BUS_GLYPH, GAS_STATION_GLYPH, HOSPITAL_GLYPH, MALL_GLYPH, SCHOOL_GLYPH,
 @Component({
   selector: 'app-viability-report-page',
   standalone: true,
-  imports: [DecimalPipe, RouterLink, TranslatePipe],
+  imports: [DecimalPipe, RouterLink, TranslatePipe, ScoreDonutComponent],
   templateUrl: './viability-report-page.component.html',
   styleUrl: './viability-report-page.component.css'
 })
